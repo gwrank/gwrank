@@ -1,0 +1,40 @@
+/*
+
+Theme: Square - Premium Bootstrap Theme
+Product Page: https://themes.getbootstrap.com/product/square
+Author: Webinning
+Author URI: https://webinning.co.uk
+
+---
+
+Copyright 2020 Webinning
+
+*/
+
+// Fonts
+@import "square/fonts";
+
+// Functions
+@import "../../node_modules/bootstrap/scss/functions";
+@import "square/functions";
+
+// Variables
+@import "custom/variables";
+@import "square/variables";
+@import "../../node_modules/bootstrap/scss/variables";
+
+// Mixins
+@import "../../node_modules/bootstrap/scss/mixins";
+@import "square/mixins";
+
+// Bootstrap components
+@import "square/bootstrap";
+
+// Square components
+@import "square/utilities";
+@import "square/reboot";
+@import "square/components";
+@import "square/vendor"; 
+
+// Custom styles
+@import "custom/styles";
