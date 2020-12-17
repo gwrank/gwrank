@@ -6,6 +6,47 @@
           <%= form.label :igname, 'In-game name' %>
           <%= form.text_field :igname, class: 'form-control' %>
         </div>
+        <h2 class="h3">Professions</h2>
+        <div class="form-group form-check">
+          <%= form.check_box :is_warrior, class: 'form-check-input' %>
+          <%= form.label :is_warrior, 'Warrior', class: 'form-check-label' %>
+        </div>
+        <div class="form-group form-check">
+          <%= form.check_box :is_ranger, class: 'form-check-input' %>
+          <%= form.label :is_ranger, 'Ranger', class: 'form-check-label' %>
+        </div>
+        <div class="form-group form-check">
+          <%= form.check_box :is_monk, class: 'form-check-input' %>
+          <%= form.label :is_monk, 'Monk', class: 'form-check-label' %>
+        </div>
+        <div class="form-group form-check">
+          <%= form.check_box :is_necromancer, class: 'form-check-input' %>
+          <%= form.label :is_necromancer, 'Necromancer', class: 'form-check-label' %>
+        </div>
+        <div class="form-group form-check">
+          <%= form.check_box :is_mesmer, class: 'form-check-input' %>
+          <%= form.label :is_mesmer, 'Mesmer', class: 'form-check-label' %>
+        </div>
+        <div class="form-group form-check">
+          <%= form.check_box :is_elementalist, class: 'form-check-input' %>
+          <%= form.label :is_elementalist, 'Elementalist', class: 'form-check-label' %>
+        </div>
+        <div class="form-group form-check">
+          <%= form.check_box :is_assassin, class: 'form-check-input' %>
+          <%= form.label :is_assassin, 'Assassin', class: 'form-check-label' %>
+        </div>
+        <div class="form-group form-check">
+          <%= form.check_box :is_ritualist, class: 'form-check-input' %>
+          <%= form.label :is_ritualist, 'Ritualist', class: 'form-check-label' %>
+        </div>
+        <div class="form-group form-check">
+          <%= form.check_box :is_paragon, class: 'form-check-input' %>
+          <%= form.label :is_paragon, 'Paragon', class: 'form-check-label' %>
+        </div>
+        <div class="form-group form-check">
+          <%= form.check_box :is_dervish, class: 'form-check-input' %>
+          <%= form.label :is_dervish, 'Dervish', class: 'form-check-label' %>
+        </div>
         <%= form.submit 'Submit', class: 'btn btn-primary' %>
       <% end %>
     </div>

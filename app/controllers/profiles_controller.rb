@@ -20,6 +20,18 @@ class ProfilesController < ApplicationController
   end
 
   def player_params
-    params.require(:player).permit(:igname)
+    params.require(:player).permit(
+      :igname,
+      :is_warrior,
+      :is_ranger,
+      :is_monk,
+      :is_necromancer,
+      :is_mesmer,
+      :is_elementalist,
+      :is_assassin,
+      :is_ritualist,
+      :is_paragon,
+      :is_dervish
+    )
   end
 end

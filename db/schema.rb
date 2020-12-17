@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_17_001852) do
+ActiveRecord::Schema.define(version: 2020_12_17_182202) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -40,6 +40,17 @@ ActiveRecord::Schema.define(version: 2020_12_17_001852) do
     t.string "username"
     t.string "image_url"
     t.string "igname"
+    t.boolean "is_warrior", default: false
+    t.boolean "is_ranger", default: false
+    t.boolean "is_monk", default: false
+    t.boolean "is_necromancer", default: false
+    t.boolean "is_mesmer", default: false
+    t.boolean "is_elementalist", default: false
+    t.boolean "is_assassin", default: false
+    t.boolean "is_ritualist", default: false
+    t.boolean "is_paragon", default: false
+    t.boolean "is_dervish", default: false
+    t.boolean "is_verified", default: false
     t.index ["confirmation_token"], name: "index_players_on_confirmation_token", unique: true
     t.index ["email"], name: "index_players_on_email", unique: true
     t.index ["reset_password_token"], name: "index_players_on_reset_password_token", unique: true
