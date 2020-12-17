@@ -12,7 +12,7 @@ class Player < ApplicationRecord
 
   def self.from_omniauth(auth)
     where(provider: auth.provider, uid: auth.uid).first_or_create do |player|
-      # player.email = auth.info.email
+      player.email = auth.uid + '@gwrank.com'
       player.password = Devise.friendly_token[0, 20]
       player.username = auth.info.name
       player.image_url = auth.info.image
