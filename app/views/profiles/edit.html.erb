@@ -1,0 +1,13 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-xs-12 col-md-8 col-lg-6 col-xl-4 py-5">
+      <%= form_with model: @player, url: profile_path do |form| %>
+        <div class="form-group">
+          <%= form.label :igname, 'In-game name' %>
+          <%= form.text_field :igname, class: 'form-control' %>
+        </div>
+        <%= form.submit 'Submit', class: 'btn btn-primary' %>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,21 @@
+<div class="col-md-6 col-lg-4 px-3 mb-5" data-aos="fade-up">
+  <div class="card shadow lift rounded">
+    <div class="row no-gutters h-100">
+      <div class="col-4 col-xl-3">
+        <picture>
+          <% if player.image_url.present? %>
+            <%= image_tag player.image_url, alt: player.name, class: 'img-fluid w-100 card-img rounded-left' %>
+          <% end %>
+        </picture>
+      </div>
+      <div class="col">
+        <div class="card-body p-3">
+          <h3 class="h5 card-title mb-0"><%= player.name %></h3>
+          <% if controller_name.eql?('profiles') %>
+            <%= link_to 'Edit in-game name', edit_profile_path, class: 'card-text small mb-0' %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

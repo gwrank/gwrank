@@ -1,30 +1,67 @@
 <section class="py-13 py-lg-15 vh-75" id="content">
-    <div class="bg-primary bg-image bg-cover overlay overlay-primary overlay-70" data-jarallax data-speed=".8" style="background-image: url(/assets/images/photos/photo-59.jpg);">
-        <div class="container h-100">
-            <div class="row align-items-center h-100 text-white" data-aos="fade-down">
-                <div class="col">
-                    <h1 class="display-2 mb-5">GWRank</h1>
-                    <% if current_player %>
-                      Welcome <%= current_player.username %>
-                      <%= link_to 'Sign out', destroy_player_session_path, method: :delete, class: 'float-right btn btn-secondary text-uppercase d-inline-flex align-items-center' %>
-                    <% else %>
-                      <%= link_to 'Reserve your spot with Discord', omniauth_authorize_path(:player, :discord), class: 'btn btn-secondary text-uppercase d-inline-flex align-items-center' %>
-                    <% end %>
-                </div>
+  <div class="bg-primary bg-image bg-cover overlay overlay-primary overlay-70" data-jarallax data-speed=".8" style="background-image: url(/assets/images/photos/photo-59.jpg);">
+    <div class="container h-100">
+      <div class="row align-items-center h-100 text-white" data-aos="fade-down">
+        <div class="col">
+          <h1 class="display-2 mb-5">GWRank.com</h1>
+          <% if current_player %>
+            Welcome <%= current_player.name %>
+            <div class="float-right">
+              <%= link_to 'Add in-game name', edit_profile_path, class: 'mr-4' %>
+              <%= link_to 'Sign out', destroy_player_session_path, method: :delete, class: 'btn btn-secondary text-uppercase d-inline-flex align-items-center' %>
             </div>
+          <% else %>
+            <%= link_to 'Reserve your spot with Discord', omniauth_authorize_path(:player, :discord), class: 'btn btn-secondary text-uppercase d-inline-flex align-items-center' %>
+          <% end %>
         </div>
+      </div>
     </div>
+  </div>
 </section>
 
 <section class="bg-primary py-6 py-lg-7 text-white">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg">
-                <h2 class="h3">Our Discord</h2>
-            </div>
-            <div class="col-lg font-size-6">
-                <iframe src="https://discord.com/widget?id=788820055029973045&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
-            </div>
-        </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg">
+        <h2 class="h3">Our Discord</h2>
+      </div>
+      <div class="col-lg font-size-6">
+        <iframe src="https://discord.com/widget?id=788820055029973045&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+      </div>
     </div>
+  </div>
+</section>
+
+<section class="pt-6 pb-4 pt-lg-7 pb-lg-5">
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <h2>Players</h2>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row mx-n3">
+      <% Player.all.each do |player| %>
+        <div class="col-md-6 col-lg-4 px-3 mb-5" data-aos="fade-up">
+          <div class="card shadow lift rounded">
+            <div class="row no-gutters h-100">
+              <div class="col-4 col-xl-3">
+                <picture>
+                  <% if player.image_url.present? %>
+                    <%= image_tag player.image_url, alt: player.name, class: 'img-fluid w-100 card-img rounded-left' %>
+                  <% end %>
+                </picture>
+              </div>
+              <div class="col">
+                <div class="card-body p-3">
+                  <h3 class="h5 card-title mb-0"><%= player.name %></h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
 </section>

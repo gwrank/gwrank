@@ -8,6 +8,7 @@ class Player < ApplicationRecord
   validates_presence_of :password, on: :create
   validates_confirmation_of :password, on: :create
   validates_length_of :password, within: Devise.password_length, allow_blank: true
+  validates_uniqueness_of :igname, on: :update
 
   def self.from_omniauth(auth)
     where(provider: auth.provider, uid: auth.uid).first_or_create do |player|
@@ -19,5 +20,9 @@ class Player < ApplicationRecord
       # uncomment the line below to skip the confirmation emails.
       # player.skip_confirmation!
     end
+  end
+
+  def name
+    igname.present? ? igname : username
   end
 end
