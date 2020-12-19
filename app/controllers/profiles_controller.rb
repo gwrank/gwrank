@@ -6,6 +6,10 @@ class ProfilesController < ApplicationController
   end
 
   def update
+    if @player.is_verified? && @player.igname != player_params[:igname]
+      @player.update(is_verified: false)
+    end
+
     if @player.update(player_params)
       redirect_to root_path
     else
