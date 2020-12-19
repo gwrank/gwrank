@@ -1,4 +1,6 @@
 class Player < ApplicationRecord
+  has_many :registrations
+
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
@@ -9,6 +11,11 @@ class Player < ApplicationRecord
   validates_confirmation_of :password, on: :create
   validates_length_of :password, within: Devise.password_length, allow_blank: true
   validates_uniqueness_of :igname, on: :update
+
+  scope :in_queue, -> { joins(:registrations)
+                          .where('registrations.registered_at > ?', DateTime.now - 1.hour)
+                          .where('registrations.unregistered_at IS NULL')
+                      }
 
   def self.from_omniauth(auth)
     where(provider: auth.provider, uid: auth.uid).first_or_create do |player|
@@ -24,5 +31,28 @@ class Player < ApplicationRecord
 
   def name
     igname.present? ? igname : username
+  end
+
+  def professions
+    professions = []
+    professions << :warrior if is_warrior?
+    professions << :ranger if is_ranger?
+    professions << :monk if is_monk?
+    professions << :necromancer if is_necromancer?
+    professions << :mesmer if is_mesmer?
+    professions << :elementalist if is_elementalist?
+    professions << :assassin if is_assassin?
+    professions << :ritualist if is_ritualist?
+    professions << :paragon if is_paragon?
+    professions << :dervish if is_dervish?
+    professions
+  end
+
+  def registered?
+    registrations.where('registered_at > ?', DateTime.now - 1.hour).where(unregistered_at: nil).any?
+  end
+
+  def current_registration
+    registrations.where('registered_at > ?', DateTime.now - 1.hour).where(unregistered_at: nil).first
   end
 end

@@ -19,6 +19,111 @@
   </div>
 </section>
 
+<% if current_player %>
+  <% if DateTime.now < today_scrim_registration_time %>
+
+    <div class="col-12 d-flex flex-column align-self-end text-center pt-4">
+      <h2 class="h3">Next scrim registration in</h2>
+      <div class="row justify-content-center" data-countdown data-end-date="<%= today_scrim_registration_time %>" data-end-message="<p>Let's Start! Refresh the page!"> <!--Other format for data-end-date="2020-12-31T23:59:59.000Z" -->
+        <div class="col-auto">
+          <div class="row justify-content-center display-4 mb-5 text-center">
+            <div class="col-auto px-3"><span class="days">0</span><span class="font-size-5 font-weight-lighter d-block mt-n1">days</span></div>
+            <div class="col-auto px-3"><span class="hours">0</span><span class="font-size-5 font-weight-lighter d-block mt-n1">hours</span></div>
+            <div class="col-auto px-3"><span class="minutes">0</span><span class="font-size-5 font-weight-lighter d-block mt-n1">minutes</span></div>
+            <div class="col-auto px-3"><span class="seconds">0</span><span class="font-size-5 font-weight-lighter d-block mt-n1">seconds</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <% elsif DateTime.now.between?(today_scrim_registration_time, today_scrim_end_registration_time) %>
+
+    <div class="col-12 text-center py-4">
+      <h2 class="h3">Scrim registration time!</h2>
+      <% if current_player.registered? %>
+        <%= link_to 'Unregister me', registration_path(current_player.current_registration), method: :delete, class: 'btn btn-secondary text-uppercase' %>
+      <% else %>
+        <%= link_to 'Register me', registrations_path, method: :post, class: 'btn btn-success text-uppercase' %>
+      <% end %>
+    </div>
+
+    <section class="pt-6 pt-lg-7">
+      <div class="container">
+        <div class="row">
+          <div class="col">
+            <h2 class="h1">Registered players</h2>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-layer-light-top-100-right-30">
+      <div class="container">
+        <div class="row" data-sticky-container>
+          <div class="col-lg-3">
+            <div class="font-size-6 py-3" data-sticky data-sticky-for="768">
+              <p>Showing <strong><%= pluralize Player.in_queue.count, 'result' %></strong> from all professions</p>
+              <div class="form-group mb-4">
+                <label for="profession">Filter by profession:</label>
+                <select class="custom-select" id="profession" disabled="disabled">
+                  <option>All</option>
+                  <option>Warrior</option>
+                  <option>Ranger</option>
+                  <option>Monk</option>
+                  <option>Necromancer</option>
+                  <option>Mesmer</option>
+                  <option>Elementalist</option>
+                  <option>Assassin</option>
+                  <option>Ritualist</option>
+                  <option>Paragon</option>
+                  <option>Dervish</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-9 bg-light py-6 py-lg-7 px-lg-5 px-xl-6">
+            <% Player.in_queue.order('registrations.registered_at ASC').each do |player| %>
+              <div class="d-flex flex-column flex-md-row justify-content-between align-items-start position-relative mb-5" data-aos="fade-left">
+                <div>
+                  <h3 class="mb-0">
+                    <%= player.name %>
+                    <% if player.is_verified? %>
+                    <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>verified</title><path d="M23.146,5.4,20.354,2.6a.5.5,0,0,0-.708,0L7.854,14.4a.5.5,0,0,1-.708,0L4.354,11.6a.5.5,0,0,0-.708,0L.854,14.4a.5.5,0,0,0,0,.707L7.146,21.4a.5.5,0,0,0,.708,0L23.146,6.1A.5.5,0,0,0,23.146,5.4Z"></path></svg>
+                    <% end %>
+                  </h3>
+                  <% player.professions.each do |profession| %>
+                    <span class="badge badge-pill bg-gray200"><%= profession.capitalize %></span>
+                  <% end %>
+                  <% if player.professions.empty? %>
+                    <span class="badge badge-pill bg-gray200">No profession</span>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  <% else %>
+
+    <div class="col-12 d-flex flex-column align-self-end text-center pt-4">
+      <h2 class="h3">Next scrim registration in</h2>
+      <div class="row justify-content-center" data-countdown data-end-date="<%= tomorrow_scrim_registration_time %>" data-end-message="<p>Let's Start! Refresh the page!"> <!--Other format for data-end-date="2020-12-31T23:59:59.000Z" -->
+        <div class="col-auto">
+          <div class="row justify-content-center display-4 mb-5 text-center">
+            <div class="col-auto px-3"><span class="days">0</span><span class="font-size-5 font-weight-lighter d-block mt-n1">days</span></div>
+            <div class="col-auto px-3"><span class="hours">0</span><span class="font-size-5 font-weight-lighter d-block mt-n1">hours</span></div>
+            <div class="col-auto px-3"><span class="minutes">0</span><span class="font-size-5 font-weight-lighter d-block mt-n1">minutes</span></div>
+            <div class="col-auto px-3"><span class="seconds">0</span><span class="font-size-5 font-weight-lighter d-block mt-n1">seconds</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <% end %>
+<% end %>
+
 <section class="bg-primary py-6 py-lg-7 text-white">
   <div class="container">
     <div class="row">
@@ -47,7 +152,7 @@
   </div>
   <div class="container">
     <div class="row mx-n3">
-      <% Player.all.order(created_at: :desc).each do |player| %>
+      <% Player.order(created_at: :desc).each do |player| %>
         <div class="col-md-6 col-lg-4 px-3 mb-5" data-aos="fade-up">
           <div class="card shadow lift rounded">
             <div class="row no-gutters h-100">
@@ -55,6 +160,8 @@
                 <picture>
                   <% if player.image_url.present? && !player.image_url.ends_with?('/') %>
                     <%= image_tag player.image_url, alt: player.name, class: 'img-fluid w-100 card-img rounded-left' %>
+                  <% else %>
+                    <%= image_tag 'default-image.png', alt: 'default image', class: 'img-fluid w-100 card-img rounded-left' %>
                   <% end %>
                 </picture>
               </div>
