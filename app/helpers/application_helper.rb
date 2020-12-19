@@ -19,7 +19,7 @@ module ApplicationHelper
     when 1, 5 # monday, friday
       23
     when 2, 4, 6 # tuesday, thirsday, saturday
-      1
+      20
     when 3, 7 # wednesday, sunday
       21
     end
