@@ -145,7 +145,7 @@ website:    http://www.themepunch.com
     background: -o-linear-gradient(top,  #555555 0%,#222222 100%); /* opera 11.10+ */
     background: -ms-linear-gradient(top,  #555555 0%,#222222 100%); /* ie10+ */
     background: linear-gradient(to bottom,  #555555 0%,#222222 100%); /* w3c */
-    filter: progid:dximagetransform.microsoft.gradient( startcolorstr="#555555", endcolorstr="#222222",gradienttype=0 ); /* ie6-9 */
+    /* filter: progid:dximagetransform.microsoft.gradient( startcolorstr="#555555", endcolorstr="#222222",gradienttype=0 ); /* ie6-9 */
 	padding:10px 15px;
 	margin-left:-15px;margin-top:-10px;
 	box-sizing:content-box;
@@ -170,7 +170,7 @@ background: -webkit-linear-gradient(top,  #e5e5e5 0%,#999999 100%); /* chrome10+
 background: -o-linear-gradient(top,  #e5e5e5 0%,#999999 100%); /* opera 11.10+ */
 background: -ms-linear-gradient(top,  #e5e5e5 0%,#999999 100%); /* ie10+ */
 background: linear-gradient(to bottom,  #e5e5e5 0%,#999999 100%); /* w3c */
-filter: progid:dximagetransform.microsoft.gradient( startcolorstr="#e5e5e5", endcolorstr="#999999",gradienttype=0 ); /* ie6-9 */
+/* filter: progid:dximagetransform.microsoft.gradient( startcolorstr="#e5e5e5", endcolorstr="#999999",gradienttype=0 ); /* ie6-9 */
   border:1px solid #555;
   width:12px;height:12px;
 }
@@ -261,7 +261,7 @@ opacity:1
     font-size:13px;
     font-weight:700;
     text-transform:uppercase;
-    font-family:"Roboto Slab"
+    font-family:"Roboto Slab";
     margin-bottom:5px;
 }
 

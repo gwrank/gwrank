@@ -67,7 +67,7 @@ website:    http://www.themepunch.com
     background: -o-linear-gradient(top,  #999999 0%,#e1e1e1 100%); /* opera 11.10+ */
     background: -ms-linear-gradient(top,  #999999 0%,#e1e1e1 100%); /* ie10+ */
     background: linear-gradient(to bottom,  #999999 0%,#e1e1e1 100%); /* w3c */
-    filter: progid:dximagetransform.microsoft.gradient( 
+    /* filter: progid:dximagetransform.microsoft.gradient( 
     startcolorstr="#999999", endcolorstr="#e1e1e1",gradienttype=0 ); /* ie6-9 */
 	border:3px solid #e5e5e5;
 	border-radius:50%;
