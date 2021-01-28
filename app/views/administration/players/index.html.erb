@@ -1,65 +1,60 @@
-<section class="pt-6 pt-lg-7">
-  <div class="container">
-    <div class="row">
-      <div class="col">
-        <h2 class="h1">Players administration</h2>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="bg-layer-light-top-100-right-30">
-  <div class="container">
-    <div class="row" data-sticky-container>
-      <div class="col-lg-3">
-        <div class="font-size-6 py-3" data-sticky data-sticky-for="768">
-          <p>Showing <strong><%= @players.count %> results</strong> from all professions</p>
-          <div class="form-group mb-4">
-            <label for="profession">Filter by profession:</label>
-            <select class="custom-select" id="profession" disabled="disabled">
-              <option>All</option>
-              <option>Warrior</option>
-              <option>Ranger</option>
-              <option>Monk</option>
-              <option>Necromancer</option>
-              <option>Mesmer</option>
-              <option>Elementalist</option>
-              <option>Assassin</option>
-              <option>Ritualist</option>
-              <option>Paragon</option>
-              <option>Dervish</option>
-            </select>
-          </div>
+<div class="content-wrap">
+    <div class="mpl-navbar-mobile-overlay"></div>
+    <div>
+        <section class="mpl-banner mpl-banner-top mpl-banner-parallax mpl-banner-small">
+            <div class="mpl-image" data-speed="0.8">
+                <%= image_tag 'background.jpg', class: 'jarallax-img' %>
+            </div>
+            <div class="mpl-banner-content mpl-box-lg">
+                <div class="container">
+                    <h1 class="display-1 mb-0">Players administration</h1>
+                </div>
+            </div>
+        </section>
+        <div class="mpl-box-md">
+            <div class="container">
+                <h2>Players</h2>
+                <p> <%= @players.count %> players </p>
+                <table class="table table-striped mb-60">
+                  <thead>
+                      <tr>
+                          <th scope="col">Username</th>
+                          <th scope="col">In-game name</th>
+                          <th scope="col">Professions</th>
+                          <th scope="col">Actions</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <% @players.each do |player| %>
+                        <tr>
+                          <th scope="row">
+                            <%= player.username %>
+                          </th>
+                          <td>
+                            <%= player.igname %>
+                          </td>
+                          <td>
+                            <% player.professions.each do |profession| %>
+                              <span class="badge badge-primary"><%= profession.capitalize %></span>
+                            <% end %>
+                            <% if player.professions.empty? %>
+                              <span class="badge badge-warning">Without profession</span>
+                            <% end %>
+                          </td>
+                          <td>
+                            <% if player.is_verified? %>
+                              <%= link_to 'Remove verified badge', administration_player_unchecks_path(player), method: :post, class: 'btn btn-sm' %>
+                            <% else %>
+                              <%= link_to 'Add verified badge', administration_player_checks_path(player), method: :post, class: 'btn btn-sm btn-success' %>
+                            <% end %>
+                            <%= link_to 'Send invitation', administration_player_invitations_path(player), method: :post, class: 'btn btn-sm btn-primary' %>
+                          </td>
+                        </tr>
+                      <% end %>
+                  </tbody>
+              </table>
+            </div>
         </div>
-      </div>
-      <div class="col-lg-9 bg-light py-6 py-lg-7 px-lg-5 px-xl-6">
-        <% @players.each do |player| %>
-          <div class="d-flex flex-column flex-md-row justify-content-between align-items-start position-relative mb-5" data-aos="fade-left">
-            <div>
-              <h3 class="mb-0">
-                <%= player.name %>
-                <% if player.is_verified? %>
-                  <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>verified</title><path d="M23.146,5.4,20.354,2.6a.5.5,0,0,0-.708,0L7.854,14.4a.5.5,0,0,1-.708,0L4.354,11.6a.5.5,0,0,0-.708,0L.854,14.4a.5.5,0,0,0,0,.707L7.146,21.4a.5.5,0,0,0,.708,0L23.146,6.1A.5.5,0,0,0,23.146,5.4Z"></path></svg>
-                <% end %>
-              </h3>
-              <% player.professions.each do |profession| %>
-                <span class="badge badge-pill bg-gray200"><%= profession.capitalize %></span>
-              <% end %>
-              <% if player.professions.empty? %>
-                <span class="badge badge-pill badge-warning">Without profession</span>
-              <% end %>
-            </div>
-            <div class="float-right">
-              <% if player.is_verified? %>
-                <%= link_to 'Remove verified badge', administration_player_unchecks_path(player), method: :post, class: 'btn btn-sm btn-warning text-uppercase mt-2 mt-lg-0' %>
-              <% else %>
-                <%= link_to 'Add verified badge', administration_player_checks_path(player), method: :post, class: 'btn btn-sm btn-success text-uppercase mt-2 mt-lg-0' %>
-              <% end %>
-              <%= link_to 'Send invitation', administration_player_invitations_path(player), method: :post, class: 'btn btn-sm btn-primary text-uppercase mt-2 mt-lg-0' %>
-            </div>
-          </div>
-        <% end %>
-      </div>
+        <%= render 'footer' %>
     </div>
-  </div>
-</section>
+</div>
