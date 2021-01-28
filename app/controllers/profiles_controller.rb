@@ -35,7 +35,8 @@ class ProfilesController < ApplicationController
       :is_assassin,
       :is_ritualist,
       :is_paragon,
-      :is_dervish
+      :is_dervish,
+      :twitch_username,
     )
   end
 end

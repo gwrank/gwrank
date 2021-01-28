@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :players, path: 'p', only: [:show]
   resource :profile, only: [:edit, :update]
   resources :registrations, only: [:create, :destroy]
 

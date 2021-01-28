@@ -30,6 +30,7 @@ gem 'bootsnap', '>= 1.4.4', require: false
 
 gem 'devise'
 gem 'discordrb'
+gem 'friendly_id'
 gem 'high_voltage'
 gem 'omniauth-discord'
 

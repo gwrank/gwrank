@@ -1,0 +1,80 @@
+<div class="content-wrap">
+    <div class="mpl-navbar-mobile-overlay"></div>
+    <div>
+        <section class="mpl-banner mpl-banner-top mpl-banner-parallax mpl-banner-small">
+            <div class="mpl-image" data-speed="0.8">
+                <%= image_tag 'background.jpg', class: 'jarallax-img' %>
+            </div>
+            <div class="mpl-banner-content mpl-box-lg">
+                <div class="container">
+                    <h1 class="display-1 mb-0"><%= @player.username %></h1>
+                </div>
+            </div>
+        </section>
+        <div class="mpl-box-md">
+            <div class="container">
+                <div class="row hgap-lg vgap-lg">
+                    <div class="col-lg mpl-content single-player">
+                        <article class="mpl-post">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                    <li class="breadcrumb-item"><a href="#">Players</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page"><%= @player.username %></li>
+                                </ol>
+                            </nav>
+                            <div class="cyberpress-player">
+                                <div class="cyberpress-player-thumbnail">
+                                    <span class="mpl-image">
+                                    </span>
+                                </div>
+                                <ul class="cyberpress-player-info">
+                                    <li>
+                                        <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" />
+                                        </svg><%= @player.igname %>
+                                    </li>
+                                    <% @player.professions.each do |profession| %>
+                                    <li>
+                                        <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M8 14C8 14 9.5 16 12 16C14.5 16 16 14 16 14M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"></path>
+                                            <path d="M9 9H9.01"></path>
+                                            <path d="M15 9H15.01"></path>
+                                        </svg><%= profession.capitalize %>
+                                    </li>
+                                    <% end %>
+                                    <% if @player.is_verified? %>
+                                    <li>
+                                        <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21M17 11L19 13L23 9M12.5 7C12.5 9.20914 10.7091 11 8.5 11C6.29086 11 4.5 9.20914 4.5 7C4.5 4.79086 6.29086 3 8.5 3C10.7091 3 12.5 4.79086 12.5 7Z"></path>
+                                        </svg>Verified
+                                    </li>
+                                    <% end %>
+                                    <% if @player.twitch_username.present? %>
+                                    <li>
+                                        <svg class="icon icon-fill" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M18.3361 4.85016H16.5253V9.99234H18.3361V4.85016ZM13.3594 4.82812H11.5486V9.97266H13.3594V4.82812ZM5.6639 0L1.13953 4.28531V19.7147H6.56906V24L11.0939 19.7147H14.715L22.8605 12V0H5.6639ZM21.0502 11.1445L17.4305 14.572H13.8098L10.6411 17.572V14.572H6.56906V1.71469H21.0502V11.1445Z" />
+                                        </svg><a href="https://www.twitch.com/<%= @player.twitch_username %>">Twitch</a>
+                                    </li>
+                                    <% end %>
+                                </ul>
+                            </div>
+                            <h2>Twitch</h2>
+                            <div class="cyberpress-twitch">
+                                <div class="cyberpress-twitch-player">
+                                    <iframe src="https://player.twitch.tv/?channel=<%= @player.twitch_username %>&parent=<%= request.host %>" frameborder="0" allowfullscreen="true" scrolling="no"></iframe>
+                                </div>
+                                <div class="cyberpress-twitch-chat">
+                                    <iframe src="https://www.twitch.tv/embed/<%= @player.twitch_username %>/chat?parent=<%= request.host %>" frameborder="0" scrolling="no"></iframe>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                    <div class="col-auto-lg mpl-sidebar" data-sr=widget data-sr-duration=1200 data-sr-distance=20>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <%= render 'footer' %>
+    </div>
+</div>
