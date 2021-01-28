@@ -1,65 +1,65 @@
 <section class="pt-6 pt-lg-7">
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <h2 class="h1">Players administration</h2>
-                </div>
-            </div>
-        </div>
-    </section>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <h2 class="h1">Players administration</h2>
+      </div>
+    </div>
+  </div>
+</section>
 
 <section class="bg-layer-light-top-100-right-30">
-    <div class="container">
-        <div class="row" data-sticky-container>
-            <div class="col-lg-3">
-                <div class="font-size-6 py-3" data-sticky data-sticky-for="768">
-                    <p>Showing <strong><%= @players.count %> results</strong> from all professions</p>
-                    <div class="form-group mb-4">
-                        <label for="profession">Filter by profession:</label>
-                        <select class="custom-select" id="profession" disabled="disabled">
-                            <option>All</option>
-                            <option>Warrior</option>
-                            <option>Ranger</option>
-                            <option>Monk</option>
-                            <option>Necromancer</option>
-                            <option>Mesmer</option>
-                            <option>Elementalist</option>
-                            <option>Assassin</option>
-                            <option>Ritualist</option>
-                            <option>Paragon</option>
-                            <option>Dervish</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-9 bg-light py-6 py-lg-7 px-lg-5 px-xl-6">
-              <% @players.each do |player| %>
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start position-relative mb-5" data-aos="fade-left">
-                    <div>
-                        <h3 class="mb-0">
-                          <%= player.name %>
-                          <% if player.is_verified? %>
-                          <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>verified</title><path d="M23.146,5.4,20.354,2.6a.5.5,0,0,0-.708,0L7.854,14.4a.5.5,0,0,1-.708,0L4.354,11.6a.5.5,0,0,0-.708,0L.854,14.4a.5.5,0,0,0,0,.707L7.146,21.4a.5.5,0,0,0,.708,0L23.146,6.1A.5.5,0,0,0,23.146,5.4Z"></path></svg>
-                          <% end %>
-                        </h3>
-                        <% player.professions.each do |profession| %>
-                          <span class="badge badge-pill bg-gray200"><%= profession.capitalize %></span>
-                        <% end %>
-                        <% if player.professions.empty? %>
-                          <span class="badge badge-pill badge-warning">Without profession</span>
-                        <% end %>
-                    </div>
-                    <div class="float-right">
-                    <% if player.is_verified? %>
-                      <%= link_to 'Remove verified badge', administration_player_unchecks_path(player), method: :post, class: 'btn btn-sm btn-warning text-uppercase mt-2 mt-lg-0' %>
-                    <% else %>
-                      <%= link_to 'Add verified badge', administration_player_checks_path(player), method: :post, class: 'btn btn-sm btn-success text-uppercase mt-2 mt-lg-0' %>
-                    <% end %>
-                    <%= link_to 'Send invitation', administration_player_invitations_path(player), method: :post, class: 'btn btn-sm btn-primary text-uppercase mt-2 mt-lg-0' %>
-                    </div>
-                </div>
+  <div class="container">
+    <div class="row" data-sticky-container>
+      <div class="col-lg-3">
+        <div class="font-size-6 py-3" data-sticky data-sticky-for="768">
+          <p>Showing <strong><%= @players.count %> results</strong> from all professions</p>
+          <div class="form-group mb-4">
+            <label for="profession">Filter by profession:</label>
+            <select class="custom-select" id="profession" disabled="disabled">
+              <option>All</option>
+              <option>Warrior</option>
+              <option>Ranger</option>
+              <option>Monk</option>
+              <option>Necromancer</option>
+              <option>Mesmer</option>
+              <option>Elementalist</option>
+              <option>Assassin</option>
+              <option>Ritualist</option>
+              <option>Paragon</option>
+              <option>Dervish</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-9 bg-light py-6 py-lg-7 px-lg-5 px-xl-6">
+        <% @players.each do |player| %>
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-start position-relative mb-5" data-aos="fade-left">
+            <div>
+              <h3 class="mb-0">
+                <%= player.name %>
+                <% if player.is_verified? %>
+                  <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>verified</title><path d="M23.146,5.4,20.354,2.6a.5.5,0,0,0-.708,0L7.854,14.4a.5.5,0,0,1-.708,0L4.354,11.6a.5.5,0,0,0-.708,0L.854,14.4a.5.5,0,0,0,0,.707L7.146,21.4a.5.5,0,0,0,.708,0L23.146,6.1A.5.5,0,0,0,23.146,5.4Z"></path></svg>
+                <% end %>
+              </h3>
+              <% player.professions.each do |profession| %>
+                <span class="badge badge-pill bg-gray200"><%= profession.capitalize %></span>
+              <% end %>
+              <% if player.professions.empty? %>
+                <span class="badge badge-pill badge-warning">Without profession</span>
               <% end %>
             </div>
-        </div>
+            <div class="float-right">
+              <% if player.is_verified? %>
+                <%= link_to 'Remove verified badge', administration_player_unchecks_path(player), method: :post, class: 'btn btn-sm btn-warning text-uppercase mt-2 mt-lg-0' %>
+              <% else %>
+                <%= link_to 'Add verified badge', administration_player_checks_path(player), method: :post, class: 'btn btn-sm btn-success text-uppercase mt-2 mt-lg-0' %>
+              <% end %>
+              <%= link_to 'Send invitation', administration_player_invitations_path(player), method: :post, class: 'btn btn-sm btn-primary text-uppercase mt-2 mt-lg-0' %>
+            </div>
+          </div>
+        <% end %>
+      </div>
     </div>
+  </div>
 </section>

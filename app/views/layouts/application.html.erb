@@ -2,21 +2,23 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>GWRank</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>GWRank.com</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
+    <link rel="stylesheet" href="https://use.typekit.net/vgd1cli.css">
     <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
-    <link href="/assets/css/theme.min.css" rel="stylesheet">
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
     <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
   </head>
 
   <body>
-    <main>
-      <%= yield %>
-    </main>
-    <script src="/assets/js/theme.core.min.js"></script>
-    <script src="/assets/js/theme.min.js"></script>
+    <%= render 'preloader' %>
+    <%= render 'navbar' %>
+    <%= render 'navbar_mobile' %>
+    <%= yield %>
+    <%= javascript_include_tag 'application_footer', 'data-turbolinks-track': 'reload' %>
   </body>
 </html>

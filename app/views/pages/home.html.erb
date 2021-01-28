@@ -1,186 +1,137 @@
-<section class="py-13 py-lg-15 vh-75" id="content">
-  <div class="bg-primary bg-image bg-cover overlay overlay-primary overlay-70" data-jarallax data-speed=".8" style="background-image: url(/assets/images/photos/photo-59.jpg);">
-    <div class="container h-100">
-      <div class="row align-items-center h-100 text-white" data-aos="fade-down">
-        <div class="col">
-          <h1 class="display-2 mb-5">GWRank.com</h1>
-          <% if current_player %>
-            Welcome <%= current_player.name %>
-            <div class="float-right">
-              <%= link_to 'Edit profile', edit_profile_path, class: 'mr-4' %>
-              <%= link_to 'Sign out', destroy_player_session_path, method: :delete, class: 'btn btn-secondary text-uppercase d-inline-flex align-items-center' %>
+<div class="content-wrap">
+    <div class="mpl-navbar-mobile-overlay"></div>
+    <div>
+        <section class="mpl-banner mpl-banner-top mpl-banner-parallax">
+            <div class="mpl-image" data-speed="0.8">
+                <%= image_tag 'background.jpg', class: 'jarallax-img' %>
             </div>
-          <% else %>
-            <%= link_to 'Reserve your spot with Discord', omniauth_authorize_path(:player, :discord), class: 'btn btn-secondary text-uppercase d-inline-flex align-items-center' %>
-          <% end %>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<% if current_player %>
-  <% if false # DateTime.now < today_scrim_registration_time %>
-
-    <div class="col-12 d-flex flex-column align-self-end text-center pt-4">
-      <h2 class="h3">Next scrim registration in</h2>
-      <div class="row justify-content-center" data-countdown data-end-date="<%= today_scrim_registration_time %>" data-end-message="<p>Let's Start! Refresh the page!"> <!--Other format for data-end-date="2020-12-31T23:59:59.000Z" -->
-        <div class="col-auto">
-          <div class="row justify-content-center display-4 mb-5 text-center">
-            <div class="col-auto px-3"><span class="days">0</span><span class="font-size-5 font-weight-lighter d-block mt-n1">days</span></div>
-            <div class="col-auto px-3"><span class="hours">0</span><span class="font-size-5 font-weight-lighter d-block mt-n1">hours</span></div>
-            <div class="col-auto px-3"><span class="minutes">0</span><span class="font-size-5 font-weight-lighter d-block mt-n1">minutes</span></div>
-            <div class="col-auto px-3"><span class="seconds">0</span><span class="font-size-5 font-weight-lighter d-block mt-n1">seconds</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  <% elsif true # DateTime.now.between?(today_scrim_registration_time, today_scrim_end_registration_time) %>
-
-    <div class="col-12 text-center py-4">
-      <h2 class="h1">Scrim registration is open!</h2>
-      <% if current_player.registered? %>
-        <%= link_to 'Unregister me', registration_path(current_player.current_registration), method: :delete, class: 'btn btn-secondary text-uppercase' %>
-      <% else %>
-        <%= link_to 'Register me', registrations_path, method: :post, class: 'btn btn-success text-uppercase' %>
-      <% end %>
-    </div>
-
-    <section class="pt-6 pt-lg-7">
-      <div class="container">
-        <div class="row">
-          <div class="col">
-            <h2>Players registered in the last hour</h2>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="bg-layer-light-top-100-right-30">
-      <div class="container">
-        <div class="row" data-sticky-container>
-          <div class="col-lg-3">
-            <div class="font-size-6 py-3" data-sticky data-sticky-for="768">
-              <p>Showing <strong><%= pluralize Player.in_queue.count, 'result' %></strong> from all professions</p>
-              <div class="form-group mb-4">
-                <label for="profession">Filter by profession:</label>
-                <select class="custom-select" id="profession" disabled="disabled">
-                  <option>All</option>
-                  <option>Warrior</option>
-                  <option>Ranger</option>
-                  <option>Monk</option>
-                  <option>Necromancer</option>
-                  <option>Mesmer</option>
-                  <option>Elementalist</option>
-                  <option>Assassin</option>
-                  <option>Ritualist</option>
-                  <option>Paragon</option>
-                  <option>Dervish</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-9 bg-light py-6 py-lg-7 px-lg-5 px-xl-6">
-            <% Player.in_queue.order('registrations.registered_at ASC').each do |player| %>
-              <div class="d-flex flex-column flex-md-row justify-content-between align-items-start position-relative mb-5" data-aos="fade-left">
-                <div>
-                  <h3 class="mb-0">
-                    <%= player.name %>
-                    <% if player.is_verified? %>
-                      <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>verified</title><path d="M23.146,5.4,20.354,2.6a.5.5,0,0,0-.708,0L7.854,14.4a.5.5,0,0,1-.708,0L4.354,11.6a.5.5,0,0,0-.708,0L.854,14.4a.5.5,0,0,0,0,.707L7.146,21.4a.5.5,0,0,0,.708,0L23.146,6.1A.5.5,0,0,0,23.146,5.4Z"></path></svg>
-                    <% end %>
-                  </h3>
-                  <% player.professions.each do |profession| %>
-                    <span class="badge badge-pill bg-gray200"><%= profession.capitalize %></span>
-                  <% end %>
-                  <% if player.professions.empty? %>
-                    <span class="badge badge-pill bg-gray200">No profession</span>
-                  <% end %>
+            <div class="mpl-banner-content mpl-box-lg">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-10" data-sr="banner" data-sr-interval="200" data-sr-duration="1200" data-sr-distance="20">
+                            <h1 class="display-1" data-sr-item="banner">GWRank.com</h1>
+                            <% if current_player %>
+                              <p class="lead" data-sr-item="banner">
+                                Welcome <%= current_player.name %>
+                              </p>
+                              <%= link_to 'Edit profile', edit_profile_path, class: 'btn btn-md btn-brand' %>
+                              <%= link_to 'Sign out', destroy_player_session_path, method: :delete, class: 'btn btn-md btn-brand"' %>
+                            <% else %>
+                              <%= link_to 'Register with Discord', omniauth_authorize_path(:player, :discord), class: 'btn btn-md btn-brand' %>
+                            <% end %>
+                        </div>
+                    </div>
                 </div>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      </div>
-    </section>
-
-  <% else %>
-
-    <div class="col-12 d-flex flex-column align-self-end text-center pt-4">
-      <h2 class="h3">Next scrim registration in</h2>
-      <div class="row justify-content-center" data-countdown data-end-date="<%= tomorrow_scrim_registration_time %>" data-end-message="<p>Let's Start! Refresh the page!"> <!--Other format for data-end-date="2020-12-31T23:59:59.000Z" -->
-        <div class="col-auto">
-          <div class="row justify-content-center display-4 mb-5 text-center">
-            <div class="col-auto px-3"><span class="days">0</span><span class="font-size-5 font-weight-lighter d-block mt-n1">days</span></div>
-            <div class="col-auto px-3"><span class="hours">0</span><span class="font-size-5 font-weight-lighter d-block mt-n1">hours</span></div>
-            <div class="col-auto px-3"><span class="minutes">0</span><span class="font-size-5 font-weight-lighter d-block mt-n1">minutes</span></div>
-            <div class="col-auto px-3"><span class="seconds">0</span><span class="font-size-5 font-weight-lighter d-block mt-n1">seconds</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  <% end %>
-<% end %>
-
-<section class="bg-primary py-6 py-lg-7 text-white">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg">
-        <h2 class="h3">Our Discord</h2>
-        <% if current_player %>
-          <p>
-            <%= link_to 'Join our Discord', 'https://discord.gg/jqShPZBkcj', target: '_blank', class: 'btn btn-secondary text-uppercase d-inline-flex align-items-center' %>
-          </p>
-        <% end %>
-      </div>
-      <div class="col-lg font-size-6">
-        <iframe src="https://discord.com/widget?id=788820055029973045&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="pt-6 pb-4 pt-lg-7 pb-lg-5">
-  <div class="container">
-    <div class="row">
-      <div class="col">
-        <h2>Players</h2>
-      </div>
-    </div>
-  </div>
-  <div class="container">
-    <div class="row mx-n3">
-      <% Player.order(created_at: :desc).each do |player| %>
-        <div class="col-md-6 col-lg-4 px-3 mb-5" data-aos="fade-up">
-          <div class="card shadow lift rounded">
-            <div class="row no-gutters h-100">
-              <div class="col-4 col-xl-3">
-                <picture>
-                  <% if player.image_url.present? && !player.image_url.ends_with?('/') %>
-                    <%= image_tag player.image_url, alt: player.name, class: 'img-fluid w-100 card-img rounded-left' %>
-                  <% else %>
-                    <%= image_tag 'default-image.png', alt: 'default image', class: 'img-fluid w-100 card-img rounded-left' %>
-                  <% end %>
-                </picture>
-              </div>
-              <div class="col">
-                <div class="card-body p-3">
-                  <div class="float-right">
-                    <% if player.is_verified? %>
-                      <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>verified</title><path d="M23.146,5.4,20.354,2.6a.5.5,0,0,0-.708,0L7.854,14.4a.5.5,0,0,1-.708,0L4.354,11.6a.5.5,0,0,0-.708,0L.854,14.4a.5.5,0,0,0,0,.707L7.146,21.4a.5.5,0,0,0,.708,0L23.146,6.1A.5.5,0,0,0,23.146,5.4Z"></path></svg>
-                    <% end %>
-                  </div>
-                  <h3 class="h5 card-title mb-0">
-                    <%= player.name %>
-                  </h3>
-                </div>
-              </div>
             </div>
-          </div>
+        </section>
+        <div class="mpl-box-md">
+            <div class="container">
+                <div class="row hgap-lg vgap-lg">
+                    <div class="col-lg mpl-content">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item active" aria-current="page">Players</li>
+                            </ol>
+                        </nav>
+                        <div class="row vgap" data-sr="players" data-sr-interval="100" data-sr-duration="1000" data-sr-distance="20">
+                          <% Player.order(created_at: :desc).each do |player| %>
+                            <div class="col-12 col-sm-6 col-xl-4" data-sr-item="players" style="visibility: visible;">
+                                <div class="cyberpress-player">
+                                    <h2 class="cyberpress-player-title h5">
+                                        <a href="#"><%= player.username %></a>
+                                    </h2>
+                                    <ul class="cyberpress-player-info">
+                                        <li>
+                                            <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z"></path>
+                                            </svg><%= player.igname %>
+                                        </li>
+                                        <% player.professions.each do |profession| %>
+                                          <li>
+                                              <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                  <path d="M8 14C8 14 9.5 16 12 16C14.5 16 16 14 16 14M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"></path>
+                                                  <path d="M9 9H9.01"></path>
+                                                  <path d="M15 9H15.01"></path>
+                                              </svg><%= profession.capitalize %>
+                                          </li>
+                                        <% end %>
+                                        <% if player.is_verified? %>
+                                        <li>
+                                            <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21M17 11L19 13L23 9M12.5 7C12.5 9.20914 10.7091 11 8.5 11C6.29086 11 4.5 9.20914 4.5 7C4.5 4.79086 6.29086 3 8.5 3C10.7091 3 12.5 4.79086 12.5 7Z"></path>
+                                            </svg>Verified
+                                        </li>
+                                        <% end %>
+                                    </ul>
+                                </div>
+                            </div>
+                          <% end %>
+                        </div>
+                    </div>
+                    <div class="col-auto-lg mpl-sidebar" data-sr="widget" data-sr-duration="1200" data-sr-distance="20">
+                      <iframe src="https://discord.com/widget?id=788820055029973045&theme=dark" width="350" height="1000" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+                    </div>
+                </div>
+            </div>
         </div>
-      <% end %>
+        <footer class="mpl-footer mpl-footer-parallax mpl-footer-social">
+            <div class="mpl-image" data-speed="0.9" data-img-position="50% 0%">
+                <%= image_tag 'background.jpg', class: 'jarallax-img' %>
+            </div>
+            <div class="mpl-footer-wrapper">
+                <div class="mpl-footer-container container">
+                    <div class="mpl-footer-content">
+                        <div class="row vgap" data-sr="footer" data-sr-interval="120" data-sr-duration="1200" data-sr-distance="20">
+                            <div class="col-6 col-sm-3" data-sr-item="footer">
+                                <a href="https://discord.gg/jqShPZBkcj" target="_blank" class="mpl-social">
+                                    <span class="mpl-social-icon">
+                                        <svg class="icon icon-fill" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M15.3922 11.4C15.3922 12.132 14.8585 12.732 14.1824 12.732C13.5182 12.732 12.9726 12.132 12.9726 11.4C12.9726 10.668 13.5063 10.068 14.1824 10.068C14.8585 10.068 15.3922 10.668 15.3922 11.4ZM9.85315 10.068C9.17707 10.068 8.64333 10.668 8.64333 11.4C8.64333 12.132 9.18893 12.732 9.85315 12.732C10.5292 12.732 11.063 12.132 11.063 11.4C11.0748 10.668 10.5292 10.068 9.85315 10.068ZM22.3784 2.472V24C19.3902 21.3284 20.3459 22.2128 16.8749 18.948L17.5035 21.168H4.05312C2.71282 21.168 1.62161 20.064 1.62161 18.696V2.472C1.62161 1.104 2.71282 0 4.05312 0H19.9469C21.2872 0 22.3784 1.104 22.3784 2.472ZM18.998 13.848C18.998 9.984 17.29 6.852 17.29 6.852C15.582 5.556 13.9571 5.592 13.9571 5.592L13.791 5.784C15.8074 6.408 16.7444 7.308 16.7444 7.308C13.9269 5.7457 10.6173 5.74542 7.88422 6.96C7.44536 7.164 7.18442 7.308 7.18442 7.308C7.18442 7.308 8.16889 6.36 10.3039 5.736L10.1853 5.592C10.1853 5.592 8.5603 5.556 6.85231 6.852C6.85231 6.852 5.14433 9.984 5.14433 13.848C5.14433 13.848 6.14065 15.588 8.76194 15.672C8.76194 15.672 9.20079 15.132 9.55662 14.676C8.05028 14.22 7.48095 13.26 7.48095 13.26C7.65543 13.3836 7.94316 13.5437 7.96725 13.56C9.96926 14.6943 12.813 15.0659 15.3685 13.98C15.7836 13.824 16.2462 13.596 16.7325 13.272C16.7325 13.272 16.1395 14.256 14.5857 14.7C14.9415 15.156 15.3685 15.672 15.3685 15.672C17.9898 15.588 18.998 13.848 18.998 13.848V13.848Z" />
+                                        </svg>
+                                    </span>
+                                    <span class="mpl-social-name h5">Join us on<br>Discord</span>
+                                </a>
+                            </div>
+                            <div class="col-6 col-sm-3" data-sr-item="footer">
+                                <a href="https://www.twitch.tv/gwrank" target="_blank" class="mpl-social">
+                                    <span class="mpl-social-icon">
+                                        <svg class="icon icon-fill" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M2.24527 0L0.648651 4.11964V20.9571H6.32433V24H9.51756L12.5304 20.9571H17.1452L23.3514 14.6893V0H2.24527ZM21.2243 13.6125L17.6757 17.1964H12L8.98712 20.2393V17.1964H4.19727V2.14821H21.2243V13.6125V13.6125ZM17.6757 6.26786V12.5304H15.5486V6.26786H17.6757ZM12 6.26786V12.5304H9.87295V6.26786H12Z" />
+                                        </svg>
+                                    </span>
+                                    <span class="mpl-social-name h5">Watch on<br>Twitch</span>
+                                </a>
+                            </div>
+                            <div class="col-6 col-sm-3" data-sr-item="footer">
+                                <a href="https://www.youtube.com/channel/UCA0J_GFBe848GQwCSjeck-w" target="_blank" class="mpl-social">
+                                    <span class="mpl-social-icon">
+                                        <svg class="icon icon-fill" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M23.4985 6.29213C23.2225 5.26881 22.4092 4.46288 21.3766 4.18937C19.505 3.69238 12 3.69238 12 3.69238C12 3.69238 4.49503 3.69238 2.62336 4.18937C1.59077 4.46292 0.777523 5.26881 0.501503 6.29213C0 8.14695 0 12.0169 0 12.0169C0 12.0169 0 15.8868 0.501503 17.7416C0.777523 18.7649 1.59077 19.5373 2.62336 19.8108C4.49503 20.3078 12 20.3078 12 20.3078C12 20.3078 19.505 20.3078 21.3766 19.8108C22.4092 19.5373 23.2225 18.7649 23.4985 17.7416C24 15.8868 24 12.0169 24 12.0169C24 12.0169 24 8.14695 23.4985 6.29213V6.29213ZM9.54544 15.5305V8.50327L15.8181 12.017L9.54544 15.5305V15.5305Z" />
+                                        </svg>
+                                    </span>
+                                    <span class="mpl-social-name h5">Watch on<br>Youtube</span>
+                                </a>
+                            </div>
+                            <div class="col-6 col-sm-3" data-sr-item="footer">
+                                <a href="https://twitter.com/GWRank_com" target="_blank" class="mpl-social">
+                                    <span class="mpl-social-icon">
+                                        <svg class="icon icon-fill" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M21.533 7.11175C21.5482 7.32494 21.5482 7.53817 21.5482 7.75136C21.5482 14.2539 16.599 21.7463 7.5533 21.7463C4.76648 21.7463 2.17767 20.9391 0 19.5382C0.395953 19.5838 0.776625 19.5991 1.18781 19.5991C3.48727 19.5991 5.60405 18.8224 7.29441 17.4976C5.13197 17.4519 3.31978 16.0356 2.69541 14.0864C3 14.132 3.30455 14.1625 3.62437 14.1625C4.06598 14.1625 4.50764 14.1016 4.91878 13.995C2.66498 13.5381 0.974578 11.5585 0.974578 9.16759V9.1067C1.62937 9.47219 2.39086 9.70061 3.19791 9.73103C1.87303 8.84777 1.00505 7.34017 1.00505 5.63458C1.00505 4.72089 1.24866 3.88333 1.67508 3.15236C4.09641 6.13712 7.73602 8.08633 11.8172 8.29956C11.7411 7.93408 11.6954 7.55341 11.6954 7.17269C11.6954 4.462 13.8883 2.25391 16.6141 2.25391C18.0304 2.25391 19.3095 2.84781 20.208 3.8072C21.3197 3.59402 22.3857 3.18283 23.3299 2.61939C22.9643 3.76155 22.1877 4.72094 21.1674 5.33003C22.1573 5.22348 23.1167 4.94931 23.9999 4.56864C23.33 5.54322 22.4924 6.4112 21.533 7.11175V7.11175Z" />
+                                        </svg>
+                                    </span>
+                                    <span class="mpl-social-name h5">Follow on<br>Twitter</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <div class="mpl-footer-copyright">
+            <div class="container">
+                <p>2020-2021 &copy; GWRank.com. All rights reserved</p>
+            </div>
+        </div>
+        <!-- /Footer -->
     </div>
-  </div>
-</section>
+</div>

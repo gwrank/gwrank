@@ -48,11 +48,15 @@ class Player < ApplicationRecord
     professions
   end
 
-  def registered?
-    registrations.where('registered_at > ?', DateTime.now - 1.hour).where(unregistered_at: nil).any?
+  def current_registrations
+    registrations.where('registered_at > ?', DateTime.now - 1.hour).where(unregistered_at: nil)
   end
 
   def current_registration
-    registrations.where('registered_at > ?', DateTime.now - 1.hour).where(unregistered_at: nil).first
+    current_registrations.first
+  end
+
+  def registered?
+    current_registrations.any?
   end
 end

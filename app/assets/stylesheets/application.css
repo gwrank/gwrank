@@ -10,5 +10,13 @@
  * files in this directory. Styles in this file should be added after the last require_* statement.
  * It is generally better to create a new file per style scope.
  *
+ *= require bootstrap/dist/css/bootstrap.min
+ *= require swiper/swiper-bundle.min
+ *= require fancybox/dist/jquery.fancybox.min
+ *= require slider-revolution/css/settings
+ *= require slider-revolution/css/layers
+ *= require slider-revolution/css/navigation
+ *= require monsterplay
+ *= require custom
  *= require_self
  */

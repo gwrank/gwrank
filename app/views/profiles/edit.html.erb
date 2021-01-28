@@ -1,54 +1,84 @@
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-xs-12 col-md-8 col-lg-6 col-xl-4 py-5">
-      <%= form_with model: @player, url: profile_path do |form| %>
-        <div class="form-group">
-          <%= form.label :igname, 'In-game name' %>
-          <%= form.text_field :igname, class: 'form-control' %>
+<section class="mpl-banner mpl-banner-top mpl-banner-parallax">
+    <div class="mpl-banner-content mpl-box-sm" >
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                    <div class="mpl-sign-form" data-sr="sign" data-sr-interval="100" data-sr-duration="1000" data-sr-distance="20">
+                        <h1 data-sr-item="sign" style="visibility: visible;">Edit Profile</h1>
+                        <%= form_with model: @player, url: profile_path do |form| %>
+                            <div class="row hgap-xs vgap-sm">
+                                <div class="col-12">
+                                  <%= form.label :igname, 'In-game name' %>
+                                  <%= form.text_field :igname, class: 'form-control' %><span class="form-control-bg"></span>
+                                </div>
+                                <div class="col-12">
+                                  <div class="custom-control custom-checkbox">
+                                    <%= form.check_box :is_warrior, class: 'custom-control-input' %>
+                                    <%= form.label :is_warrior, 'Warrior', class: 'custom-control-label' %>
+                                  </div>
+                                </div>
+                                <div class="col-12">
+                                  <div class="custom-control custom-checkbox">
+                                    <%= form.check_box :is_ranger, class: 'custom-control-input' %>
+                                    <%= form.label :is_ranger, 'Ranger', class: 'custom-control-label' %>
+                                  </div>
+                                </div>
+                                <div class="col-12">
+                                  <div class="custom-control custom-checkbox">
+                                    <%= form.check_box :is_monk, class: 'custom-control-input' %>
+                                    <%= form.label :is_monk, 'Monk', class: 'custom-control-label' %>
+                                  </div>
+                                </div>
+                                <div class="col-12">
+                                  <div class="custom-control custom-checkbox">
+                                    <%= form.check_box :is_necromancer, class: 'custom-control-input' %>
+                                    <%= form.label :is_necromancer, 'Necromancer', class: 'custom-control-label' %>
+                                  </div>
+                                </div>
+                                <div class="col-12">
+                                  <div class="custom-control custom-checkbox">
+                                    <%= form.check_box :is_mesmer, class: 'custom-control-input' %>
+                                    <%= form.label :is_mesmer, 'Mesmer', class: 'custom-control-label' %>
+                                  </div>
+                                </div>
+                                <div class="col-12">
+                                  <div class="custom-control custom-checkbox">
+                                    <%= form.check_box :is_elementalist, class: 'custom-control-input' %>
+                                    <%= form.label :is_elementalist, 'Elementalist', class: 'custom-control-label' %>
+                                  </div>
+                                </div>
+                                <div class="col-12">
+                                  <div class="custom-control custom-checkbox">
+                                    <%= form.check_box :is_assassin, class: 'custom-control-input' %>
+                                    <%= form.label :is_assassin, 'Assassin', class: 'custom-control-label' %>
+                                  </div>
+                                </div>
+                                <div class="col-12">
+                                  <div class="custom-control custom-checkbox">
+                                    <%= form.check_box :is_ritualist, class: 'custom-control-input' %>
+                                    <%= form.label :is_ritualist, 'Ritualist', class: 'custom-control-label' %>
+                                  </div>
+                                </div>
+                                <div class="col-12">
+                                  <div class="custom-control custom-checkbox">
+                                    <%= form.check_box :is_paragon, class: 'custom-control-input' %>
+                                    <%= form.label :is_paragon, 'Paragon', class: 'custom-control-label' %>
+                                  </div>
+                                </div>
+                                <div class="col-12">
+                                  <div class="custom-control custom-checkbox">
+                                    <%= form.check_box :is_dervish, class: 'custom-control-input' %>
+                                    <%= form.label :is_dervish, 'Dervish', class: 'custom-control-label' %>
+                                  </div>
+                                </div>
+                                <div class="col-12">
+                                  <%= form.submit 'Submit', class: 'btn btn-md btn-block' %>
+                                </div>
+                            </div>
+                        <% end %>
+                    </div>
+                </div>
+            </div>
         </div>
-        <h2 class="h3">Professions</h2>
-        <div class="form-group form-check">
-          <%= form.check_box :is_warrior, class: 'form-check-input' %>
-          <%= form.label :is_warrior, 'Warrior', class: 'form-check-label' %>
-        </div>
-        <div class="form-group form-check">
-          <%= form.check_box :is_ranger, class: 'form-check-input' %>
-          <%= form.label :is_ranger, 'Ranger', class: 'form-check-label' %>
-        </div>
-        <div class="form-group form-check">
-          <%= form.check_box :is_monk, class: 'form-check-input' %>
-          <%= form.label :is_monk, 'Monk', class: 'form-check-label' %>
-        </div>
-        <div class="form-group form-check">
-          <%= form.check_box :is_necromancer, class: 'form-check-input' %>
-          <%= form.label :is_necromancer, 'Necromancer', class: 'form-check-label' %>
-        </div>
-        <div class="form-group form-check">
-          <%= form.check_box :is_mesmer, class: 'form-check-input' %>
-          <%= form.label :is_mesmer, 'Mesmer', class: 'form-check-label' %>
-        </div>
-        <div class="form-group form-check">
-          <%= form.check_box :is_elementalist, class: 'form-check-input' %>
-          <%= form.label :is_elementalist, 'Elementalist', class: 'form-check-label' %>
-        </div>
-        <div class="form-group form-check">
-          <%= form.check_box :is_assassin, class: 'form-check-input' %>
-          <%= form.label :is_assassin, 'Assassin', class: 'form-check-label' %>
-        </div>
-        <div class="form-group form-check">
-          <%= form.check_box :is_ritualist, class: 'form-check-input' %>
-          <%= form.label :is_ritualist, 'Ritualist', class: 'form-check-label' %>
-        </div>
-        <div class="form-group form-check">
-          <%= form.check_box :is_paragon, class: 'form-check-input' %>
-          <%= form.label :is_paragon, 'Paragon', class: 'form-check-label' %>
-        </div>
-        <div class="form-group form-check">
-          <%= form.check_box :is_dervish, class: 'form-check-input' %>
-          <%= form.label :is_dervish, 'Dervish', class: 'form-check-label' %>
-        </div>
-        <%= form.submit 'Submit', class: 'btn btn-primary' %>
-      <% end %>
     </div>
-  </div>
-</div>
+</section>
