@@ -59,15 +59,17 @@
                                     <% end %>
                                 </ul>
                             </div>
-                            <h2>Twitch</h2>
-                            <div class="cyberpress-twitch">
-                                <div class="cyberpress-twitch-player">
-                                    <iframe src="https://player.twitch.tv/?channel=<%= @player.twitch_username %>&parent=<%= request.host %>" frameborder="0" allowfullscreen="true" scrolling="no"></iframe>
+                            <% if @player.twitch_username.present? %>
+                                <h2>Twitch</h2>
+                                <div class="cyberpress-twitch">
+                                    <div class="cyberpress-twitch-player">
+                                        <iframe src="https://player.twitch.tv/?channel=<%= @player.twitch_username %>&parent=<%= request.host %>" frameborder="0" allowfullscreen="true" scrolling="no"></iframe>
+                                    </div>
+                                    <div class="cyberpress-twitch-chat">
+                                        <iframe src="https://www.twitch.tv/embed/<%= @player.twitch_username %>/chat?parent=<%= request.host %>" frameborder="0" scrolling="no"></iframe>
+                                    </div>
                                 </div>
-                                <div class="cyberpress-twitch-chat">
-                                    <iframe src="https://www.twitch.tv/embed/<%= @player.twitch_username %>/chat?parent=<%= request.host %>" frameborder="0" scrolling="no"></iframe>
-                                </div>
-                            </div>
+                            <% end %>
                         </article>
                     </div>
                     <div class="col-auto-lg mpl-sidebar" data-sr=widget data-sr-duration=1200 data-sr-distance=20>
