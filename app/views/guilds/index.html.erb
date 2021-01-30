@@ -48,7 +48,15 @@
                         </div>
                     </div>
                     <div class="col-auto-lg mpl-sidebar" data-sr=widget data-sr-duration=1200 data-sr-distance=20>
-                        <%= link_to 'New Guild', new_guild_path, class: 'btn' if current_player %>
+                        <% if current_player %>
+                            <% if current_player.guild.present? %>
+                                <%= link_to 'Show my Guild', guild_path(current_player.guild), class: 'btn btn-md' %>
+                            <% else %>
+                                <%= link_to 'Register my Guild', new_guild_path, class: 'btn btn-md' %>
+                            <% end %>
+                        <% else %>
+                            <%= link_to 'Log in with Discord to register my guild', omniauth_authorize_path(:player, :discord), class: 'btn btn-md' %>
+                        <% end %>
                     </div>
                 </div>
             </div>
