@@ -9,10 +9,30 @@
                 </div>
                 <div class="mpl-navbar-content">
                     <ul class="mpl-navbar-nav">
-                        <li class="mpl-dropdown active">
-                            <a href="/" class="mpl-nav-link" role="button">
+                        <li class="<%= 'active' if current_page?(root_path) %>">
+                            <%= link_to root_path, class: 'mpl-nav-link' do %>
                                 <span class="mpl-nav-link-name"> Home </span>
-                            </a>
+                            <% end %>
+                        </li>
+                        <li class="<%= 'active' if controller_name.eql?('players') %>">
+                            <%= link_to players_path, class: 'mpl-nav-link' do %>
+                                <span class="mpl-nav-link-name"> Players </span>
+                            <% end %>
+                        </li>
+                        <li class="<%= 'active' if controller_name.eql?('scrims') %>">
+                            <%= link_to scrims_path, class: 'mpl-nav-link' do %>
+                                <span class="mpl-nav-link-name"> Scrims </span>
+                            <% end %>
+                        </li>
+                        <li class="<%= 'active' if controller_name.eql?('guilds') %>">
+                            <%= link_to guilds_path, class: 'mpl-nav-link' do %>
+                                <span class="mpl-nav-link-name"> Guilds </span>
+                            <% end %>
+                        </li>
+                        <li class="<%= 'active' if controller_name.eql?('tournaments') %>">
+                            <%= link_to tournaments_path, class: 'mpl-nav-link' do %>
+                                <span class="mpl-nav-link-name"> Tournaments </span>
+                            <% end %>
                         </li>
                     </ul>
                     <ul class="mpl-navbar-nav mpl-navbar-right">

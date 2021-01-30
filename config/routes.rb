@@ -1,7 +1,10 @@
 Rails.application.routes.draw do
-  resources :players, path: 'p', only: [:show]
+  resources :guilds, only: [:index, :show, :new, :create]
+  resources :players, path: 'p', only: [:index, :show]
   resource :profile, only: [:edit, :update]
   resources :registrations, only: [:create, :destroy]
+  resources :scrims, only: [:index]
+  resources :tournaments, only: [:index]
 
   namespace :administration do
     resources :players, only: [:index] do

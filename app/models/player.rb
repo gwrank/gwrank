@@ -1,5 +1,8 @@
 class Player < ApplicationRecord
+  belongs_to :guild, optional: true
   has_many :registrations
+  has_many :team_players
+  has_many :teams, through: :team_players
 
   extend FriendlyId
   friendly_id :username, use: :slugged
@@ -52,14 +55,14 @@ class Player < ApplicationRecord
   end
 
   def current_registrations
-    registrations.where('registered_at > ?', DateTime.now - 1.hour).where(unregistered_at: nil)
+    registrations.current_registrations
   end
 
   def current_registration
     current_registrations.first
   end
 
-  def registered?
+  def has_current_registration?
     current_registrations.any?
   end
 end

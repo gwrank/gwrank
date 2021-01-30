@@ -28,7 +28,7 @@
                       <% @players.each do |player| %>
                         <tr>
                           <th scope="row">
-                            <%= player.username %>
+                            <%= link_to player.username, player_path(player) %>
                           </th>
                           <td>
                             <%= player.igname %>

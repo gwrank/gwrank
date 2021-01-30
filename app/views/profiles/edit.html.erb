@@ -12,6 +12,11 @@
                                   <%= form.text_field :igname, class: 'form-control' %><span class="form-control-bg"></span>
                                 </div>
                                 <div class="col-12">
+                                  <%= form.label :guild_id, 'Guild' %>
+                                  <%= form.select :guild_id, options_from_collection_for_select(@guilds, :id, :name_with_tag, @player.guild_id), { include_blank: true }, class: 'form-control custom-select' %>
+                                </div>
+                                <h2>Professions</h2>
+                                <div class="col-12">
                                   <div class="custom-control custom-checkbox">
                                     <%= form.check_box :is_warrior, class: 'custom-control-input' %>
                                     <%= form.label :is_warrior, 'Warrior', class: 'custom-control-label' %>
@@ -76,7 +81,7 @@
                                   <%= form.text_field :twitch_username, class: 'form-control' %><span class="form-control-bg"></span>
                                 </div>
                                 <div class="col-12">
-                                  <%= form.submit 'Publish', class: 'btn btn-md btn-block' %>
+                                  <%= form.submit 'Publish', class: 'btn btn-md btn-success' %>
                                 </div>
                             </div>
                         <% end %>

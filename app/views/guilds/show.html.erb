@@ -1,0 +1,85 @@
+<div class="content-wrap">
+    <div class="mpl-navbar-mobile-overlay"></div>
+    <div>
+        <section class="mpl-banner mpl-banner-top mpl-banner-parallax mpl-banner-small">
+            <div class="mpl-image" data-speed="0.8">
+                <%= image_tag 'background.jpg', class: 'jarallax-img' %>
+            </div>
+            <div class="mpl-banner-content mpl-box-lg">
+                <div class="container">
+                    <h1 class="display-1 mb-0"><%= @guild.name_with_tag %></h1>
+                </div>
+            </div>
+        </section>
+        <div class="mpl-box-md">
+            <div class="container">
+                <div class="row hgap-lg vgap-lg">
+                    <div class="col-lg mpl-content single-team">
+                        <article class="mpl-post">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                    <li class="breadcrumb-item">
+                                      <%= link_to 'Guilds', guilds_path %>
+                                    </li>
+                                    <li class="breadcrumb-item active" aria-current="page"><%= @guild.name_with_tag %></li>
+                                </ol>
+                            </nav>
+                            <div class="cyberpress-team">
+                                <div class="cyberpress-team-thumbnail">
+                                    <span class="mpl-image">
+                                    </span>
+                                </div>
+                                <ul class="cyberpress-team-info">
+                                    <li>
+                                        <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13M16 3.13C16.8604 3.3503 17.623 3.8507 18.1676 4.55231C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89317 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88M13 7C13 9.20914 11.2091 11 9 11C6.79086 11 5 9.20914 5 7C5 4.79086 6.79086 3 9 3C11.2091 3 13 4.79086 13 7Z" />
+                                        </svg>
+                                        <%= @guild.name_with_tag %>
+                                    </li>
+                                    <li>
+                                        <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13M16 3.13C16.8604 3.3503 17.623 3.8507 18.1676 4.55231C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89317 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88M13 7C13 9.20914 11.2091 11 9 11C6.79086 11 5 9.20914 5 7C5 4.79086 6.79086 3 9 3C11.2091 3 13 4.79086 13 7Z" />
+                                        </svg>
+                                        <%= pluralize @guild.players.count, 'player' %>
+                                    </li>
+                                </ul>
+                            </div>
+                            <h2>Players</h2>
+                            <table class="table mpl-table-responsive-sm cyberpress-table cyberpress-team-players">
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>In-game name</th>
+                                        <th>Professions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% @guild.players.each do |player| %>
+                                    <tr>
+                                        <td class="cyberpress-table-item-nickname">
+                                            <%= link_to player.username, player_path(player) %>
+                                        </td>
+                                        <td><%= player.igname %></td>
+                                        <td>
+                                          <% player.professions.each do |profession| %>
+                                            <span class="badge badge-primary"><%= profession.capitalize %></span>
+                                          <% end %>
+                                          <% if player.professions.empty? %>
+                                            <span class="badge badge-warning">Without profession</span>
+                                          <% end %>
+                                        </td>
+                                    </tr>
+                                    <% end %>
+                                </tbody>
+                            </table>
+                        </article>
+                    </div>
+                    <div class="col-auto-lg mpl-sidebar" data-sr=widget data-sr-duration=1200 data-sr-distance=20>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <%= render 'footer' %>
+    </div>
+</div>

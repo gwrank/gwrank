@@ -3,6 +3,7 @@ class ProfilesController < ApplicationController
   before_action :set_player, only: [:edit, :update]
 
   def edit
+    @guilds = Guild.all
   end
 
   def update
@@ -11,8 +12,9 @@ class ProfilesController < ApplicationController
     end
 
     if @player.update(player_params)
-      redirect_to root_path
+      redirect_to player_path(@player)
     else
+      @guilds = Guild.all
       render :edit
     end
   end
@@ -25,6 +27,7 @@ class ProfilesController < ApplicationController
 
   def player_params
     params.require(:player).permit(
+      :guild_id,
       :igname,
       :is_warrior,
       :is_ranger,

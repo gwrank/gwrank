@@ -1,41 +1,28 @@
 <div class="content-wrap">
     <div class="mpl-navbar-mobile-overlay"></div>
     <div>
-        <section class="mpl-banner mpl-banner-top mpl-banner-parallax">
+        <section class="mpl-banner mpl-banner-top mpl-banner-parallax mpl-banner-small">
             <div class="mpl-image" data-speed="0.8">
                 <%= image_tag 'background.jpg', class: 'jarallax-img' %>
             </div>
             <div class="mpl-banner-content mpl-box-lg">
                 <div class="container">
-                    <div class="row">
-                        <div class="col-lg-10" data-sr="banner" data-sr-interval="200" data-sr-duration="1200" data-sr-distance="20">
-                            <h1 class="display-1" data-sr-item="banner">GWRank.com</h1>
-                            <% if current_player %>
-                              <p class="lead" data-sr-item="banner">
-                                Welcome <%= current_player.name %>
-                              </p>
-                              <%= link_to 'Show profile', player_path(current_player), class: 'btn btn-md btn-brand' %>
-                              <%= link_to 'Edit profile', edit_profile_path, class: 'btn btn-md btn-brand' %>
-                              <%= link_to 'Sign out', destroy_player_session_path, method: :delete, class: 'btn btn-md btn-brand"' %>
-                            <% else %>
-                              <%= link_to 'Log in with Discord', omniauth_authorize_path(:player, :discord), class: 'btn btn-md btn-brand' %>
-                            <% end %>
-                        </div>
-                    </div>
+                    <h1 class="display-1 mb-0">Players</h1>
                 </div>
             </div>
         </section>
         <div class="mpl-box-md">
             <div class="container">
                 <div class="row hgap-lg vgap-lg">
-                    <div class="col-lg mpl-content">
+                    <div id="players" class="col-lg mpl-content">
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb">
-                                <li class="breadcrumb-item active" aria-current="page">Last players</li>
+                                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Players</li>
                             </ol>
                         </nav>
                         <div class="row vgap" data-sr="players" data-sr-interval="100" data-sr-duration="1000" data-sr-distance="20">
-                          <% Player.order(created_at: :desc).first(6).each do |player| %>
+                          <% @players.each do |player| %>
                             <div class="col-12 col-sm-6 col-xl-4" data-sr-item="players" style="visibility: visible;">
                                 <div class="cyberpress-player">
                                     <h2 class="cyberpress-player-title h5">
@@ -70,11 +57,10 @@
                                 </div>
                             </div>
                           <% end %>
-                          <%= link_to 'See all players', players_path, class: 'btn btn-md' %>
                         </div>
                     </div>
                     <div class="col-auto-lg mpl-sidebar" data-sr="widget" data-sr-duration="1200" data-sr-distance="20">
-                      <iframe src="https://discord.com/widget?id=788820055029973045&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+                      <iframe src="https://discord.com/widget?id=788820055029973045&theme=dark" width="350" height="1000" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
                       <a href="https://discord.gg/jqShPZBkcj" target="_blank" class="btn btn-md">
                         Join us on Discord
                       </a>

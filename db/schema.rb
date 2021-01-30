@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_28_180140) do
+ActiveRecord::Schema.define(version: 2021_01_30_163929) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -52,6 +52,16 @@ ActiveRecord::Schema.define(version: 2021_01_28_180140) do
     t.index ["sluggable_type", "sluggable_id"], name: "index_friendly_id_slugs_on_sluggable_type_and_sluggable_id"
   end
 
+  create_table "guilds", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.string "slug"
+    t.string "tag"
+    t.integer "owner_id"
+    t.index ["slug"], name: "index_guilds_on_slug", unique: true
+  end
+
   create_table "players", force: :cascade do |t|
     t.string "email", default: ""
     t.string "encrypted_password", default: "", null: false
@@ -90,11 +100,19 @@ ActiveRecord::Schema.define(version: 2021_01_28_180140) do
     t.boolean "is_verified", default: false
     t.string "slug"
     t.string "twitch_username"
+    t.bigint "guild_id"
     t.index ["confirmation_token"], name: "index_players_on_confirmation_token", unique: true
     t.index ["email"], name: "index_players_on_email", unique: true
+    t.index ["guild_id"], name: "index_players_on_guild_id"
     t.index ["reset_password_token"], name: "index_players_on_reset_password_token", unique: true
     t.index ["slug"], name: "index_players_on_slug", unique: true
     t.index ["unlock_token"], name: "index_players_on_unlock_token", unique: true
+  end
+
+  create_table "professions", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "registrations", force: :cascade do |t|
@@ -106,5 +124,36 @@ ActiveRecord::Schema.define(version: 2021_01_28_180140) do
     t.index ["player_id"], name: "index_registrations_on_player_id"
   end
 
+  create_table "scrims", force: :cascade do |t|
+    t.integer "team_a_id"
+    t.integer "team_b_id"
+    t.integer "captain_a_id"
+    t.integer "captain_b_id"
+    t.integer "winner_team_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "team_players", force: :cascade do |t|
+    t.bigint "team_id", null: false
+    t.bigint "player_id", null: false
+    t.bigint "profession_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.boolean "is_captain", default: false
+    t.index ["player_id"], name: "index_team_players_on_player_id"
+    t.index ["profession_id"], name: "index_team_players_on_profession_id"
+    t.index ["team_id"], name: "index_team_players_on_team_id"
+  end
+
+  create_table "teams", force: :cascade do |t|
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  add_foreign_key "players", "guilds"
   add_foreign_key "registrations", "players"
+  add_foreign_key "team_players", "players"
+  add_foreign_key "team_players", "professions"
+  add_foreign_key "team_players", "teams"
 end

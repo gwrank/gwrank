@@ -33,6 +33,7 @@ gem 'discordrb'
 gem 'friendly_id'
 gem 'high_voltage'
 gem 'omniauth-discord'
+gem 'pundit'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
