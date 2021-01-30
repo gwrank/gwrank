@@ -76,6 +76,10 @@
                         </article>
                     </div>
                     <div class="col-auto-lg mpl-sidebar" data-sr=widget data-sr-duration=1200 data-sr-distance=20>
+                        <form action="https://memorial.redeemer.biz/memorial/" accept-charset="UTF-8" method="post" target="_blank">
+                            <input type="hidden" name="q" value="<%= @guild.name %>">
+                            <input type="submit" name="commit" value="Search on Guild Wars Memorial" class="btn btn-md btn-danger">
+                        </form>
                     </div>
                 </div>
             </div>
