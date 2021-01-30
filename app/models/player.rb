@@ -23,6 +23,8 @@ class Player < ApplicationRecord
                           .where('registrations.unregistered_at IS NULL')
                       }
 
+  scope :streamers, -> { where.not(twitch_username: nil) }
+
   def self.from_omniauth(auth)
     where(provider: auth.provider, uid: auth.uid).first_or_create do |player|
       player.email = auth.uid + '@gwrank.com'

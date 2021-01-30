@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   resource :profile, only: [:edit, :update]
   resources :registrations, only: [:create, :destroy]
   resources :scrims, only: [:index]
+  resources :streamers, only: [:index]
   resources :tournaments, only: [:index]
 
   namespace :administration do

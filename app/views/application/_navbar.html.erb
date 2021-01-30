@@ -34,6 +34,11 @@
                                 <span class="mpl-nav-link-name"> Tournaments </span>
                             <% end %>
                         </li>
+                        <li class="<%= 'active' if controller_name.eql?('streamers') %>">
+                            <%= link_to streamers_path, class: 'mpl-nav-link' do %>
+                                <span class="mpl-nav-link-name"> Streamers </span>
+                            <% end %>
+                        </li>
                     </ul>
                     <ul class="mpl-navbar-nav mpl-navbar-right">
                         <li>
