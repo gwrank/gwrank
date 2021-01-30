@@ -48,7 +48,7 @@
                         </div>
                     </div>
                     <div class="col-auto-lg mpl-sidebar" data-sr=widget data-sr-duration=1200 data-sr-distance=20>
-                        <%= link_to 'New Guild', new_guild_path, class: 'btn' %>
+                        <%= link_to 'New Guild', new_guild_path, class: 'btn' if current_player %>
                     </div>
                 </div>
             </div>
