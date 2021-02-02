@@ -31,7 +31,7 @@ class BotJob < ApplicationJob
           event.respond "@#{event.user.name}, you are the 16th player! I proceed to the captains designation..."
           captain_a = Registration.current_registrations.order(registered_at: :asc).first(16).sample.player
           captain_b = Registration.current_registrations.where.not(id: captain_a.current_registration.id).order(registered_at: :asc).first(15).sample.player
-          Scrim.create!(
+          scrim = Scrim.create!(
             captain_a: captain_a,
             captain_b: captain_b,
           )
