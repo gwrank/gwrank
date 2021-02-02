@@ -36,7 +36,7 @@ class BotJob < ApplicationJob
             captain_b: captain_b,
           )
           event.respond "@#{event.user.name}, the captains are @#{scrim.captain_a.username} and @#{scrim.captain_b.username}."
-          event.respond "@#{scrim.captain_a.username} and @#{scrim.captain_b.username}, the players are : #{players}."
+          event.respond "@#{scrim.captain_a.username} and @#{scrim.captain_b.username}, the players are :"
           Registration.current_registrations.order(registered_at: :asc).each_with_index do |registration|
             event.respond "@#{registration.player.username}, with in-game name #{registration.player.igname}, who play #{registration.player.professions_text} at #{registration.player.guild&.name}, player ##{index}. His profile is accessible on https://gwrank.com/p/#{registration.player.slug}"
           end
@@ -86,7 +86,7 @@ class BotJob < ApplicationJob
           captain_b: captain_b,
         )
         event.respond "@#{event.user.name}, the captains are @#{scrim.captain_a.username} and @#{scrim.captain_b.username}."
-        event.respond "@#{scrim.captain_a.username} and @#{scrim.captain_b.username}, the players are : #{players}."
+        event.respond "@#{scrim.captain_a.username} and @#{scrim.captain_b.username}, the players are :"
         Registration.current_registrations.order(registered_at: :asc).each_with_index do |registration|
           event.respond "@#{registration.player.username}, with in-game name #{registration.player.igname}, who play #{registration.player.professions_text} at #{registration.player.guild&.name}, player ##{index}. His profile is accessible on https://gwrank.com/p/#{registration.player.slug}"
         end
