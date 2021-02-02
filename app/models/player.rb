@@ -19,7 +19,7 @@ class Player < ApplicationRecord
   validates_uniqueness_of :igname, on: :update
 
   scope :in_queue, -> { joins(:registrations)
-                          .where('registrations.registered_at > ?', DateTime.now - 1.hour)
+                          .where('registrations.registered_at > ?', DateTime.now - 4.hours)
                           .where('registrations.unregistered_at IS NULL')
                       }
 

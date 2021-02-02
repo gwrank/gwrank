@@ -6,7 +6,7 @@ class BotJob < ApplicationJob
 
     bot.message(with_text: '!help') do |event|
       event.respond "@#{event.user.name}, the command list is:"
-      event.respond "!register : to register yourself in the current queue for the next hour."
+      event.respond "!register : to register yourself in the current queue for the next 4 hours."
       event.respond "!unregister : to unregister yourself."
       event.respond "!captains : to designate or see current captains."
       event.respond "!newcaptains : to designate new captains."
@@ -17,7 +17,7 @@ class BotJob < ApplicationJob
       player = Player.find_by(uid: event.user.id)
       if player
         player.registrations.create(registered_at: DateTime.now)
-        event.respond "@#{event.user.name}, you are now in the current queue for the next hour."
+        event.respond "@#{event.user.name}, you are now in the current queue for the next 4 hours."
 
         current_registrations = Registration.current_registrations
         if current_registrations.count < 16
