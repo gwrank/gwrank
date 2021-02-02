@@ -16,8 +16,12 @@ class BotJob < ApplicationJob
     bot.message(with_text: '!register') do |event|
       player = Player.find_by(uid: event.user.id)
       if player
-        player.registrations.create(registered_at: DateTime.now)
-        event.respond "@#{event.user.name}, you are now in the current queue for the next 4 hours."
+        if player.has_current_registration?
+          event.respond "@#{event.user.name}, you are already in the current queue."
+        else
+          player.registrations.create(registered_at: DateTime.now)
+          event.respond "@#{event.user.name}, you are now in the current queue for the next 4 hours."
+        end
 
         current_registrations = Registration.current_registrations
         if current_registrations.count < 16
