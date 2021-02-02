@@ -56,6 +56,10 @@ class Player < ApplicationRecord
     professions
   end
 
+  def professions_text
+    professions.join(', ')
+  end
+
   def current_registrations
     registrations.current_registrations
   end

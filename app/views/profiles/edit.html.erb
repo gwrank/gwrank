@@ -13,7 +13,7 @@
                                 </div>
                                 <div class="col-12">
                                   <%= form.label :guild_id, 'Guild' %>
-                                  <%= form.select :guild_id, options_from_collection_for_select(@guilds, :id, :name_with_tag, @player.guild_id), { include_blank: true }, class: 'form-control custom-select' %>
+                                  <%= form.select :guild_id, options_from_collection_for_select(@guilds, :id, :name_with_tag, @player.guild_id), { include_blank: true }, class: 'form-control custom-select' %><span class="form-control-bg"></span>
                                 </div>
                                 <h2>Professions</h2>
                                 <div class="col-12">
