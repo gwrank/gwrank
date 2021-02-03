@@ -43,9 +43,9 @@ class BotJob < ApplicationJob
           elsif current_registrations.count > 16
             event.respond "@#{event.user.name}, you are on the waiting list."
           end
-        else
-          event.respond "@#{event.user.name}, you need to log in with Discord on https://gwrank.com to register yourself."
         end
+      else
+        event.respond "@#{event.user.name}, you need to log in with Discord on https://gwrank.com to register yourself."
       end
     end
 
