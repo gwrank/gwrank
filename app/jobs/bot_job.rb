@@ -89,7 +89,7 @@ class BotJob < ApplicationJob
         event.respond "@#{event.user.name}, the captains are @#{scrim.captain_a.username} and @#{scrim.captain_b.username}."
         event.respond "@#{scrim.captain_a.username} and @#{scrim.captain_b.username}, the players are :"
         Registration.current_registrations.order(registered_at: :asc).each do |registration|
-          event.respond "@#{registration.player.username}, with in-game name #{registration.player.igname}, who play #{registration.player.professions_text} at #{registration.player.guild&.name}, player ##{index}. His profile is accessible on https://gwrank.com/p/#{registration.player.slug}"
+          event.respond "@#{registration.player.username}, with in-game name #{registration.player.igname}, who play #{registration.player.professions_text} at #{registration.player.guild&.name}. His profile is accessible on https://gwrank.com/p/#{registration.player.slug}"
         end
       end
     end
@@ -97,7 +97,7 @@ class BotJob < ApplicationJob
     bot.message(with_text: '!players') do |event|
       event.respond "@#{event.user.name}, the current players are :"
       Registration.current_registrations.order(registered_at: :asc).each do |registration|
-        event.respond "@#{registration.player.username}, with in-game name #{registration.player.igname}, who play #{registration.player.professions_text} at #{registration.player.guild&.name}, player ##{index}. His profile is accessible on https://gwrank.com/p/#{registration.player.slug}"
+        event.respond "@#{registration.player.username}, with in-game name #{registration.player.igname}, who play #{registration.player.professions_text} at #{registration.player.guild&.name}. His profile is accessible on https://gwrank.com/p/#{registration.player.slug}"
       end
     end
 
