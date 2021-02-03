@@ -10,6 +10,7 @@ class BotJob < ApplicationJob
       event.respond "!unregister : to unregister yourself."
       event.respond "!captains : to designate or see current captains."
       event.respond "!newcaptains : to designate new captains."
+      event.respond "!players : to see current players."
       event.respond "!teams : to designate teams."
     end
 
@@ -21,30 +22,30 @@ class BotJob < ApplicationJob
         else
           player.registrations.create(registered_at: DateTime.now)
           event.respond "@#{event.user.name}, you are now in the current queue for the next 4 hours."
-        end
 
-        current_registrations = Registration.current_registrations
-        if current_registrations.count < 16
-          players_required = 16 - current_registrations.count
-          event.respond "@#{event.user.name}, we need #{players_required} more players to designate captains."
-        elsif current_registrations.count.eql?(16)
-          event.respond "@#{event.user.name}, you are the 16th player! I proceed to the captains designation..."
-          captain_a = Registration.current_registrations.order(registered_at: :asc).first(16).sample.player
-          captain_b = Registration.current_registrations.where.not(id: captain_a.current_registration.id).order(registered_at: :asc).first(15).sample.player
-          scrim = Scrim.create!(
-            captain_a: captain_a,
-            captain_b: captain_b,
-          )
-          event.respond "@#{event.user.name}, the captains are @#{scrim.captain_a.username} and @#{scrim.captain_b.username}."
-          event.respond "@#{scrim.captain_a.username} and @#{scrim.captain_b.username}, the players are :"
-          Registration.current_registrations.order(registered_at: :asc).each_with_index do |registration|
-            event.respond "@#{registration.player.username}, with in-game name #{registration.player.igname}, who play #{registration.player.professions_text} at #{registration.player.guild&.name}, player ##{index}. His profile is accessible on https://gwrank.com/p/#{registration.player.slug}"
+          current_registrations = Registration.current_registrations
+          if current_registrations.count < 16
+            players_required = 16 - current_registrations.count
+            event.respond "@#{event.user.name}, we need #{players_required} more players to designate captains."
+          elsif current_registrations.count.eql?(16)
+            event.respond "@#{event.user.name}, you are the 16th player! I proceed to the captains designation..."
+            captain_a = Registration.current_registrations.order(registered_at: :asc).first(16).sample.player
+            captain_b = Registration.current_registrations.where.not(id: captain_a.current_registration.id).order(registered_at: :asc).first(15).sample.player
+            scrim = Scrim.create!(
+              captain_a: captain_a,
+              captain_b: captain_b,
+            )
+            event.respond "@#{event.user.name}, the captains are @#{scrim.captain_a.username} and @#{scrim.captain_b.username}."
+            event.respond "@#{scrim.captain_a.username} and @#{scrim.captain_b.username}, the players are :"
+            Registration.current_registrations.order(registered_at: :asc).each do |registration|
+              event.respond "@#{registration.player.username}, with in-game name #{registration.player.igname}, who play #{registration.player.professions_text} at #{registration.player.guild&.name}, player ##{index}. His profile is accessible on https://gwrank.com/p/#{registration.player.slug}"
+            end
+          elsif current_registrations.count > 16
+            event.respond "@#{event.user.name}, you are on the waiting list."
           end
-        elsif current_registrations.count > 16
-          event.respond "@#{event.user.name}, you are on the waiting list."
+        else
+          event.respond "@#{event.user.name}, you need to log in with Discord on https://gwrank.com to register yourself."
         end
-      else
-        event.respond "@#{event.user.name}, you need to log in with Discord on https://gwrank.com to register yourself."
       end
     end
 
@@ -65,7 +66,7 @@ class BotJob < ApplicationJob
     bot.message(with_text: '!captains') do |event|
       current_registrations = Registration.current_registrations
       if current_registrations.count >= 16
-        scrim = Scrim.current_scrims.first
+        scrim = Scrim.current_scrims.order(created_at: :desc).first
         event.respond "@#{event.user.name}, the current captains are @#{scrim.captain_a.username} and @#{scrim.captain_b.username}."
       else
         players_required = 16 - current_registrations.count
@@ -81,15 +82,22 @@ class BotJob < ApplicationJob
       elsif current_registrations.count >= 16
         captain_a = Registration.current_registrations.order(registered_at: :asc).first(16).sample.player
         captain_b = Registration.current_registrations.where.not(id: captain_a.current_registration.id).order(registered_at: :asc).first(15).sample.player
-        Scrim.create!(
+        scrim = Scrim.create!(
           captain_a: captain_a,
           captain_b: captain_b,
         )
         event.respond "@#{event.user.name}, the captains are @#{scrim.captain_a.username} and @#{scrim.captain_b.username}."
         event.respond "@#{scrim.captain_a.username} and @#{scrim.captain_b.username}, the players are :"
-        Registration.current_registrations.order(registered_at: :asc).each_with_index do |registration|
+        Registration.current_registrations.order(registered_at: :asc).each do |registration|
           event.respond "@#{registration.player.username}, with in-game name #{registration.player.igname}, who play #{registration.player.professions_text} at #{registration.player.guild&.name}, player ##{index}. His profile is accessible on https://gwrank.com/p/#{registration.player.slug}"
         end
+      end
+    end
+
+    bot.message(with_text: '!players') do |event|
+      event.respond "@#{event.user.name}, the current players are :"
+      Registration.current_registrations.order(registered_at: :asc).each do |registration|
+        event.respond "@#{registration.player.username}, with in-game name #{registration.player.igname}, who play #{registration.player.professions_text} at #{registration.player.guild&.name}, player ##{index}. His profile is accessible on https://gwrank.com/p/#{registration.player.slug}"
       end
     end
 
