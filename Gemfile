@@ -34,6 +34,7 @@ gem 'friendly_id'
 gem 'high_voltage'
 gem 'omniauth-discord'
 gem 'pundit'
+gem 'seed_dump'
 gem 'sidekiq'
 
 group :development, :test do
