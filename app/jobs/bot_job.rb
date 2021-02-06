@@ -4,17 +4,18 @@ class BotJob < ApplicationJob
   def perform(*args)
     bot = Discordrb::Bot.new token: ENV['DISCORD_BOT_TOKEN']
 
-    bot.message(with_text: '!help') do |event|
-      event.respond "@#{event.user.name}, the command list is:"
-      event.respond "!register : to register yourself in the current queue for the next 4 hours."
-      event.respond "!unregister : to unregister yourself."
-      event.respond "!captains : to designate or see current captains."
-      event.respond "!newcaptains : to designate new captains."
-      event.respond "!players : to see current players."
-      event.respond "!teams : to designate teams."
+    bot.message(with_text: '!help', in: ENV['DISCORD_COMMAND_CHANNEL']) do |event|
+      message = "@#{event.user.name}, the command list is:"
+      message << "\n!register : to register yourself in the current queue for the next 4 hours."
+      message << "\n!unregister : to unregister yourself."
+      message << "\n!captains : to designate or see current captains."
+      message << "\n!newcaptains : to designate new captains."
+      message << "\n!players : to see current players."
+      message << "\n!teams : to designate teams."
+      event.respond message
     end
 
-    bot.message(with_text: '!register') do |event|
+    bot.message(with_text: '!register', in: ENV['DISCORD_COMMAND_CHANNEL']) do |event|
       player = Player.find_by(uid: event.user.id)
       if player
         if player.has_current_registration?
@@ -49,7 +50,7 @@ class BotJob < ApplicationJob
       end
     end
 
-    bot.message(with_text: '!unregister') do |event|
+    bot.message(with_text: '!unregister', in: ENV['DISCORD_COMMAND_CHANNEL']) do |event|
       player = Player.find_by(uid: event.user.id)
       if player
         if player.has_current_registration?
@@ -63,7 +64,7 @@ class BotJob < ApplicationJob
       end
     end
 
-    bot.message(with_text: '!captains') do |event|
+    bot.message(with_text: '!captains', in: ENV['DISCORD_COMMAND_CHANNEL']) do |event|
       current_registrations = Registration.current_registrations
       if current_registrations.count >= 16
         scrim = Scrim.current_scrims.order(created_at: :desc).first
@@ -74,7 +75,7 @@ class BotJob < ApplicationJob
       end
     end
 
-    bot.message(with_text: '!newcaptains') do |event|
+    bot.message(with_text: '!newcaptains', in: ENV['DISCORD_COMMAND_CHANNEL']) do |event|
       current_registrations = Registration.current_registrations
       if current_registrations.count < 16
         players_required = 16 - current_registrations.count
@@ -94,14 +95,14 @@ class BotJob < ApplicationJob
       end
     end
 
-    bot.message(with_text: '!players') do |event|
+    bot.message(with_text: '!players', in: ENV['DISCORD_COMMAND_CHANNEL']) do |event|
       event.respond "@#{event.user.name}, the current players are :"
       Registration.current_registrations.order(registered_at: :asc).each do |registration|
         event.respond "@#{registration.player.username}, with in-game name #{registration.player.igname}, who play #{registration.player.professions_text} at #{registration.player.guild&.name}. His profile is accessible on https://gwrank.com/p/#{registration.player.slug}"
       end
     end
 
-    bot.message(with_text: '!teams') do |event|
+    bot.message(with_text: '!teams', in: ENV['DISCORD_COMMAND_CHANNEL']) do |event|
       event.respond "This command is in development."
 
       # count = Player.count
