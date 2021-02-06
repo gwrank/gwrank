@@ -21,9 +21,25 @@ class Player < ApplicationRecord
   scope :in_queue, -> { joins(:registrations)
                           .where('registrations.registered_at > ?', DateTime.now - 4.hours)
                           .where('registrations.unregistered_at IS NULL')
+                          .order('registrations.registered_at ASC')
                       }
 
   scope :streamers, -> { where.not(twitch_username: '') }
+
+  scope :warriors, -> { where(is_warrior: true) }
+  scope :rangers, -> { where(is_ranger: true) }
+  scope :monks, -> { where(is_monk: true) }
+  scope :necromancers, -> { where(is_necromancer: true) }
+  scope :mesmers, -> { where(is_mesmer: true) }
+  scope :elementalists, -> { where(is_elementalist: true) }
+  scope :assassins, -> { where(is_assassin: true) }
+  scope :ritualists, -> { where(is_ritualist: true) }
+  scope :paragons, -> { where(is_paragon: true) }
+  scope :dervishs, -> { where(is_dervish: true) }
+
+  scope :frontliners, -> { warriors.or(dervishs).or(assassins) }
+  scope :midliners, -> { rangers.or(necromancers).or(mesmers).or(elementalists).or(ritualists).or(paragons) }
+  scope :backliners, -> { monks.or(ritualists) }
 
   def self.from_omniauth(auth)
     where(provider: auth.provider, uid: auth.uid).first_or_create do |player|
