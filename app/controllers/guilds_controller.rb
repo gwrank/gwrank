@@ -3,7 +3,7 @@ class GuildsController < ApplicationController
 
   def index
     authorize Guild
-    @guilds = Guild.all
+    @guilds = Guild.all.order(name: :asc)
   end
 
   def show
