@@ -9,11 +9,13 @@ class BotJob < ApplicationJob
       message << "<@#{event.user.id}>, the command list is:"
       message << "\n!register : to register yourself in the current queue for the next 8 hours."
       message << "\n!unregister : to unregister yourself."
-      message << "\n!captains : to designate or see current captains."
+      message << "\n!captains : to see current captains."
       message << "\n!newcaptains : to designate new captains."
-      message << "\n!players : to see current players."
-      message << "\n!teams : to designate teams."
+      message << "\n!forcenewcaptains : to designate new captains even if you have less than 16 players."
       message << "\n!roll : to roll 100."
+      message << "\n!players : to see current players."
+      message << "\n!newteams : to automatically designate new teams with current captains."
+      message << "\n!reset : to reset the current queue. (moderators only)"
       event.respond message
     end
 
@@ -22,31 +24,32 @@ class BotJob < ApplicationJob
       player = Player.find_by(uid: event.user.id)
       if player
         if player.has_current_registration?
-          message << "<@#{event.user.id}>, you are already in the current queue."
+          message = "<@#{event.user.id}>, you are already in the current queue."
         else
           player.registrations.create(registered_at: DateTime.now)
-          message << "<@#{event.user.id}>, you are now in the current queue for the next 8 hours. Type *!unregister* if you're off"
-
           current_registrations = Registration.current_registrations
+          message = "<@#{event.user.id}>, you are number #{current_registrations.count} in the current queue for the next 8 hours."
+          message << "\nIf you're out, please type *!unregister*"
+
           if current_registrations.count < 16
             players_required = 16 - current_registrations.count
-            message << "\n<@#{event.user.id}>, we need #{players_required} more players to designate captains."
+            message << "\nWe need #{players_required} more players to designate captains."
           elsif current_registrations.count.eql?(16)
-            message << "\n<@#{event.user.id}>, you are the 16th player! I proceed to the captains designation..."
+            message << "\nWe have 16 players! I proceed to the captains designation..."
             captain_a = Registration.current_registrations.order(registered_at: :asc).first(16).sample.player
             captain_b = Registration.current_registrations.where.not(id: captain_a.current_registration.id).order(registered_at: :asc).first(15).sample.player
             scrim = Scrim.create!(
               captain_a: captain_a,
               captain_b: captain_b,
             )
-            message << "\n<@#{event.user.id}>, the captains are <@#{scrim.captain_a.uid}> and <@#{scrim.captain_b.uid}>."
-            message << "\nType !teams to designate teams!"
-          elsif current_registrations.count > 16
-            message << "\n<@#{event.user.id}>, you are on the waiting list."
+            message << "\nThe captains are: <@#{scrim.captain_a.uid}> and <@#{scrim.captain_b.uid}>."
+            message << "\nTo see the players list, you can type *!players* or go on https://gwrank.com/scrims"
+            message << "\nTo automatically make teams with these new captains, you can type *!newteams*"
+            message << "\nTo roll 100, captains can type *!roll*"
           end
         end
       else
-        message << "<@#{event.user.id}>, you need to log in with Discord on https://gwrank.com to register yourself."
+        message = "<@#{event.user.id}>, you need to log in with Discord on https://gwrank.com to register yourself."
       end
       event.respond message
     end
@@ -57,35 +60,35 @@ class BotJob < ApplicationJob
       if player
         if player.has_current_registration?
           player.current_registration.update(unregistered_at: DateTime.now)
-          message << "<@#{event.user.id}>, you are not anymore in the current queue."
+          message = "<@#{event.user.id}>, you are not anymore in the current queue."
         else
-          message << "<@#{event.user.id}>, you were not in the current queue."
+          message = "<@#{event.user.id}>, you were not in the current queue."
         end
       else
-        message << "<@#{event.user.id}>, you need to log in with Discord on https://gwrank.com to unregister yourself."
+        message = "<@#{event.user.id}>, you need to log in with Discord on https://gwrank.com to unregister yourself."
       end
       event.respond message
     end
 
     bot.message(with_text: '!captains', in: ENV['DISCORD_COMMAND_CHANNEL']) do |event|
-      message = ''
       current_registrations = Registration.current_registrations
       if current_registrations.count >= 16
         scrim = Scrim.current_scrims.order(created_at: :desc).first
-        message << "<@#{event.user.id}>, the current captains are @#{scrim.captain_a.username} and @#{scrim.captain_b.username}."
+        message = "<@#{event.user.id}>, the current captains are @#{scrim.captain_a.username} and @#{scrim.captain_b.username}."
+        message << "\nIf you want new captains, you can type *!newcaptains*"
       else
         players_required = 16 - current_registrations.count
-        message << "<@#{event.user.id}>, we need #{players_required} more players to designate captains."
+        message = "<@#{event.user.id}>, we need #{players_required} more players to designate captains."
+        message << "\nIf you really want new captains with the current queue, you can type *!forcenewcaptains*"
       end
       event.respond message
     end
 
     bot.message(with_text: '!newcaptains', in: ENV['DISCORD_COMMAND_CHANNEL']) do |event|
-      message = ''
       current_registrations = Registration.current_registrations
       if current_registrations.count < 16
         players_required = 16 - current_registrations.count
-        message << "<@#{event.user.id}>, we need #{players_required} more players to designate captains."
+        message = "<@#{event.user.id}>, we need #{players_required} more players to designate captains."
       elsif current_registrations.count >= 16
         captain_a = Registration.current_registrations.order(registered_at: :asc).first(16).sample.player
         captain_b = Registration.current_registrations.where.not(id: captain_a.current_registration.id).order(registered_at: :asc).first(15).sample.player
@@ -93,32 +96,48 @@ class BotJob < ApplicationJob
           captain_a: captain_a,
           captain_b: captain_b,
         )
-        message << "<@#{event.user.id}>, the captains are @#{scrim.captain_a.username} and @#{scrim.captain_b.username}."
-        message << "\n@#{scrim.captain_a.username} and @#{scrim.captain_b.username}, the players are :"
-        Registration.current_registrations.order(registered_at: :asc).each do |registration|
-          message << "\n@#{registration.player.username}, in-game name #{registration.player.igname}, #{registration.player.professions_text} at #{registration.player.guild&.name}. Profile page: https://gwrank.com/p/#{registration.player.slug}"
-        end
+        message = "<@#{event.user.id}>, the new captains are: @#{scrim.captain_a.username} and @#{scrim.captain_b.username}."
+        message << "\nTo see the players list, you can type *!players* or go on https://gwrank.com/scrims"
+        message << "\nTo automatically make teams with these new captains, you can type *!newteams*"
+        message << "\nTo roll 100, captains can type *!roll*"
       end
       event.respond message
     end
 
-    bot.message(with_text: '!players', in: ENV['DISCORD_COMMAND_CHANNEL']) do |event|
-      message = ''
-      message << "<@#{event.user.id}>, the current players are :"
-      Registration.current_registrations.order(registered_at: :asc).each do |registration|
-        message << "\n@#{registration.player.username}, in-game name #{registration.player.igname}, #{registration.player.professions_text} at #{registration.player.guild&.name}. Profile page: https://gwrank.com/p/#{registration.player.slug}"
-      end
+    bot.message(with_text: '!forcenewcaptains', in: ENV['DISCORD_COMMAND_CHANNEL']) do |event|
+      captain_a = Registration.current_registrations.order(registered_at: :asc).first(16).sample.player
+      captain_b = Registration.current_registrations.where.not(id: captain_a.current_registration.id).order(registered_at: :asc).first(15).sample.player
+      scrim = Scrim.create!(
+        captain_a: captain_a,
+        captain_b: captain_b,
+      )
+      message = "<@#{event.user.id}>, the new captains are: @#{scrim.captain_a.username} and @#{scrim.captain_b.username}."
+      message << "\nTo see the players list, you can type *!players* or go on https://gwrank.com/scrims"
+      message << "\nTo roll 100, captains can type *!roll*"
       event.respond message
     end
 
     bot.message(with_text: '!roll', in: ENV['DISCORD_COMMAND_CHANNEL']) do |event|
-      message = ''
-      message << "<@#{event.user.id}>, you rolled : "
+      message = "<@#{event.user.id}>, you rolled : "
       message << rand(0..100).to_s
       event.respond message
     end
 
-    bot.message(with_text: '!teams', in: ENV['DISCORD_COMMAND_CHANNEL']) do |event|
+    bot.message(with_text: '!players', in: ENV['DISCORD_COMMAND_CHANNEL']) do |event|
+      message = "<@#{event.user.id}>, if the player list is too long to be posted there, you can see it on https://gwrank.com/scrims"
+      event.respond message
+
+      message = "<@#{event.user.id}>, the current players ordered by registration time are :"
+      Registration.current_registrations.order(registered_at: :asc).each do |registration|
+        message << "\n<@#{registration.player.uid}>"
+        message << ", in-game name #{registration.player.igname}" if registration.player.igname.present?
+        message << ", #{player.professions_text}" if registration.player.professions_text.present?
+        message << ". Profile page: https://gwrank.com/p/#{registration.player.slug}"
+      end
+      event.respond message
+    end
+
+    bot.message(with_text: '!newteams', in: ENV['DISCORD_COMMAND_CHANNEL']) do |event|
       player_ids = Player.in_queue.first(16).pluck(:id)
       selected_player_ids = []
       team_a_player_ids = []
@@ -227,7 +246,7 @@ class BotJob < ApplicationJob
       team_a_player_ids = team_a_player_ids.flatten
       team_b_player_ids = team_b_player_ids.flatten
 
-      message = 'Team A :'
+      message = 'Team A:'
       Player.where('id IN (?)', team_a_player_ids).each do |player|
         message << "\n<@#{player.uid}>"
         message << ', captain' if scrim.captain_a_id == player.id
@@ -237,7 +256,7 @@ class BotJob < ApplicationJob
       end
       event.respond message
 
-      message = 'Team B :'
+      message = 'Team B:'
       Player.where('id IN (?)', team_b_player_ids).each do |player|
         message << "\n<@#{player.uid}>"
         message << ', captain' if scrim.captain_b_id == player.id
@@ -259,7 +278,7 @@ class BotJob < ApplicationJob
 
     bot.message(with_text: '!reset', in: ENV['DISCORD_MODERATOR_CHANNEL']) do |event|
       Registration.current_registrations.update_all(unregister_at: DateTime.now)
-      message = "<@#{player.uid}>, you reset the current queue. Ask players in #scrims channel to !register themselves again."
+      message = "<@#{player.uid}>, you successfully reset the current queue. Ask players in #scrims channel to !register themselves again."
       event.respond message
     end
 
