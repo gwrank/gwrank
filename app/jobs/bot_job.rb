@@ -7,7 +7,7 @@ class BotJob < ApplicationJob
     bot.message(with_text: '!help', in: ENV['DISCORD_COMMAND_CHANNEL']) do |event|
       message = ''
       message << "<@#{event.user.id}>, the command list is:"
-      message << "\n!register : to register yourself in the current queue for the next 4 hours."
+      message << "\n!register : to register yourself in the current queue for the next 8 hours."
       message << "\n!unregister : to unregister yourself."
       message << "\n!captains : to designate or see current captains."
       message << "\n!newcaptains : to designate new captains."
@@ -25,7 +25,7 @@ class BotJob < ApplicationJob
           message << "<@#{event.user.id}>, you are already in the current queue."
         else
           player.registrations.create(registered_at: DateTime.now)
-          message << "<@#{event.user.id}>, you are now in the current queue for the next 4 hours."
+          message << "<@#{event.user.id}>, you are now in the current queue for the next 8 hours. Type *!unregister* if you're off"
 
           current_registrations = Registration.current_registrations
           if current_registrations.count < 16
