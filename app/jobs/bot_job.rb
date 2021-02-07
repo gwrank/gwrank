@@ -131,7 +131,7 @@ class BotJob < ApplicationJob
       Registration.current_registrations.order(registered_at: :asc).each do |registration|
         message << "\n<@#{registration.player.uid}>"
         message << ", in-game name #{registration.player.igname}" if registration.player.igname.present?
-        message << ", #{player.professions_text}" if registration.player.professions_text.present?
+        message << ", #{registration.player.professions_text}" if registration.player.professions_text.present?
         message << ". Profile page: https://gwrank.com/p/#{registration.player.slug}"
       end
       event.respond message
