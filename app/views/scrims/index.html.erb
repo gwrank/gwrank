@@ -57,46 +57,6 @@
                                     </li>
                                 </ul>
                             </div>
-                            <% if @current_scrims.any? %>
-                              <h2>Current scrims</h2>
-                              <ul class="cyberpress-matchs-archive">
-                                  <% @current_scrims.each do |current_scrim| %>
-                                    <li class="cyberpress-match">
-                                        <div class="cyberpress-match-participants">
-                                            <div class="cyberpress-match-participant">
-                                                <div class="cyberpress-match-participant-thumbnail">
-                                                    <a href="#">
-                                                        <span class="mpl-image">
-                                                        </span>
-                                                    </a>
-                                                </div>
-                                                <h2 class="cyberpress-match-participant-title h4">
-                                                    <%= link_to current_scrim.captain_a.name, player_path(current_scrim.captain_a) %>
-                                                </h2>
-                                            </div>
-                                            <div class="cyberpress-match-participant-vs">
-                                                <a href="#">
-                                                    <span class="cyberpress-match-participant-time-start"><%= l current_scrim.created_at %></span>
-                                                    <span class="cyberpress-match-points h3">VS</span>
-                                                </a>
-                                            </div>
-                                            <div class="cyberpress-match-participant">
-                                                <div class="cyberpress-match-participant-thumbnail">
-                                                    <a href="#">
-                                                        <span class="mpl-image">
-                                                            <img src="assets/images/esports/military-skull_300x300.png" alt="">
-                                                        </span>
-                                                    </a>
-                                                </div>
-                                                <h2 class="cyberpress-match-participant-title h4">
-                                                    <%= link_to current_scrim.captain_b.name, player_path(current_scrim.captain_b) %>
-                                                </h2>
-                                            </div>
-                                        </div>
-                                    </li>
-                                  <% end %>
-                              </ul>
-                            <% end %>
                             <% if @current_registrations.any? %>
                               <h2>Current registrations</h2>
                               <table class="table mpl-table-responsive-sm cyberpress-table cyberpress-team-players">
@@ -143,6 +103,46 @@
                               <% end %>
                             <% else %>
                               <%= link_to 'Log in with Discord to register myself', omniauth_authorize_path(:player, :discord), class: 'btn btn-md btn-brand' %>
+                            <% end %>
+                            <% if @current_scrims.any? %>
+                              <h2>Captains</h2>
+                              <ul class="cyberpress-matchs-archive">
+                                  <% @current_scrims.each do |current_scrim| %>
+                                    <li class="cyberpress-match">
+                                        <div class="cyberpress-match-participants">
+                                            <div class="cyberpress-match-participant">
+                                                <div class="cyberpress-match-participant-thumbnail">
+                                                    <a href="#">
+                                                        <span class="mpl-image">
+                                                        </span>
+                                                    </a>
+                                                </div>
+                                                <h2 class="cyberpress-match-participant-title h4">
+                                                    <%= link_to current_scrim.captain_a.name, player_path(current_scrim.captain_a) %>
+                                                </h2>
+                                            </div>
+                                            <div class="cyberpress-match-participant-vs">
+                                                <a href="#">
+                                                    <span class="cyberpress-match-participant-time-start"><%= l current_scrim.created_at %></span>
+                                                    <span class="cyberpress-match-points h3">VS</span>
+                                                </a>
+                                            </div>
+                                            <div class="cyberpress-match-participant">
+                                                <div class="cyberpress-match-participant-thumbnail">
+                                                    <a href="#">
+                                                        <span class="mpl-image">
+                                                            <img src="assets/images/esports/military-skull_300x300.png" alt="">
+                                                        </span>
+                                                    </a>
+                                                </div>
+                                                <h2 class="cyberpress-match-participant-title h4">
+                                                    <%= link_to current_scrim.captain_b.name, player_path(current_scrim.captain_b) %>
+                                                </h2>
+                                            </div>
+                                        </div>
+                                    </li>
+                                  <% end %>
+                              </ul>
                             <% end %>
                         </article>
                     </div>
