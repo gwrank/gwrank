@@ -257,6 +257,12 @@ class BotJob < ApplicationJob
       event.respond message
     end
 
+    bot.message(with_text: '!reset', in: ENV['DISCORD_MODERATOR_CHANNEL']) do |event|
+      Registration.current_registrations.update_all(unregister_at: DateTime.now)
+      message = "<@#{player.uid}>, you reset the current queue. Ask players in #scrims channel to !register themselves again."
+      event.respond message
+    end
+
     # Run the bot in another thread in the background:
     bot.run(true)
   end
