@@ -81,10 +81,22 @@ class Player < ApplicationRecord
   end
 
   def current_registration
-    current_registrations.first
+    current_registrations.order(registered_at: :desc).first
   end
 
   def has_current_registration?
     current_registrations.any?
+  end
+
+  def afk_registrations
+    registrations.afk_registrations
+  end
+
+  def afk_registration
+    afk_registrations.order(unregistered_at: :desc).first
+  end
+
+  def has_afk_registration?
+    afk_registrations.any?
   end
 end

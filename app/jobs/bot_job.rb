@@ -49,7 +49,6 @@ class BotJob < ApplicationJob
     end
 
     bot.message(with_text: '!unregister', in: ENV['DISCORD_COMMAND_CHANNEL']) do |event|
-      message = ''
       player = Player.find_by(uid: event.user.id)
       if player
         if player.has_current_registration?
