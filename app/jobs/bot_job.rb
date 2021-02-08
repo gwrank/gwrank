@@ -15,7 +15,7 @@ class BotJob < ApplicationJob
       message << "\n!roll : to roll 100."
       message << "\n!players : to see current players."
       message << "\n!newteams : to automatically designate new teams with current captains."
-      message << "\n!moveplayers : to automatically move players to the Scrimers voice channel."
+      message << "\n!moveplayers : to automatically move players to the Scrimers voice channel. (moderators only)"
       message << "\n!reset : to reset the current queue. (moderators only)"
       event.respond message
     end
