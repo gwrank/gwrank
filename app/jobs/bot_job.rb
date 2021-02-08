@@ -33,19 +33,12 @@ class BotJob < ApplicationJob
 
           if current_registrations.count < 16
             players_required = 16 - current_registrations.count
-            message << "\nWe need #{players_required} more players to designate captains."
+            message << "\nWe need #{players_required} more players."
           elsif current_registrations.count.eql?(16)
-            message << "\nWe have 16 players! I proceed to the captains designation..."
-            captain_a = Registration.current_registrations.order(registered_at: :asc).first(16).sample.player
-            captain_b = Registration.current_registrations.where.not(id: captain_a.current_registration.id).order(registered_at: :asc).first(15).sample.player
-            scrim = Scrim.create!(
-              captain_a: captain_a,
-              captain_b: captain_b,
-            )
-            message << "\nThe captains are: <@#{scrim.captain_a.uid}> and <@#{scrim.captain_b.uid}>."
+            message << "\nWe have 16 players!"
             message << "\nTo see the players list, you can type *!players* or go on https://gwrank.com/scrims"
-            message << "\nTo automatically make teams with these new captains, you can type *!newteams*"
             message << "\nTo roll 100, captains can type *!roll*"
+            message << "\nTo automatically designate captains, you can type *!newcaptains*"
           end
         end
       else
@@ -98,8 +91,8 @@ class BotJob < ApplicationJob
         )
         message = "<@#{event.user.id}>, the new captains are: @#{scrim.captain_a.username} and @#{scrim.captain_b.username}."
         message << "\nTo see the players list, you can type *!players* or go on https://gwrank.com/scrims"
-        message << "\nTo automatically make teams with these new captains, you can type *!newteams*"
         message << "\nTo roll 100, captains can type *!roll*"
+        message << "\nTo automatically make teams with these new captains, you can type *!newteams*"
       end
       event.respond message
     end
