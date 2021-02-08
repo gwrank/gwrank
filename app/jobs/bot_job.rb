@@ -15,6 +15,7 @@ class BotJob < ApplicationJob
       message << "\n!roll : to roll 100."
       message << "\n!players : to see current players."
       message << "\n!newteams : to automatically designate new teams with current captains."
+      message << "\n!moveplayers : to automatically move players to the Scrimers voice channel."
       message << "\n!reset : to reset the current queue. (moderators only)"
       event.respond message
     end
@@ -266,6 +267,24 @@ class BotJob < ApplicationJob
         message << ", #{player.professions_text}" if player.professions_text.present?
         message << ". Profile page: https://gwrank.com/p/#{player.slug}"
       end
+      event.respond message
+    end
+
+    bot.message(with_text: '!moveplayers', in: ENV['DISCORD_COMMAND_CHANNEL']) do |event|
+      server = bot.server(ENV['DISCORD_SERVER_ID'])
+      channel = bot.channel(ENV['DISCORD_SCRIMERS_VOICE_CHANNEL_ID'])
+
+      player = Player.find_by(uid: event.user.id)
+      if player.is_moderator?
+        Registration.current_registrations.order(registered_at: :asc).first(16).each do |registration|
+          user = bot.user(registration.player.uid)
+          server.move(user, channel)
+        end
+        message = "<@#{event.user.id}>, the current first 16 players were moved to the Scrimers voice channel."
+      else
+        message = "<@#{event.user.id}>, you need to ask a @moderator to move players."
+      end
+
       event.respond message
     end
 
