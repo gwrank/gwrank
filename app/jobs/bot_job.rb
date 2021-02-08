@@ -269,9 +269,15 @@ class BotJob < ApplicationJob
       event.respond message
     end
 
-    bot.message(with_text: '!reset', in: ENV['DISCORD_MODERATOR_CHANNEL']) do |event|
-      Registration.current_registrations.update_all(unregistered_at: DateTime.now)
-      message = "<@#{event.user.id}>, you successfully reset the current queue. Ask players in #scrims channel to !register themselves again."
+    bot.message(with_text: '!reset', in: ENV['DISCORD_COMMAND_CHANNEL']) do |event|
+      player = Player.find_by(uid: event.user.id)
+      if player.is_moderator?
+        Registration.current_registrations.update_all(unregistered_at: DateTime.now)
+        message = "<@#{event.user.id}>, you successfully reset the current queue."
+        message << "\nPlayers can *!register* themselves again."
+      else
+        message = "<@#{event.user.id}>, you need to ask a @moderator to reset the current queue."
+      end
       event.respond message
     end
 
