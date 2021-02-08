@@ -4,7 +4,7 @@ class CommandBotJob < ApplicationJob
   def perform(*args)
     bot = Discordrb::Commands::CommandBot.new token: ENV['DISCORD_BOT_TOKEN'], client_id: ENV['DISCORD_CLIENT_ID'], prefix: '!'
 
-    bot.command :igname do |event, player|
+    bot.command :igname, channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event, player|
       if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
         player = player.delete_prefix('<@!').delete_suffix('>')
         player = Player.find_by(uid: player)
@@ -19,7 +19,7 @@ class CommandBotJob < ApplicationJob
       event.respond message
     end
 
-    bot.command :add do |event, player|
+    bot.command :add, channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event, player|
       if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
         player = player.delete_prefix('<@!').delete_suffix('>')
         player = Player.find_by(uid: player)
@@ -51,7 +51,7 @@ class CommandBotJob < ApplicationJob
       event.respond message
     end
 
-    bot.command :remove do |event, player|
+    bot.command :remove, channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event, player|
       if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
         player = player.delete_prefix('<@!').delete_suffix('>')
         player = Player.find_by(uid: player)
@@ -71,7 +71,7 @@ class CommandBotJob < ApplicationJob
       event.respond message
     end
 
-    bot.command :afk do |event, player|
+    bot.command :afk, channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event, player|
       if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
         player = player.delete_prefix('<@!').delete_suffix('>')
         player = Player.find_by(uid: player)
@@ -101,7 +101,7 @@ class CommandBotJob < ApplicationJob
       event.respond message
     end
 
-    bot.command :back do |event, player|
+    bot.command :back, channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event, player|
       if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
         player = player.delete_prefix('<@!').delete_suffix('>')
         player = Player.find_by(uid: player)

@@ -1,5 +1,5 @@
 class StreamersController < ApplicationController
   def index
-    @streamers = Player.streamers
+    @streamers = Player.streamers.order(username: :asc)
   end
 end
