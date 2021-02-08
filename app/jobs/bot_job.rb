@@ -8,7 +8,13 @@ class BotJob < ApplicationJob
       message = ''
       message << "<@#{event.user.id}>, the command list is:"
       message << "\n!register : to register yourself in the current queue for the next 8 hours."
+      message << "\n!add @player : to add a player in the current queue for the next 8 hours."
+      message << "\n!afk : to be in AFK mode until you're back."
+      message << "\n!afk @player : to put a player in AFK mode until he's back."
+      message << "\n!back : to be back in the current queue."
+      message << "\n!back @player : to add the player back in the current queue."
       message << "\n!unregister : to unregister yourself."
+      message << "\n!remove @player : to remove a player from the current queue."
       message << "\n!captains : to see current captains."
       message << "\n!newcaptains : to designate new captains."
       message << "\n!forcenewcaptains : to designate new captains even if you have less than 16 players."
