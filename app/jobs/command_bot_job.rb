@@ -163,7 +163,7 @@ class CommandBotJob < ApplicationJob
         if player
           if player.has_afk_registration?
             player.afk_registration.update(unregistered_at: nil)
-            message = "<@#{event.user.id}>, you are now back in the queue."
+            message = "<@#{event.user.id}>, welcome back!"
           else
             message = "<@#{event.user.id}>, you were not in the current queue."
           end
