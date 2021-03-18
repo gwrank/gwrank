@@ -19,19 +19,30 @@ class CommandBotJob < ApplicationJob
       event.respond message
     end
 
-    bot.command :register, description: 'to register yourself in the current queue', channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event|
+    bot.command :register, description: 'to register yourself in the current queue and your in-game name', channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event, *igname|
       message = ''
       player = Player.where(provider: 'discord', uid: event.user.id).first_or_create do |player|
         player.email = event.user.id + '@gwrank.com'
         player.password = Devise.friendly_token[0, 20]
         player.username = event.user.name
       end
+      if player.igname.present?
+        if player.igname != igname
+          igname = igname.join(' ')
+          player.update(igname: igname)
+          message << "\nYour known in-game name is #{player.igname}. You successfully updated it."
+        else
+          message << "\nYour known in-game name is #{player.igname}. If you want to update it, please type *!register In Game Name*"
+        end
+      else
+        message << "\nYour in-game name is unknown on GWRank.com. If you want to add it, please type *!register In Game Name*"
+      end
       if player.has_current_registration?
-        message = "<@#{event.user.id}>, you are already in the current queue."
+        message << "<@#{event.user.id}>, you are already in the current queue."
       else
         player.registrations.create(registered_at: DateTime.now)
         current_registrations = Registration.current_registrations
-        message = "<@#{event.user.id}>, you are number #{current_registrations.count} in the current queue for the next 8 hours."
+        message << "<@#{event.user.id}>, you are in the current queue for the next 8 hours."
         message << "\nIf you're out, please type *!unregister*"
 
         if current_registrations.count < 16
