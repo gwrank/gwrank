@@ -71,7 +71,7 @@ class CommandBotJob < ApplicationJob
             end
           end
         else
-          message = "<@#{event.user.id}>, the player is not found and have first to Log in with Discord on https://gwrank.com."
+          message = "<@#{event.user.id}>, the player is not found and have first to !register himself."
         end
       else
         message = "<@#{event.user.id}>, this is an invalid player."
@@ -106,7 +106,7 @@ class CommandBotJob < ApplicationJob
             message = "<@#{event.user.id}>, the player #{player.name} was not in the current queue."
           end
         else
-          message = "<@#{event.user.id}>, the player is not found and have first to Log in with Discord on https://gwrank.com."
+          message = "<@#{event.user.id}>, the player is not found and have first to !register himself."
         end
       else
         message = "<@#{event.user.id}>, this is an invalid player."
@@ -126,7 +126,7 @@ class CommandBotJob < ApplicationJob
             message = "<@#{event.user.id}>, the player #{player.name} is not in the current queue."
           end
         else
-          message = "<@#{event.user.id}>, the player is not found and have first to Log in with Discord on https://gwrank.com."
+          message = "<@#{event.user.id}>, the player is not found and have first to !register himself."
         end
       else
         player = Player.find_by(uid: event.user.id)
@@ -156,7 +156,7 @@ class CommandBotJob < ApplicationJob
             message = "<@#{event.user.id}>, the player #{player.name} was not in AFK mode."
           end
         else
-          message = "<@#{event.user.id}>, the player is not found and have first to Log in with Discord on https://gwrank.com."
+          message = "<@#{event.user.id}>, the player is not found and have first to !register himself."
         end
       else
         player = Player.find_by(uid: event.user.id)
@@ -355,7 +355,6 @@ class CommandBotJob < ApplicationJob
         message << ', captain' if scrim.captain_a_id == player.id
         message << ", in-game name #{player.igname}" if player.igname.present?
         message << ", #{player.professions_text}" if player.professions_text.present?
-        message << ". Profile page: https://gwrank.com/p/#{player.slug}"
       end
       event.respond message
 
@@ -365,7 +364,6 @@ class CommandBotJob < ApplicationJob
         message << ', captain' if scrim.captain_b_id == player.id
         message << ", in-game name #{player.igname}" if player.igname.present?
         message << ", #{player.professions_text}" if player.professions_text.present?
-        message << ". Profile page: https://gwrank.com/p/#{player.slug}"
       end
       event.respond message
 
@@ -374,7 +372,6 @@ class CommandBotJob < ApplicationJob
         message << "\n<@#{player.uid}>"
         message << ", in-game name #{player.igname}" if player.igname.present?
         message << ", #{player.professions_text}" if player.professions_text.present?
-        message << ". Profile page: https://gwrank.com/p/#{player.slug}"
       end
       event.respond message
     end
