@@ -243,8 +243,8 @@ class CommandBotJob < ApplicationJob
       event.respond message
 
       message = "<@#{event.user.id}>, the current players ordered by registration time are :"
-      Registration.current_registrations.order(registered_at: :asc).each do |registration|
-        message << "\n<@#{registration.player.uid}>"
+      Registration.current_registrations.order(registered_at: :asc).each_with_index do |registration, index|
+        message << "\n##{index + 1} <@#{registration.player.uid}>"
         message << ", in-game name #{registration.player.igname}" if registration.player.igname.present?
         message << ", #{registration.player.professions_text}" if registration.player.professions_text.present?
       end
