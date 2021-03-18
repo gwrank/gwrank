@@ -38,7 +38,7 @@ class CommandBotJob < ApplicationJob
         message << "\nYour in-game name is unknown on GWRank.com. If you want to add it, please type *!register In Game Name*"
       end
       if player.has_current_registration?
-        message << "<@#{event.user.id}>, you are already in the current queue."
+        message << "\n<@#{event.user.id}>, you are already in the current queue."
       else
         player.registrations.create(registered_at: DateTime.now)
         current_registrations = Registration.current_registrations
