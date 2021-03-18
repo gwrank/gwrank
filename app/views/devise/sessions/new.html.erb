@@ -3,35 +3,14 @@
     <div>
         <section class="mpl-banner mpl-banner-top mpl-banner-parallax">
             <div class="mpl-image" data-speed="0.8">
-                <img src="assets/images/dark/banner-bg.jpg" alt="" class="jarallax-img">
+                <%= image_tag 'background.jpg', class: 'jarallax-img' %>
             </div>
             <div class="mpl-banner-content mpl-box-sm">
                 <div class="container">
                     <div class="row justify-content-center">
                         <div class="col-12 col-md-8 col-lg-6 col-xl-5">
                             <div class="mpl-sign-form" data-sr="sign" data-sr-interval="100" data-sr-duration="1000" data-sr-distance="20">
-                                <h1 data-sr-item="sign">Sign In</h1>
-                                <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-                                    <div class="row hgap-xs vgap-sm align-items-center">
-                                        <div class="col-12" data-sr-item="sign">
-                                            <%= f.email_field :email, autofocus: true, autocomplete: 'email', placeholder: 'Email', class: 'form-control' %><span class="form-control-bg"></span>
-                                        </div>
-                                        <div class="col-12" data-sr-item="sign">
-                                            <%= f.password_field :password, autocomplete: 'current-password', placeholder: 'Password', class: 'form-control' %><span class="form-control-bg"></span>
-                                        </div>
-                                        <% if devise_mapping.rememberable? %>
-                                          <div class="col" data-sr-item="sign">
-                                            <div class="custom-control custom-checkbox">
-                                              <%= f.check_box :remember_me, class: 'custom-control-input' %>
-                                              <%= f.label :remember_me, class: 'custom-control-label' %>
-                                            </div>
-                                          </div>
-                                        <% end %>
-                                        <div class="col-12" data-sr-item="sign">
-                                            <%= f.submit 'Log in', class: 'btn btn-md btn-block btn-success' %>
-                                        </div>
-                                    </div>
-                                <% end %>
+                                <%= link_to 'Log in with Discord', omniauth_authorize_path(:player, :discord), class: 'btn btn-md btn-brand' %>
                             </div>
                         </div>
                     </div>
