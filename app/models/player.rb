@@ -7,11 +7,7 @@ class Player < ApplicationRecord
   extend FriendlyId
   friendly_id :username, use: :slugged
 
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
-  devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable,
-         :omniauthable
+  devise :database_authenticatable, :omniauthable, :rememberable, :lockable
 
   validates_presence_of :password, on: :create
   validates_confirmation_of :password, on: :create
