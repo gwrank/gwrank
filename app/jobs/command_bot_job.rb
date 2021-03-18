@@ -22,7 +22,7 @@ class CommandBotJob < ApplicationJob
     bot.command :register, description: 'to register yourself in the current queue and your in-game name', channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event, *igname|
       message = ''
       player = Player.where(provider: 'discord', uid: event.user.id).first_or_create do |player|
-        player.email = event.user.id + '@gwrank.com'
+        player.email = "#{event.user.id}@gwrank.com"
         player.password = Devise.friendly_token[0, 20]
         player.username = event.user.name
       end
