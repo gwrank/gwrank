@@ -14,7 +14,7 @@
         <div class="mpl-box-md">
             <div class="container">
                 <h2>Players</h2>
-                <p> <%= @players.count %> players </p>
+                <p> <%= pluralize @players.count, 'player' %> </p>
                 <table class="table table-striped mb-60">
                   <thead>
                       <tr>
@@ -44,10 +44,12 @@
                           <td>
                             <% if player.is_verified? %>
                               <%= link_to 'Remove verified badge', administration_player_unchecks_path(player), method: :post, class: 'btn btn-sm' %>
-                            <% else %>
+                            <% elsif player.igname.present? %>
                               <%= link_to 'Add verified badge', administration_player_checks_path(player), method: :post, class: 'btn btn-sm btn-success' %>
+                            <% else %>
+                              <button type="button" class="btn btn-sm btn-danger disabled" data-toggle="tooltip" data-placement="top" title="" data-original-title="The player need an in-game name to be verified">Add verified badge</button>
                             <% end %>
-                            <%= link_to 'Send invitation', administration_player_invitations_path(player), method: :post, class: 'btn btn-sm btn-primary' %>
+                            <%= link_to 'Send scrim invitation', administration_player_invitations_path(player), method: :post, class: 'btn btn-sm btn-primary' %>
                           </td>
                         </tr>
                       <% end %>

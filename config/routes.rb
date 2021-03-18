@@ -15,7 +15,6 @@ Rails.application.routes.draw do
     end
   end
 
-  devise_for :admins
   devise_for :players, controllers: {
     omniauth_callbacks: 'players/omniauth_callbacks'
   }
