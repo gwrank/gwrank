@@ -247,6 +247,10 @@ class CommandBotJob < ApplicationJob
         message << "\n##{index + 1} <@#{registration.player.uid}>"
         message << ", in-game name #{registration.player.igname}" if registration.player.igname.present?
         message << ", #{registration.player.professions_text}" if registration.player.professions_text.present?
+        if index > 15
+          event.respond message
+          message = ''
+        end
       end
       event.respond message
     end
