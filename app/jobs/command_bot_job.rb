@@ -236,7 +236,6 @@ class CommandBotJob < ApplicationJob
         message << "\n<@#{registration.player.uid}>"
         message << ", in-game name #{registration.player.igname}" if registration.player.igname.present?
         message << ", #{registration.player.professions_text}" if registration.player.professions_text.present?
-        message << ". Profile page: https://gwrank.com/p/#{registration.player.slug}"
       end
       event.respond message
     end
