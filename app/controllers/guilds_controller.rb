@@ -1,4 +1,6 @@
 class GuildsController < ApplicationController
+  before_action :authenticate_player!
+
   before_action :set_guild, only: [:show, :edit]
 
   def index

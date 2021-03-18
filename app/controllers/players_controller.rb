@@ -1,4 +1,6 @@
 class PlayersController < ApplicationController
+  before_action :authenticate_player!
+
   def index
     @players = Player.all.order(created_at: :desc)
   end
