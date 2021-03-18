@@ -20,5 +20,6 @@ module Gwrank
     # config.eager_load_paths << Rails.root.join("extras")
 
     config.active_job.queue_adapter = :sidekiq
+    config.middleware.insert_after ActionDispatch::RemoteIp, IpAnonymizer::MaskIp
   end
 end
