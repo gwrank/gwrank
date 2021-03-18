@@ -27,7 +27,7 @@ class CommandBotJob < ApplicationJob
         player.username = event.user.name
       end
       if player.igname.present?
-        if player.igname != igname
+        if igname.count > 1 && player.igname != igname
           igname = igname.join(' ')
           player.update(igname: igname)
           message << "\nYour known in-game name is #{player.igname}. You successfully updated it."
