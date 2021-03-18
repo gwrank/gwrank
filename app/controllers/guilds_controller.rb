@@ -22,6 +22,7 @@ class GuildsController < ApplicationController
     @guild.owner = current_player
     authorize @guild
     if @guild.save
+      current_player.update(guild: @guild)
       redirect_to guild_path(@guild)
     else
       render :new
