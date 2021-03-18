@@ -21,28 +21,28 @@ class CommandBotJob < ApplicationJob
 
     bot.command :register, description: 'to register yourself in the current queue', channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event|
       message = ''
-      player = Player.find_by(uid: event.user.id)
-      if player
-        if player.has_current_registration?
-          message = "<@#{event.user.id}>, you are already in the current queue."
-        else
-          player.registrations.create(registered_at: DateTime.now)
-          current_registrations = Registration.current_registrations
-          message = "<@#{event.user.id}>, you are number #{current_registrations.count} in the current queue for the next 8 hours."
-          message << "\nIf you're out, please type *!unregister*"
-
-          if current_registrations.count < 16
-            players_required = 16 - current_registrations.count
-            message << "\nWe need #{players_required} more players."
-          elsif current_registrations.count.eql?(16)
-            message << "\nWe have 16 players!"
-            message << "\nTo see the players list, you can type *!players* or go on https://gwrank.com/scrims"
-            message << "\nTo roll 100, captains can type *!roll*"
-            message << "\nTo automatically designate captains, you can type *!newcaptains*"
-          end
-        end
+      player = Player.where(provider: 'discord', uid: event.user.id).first_or_create do |player|
+        player.email = event.user.id + '@gwrank.com'
+        player.password = Devise.friendly_token[0, 20]
+        player.username = event.user.name
+      end
+      if player.has_current_registration?
+        message = "<@#{event.user.id}>, you are already in the current queue."
       else
-        message = "<@#{event.user.id}>, you need to log in with Discord on https://gwrank.com to register yourself."
+        player.registrations.create(registered_at: DateTime.now)
+        current_registrations = Registration.current_registrations
+        message = "<@#{event.user.id}>, you are number #{current_registrations.count} in the current queue for the next 8 hours."
+        message << "\nIf you're out, please type *!unregister*"
+
+        if current_registrations.count < 16
+          players_required = 16 - current_registrations.count
+          message << "\nWe need #{players_required} more players."
+        elsif current_registrations.count.eql?(16)
+          message << "\nWe have 16 players!"
+          message << "\nTo see the players list, you can type *!players* or go on https://gwrank.com/scrims"
+          message << "\nTo roll 100, captains can type *!roll*"
+          message << "\nTo automatically designate captains, you can type *!newcaptains*"
+        end
       end
       event.respond message
     end
@@ -89,7 +89,7 @@ class CommandBotJob < ApplicationJob
           message = "<@#{event.user.id}>, you were not in the current queue."
         end
       else
-        message = "<@#{event.user.id}>, you need to log in with Discord on https://gwrank.com to unregister yourself."
+        message = "<@#{event.user.id}>, you need to !register yourself first."
       end
       event.respond message
     end
@@ -138,7 +138,7 @@ class CommandBotJob < ApplicationJob
             message = "<@#{event.user.id}>, you were not in the current queue."
           end
         else
-          message = "<@#{event.user.id}>, you need to log in with Discord on https://gwrank.com to be in AFK mode."
+          message = "<@#{event.user.id}>, you need to !register yourself first."
         end
       end
       event.respond message
@@ -168,7 +168,7 @@ class CommandBotJob < ApplicationJob
             message = "<@#{event.user.id}>, you were not in the current queue."
           end
         else
-          message = "<@#{event.user.id}>, you need to log in with Discord on https://gwrank.com to be in AFK mode."
+          message = "<@#{event.user.id}>, you need to !register yourself first."
         end
       end
       event.respond message
@@ -405,7 +405,7 @@ class CommandBotJob < ApplicationJob
         message = "<@#{event.user.id}>, you successfully reset the current queue."
         message << "\nPlayers can *!register* themselves again."
       else
-        message = "<@#{event.user.id}>, you need to ask a @moderator to reset the current queue."
+        message = "<@#{event.user.id}>, you need to ask a moderator to reset the current queue."
       end
       event.respond message
     end
