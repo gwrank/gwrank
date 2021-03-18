@@ -7,11 +7,10 @@
             </div>
             <div class="mpl-banner-content mpl-box-sm">
                 <div class="container">
-                    <div class="row justify-content-center">
-                        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-                            <div class="mpl-sign-form" data-sr="sign" data-sr-interval="100" data-sr-duration="1000" data-sr-distance="20">
-                                <%= link_to 'Log in with Discord', omniauth_authorize_path(:player, :discord), class: 'btn btn-md btn-brand' %>
-                            </div>
+                    <div class="row">
+                        <div class="col-lg-10" data-sr="banner" data-sr-interval="200" data-sr-duration="1200" data-sr-distance="20">
+                            <h1 class="display-1" data-sr-item="banner">GWRank Log&nbsp;in</h1>
+                            <%= link_to 'Log in with Discord', omniauth_authorize_path(:player, :discord), class: 'btn btn-md btn-brand' %>
                         </div>
                     </div>
                 </div>
