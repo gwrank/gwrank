@@ -95,4 +95,12 @@ class Player < ApplicationRecord
   def has_afk_registration?
     afk_registrations.any?
   end
+
+  def notifications_count
+    counter = 0
+    counter += 1 unless igname.present?
+    counter += 1 unless guild_id.present?
+    counter += 1 if professions.empty?
+    counter
+  end
 end

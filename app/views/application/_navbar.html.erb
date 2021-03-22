@@ -43,6 +43,57 @@
                 <% end %>
             </ul>
             <ul class="mpl-navbar-nav mpl-navbar-right">
+                <% if current_player %>
+                    <li class="mpl-dropdown">
+                        <a href="#" class="mpl-nav-link" role="button">
+                            <span class="mpl-nav-link-name">
+                                <%= current_player.name %>
+                                <% if current_player.notifications_count > 0 %>
+                                    <span class="badge badge-brand"><%= current_player.notifications_count %></span>
+                                <% end %>
+                            </span>
+                        </a>
+                        <div class="mpl-dropdown-menu">
+                            <ul class="mpl-navbar-nav">
+                                <li>
+                                    <%= link_to player_path(current_player), class: 'mpl-nav-link' do %>
+                                        <span class="mpl-nav-link-name"> Show Profile </span>
+                                    <% end %>
+                                </li>
+                                <li>
+                                    <%= link_to edit_profile_path, class: 'mpl-nav-link' do %>
+                                        <span class="mpl-nav-link-name">
+                                            Edit Profile
+                                            <% if current_player.notifications_count > 0 %>
+                                                <span class="badge badge-brand"><%= current_player.notifications_count %></span>
+                                            <% end %>
+                                        </span>
+                                    <% end %>
+                                </li>
+                                <li>
+                                    <%= link_to destroy_player_session_path, method: :delete, class: 'mpl-nav-link' do %>
+                                        <span class="mpl-nav-link-name"> Log Out </span>
+                                    <% end %>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                <% else %>
+                    <li class="mpl-dropdown mpl-dropdown-user">
+                        <a href="#" class="mpl-nav-link" role="button">
+                            <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" />
+                            </svg>
+                        </a>
+                        <div class="mpl-dropdown-menu">
+                            <div class="row hgap-sm vgap-sm align-items-center">
+                                <div class="col-12">
+                                    <%= link_to 'Log In with Discord', omniauth_authorize_path(:player, :discord), class: 'btn btn-block btn-default' %>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                <% end %>
                 <li>
                     <a href="https://discord.gg/jqShPZBkcj" target="_blank" class="mpl-nav-link">
                         <svg class="icon icon-fill" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

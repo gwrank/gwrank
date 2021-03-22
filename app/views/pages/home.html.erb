@@ -16,7 +16,7 @@
                               </p>
                               <%= link_to 'Show profile', player_path(current_player), class: 'btn btn-md btn-brand' %>
                               <%= link_to 'Edit profile', edit_profile_path, class: 'btn btn-md btn-brand' %>
-                              <%= link_to 'Sign out', destroy_player_session_path, method: :delete, class: 'btn btn-md btn-brand"' %>
+                              <%= link_to 'Log Out', destroy_player_session_path, method: :delete, class: 'btn btn-md btn-brand' %>
                             <% else %>
                               <%= link_to 'Log in with Discord', omniauth_authorize_path(:player, :discord), class: 'btn btn-md btn-brand' %>
                             <% end %>
