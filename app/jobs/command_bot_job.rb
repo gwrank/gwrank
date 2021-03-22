@@ -9,7 +9,7 @@ class CommandBotJob < ApplicationJob
         player = player.delete_prefix('<@!').delete_suffix('>')
         player = Player.find_by(uid: player)
         if player.present?
-          message = "<@#{event.user.id}>, his in-game name is #{player.igname}"
+          message = "<@#{event.user.id}>, his in-game name is **#{player.igname}**"
         else
           message = "<@#{event.user.id}>, his in-game name is not found."
         end
@@ -21,6 +21,7 @@ class CommandBotJob < ApplicationJob
 
     bot.command :register, description: 'to register yourself in the current queue and your in-game name', channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event, *igname|
       message = ''
+      current_registrations = Registration.current_registrations
       player = Player.where(provider: 'discord', uid: event.user.id).first_or_create do |player|
         player.email = "#{event.user.id}@gwrank.com"
         player.password = Devise.friendly_token[0, 20]
@@ -30,19 +31,24 @@ class CommandBotJob < ApplicationJob
         if igname.count > 1 && player.igname != igname
           igname = igname.join(' ')
           player.update(igname: igname)
-          message << "\nYour known in-game name is #{player.igname}. You successfully updated it."
+          message << "\nYour known in-game name is **#{player.igname}**."
         else
-          message << "\nYour known in-game name is #{player.igname}. If you want to update it, please type *!register In Game Name*"
+          message << "\nYour known in-game name is **#{player.igname}**. If you want to update it, please type *!register* **Your In Game Name**"
         end
       else
-        message << "\nYour in-game name is unknown on GWRank.com. If you want to add it, please type *!register In Game Name*"
+        if igname.count > 1 && player.igname != igname
+          igname = igname.join(' ')
+          player.update(igname: igname)
+          message << "\nYour known in-game name is **#{player.igname}**. You successfully updated it."
+        else
+          message << "\nYour in-game name is unknown. To be guested easily, please type *!register* **Your In Game Name**"
+        end
       end
       if player.has_current_registration?
-        message << "\n<@#{event.user.id}>, you are already in the current queue."
+        message << "\n<@#{event.user.id}>, you are already ##{current_registrations.count} in the current queue."
       else
         player.registrations.create(registered_at: DateTime.now)
-        current_registrations = Registration.current_registrations
-        message << "<@#{event.user.id}>, you are in the current queue for the next 8 hours."
+        message << "\n<@#{event.user.id}>, you are ##{current_registrations.count} in the current queue for the next 8 hours."
         message << "\nIf you're out, please type *!unregister*"
 
         if current_registrations.count < 16
@@ -59,16 +65,16 @@ class CommandBotJob < ApplicationJob
     end
 
     bot.command :add, description: 'to add a player in the current queue', channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event, player|
+      current_registrations = Registration.current_registrations
       if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
         player = player.delete_prefix('<@!').delete_suffix('>')
         player = Player.find_by(uid: player)
         if player.present?
           if player.has_current_registration?
-            message = "<@#{event.user.id}>, the player #{player.name} is already in the current queue."
+            message = "<@#{event.user.id}>, the player #{player.name} is already ##{current_registrations.count} in the current queue."
           else
             player.registrations.create(registered_at: DateTime.now)
-            current_registrations = Registration.current_registrations
-            message = "<@#{event.user.id}>, the player #{player.name} is now number #{current_registrations.count} in the current queue for the next 8 hours."
+            message = "<@#{event.user.id}>, the player #{player.name} is now ##{current_registrations.count} in the current queue for the next 8 hours."
             message << "\nIf he's out, he have to type *!unregister*"
 
             if current_registrations.count < 16
@@ -245,7 +251,7 @@ class CommandBotJob < ApplicationJob
       message = "<@#{event.user.id}>, the current players ordered by registration time are :"
       Registration.current_registrations.order(registered_at: :asc).each_with_index do |registration, index|
         message << "\n##{index + 1} <@#{registration.player.uid}>"
-        message << ", in-game name #{registration.player.igname}" if registration.player.igname.present?
+        message << ", in-game name **#{registration.player.igname}**" if registration.player.igname.present?
         message << ", #{registration.player.professions_text}" if registration.player.professions_text.present?
         if index.eql?(15)
           event.respond message
@@ -368,7 +374,7 @@ class CommandBotJob < ApplicationJob
       Player.where('id IN (?)', team_a_player_ids).each do |player|
         message << "\n<@#{player.uid}>"
         message << ', captain' if scrim.captain_a_id == player.id
-        message << ", in-game name #{player.igname}" if player.igname.present?
+        message << ", in-game name **#{player.igname}**" if player.igname.present?
         message << ", #{player.professions_text}" if player.professions_text.present?
       end
       event.respond message
@@ -377,7 +383,7 @@ class CommandBotJob < ApplicationJob
       Player.where('id IN (?)', team_b_player_ids).each do |player|
         message << "\n<@#{player.uid}>"
         message << ', captain' if scrim.captain_b_id == player.id
-        message << ", in-game name #{player.igname}" if player.igname.present?
+        message << ", in-game name **#{player.igname}**" if player.igname.present?
         message << ", #{player.professions_text}" if player.professions_text.present?
       end
       event.respond message
@@ -385,7 +391,7 @@ class CommandBotJob < ApplicationJob
       message = 'Next players by order:'
       Player.where.not('players.id IN (?)', selected_player_ids).in_queue.each do |player|
         message << "\n<@#{player.uid}>"
-        message << ", in-game name #{player.igname}" if player.igname.present?
+        message << ", in-game name **#{player.igname}**" if player.igname.present?
         message << ", #{player.professions_text}" if player.professions_text.present?
       end
       event.respond message

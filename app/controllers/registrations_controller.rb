@@ -2,12 +2,18 @@ class RegistrationsController < ApplicationController
   before_action :authenticate_player!
 
   def create
+    message = ''
+    if current_player.igname.present?
+      message << "\nYour known in-game name is **#{current_player.igname}**. If you want to update it, please type *!register* **Your In Game Name*"
+    else
+      message << "\nYour in-game name is unknown. To be guested easily, please type *!register* **Your In Game Name*"
+    end
     if current_player.has_current_registration?
-      message = "<@#{current_player.uid}>, you are already in the current queue."
+      message << "\n<@#{current_player.uid}>, you are already ##{current_registrations.count} in the current queue."
     else
       current_player.registrations.create(registered_at: DateTime.now)
       current_registrations = Registration.current_registrations
-      message = "<@#{current_player.uid}>, you are number #{current_registrations.count} in the current queue for the next 8 hours."
+      message << "\n<@#{current_player.uid}>, you are ##{current_registrations.count} in the current queue for the next 8 hours."
       message << "\nIf you're out, please type *!unregister*"
 
       if current_registrations.count < 16
