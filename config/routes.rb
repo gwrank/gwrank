@@ -5,7 +5,7 @@ Rails.application.routes.draw do
   resources :registrations, only: [:create, :destroy]
   resources :scrims, only: [:index]
   resources :streamers, only: [:index]
-  resources :tournaments, only: [:index]
+  resources :tournaments, only: [:index, :show]
 
   namespace :administration do
     resources :players, only: [:index] do
@@ -13,6 +13,7 @@ Rails.application.routes.draw do
       resources :invitations, only: [:create], controller: 'players/invitations'
       resources :unchecks, only: [:create], controller: 'players/unchecks'
     end
+    resources :tournaments, only: [:new, :create]
   end
 
   devise_for :players, controllers: {

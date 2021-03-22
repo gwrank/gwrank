@@ -1,0 +1,28 @@
+<section class="mpl-banner mpl-banner-top mpl-banner-parallax">
+    <div class="mpl-banner-content mpl-box-sm" >
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                    <div class="mpl-sign-form" data-sr="sign" data-sr-interval="100" data-sr-duration="1000" data-sr-distance="20">
+                        <h1 data-sr-item="sign" style="visibility: visible;">Edit Profile</h1>
+                        <%= form_with model: @tournament, url: administration_tournaments_path do |form| %>
+                            <div class="row hgap-xs vgap-sm">
+                                <div class="col-12">
+                                  <%= form.label :year, 'Year' %>
+                                  <%= form.text_field :year, class: 'form-control' %><span class="form-control-bg"></span>
+                                </div>
+                                <div class="col-12">
+                                  <%= form.label :month, 'Month' %>
+                                  <%= form.text_field :month, class: 'form-control' %><span class="form-control-bg"></span>
+                                </div>
+                                <div class="col-12">
+                                  <%= form.submit 'Publish', class: 'btn btn-md btn-success' %>
+                                </div>
+                            </div>
+                        <% end %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

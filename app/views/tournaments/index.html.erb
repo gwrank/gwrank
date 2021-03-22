@@ -1,17 +1,52 @@
 <div class="content-wrap">
     <div class="mpl-navbar-mobile-overlay"></div>
     <div>
-        <section class="mpl-banner mpl-banner-top mpl-banner-parallax">
+        <section class="mpl-banner mpl-banner-top mpl-banner-parallax mpl-banner-small">
             <div class="mpl-image" data-speed="0.8">
+                <%= image_tag 'background.jpg', class: 'jarallax-img' %>
             </div>
             <div class="mpl-banner-content mpl-box-lg">
-                <div class="container text-center" data-sr="coming-soon" data-sr-interval="200" data-sr-duration="1200" data-sr-distance="20">
-                    <h1 class="display-1 mb-60" data-sr-item="coming-soon">Tournaments</h1>
-                    <div class="mpl-countdown mpl-countdown-transparent h4" data-end="2021-05-21 12:00" data-timezone="EST" data-sr-item="coming-soon"></div>
-                    <a href="#" class="btn btn-md mt-60" data-sr-item="coming-soon">Coming soon</a>
+                <div class="container">
+                    <h1 class="display-1 mb-0">Tournaments</h1>
                 </div>
             </div>
         </section>
+        <div class="mpl-box-md">
+            <div class="container">
+                <div class="row hgap-lg vgap-lg">
+                    <div class="col-lg mpl-content">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Tournaments</li>
+                            </ol>
+                        </nav>
+                        <div class="row vgap" data-sr="tournaments" data-sr-interval="100" data-sr-duration="1000" data-sr-distance="20">
+                            <div class="col-12 col-lg-6" data-sr-item="tournaments">
+                                <div class="cyberpress-tournament">
+                                    <h2 class="cyberpress-tournament-title h4">
+                                        Stay tuned and enjoy archives <span class="badge badge-brand">New</span>
+                                    </h2>
+                                </div>
+                            </div>
+                            <% @tournaments.each do |tournament| %>
+                                <div class="col-12 col-lg-6" data-sr-item="tournaments">
+                                    <div class="cyberpress-tournament">
+                                        <h2 class="cyberpress-tournament-title h4">
+                                            <%= link_to tournament_path(tournament) do %>
+                                                Tournament <%= tournament.year %>-<%= tournament.month %>
+                                            <% end %>
+                                        </h2>
+                                    </div>
+                                </div>
+                            <% end %>
+                        </div>
+                    </div>
+                    <div class="col-auto-lg mpl-sidebar" data-sr=widget data-sr-duration=1200 data-sr-distance=20>
+                    </div>
+                </div>
+            </div>
+        </div>
         <%= render 'footer' %>
     </div>
 </div>
