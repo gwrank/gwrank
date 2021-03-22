@@ -11,72 +11,90 @@
                 </div>
             </div>
         </section>
-        <div class="container mpl-box-md">
-            <h2><%= @tournament.year %>-<%= @tournament.month %> Tournament Series Championship GvG Results</h2>
-            <h3>Elimination Results</h3>
-            <table class="table table-striped table-responsive mb-60">
-                <thead>
-                    <tr>
-                        <th scope="col">Finish</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Wins</th>
-                        <th scope="col">Losses</th>
-                        <% unless (
-                                @tournament.year >= 2009 &&
-                                @tournament.month >= 5
-                            ) &&
-                            (
-                                @tournament.year <= 2010 &&
-                                @tournament.month <= 8
-                            )
-                        %>
-                            <th scope="col">Match/TB</th>
-                        <% end %>
-                        <th scope="col">Ladder</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <%= render "tournaments/#{@tournament.year}/#{@tournament.month}/elimination_results" %>
-                </tbody>
-            </table>
-            <% unless (
-                        @tournament.year >= 2010 &&
-                        @tournament.month >= 6
-                    ) &&
-                    (
-                        @tournament.year <= 2010 &&
-                        @tournament.month <= 7
-                    )
-            %>
-                <h3>Swiss Rounds Results</h3>
-            <% end %>
-            <table class="table table-striped table-responsive mb-60">
-                <thead>
-                    <tr>
-                        <th scope="col">Finish</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Wins</th>
-                        <th scope="col">Losses</th>
-                        <% unless (
-                                @tournament.year >= 2009 &&
-                                @tournament.month >= 5
-                            ) &&
-                            (
-                                @tournament.year <= 2010 &&
-                                @tournament.month <= 8
-                            )
-                        %>
-                            <th scope="col">Match/TB</th>
-                        <% end %>
-                        <th scope="col">Ladder</th>
-                    </tr>
-                </thead>
-                <tbody>
-                   <%= render "tournaments/#{@tournament.year}/#{@tournament.month}/swiss_rounds_results" %>
-                </tbody>
-            </table>
+        <div class="mpl-box-md">
+            <div class="container">
+                <div class="row hgap-lg vgap-lg">
+                    <div class="col-lg mpl-content">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                <li class="breadcrumb-item"><%= link_to 'Tournaments', tournaments_path %></li>
+                                <li class="breadcrumb-item active" aria-current="page"><%= @tournament.year %>-<%= @tournament.month %> Tournament Series Championship GvG Results</li>
+                            </ol>
+                        </nav>
+                        <div class="row vgap" data-sr="tournaments" data-sr-interval="100" data-sr-duration="1000" data-sr-distance="20">
+                            <h2><%= @tournament.year %>-<%= @tournament.month %> Tournament Series Championship GvG Results</h2>
+                            <h3>Elimination Results</h3>
+                            <table class="table table-striped table-responsive mb-60">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Finish</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Wins</th>
+                                        <th scope="col">Losses</th>
+                                        <% unless (
+                                                @tournament.year >= 2009 &&
+                                                @tournament.month >= 5
+                                            ) &&
+                                            (
+                                                @tournament.year <= 2010 &&
+                                                @tournament.month <= 8
+                                            )
+                                        %>
+                                            <th scope="col">Match/TB</th>
+                                        <% end %>
+                                        <th scope="col">Ladder</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <%= render "tournaments/#{@tournament.year}/#{@tournament.month}/elimination_results" %>
+                                </tbody>
+                            </table>
+                            <% unless (
+                                        @tournament.year >= 2010 &&
+                                        @tournament.month >= 6
+                                    ) &&
+                                    (
+                                        @tournament.year <= 2010 &&
+                                        @tournament.month <= 7
+                                    )
+                            %>
+                                <h3>Swiss Rounds Results</h3>
+                            <% end %>
+                            <table class="table table-striped table-responsive mb-60">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Finish</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Wins</th>
+                                        <th scope="col">Losses</th>
+                                        <% unless (
+                                                @tournament.year >= 2009 &&
+                                                @tournament.month >= 5
+                                            ) &&
+                                            (
+                                                @tournament.year <= 2010 &&
+                                                @tournament.month <= 8
+                                            )
+                                        %>
+                                            <th scope="col">Match/TB</th>
+                                        <% end %>
+                                        <th scope="col">Ladder</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <%= render "tournaments/#{@tournament.year}/#{@tournament.month}/swiss_rounds_results" %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-auto-lg mpl-sidebar" data-sr=widget data-sr-duration=1200 data-sr-distance=20>
+                        <%= link_to 'Search matches on Guild Wars Memorial', "https://memorial.redeemer.biz/memorial/#{@tournament.year}/#{@tournament.month}", target: '_blank', class: 'btn btn-md' %>
+                    </div>
+                </div>
+            </div>
         </div>
         <%= render 'footer' %>
     </div>
