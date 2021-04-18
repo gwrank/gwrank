@@ -36,8 +36,8 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <% @tournament.matches.each do |match| %>
-                                      <tr>
+                                    <% @tournament.matches.order(round: :desc).order(number_on_round: :desc).each do |match| %>
+                                        <tr>
                                         <td>Round <%= match.round %></td>
                                         <td><%= match.teams.first.guild.name_with_tag %></td>
                                         <td>vs.</td>
