@@ -7,8 +7,12 @@ class ProfilesController < ApplicationController
   end
 
   def update
-    if @player.is_verified? && @player.igname != player_params[:igname]
-      @player.update(is_verified: false)
+    if @player.igname != player_params[:igname]
+      if @player.is_verified?
+        @player.update(is_verified: false)
+      end
+      @player.team_players.update_all(player_id: Player.find_by(igname: 'Gwrank Com').id)
+      TeamPlayer.where(igname: player_params[:igname]).update_all(player_id: @player.id)
     end
 
     if @player.update(player_params)
