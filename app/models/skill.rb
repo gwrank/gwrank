@@ -6,6 +6,6 @@ class Skill < ApplicationRecord
   private
 
   def filename
-    name.gsub(' ', '_').gsub('(', '').gsub(')', '').gsub('\'', '').gsub('"', '') + '.jpg'
+    name.gsub(' ', '_').gsub('(', '').gsub(')', '').gsub('\'', '').gsub('"', '').gsub('!', '') + '.jpg'
   end
 end
