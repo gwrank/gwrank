@@ -39,9 +39,9 @@
                                     <% @tournament.matches.order(round: :desc).order(number_on_round: :desc).each do |match| %>
                                         <tr>
                                         <td>Round <%= match.round %></td>
-                                        <td><%= match.teams.first.guild.name_with_tag %></td>
+                                        <td><%= link_to match.teams.first.guild.name_with_tag, guild_path(match.teams.first.guild) %></td>
                                         <td>vs.</td>
-                                        <td><%= match.teams.second.guild.name_with_tag %></td>
+                                        <td><%= link_to match.teams.second.guild.name_with_tag, guild_path(match.teams.second.guild) %></td>
                                         <td><%= link_to 'Details', match_path(match) %></td>
                                       </tr>
                                     <% end %>

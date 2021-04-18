@@ -73,6 +73,27 @@
                                     <% end %>
                                 </tbody>
                             </table>
+                            <h2>Matches</h2>
+                            <table class="table mpl-table-responsive-sm cyberpress-table cyberpress-team-players">
+                                <thead>
+                                    <tr>
+                                        <th>Tournament</th>
+                                        <th>Match</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% @guild.teams.each do |team| %>
+                                    <tr>
+                                        <td class="cyberpress-table-item-nickname">
+                                            <%= link_to team.match.tournament.title, tournament_path(team.match.tournament) %>
+                                        </td>
+                                        <td>
+                                            <%= link_to team.match.title, match_path(team.match) %>
+                                        </td>
+                                    </tr>
+                                    <% end %>
+                                </tbody>
+                            </table>
                         </article>
                     </div>
                     <div class="col-auto-lg mpl-sidebar" data-sr=widget data-sr-duration=1200 data-sr-distance=20>

@@ -7,4 +7,8 @@ class Tournament < ApplicationRecord
   def slug_candidates
     [ "#{year}-#{month}" ]
   end
+
+  def title
+    "#{year}-#{month}"
+  end
 end
