@@ -9,4 +9,16 @@ namespace :skills do
       )
     end
   end
+
+  task update_for_template_codes: :environment do
+    Skill.where('name LIKE (?)', '%(PvP)').each do |skill|
+      skill_common_name = skill.name.gsub(' (PvP)', '')
+      common_skill = Skill.find_by(name: skill_common_name)
+      skill.update(template_skill_id: common_skill.skill_id)
+    end
+
+    Skill.where.not('name LIKE (?)', '%(PvP)').each do |skill|
+      skill.update(template_skill_id: skill.skill_id)
+    end
+  end
 end

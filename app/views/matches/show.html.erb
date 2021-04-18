@@ -41,7 +41,12 @@
                                         <tr>
                                           <td><%= team_player.player.igname.eql?('Gwrank Com') ? team_player.igname : link_to(team_player.igname, player_path(team_player.player)) %></td>
                                           <td><%= team_player.profession.name %></td>
-                                          <td><%= team_player.html_skills.html_safe %></td>
+                                          <td>
+                                            <%= team_player.html_skills.html_safe %><br>
+                                            <% unless team_player.team_player_skills.count > 8 %>
+                                              <input type="text" class="form-control" value="<%= team_player.template_code %>" disabled>
+                                            <% end %>
+                                          </td>
                                           <td><span class="badge badge-brand">Soon</span></td>
                                         </tr>
                                       <% end %>
