@@ -85,7 +85,7 @@
                                     <% @guild.teams.each do |team| %>
                                     <tr>
                                         <td class="cyberpress-table-item-nickname">
-                                            <%= link_to team.match.tournament.title, tournament_path(team.match.tournament) %>
+                                            <%= link_to team.match.tournament.year_and_month, tournament_path(team.match.tournament) %>
                                         </td>
                                         <td>
                                             <%= link_to team.match.title, match_path(team.match) %>

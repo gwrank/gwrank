@@ -9,6 +9,10 @@ class Tournament < ApplicationRecord
   end
 
   def title
+    "#{year}-#{month} Tournament Series Championship GvG Results"
+  end
+
+  def year_and_month
     "#{year}-#{month}"
   end
 end

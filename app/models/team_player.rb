@@ -6,12 +6,12 @@ class TeamPlayer < ApplicationRecord
   has_many :team_player_skills, dependent: :destroy
   has_many :team_player_stats, dependent: :destroy
 
-  def skills_text
+  def html_skills
     skills = []
     team_player_skills.each do |team_player_skill|
-      skills << team_player_skill.skill.name
+      skills << team_player_skill.skill.html_image
     end
-    skills.join('<br>')
+    skills.join
   end
 
   def stats_text
