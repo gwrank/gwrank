@@ -1,0 +1,11 @@
+00 None
+01 Warrior
+02 Ranger
+03 Monk
+04 Necromancer
+05 Mesmer
+06 Elementalist
+07 Assassin
+08 Ritualist
+09 Paragon
+10 Dervish

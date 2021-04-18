@@ -1,0 +1,1469 @@
+0 No Skill
+1 Healing Signet
+2 Resurrection Signet
+3 Signet of Capture
+5 Power Block
+6 Mantra of Earth
+7 Mantra of Flame
+8 Mantra of Frost
+9 Mantra of Lightning
+10 Hex Breaker
+11 Distortion
+13 Mantra of Recovery
+14 Mantra of Persistence
+15 Mantra of Inscriptions
+16 Mantra of Concentration
+17 Mantra of Resolve
+18 Mantra of Signets
+19 Fragility
+21 Inspired Enchantment
+22 Inspired Hex
+23 Power Spike
+24 Power Leak
+25 Power Drain
+26 Empathy
+27 Shatter Delusions
+28 Backfire
+29 Blackout
+30 Diversion
+31 Conjure Phantasm
+32 Illusion of Weakness
+33 Illusionary Weaponry
+34 Sympathetic Visage
+35 Ignorance
+36 Arcane Conundrum
+37 Illusion of Haste
+38 Channeling
+39 Energy Surge
+40 Ether Feast
+41 Ether Lord
+42 Energy Burn
+43 Clumsiness
+44 Phantom Pain
+45 Ethereal Burden
+46 Guilt
+47 Ineptitude
+48 Spirit of Failure
+49 Mind Wrack
+50 Wastrel's Worry
+51 Shame
+52 Panic
+53 Migraine
+54 Crippling Anguish
+55 Fevered Dreams
+56 Soothing Images
+57 Cry of Frustration
+58 Signet of Midnight
+59 Signet of Weariness
+61 Leech Signet
+62 Signet of Humility
+63 Keystone Signet
+65 Arcane Mimicry
+66 Spirit Shackles
+67 Shatter Hex
+68 Drain Enchantment
+69 Shatter Enchantment
+72 Elemental Resistance
+73 Physical Resistance
+74 Echo
+75 Arcane Echo
+76 Imagined Burden
+77 Chaos Storm
+78 Epidemic
+79 Energy Drain
+80 Energy Tap
+81 Arcane Thievery
+82 Mantra of Recall
+83 Animate Bone Horror
+84 Animate Bone Fiend
+85 Animate Bone Minions
+86 Grenth's Balance
+87 Verata's Gaze
+88 Verata's Aura
+89 Deathly Chill
+90 Verata's Sacrifice
+91 Well of Power
+92 Well of Blood
+93 Well of Suffering
+94 Well of the Profane
+95 Putrid Explosion
+96 Soul Feast
+97 Necrotic Traversal
+98 Consume Corpse
+99 Parasitic Bond
+100 Soul Barbs
+101 Barbs
+102 Shadow Strike
+103 Price of Failure
+104 Death Nova
+105 Deathly Swarm
+106 Rotting Flesh
+107 Virulence
+108 Suffering
+109 Life Siphon
+110 Unholy Feast
+111 Awaken the Blood
+112 Desecrate Enchantments
+113 Tainted Flesh
+114 Aura of the Lich
+115 Blood Renewal
+116 Dark Aura
+117 Enfeeble
+118 Enfeebling Blood
+119 Blood is Power
+120 Blood of the Master
+121 Spiteful Spirit
+122 Malign Intervention
+123 Insidious Parasite
+124 Spinal Shivers
+125 Wither
+126 Life Transfer
+127 Mark of Subversion
+128 Soul Leech
+129 Defile Flesh
+130 Demonic Flesh
+131 Barbed Signet
+132 Plague Signet
+133 Dark Pact
+134 Order of Pain
+135 Faintheartedness
+136 Shadow of Fear
+137 Rigor Mortis
+138 Dark Bond
+139 Infuse Condition
+140 Malaise
+141 Rend Enchantments
+142 Lingering Curse
+143 Strip Enchantment
+144 Chilblains
+145 Signet of Agony
+146 Offering of Blood
+147 Dark Fury
+148 Order of the Vampire
+149 Plague Sending
+150 Mark of Pain
+151 Feast of Corruption
+152 Taste of Death
+153 Vampiric Gaze
+154 Plague Touch
+155 Vile Touch
+156 Vampiric Touch
+157 Blood Ritual
+158 Touch of Agony
+159 Weaken Armor
+160 Windborne Speed
+162 Gale
+163 Whirlwind
+164 Elemental Attunement
+165 Armor of Earth
+166 Kinetic Armor
+167 Eruption
+168 Magnetic Aura
+169 Earth Attunement
+170 Earthquake
+171 Stoning
+172 Stone Daggers
+173 Grasping Earth
+174 Aftershock
+175 Ward Against Elements
+176 Ward Against Melee
+177 Ward Against Foes
+178 Ether Prodigy
+179 Incendiary Bonds
+180 Aura of Restoration
+181 Ether Renewal
+182 Conjure Flame
+183 Inferno
+184 Fire Attunement
+185 Mind Burn
+186 Fireball
+187 Meteor
+188 Flame Burst
+189 Rodgort's Invocation
+190 Mark of Rodgort
+191 Immolate
+192 Meteor Shower
+193 Phoenix
+194 Flare
+195 Lava Font
+196 Searing Heat
+197 Fire Storm
+198 Glyph of Elemental Power
+199 Glyph of Energy
+200 Glyph of Lesser Energy
+201 Glyph of Concentration
+202 Glyph of Sacrifice
+203 Glyph of Renewal
+204 Rust
+205 Lightning Surge
+206 Armor of Frost
+207 Conjure Frost
+208 Water Attunement
+209 Mind Freeze
+210 Ice Prison
+211 Ice Spikes
+212 Frozen Burst
+213 Shard Storm
+214 Ice Spear
+215 Maelstrom
+216 Iron Mist
+217 Crystal Wave
+218 Obsidian Flesh
+219 Obsidian Flame
+220 Blinding Flash
+221 Conjure Lightning
+222 Lightning Strike
+223 Chain Lightning
+224 Enervating Charge
+225 Air Attunement
+226 Mind Shock
+227 Glimmering Mark
+228 Thunderclap
+229 Lightning Orb
+230 Lightning Javelin
+231 Shock
+232 Lightning Touch
+233 Swirling Aura
+234 Deep Freeze
+235 Blurred Vision
+236 Mist Form
+237 Water Trident
+238 Armor of Mist
+239 Ward Against Harm
+240 Smite
+241 Life Bond
+242 Balthazar's Spirit
+243 Strength of Honor
+244 Life Attunement
+245 Protective Spirit
+246 Divine Intervention
+247 Symbol of Wrath
+248 Retribution
+249 Holy Wrath
+250 Essence Bond
+251 Scourge Healing
+252 Banish
+253 Scourge Sacrifice
+254 Vigorous Spirit
+255 Watchful Spirit
+256 Blessed Aura
+257 Aegis
+258 Guardian
+259 Shield of Deflection
+260 Aura of Faith
+261 Shield of Regeneration
+262 Shield of Judgment
+263 Protective Bond
+264 Pacifism
+265 Amity
+266 Peace and Harmony
+267 Judge's Insight
+268 Unyielding Aura
+269 Mark of Protection
+270 Life Barrier
+271 Zealot's Fire
+272 Balthazar's Aura
+273 Spell Breaker
+274 Healing Seed
+275 Mend Condition
+276 Restore Condition
+277 Mend Ailment
+278 Purge Conditions
+279 Divine Healing
+280 Heal Area
+281 Orison of Healing
+282 Word of Healing
+283 Dwayna's Kiss
+284 Divine Boon
+285 Healing Hands
+286 Heal Other
+287 Heal Party
+288 Healing Breeze
+289 Vital Blessing
+290 Mending
+291 Live Vicariously
+292 Infuse Health
+293 Signet of Devotion
+294 Signet of Judgment
+295 Purge Signet
+296 Bane Signet
+297 Blessed Signet
+298 Martyr
+299 Shielding Hands
+300 Contemplation of Purity
+301 Remove Hex
+302 Smite Hex
+303 Convert Hexes
+304 Light of Dwayna
+305 Resurrect
+306 Rebirth
+307 Reversal of Fortune
+308 Succor
+309 Holy Veil
+310 Divine Spirit
+311 Draw Conditions
+312 Holy Strike
+313 Healing Touch
+314 Restore Life
+315 Vengeance
+316 "To the Limit!"
+317 Battle Rage
+318 Defy Pain
+319 Rush
+320 Hamstring
+321 Wild Blow
+322 Power Attack
+323 Desperation Blow
+324 Thrill of Victory
+325 Distracting Blow
+326 Protector's Strike
+327 Griffon's Sweep
+328 Pure Strike
+329 Skull Crack
+330 Cyclone Axe
+331 Hammer Bash
+332 Bull's Strike
+333 "I Will Avenge You!"
+334 Axe Rake
+335 Cleave
+336 Executioner's Strike
+337 Dismember
+338 Eviscerate
+339 Penetrating Blow
+340 Disrupting Chop
+341 Swift Chop
+342 Axe Twist
+343 "For Great Justice!"
+344 Flurry
+345 Defensive Stance
+346 Frenzy
+347 Endure Pain
+348 "Watch Yourself!"
+349 Sprint
+350 Belly Smash
+351 Mighty Blow
+352 Crushing Blow
+353 Crude Swing
+354 Earth Shaker
+355 Devastating Hammer
+356 Irresistible Blow
+357 Counter Blow
+358 Backbreaker
+359 Heavy Blow
+360 Staggering Blow
+361 Dolyak Signet
+362 Warrior's Cunning
+363 Shield Bash
+364 "Charge!"
+365 "Victory Is Mine!"
+366 "Fear Me!"
+367 "Shields Up!"
+368 "I Will Survive!"
+370 Berserker Stance
+371 Balanced Stance
+372 Gladiator's Defense
+373 Deflect Arrows
+374 Warrior's Endurance
+375 Dwarven Battle Stance
+376 Disciplined Stance
+377 Wary Stance
+378 Shield Stance
+379 Bull's Charge
+380 Bonetti's Defense
+381 Hundred Blades
+382 Sever Artery
+383 Galrath Slash
+384 Gash
+385 Final Thrust
+386 Seeking Blade
+387 Riposte
+388 Deadly Riposte
+389 Flourish
+390 Savage Slash
+391 Hunter's Shot
+392 Pin Down
+393 Crippling Shot
+394 Power Shot
+395 Barrage
+396 Dual Shot
+397 Quick Shot
+398 Penetrating Attack
+399 Distracting Shot
+400 Precision Shot
+402 Determined Shot
+403 Called Shot
+404 Poison Arrow
+405 Oath Shot
+406 Debilitating Shot
+407 Point Blank Shot
+408 Concussion Shot
+409 Punishing Shot
+411 Charm Animal
+412 Call of Protection
+415 Call of Haste
+422 Revive Animal
+423 Symbiotic Bond
+424 Throw Dirt
+425 Dodge
+426 Savage Shot
+427 Antidote Signet
+428 Incendiary Arrows
+429 Melandru's Arrows
+430 Marksman's Wager
+431 Ignite Arrows
+432 Read the Wind
+433 Kindle Arrows
+434 Choking Gas
+435 Apply Poison
+436 Comfort Animal
+437 Bestial Pounce
+438 Maiming Strike
+439 Feral Lunge
+440 Scavenger Strike
+441 Melandru's Assault
+442 Ferocious Strike
+443 Predator's Pounce
+444 Brutal Strike
+445 Disrupting Lunge
+446 Troll Unguent
+447 Otyugh's Cry
+448 Escape
+449 Practiced Stance
+450 Whirling Defense
+451 Melandru's Resilience
+452 Dryder's Defenses
+453 Lightning Reflexes
+454 Tiger's Fury
+455 Storm Chaser
+456 Serpent's Quickness
+457 Dust Trap
+458 Barbed Trap
+459 Flame Trap
+460 Healing Spring
+461 Spike Trap
+462 Winter
+463 Winnowing
+464 Edge of Extinction
+465 Greater Conflagration
+466 Conflagration
+467 Fertile Season
+468 Symbiosis
+469 Primal Echoes
+470 Predatory Season
+471 Frozen Soil
+472 Favorable Winds
+474 Energizing Wind
+475 Quickening Zephyr
+476 Nature's Renewal
+477 Muddy Terrain
+570 Mark of Insecurity
+571 Disrupting Dagger
+572 Deadly Paradox
+763 Jaundiced Gaze
+764 Wail of Doom
+766 Gaze of Contempt
+769 Viper's Defense
+770 Return
+771 Aura of Displacement
+772 Generous Was Tsungrai
+773 Mighty Was Vorizun
+775 Death Blossom
+776 Twisting Fangs
+777 Horns of the Ox
+778 Falling Spider
+779 Black Lotus Strike
+780 Fox Fangs
+781 Moebius Strike
+782 Jagged Strike
+783 Unsuspecting Strike
+784 Entangling Asp
+785 Mark of Death
+786 Iron Palm
+787 Resilient Weapon
+788 Blind Was Mingson
+789 Grasping Was Kuurong
+790 Vengeful Was Khanhei
+791 Flesh of My Flesh
+792 Splinter Weapon
+793 Weapon of Warding
+794 Wailing Weapon
+795 Nightmare Weapon
+799 Beguiling Haze
+800 Enduring Toxin
+801 Shroud of Silence
+802 Expose Defenses
+803 Power Leech
+804 Arcane Languor
+805 Animate Vampiric Horror
+806 Cultist's Fervor
+808 Reaper's Mark
+809 Shatterstone
+810 Protector's Defense
+811 Run as One
+812 Defiant Was Xinrae
+813 Lyssa's Aura
+814 Shadow Refuge
+815 Scorpion Wire
+816 Mirrored Stance
+817 Discord
+818 Well of Weariness
+819 Vampiric Spirit
+820 Depravity
+821 Icy Veins
+822 Weaken Knees
+823 Burning Speed
+824 Lava Arrows
+825 Bed of Coals
+826 Shadow Form
+827 Siphon Strength
+828 Vile Miasma
+830 Ray of Judgment
+831 Primal Rage
+832 Animate Flesh Golem
+834 Reckless Haste
+835 Blood Bond
+836 Ride the Lightning
+837 Energy Boon
+838 Dwayna's Sorrow
+839 "Retreat!"
+840 Poisoned Heart
+841 Fetid Ground
+842 Arc Lightning
+843 Gust
+844 Churning Earth
+845 Liquid Flame
+846 Steam
+847 Boon Signet
+848 Reverse Hex
+849 Lacerating Chop
+850 Fierce Blow
+851 Sun and Moon Slash
+852 Splinter Shot
+853 Melandru's Shot
+854 Snare
+858 Dancing Daggers
+859 Conjure Nightmare
+860 Signet of Disruption
+862 Ravenous Gaze
+863 Order of Apostasy
+864 Oppressive Gaze
+865 Lightning Hammer
+866 Vapor Blade
+867 Healing Light
+869 "Coward!"
+870 Pestilence
+871 Shadowsong
+876 Signet of Shadows
+877 Lyssa's Balance
+878 Visions of Regret
+879 Illusion of Pain
+880 Stolen Speed
+881 Ether Signet
+882 Signet of Disenchantment
+883 Vocal Minority
+884 Searing Flames
+885 Shield Guardian
+886 Restful Breeze
+887 Signet of Rejuvenation
+888 Whirling Axe
+889 Forceful Blow
+891 "None Shall Pass!"
+892 Quivering Blade
+893 Seeking Arrows
+898 Overload
+899 Images of Remorse
+900 Shared Burden
+901 Soul Bind
+902 Blood of the Aggressor
+903 Icy Prism
+904 Furious Axe
+905 Auspicious Blow
+906 "On Your Knees!"
+907 Dragon Slash
+908 Marauder's Shot
+909 Focused Shot
+910 Spirit Rift
+911 Union
+913 Tranquil Was Tanasen
+914 Consume Soul
+915 Spirit Light
+916 Lamentation
+917 Rupture Soul
+918 Spirit to Flesh
+919 Spirit Burn
+920 Destruction
+921 Dissonance
+923 Disenchantment
+925 Recall
+926 Sharpen Daggers
+927 Shameful Fear
+928 Shadow Shroud
+929 Shadow of Haste
+930 Auspicious Incantation
+931 Power Return
+932 Complicate
+933 Shatter Storm
+934 Unnatural Signet
+935 Rising Bile
+936 Envenom Enchantments
+937 Shockwave
+938 Ward of Stability
+939 Icy Shackles
+941 Blessed Light
+942 Withdraw Hexes
+943 Extinguish
+944 Signet of Strength
+946 Trapper's Focus
+947 Brambles
+948 Desperate Strike
+949 Way of the Fox
+950 Shadowy Burden
+951 Siphon Speed
+952 Death's Charge
+953 Power Flux
+954 Expel Hexes
+955 Rip Enchantment
+957 Spell Shield
+958 Healing Whisper
+959 Ethereal Light
+960 Release Enchantments
+961 Lacerate
+962 Spirit Transfer
+963 Restoration
+964 Vengeful Weapon
+973 Blinding Powder
+974 Mantis Touch
+975 Exhausting Assault
+976 Repeating Strike
+977 Way of the Lotus
+978 Mark of Instability
+979 Mistrust
+980 Feast of Souls
+981 Recuperation
+982 Shelter
+983 Weapon of Shadow
+985 Caltrops
+986 Nine Tail Strike
+987 Way of the Empty Palm
+988 Temple Strike
+989 Golden Phoenix Strike
+990 Expunge Enchantments
+991 Deny Hexes
+992 Triple Chop
+993 Enraged Smash
+994 Renewing Smash
+995 Tiger Stance
+996 Standing Slash
+997 Famine
+1014 "Let's Get 'Em!"
+1018 Critical Eye
+1019 Critical Strike
+1020 Blades of Steel
+1021 Jungle Strike
+1022 Wild Strike
+1023 Leaping Mantis Sting
+1024 Black Mantis Thrust
+1025 Disrupting Stab
+1026 Golden Lotus Strike
+1027 Critical Defenses
+1028 Way of Perfection
+1029 Dark Apostasy
+1030 Locust's Fury
+1031 Shroud of Distress
+1032 Heart of Shadow
+1033 Impale
+1034 Seeping Wound
+1035 Assassin's Promise
+1036 Signet of Malice
+1037 Dark Escape
+1038 Crippling Dagger
+1040 Spirit Walk
+1041 Unseen Fury
+1042 Flashing Blades
+1043 Dash
+1044 Dark Prison
+1045 Palm Strike
+1048 Revealed Enchantment
+1049 Revealed Hex
+1052 Accumulated Pain
+1053 Psychic Distraction
+1054 Ancestor's Visage
+1055 Recurring Insecurity
+1056 Kitah's Burden
+1057 Psychic Instability
+1059 Hex Eater Signet
+1061 Feedback
+1062 Arcane Larceny
+1066 Spoil Victor
+1067 Lifebane Strike
+1068 Bitter Chill
+1069 Taste of Pain
+1070 Defile Enchantments
+1071 Shivers of Dread
+1075 Vampiric Swarm
+1076 Blood Drinker
+1077 Vampiric Bite
+1078 Wallow's Bite
+1079 Enfeebling Touch
+1081 Teinai's Wind
+1082 Shock Arrow
+1083 Unsteady Ground
+1084 Sliver Armor
+1085 Ash Blast
+1086 Dragon's Stomp
+1088 Second Wind
+1090 Smoldering Embers
+1091 Double Dragon
+1093 Teinai's Heat
+1094 Breath of Fire
+1095 Star Burst
+1096 Glyph of Essence
+1097 Teinai's Prison
+1098 Mirror of Ice
+1099 Teinai's Crystals
+1113 Kirin's Wrath
+1114 Spirit Bond
+1115 Air of Enchantment
+1117 Heaven's Delight
+1118 Healing Burst
+1119 Karei's Healing Circle
+1120 Jamei's Gaze
+1121 Gift of Health
+1123 Life Sheath
+1126 Empathic Removal
+1128 Resurrection Chant
+1129 Word of Censure
+1130 Spear of Light
+1131 Stonesoul Strike
+1133 Drunken Blow
+1134 Leviathan's Sweep
+1135 Jaizhenju Strike
+1136 Penetrating Chop
+1137 Yeti Smash
+1140 Storm of Swords
+1141 "You Will Die!"
+1142 Auspicious Parry
+1144 Silverwing Slash
+1146 Shove
+1191 Sundering Attack
+1192 Zojun's Shot
+1194 Predatory Bond
+1195 Heal as One
+1196 Zojun's Haste
+1197 Needling Shot
+1198 Broad Head Arrow
+1199 Glass Arrows
+1200 Archer's Signet
+1201 Savage Pounce
+1202 Enraged Lunge
+1203 Bestial Mauling
+1205 Poisonous Bite
+1206 Pounce
+1209 Bestial Fury
+1211 Viper's Nest
+1212 Equinox
+1213 Tranquility
+1215 Clamor of Souls
+1217 Ritual Lord
+1218 Cruel Was Daoshen
+1219 Protective Was Kaolai
+1220 Attuned Was Songkai
+1221 Resilient Was Xiko
+1222 Lively Was Naomei
+1223 Anguished Was Lingwah
+1224 Draw Spirit
+1225 Channeled Strike
+1226 Spirit Boon Strike
+1227 Essence Strike
+1228 Spirit Siphon
+1229 Explosive Growth
+1230 Boon of Creation
+1231 Spirit Channeling
+1232 Armor of Unfeeling
+1233 Soothing Memories
+1234 Mend Body and Soul
+1235 Dulled Weapon
+1236 Binding Chains
+1237 Painful Bond
+1238 Signet of Creation
+1239 Signet of Spirits
+1240 Soul Twisting
+1244 Ghostly Haste
+1245 Gaze from Beyond
+1246 Ancestors' Rage
+1247 Pain
+1249 Displacement
+1250 Preservation
+1251 Life
+1252 Earthbind
+1253 Bloodsong
+1255 Wanderlust
+1257 Spirit Light Weapon
+1258 Brutal Weapon
+1259 Guided Weapon
+1260 Meekness
+1261 Frigid Armor
+1262 Healing Ring
+1263 Renew Life
+1264 Doom
+1265 Wielder's Boon
+1266 Soothing
+1267 Vital Weapon
+1268 Weapon of Quickening
+1269 Signet of Rage
+1333 Extend Conditions
+1334 Hypochondria
+1335 Wastrel's Demise
+1336 Spiritual Pain
+1337 Drain Delusions
+1338 Persistence of Memory
+1339 Symbols of Inspiration
+1340 Symbolic Celerity
+1341 Frustration
+1342 Tease
+1343 Ether Phantom
+1344 Web of Disruption
+1345 Enchanter's Conundrum
+1346 Signet of Illusions
+1347 Discharge Enchantment
+1348 Hex Eater Vortex
+1349 Mirror of Disenchantment
+1350 Simple Thievery
+1351 Animate Shambling Horror
+1352 Order of Undeath
+1353 Putrid Flesh
+1354 Feast for the Dead
+1355 Jagged Bones
+1356 Contagion
+1358 Ulcerous Lungs
+1359 Pain of Disenchantment
+1360 Mark of Fury
+1362 Corrupt Enchantment
+1363 Signet of Sorrow
+1364 Signet of Suffering
+1365 Signet of Lost Souls
+1366 Well of Darkness
+1367 Blinding Surge
+1368 Chilling Winds
+1369 Lightning Bolt
+1370 Storm Djinn's Haste
+1371 Stone Striker
+1372 Sandstorm
+1373 Stone Sheath
+1374 Ebon Hawk
+1375 Stoneflesh Aura
+1376 Glyph of Restoration
+1377 Ether Prism
+1378 Master of Magic
+1379 Glowing Gaze
+1380 Savannah Heat
+1381 Flame Djinn's Haste
+1382 Freezing Gust
+1390 Judge's Intervention
+1391 Supportive Spirit
+1392 Watchful Healing
+1393 Healer's Boon
+1394 Healer's Covenant
+1395 Balthazar's Pendulum
+1396 Words of Comfort
+1397 Light of Deliverance
+1398 Scourge Enchantment
+1399 Shield of Absorption
+1400 Reversal of Damage
+1401 Mending Touch
+1402 Critical Chop
+1403 Agonizing Chop
+1404 Flail
+1405 Charging Strike
+1406 Headbutt
+1407 Lion's Comfort
+1408 Rage of the Ntouka
+1409 Mokele Smash
+1410 Overbearing Smash
+1411 Signet of Stamina
+1412 "You're All Alone!"
+1413 Burst of Aggression
+1414 Enraging Charge
+1415 Crippling Slash
+1416 Barbarous Slice
+1465 Prepared Shot
+1466 Burning Arrow
+1467 Arcing Shot
+1468 Strike as One
+1469 Crossfire
+1470 Barbed Arrows
+1471 Scavenger's Focus
+1472 Toxicity
+1473 Quicksand
+1474 Storm's Embrace
+1475 Trapper's Speed
+1476 Tripwire
+1478 Renewing Surge
+1479 Offering of Spirit
+1480 Spirit's Gift
+1481 Death Pact Signet
+1482 Reclaim Essence
+1483 Banishing Strike
+1484 Mystic Sweep
+1485 Eremite's Attack
+1486 Reap Impurities
+1487 Twin Moon Sweep
+1488 Victorious Sweep
+1489 Irresistible Sweep
+1490 Pious Assault
+1491 Mystic Twister
+1493 Grenth's Fingers
+1495 Aura of Thorns
+1496 Balthazar's Rage
+1497 Dust Cloak
+1498 Staggering Force
+1499 Pious Renewal
+1500 Mirage Cloak
+1502 Arcane Zeal
+1503 Mystic Vigor
+1504 Watchful Intervention
+1505 Vow of Piety
+1506 Vital Boon
+1507 Heart of Holy Flame
+1508 Extend Enchantments
+1509 Faithful Intervention
+1510 Sand Shards
+1512 Lyssa's Haste
+1513 Guiding Hands
+1514 Fleeting Stability
+1515 Armor of Sanctity
+1516 Mystic Regeneration
+1517 Vow of Silence
+1518 Avatar of Balthazar
+1519 Avatar of Dwayna
+1520 Avatar of Grenth
+1521 Avatar of Lyssa
+1522 Avatar of Melandru
+1523 Meditation
+1524 Eremite's Zeal
+1525 Natural Healing
+1526 Imbue Health
+1527 Mystic Healing
+1528 Dwayna's Touch
+1529 Pious Restoration
+1530 Signet of Pious Light
+1531 Intimidating Aura
+1532 Mystic Sandstorm
+1533 Winds of Disenchantment
+1534 Rending Touch
+1535 Crippling Sweep
+1536 Wounding Strike
+1537 Wearying Strike
+1538 Lyssa's Assault
+1539 Chilling Victory
+1540 Conviction
+1541 Enchanted Haste
+1542 Pious Concentration
+1543 Pious Haste
+1544 Whirling Charge
+1545 Test of Faith
+1546 Blazing Spear
+1547 Mighty Throw
+1548 Cruel Spear
+1549 Harrier's Toss
+1550 Unblockable Throw
+1551 Spear of Lightning
+1552 Wearying Spear
+1553 Anthem of Fury
+1554 Crippling Anthem
+1555 Defensive Anthem
+1556 Godspeed
+1557 Anthem of Flame
+1558 "Go for the Eyes!"
+1559 Anthem of Envy
+1560 Song of Power
+1561 Zealous Anthem
+1562 Aria of Zeal
+1563 Lyric of Zeal
+1564 Ballad of Restoration
+1565 Chorus of Restoration
+1566 Aria of Restoration
+1567 Song of Concentration
+1568 Anthem of Guidance
+1569 Energizing Chorus
+1570 Song of Purification
+1571 Hexbreaker Aria
+1572 "Brace Yourself!"
+1573 Awe
+1574 Enduring Harmony
+1575 Blazing Finale
+1576 Burning Refrain
+1577 Finale of Restoration
+1578 Mending Refrain
+1579 Purifying Finale
+1580 Bladeturn Refrain
+1581 Glowing Signet
+1583 Leader's Zeal
+1584 Leader's Comfort
+1585 Signet of Synergy
+1586 Angelic Protection
+1587 Angelic Bond
+1588 Cautery Signet
+1589 "Stand Your Ground!"
+1590 "Lead the Way!"
+1591 "Make Haste!"
+1592 "We Shall Return!"
+1593 "Never Give Up!"
+1594 "Help Me!"
+1595 "Fall Back!"
+1596 "Incoming!"
+1597 "They're on Fire!"
+1598 "Never Surrender!"
+1599 "It's Just a Flesh Wound."
+1600 Barbed Spear
+1601 Vicious Attack
+1602 Stunning Strike
+1603 Merciless Spear
+1604 Disrupting Throw
+1605 Wild Throw
+1633 Malicious Strike
+1634 Shattering Assault
+1635 Golden Skull Strike
+1636 Black Spider Strike
+1637 Golden Fox Strike
+1638 Deadly Haste
+1639 Assassin's Remedy
+1640 Fox's Promise
+1641 Feigned Neutrality
+1642 Hidden Caltrops
+1643 Assault Enchantments
+1644 Wastrel's Collapse
+1645 Lift Enchantment
+1646 Augury of Death
+1647 Signet of Toxic Shock
+1648 Signet of Twilight
+1649 Way of the Assassin
+1650 Shadow Walk
+1651 Death's Retreat
+1652 Shadow Prison
+1653 Swap
+1654 Shadow Meld
+1655 Price of Pride
+1656 Air of Disenchantment
+1657 Signet of Clumsiness
+1658 Symbolic Posture
+1659 Toxic Chill
+1660 Well of Silence
+1661 Glowstone
+1662 Mind Blast
+1663 Elemental Flame
+1664 Invoke Lightning
+1683 Pensive Guardian
+1684 Scribe's Insight
+1685 Holy Haste
+1686 Glimmer of Light
+1687 Zealous Benediction
+1688 Defender's Zeal
+1689 Signet of Mystic Wrath
+1690 Signet of Removal
+1691 Dismiss Condition
+1692 Divert Hexes
+1693 Counterattack
+1694 Magehunter Strike
+1695 Soldier's Strike
+1696 Decapitate
+1697 Magehunter's Smash
+1698 Soldier's Stance
+1699 Soldier's Defense
+1700 Frenzied Defense
+1701 Steady Stance
+1702 Steelfang Slash
+1719 Screaming Shot
+1720 Keen Arrow
+1721 Rampage as One
+1722 Forked Arrow
+1723 Disrupting Accuracy
+1724 Expert's Dexterity
+1725 Roaring Winds
+1726 Magebane Shot
+1727 Natural Stride
+1728 Heket's Rampage
+1729 Smoke Trap
+1730 Infuriating Heat
+1731 Vocal Was Sogolon
+1732 Destructive Was Glaive
+1733 Wielder's Strike
+1734 Gaze of Fury
+1736 Spirit's Strength
+1737 Wielder's Zeal
+1738 Sight Beyond Sight
+1739 Renewing Memories
+1740 Wielder's Remedy
+1741 Ghostmirror Light
+1742 Signet of Ghostly Might
+1743 Signet of Binding
+1744 Caretaker's Charge
+1745 Anguish
+1747 Empowerment
+1748 Recovery
+1749 Weapon of Fury
+1750 Xinrae's Weapon
+1751 Warmonger's Weapon
+1752 Weapon of Remedy
+1753 Rending Sweep
+1754 Onslaught
+1755 Mystic Corruption
+1756 Grenth's Grasp
+1757 Veil of Thorns
+1758 Harrier's Grasp
+1759 Vow of Strength
+1760 Ebon Dust Aura
+1761 Zealous Vow
+1762 Heart of Fury
+1763 Zealous Renewal
+1764 Attacker's Insight
+1765 Rending Aura
+1766 Featherfoot Grace
+1767 Reaper's Sweep
+1768 Harrier's Haste
+1769 Focused Anger
+1770 Natural Temper
+1771 Song of Restoration
+1772 Lyric of Purification
+1773 Soldier's Fury
+1774 Aggressive Refrain
+1775 Energizing Finale
+1776 Signet of Aggression
+1777 Remedy Signet
+1778 Signet of Return
+1779 "Make Your Time!"
+1780 "Can't Touch This!"
+1781 "Find Their Weakness!"
+1782 "The Power Is Yours!"
+1783 Slayer's Spear
+1784 Swift Javelin
+1814 Lightbringer's Gaze
+1815 Lightbringer Signet
+1816 Sunspear Rebirth Signet
+1986 Vampiric Assault
+1987 Lotus Strike
+1988 Golden Fang Strike
+1990 Falling Lotus Strike
+1991 Sadist's Signet
+1992 Signet of Distraction
+1993 Signet of Recall
+1994 Power Lock
+1995 Waste Not, Want Not
+1996 Sum of All Fears
+1997 Withering Aura
+1998 Cacophony
+1999 Winter's Embrace
+2000 Earthen Shackles
+2001 Ward of Weakness
+2002 Glyph of Swiftness
+2003 Cure Hex
+2004 Smite Condition
+2005 Smiter's Boon
+2006 Castigation Signet
+2007 Purifying Veil
+2008 Pulverizing Smash
+2009 Keen Chop
+2010 Knee Cutter
+2011 Grapple
+2012 Radiant Scythe
+2013 Grenth's Aura
+2014 Signet of Pious Restraint
+2015 Farmer's Scythe
+2016 Energetic Was Lee Sa
+2017 Anthem of Weariness
+2018 Anthem of Disruption
+2052 Shadow Fang
+2053 Calculated Risk
+2054 Shrinking Armor
+2055 Aneurysm
+2056 Wandering Eye
+2057 Foul Feast
+2058 Putrid Bile
+2059 Shell Shock
+2060 Glyph of Immolation
+2061 Patient Spirit
+2062 Healing Ribbon
+2063 Aura of Stability
+2064 Spotless Mind
+2065 Spotless Soul
+2066 Disarm
+2067 "I Meant to Do That!"
+2068 Rapid Fire
+2069 Sloth Hunter's Shot
+2070 Aura Slicer
+2071 Zealous Sweep
+2072 Pure Was Li Ming
+2073 Weapon of Aggression
+2074 Chest Thumper
+2075 Hasty Refrain
+2101 Critical Agility
+2102 Cry of Pain
+2103 Necrosis
+2104 Intensity
+2105 Seed of Life
+2107 Whirlwind Attack
+2108 Never Rampage Alone
+2109 Eternal Aura
+2110 Vampirism
+2112 "There's Nothing to Fear!"
+2116 Sneak Attack
+2135 Trampling Ox
+2136 Smoke Powder Defense
+2137 Confusing Images
+2138 Hexer's Vigor
+2139 Masochism
+2140 Piercing Trap
+2141 Companionship
+2142 Feral Aggression
+2143 Disrupting Shot
+2144 Volley
+2145 Expert Focus
+2146 Pious Fury
+2147 Crippling Victory
+2148 Sundering Weapon
+2149 Weapon of Renewal
+2150 Maiming Spear
+2186 Signet of Deadly Corruption
+2187 Way of the Master
+2188 Defile Defenses
+2189 Angorodon's Gaze
+2190 Magnetic Surge
+2191 Slippery Ground
+2192 Glowing Ice
+2193 Energy Blast
+2194 Distracting Strike
+2195 Symbolic Strike
+2196 Soldier's Speed
+2197 Body Blow
+2198 Body Shot
+2199 Poison Tip Signet
+2200 Signet of Mystic Speed
+2201 Shield of Force
+2202 Mending Grip
+2203 Spiritleech Aura
+2204 Rejuvenation
+2205 Agony
+2206 Ghostly Weapon
+2207 Inspirational Speech
+2208 Burning Shield
+2209 Holy Spear
+2210 Spear Swipe
+2211 Alkar's Alchemical Acid
+2212 Light of Deldrimor
+2213 Ear Bite
+2214 Low Blow
+2215 Brawling Headbutt
+2216 "Don't Trip!"
+2217 "By Ural's Hammer!"
+2218 Drunken Master
+2219 Great Dwarf Weapon
+2220 Great Dwarf Armor
+2221 Breath of the Great Dwarf
+2222 Snow Storm
+2223 Black Powder Mine
+2224 Summon Mursaat
+2225 Summon Ruby Djinn
+2226 Summon Ice Imp
+2227 Summon Naga Shaman
+2228 Deft Strike
+2229 Signet of Infection
+2230 Tryptophan Signet
+2231 Ebon Battle Standard of Courage
+2232 Ebon Battle Standard of Wisdom
+2233 Ebon Battle Standard of Honor
+2234 Ebon Vanguard Sniper Support
+2235 Ebon Vanguard Assassin Support
+2236 Well of Ruin
+2237 Atrophy
+2238 Spear of Redemption
+2353 "Finish Him!"
+2354 "Dodge This!"
+2355 "I Am the Strongest!"
+2356 "I Am Unstoppable!"
+2357 A Touch of Guile
+2358 "You Move Like a Dwarf!"
+2359 "You Are All Weaklings!"
+2360 Feel No Pain
+2361 Club of a Thousand Bears
+2374 Ursan Blessing
+2379 Volfen Blessing
+2384 Raven Blessing
+2411 Mindbender
+2412 Smooth Criminal
+2413 Technobabble
+2414 Radiation Field
+2415 Asuran Scan
+2416 Air of Superiority
+2417 Mental Block
+2418 Pain Inverter
+2420 Ebon Escape
+2421 Weakness Trap
+2422 Winds
+2423 Dwarven Stability
+2657 Call of Haste (PvP)
+2683 Castigation Signet (Saul D'Alessio)
+2684 Unnatural Signet (Saul D'Alessio)
+2734 Mind Wrack (PvP)
+2803 Mind Freeze (PvP)
+2804 Mind Shock (PvP)
+2805 Mist Form (PvP)
+2806 Ward Against Harm (PvP)
+2807 Ride the Lightning (PvP)
+2808 Enraged Smash (PvP)
+2809 Obsidian Flame (PvP)
+2857 Aegis (PvP)
+2858 "Watch Yourself!" (PvP)
+2859 Enfeeble (PvP)
+2860 Ether Renewal (PvP)
+2861 Penetrating Attack (PvP)
+2862 Shadow Form (PvP)
+2863 Discord (PvP)
+2864 Sundering Attack (PvP)
+2866 Flesh of My Flesh (PvP)
+2867 Ancestors' Rage (PvP)
+2868 Splinter Weapon (PvP)
+2869 Assassin's Remedy (PvP)
+2871 Light of Deliverance (PvP)
+2872 Death Pact Signet (PvP)
+2875 Harrier's Toss (PvP)
+2876 Defensive Anthem (PvP)
+2877 Ballad of Restoration (PvP)
+2878 Song of Restoration (PvP)
+2879 "Incoming!" (PvP)
+2880 "Never Surrender!" (PvP)
+2883 "For Great Justice!" (PvP)
+2884 Mystic Regeneration (PvP)
+2885 Enfeebling Blood (PvP)
+2887 Signet of Judgment (PvP)
+2891 Unyielding Aura (PvP)
+2892 Spirit Bond (PvP)
+2893 Weapon of Warding (PvP)
+2895 Smiter's Boon (PvP)
+2925 Sloth Hunter's Shot (PvP)
+2959 Expert's Dexterity (PvP)
+2965 Signet of Spirits (PvP)
+2966 Signet of Ghostly Might (PvP)
+2969 Read the Wind (PvP)
+2998 Fragility (PvP)
+2999 Strength of Honor (PvP)
+3002 Warrior's Endurance (PvP)
+3003 Armor of Unfeeling (PvP)
+3005 Union (PvP)
+3006 Shadowsong (PvP)
+3007 Pain (PvP)
+3008 Destruction (PvP)
+3009 Soothing (PvP)
+3010 Displacement (PvP)
+3011 Preservation (PvP)
+3012 Life (PvP)
+3013 Recuperation (PvP)
+3014 Dissonance (PvP)
+3015 Earthbind (PvP)
+3016 Shelter (PvP)
+3017 Disenchantment (PvP)
+3018 Restoration (PvP)
+3019 Bloodsong (PvP)
+3020 Wanderlust (PvP)
+3021 Savannah Heat (PvP)
+3022 Gaze of Fury (PvP)
+3023 Anguish (PvP)
+3024 Empowerment (PvP)
+3025 Recovery (PvP)
+3026 "Go for the Eyes!" (PvP)
+3027 "Brace Yourself!" (PvP)
+3028 Blazing Finale (PvP)
+3029 Bladeturn Refrain (PvP)
+3030 Signet of Return (PvP)
+3031 "Can't Touch This!" (PvP)
+3032 "Stand Your Ground!" (PvP)
+3033 "We Shall Return!" (PvP)
+3034 "Find Their Weakness!" (PvP)
+3035 "Never Give Up!" (PvP)
+3036 "Help Me!" (PvP)
+3037 "Fall Back!" (PvP)
+3038 Agony (PvP)
+3039 Rejuvenation (PvP)
+3040 Anthem of Disruption (PvP)
+3045 Comfort Animal (PvP)
+3047 Melandru's Assault (PvP)
+3048 Shroud of Distress (PvP)
+3049 Unseen Fury (PvP)
+3050 Predatory Bond (PvP)
+3051 Enraged Lunge (PvP)
+3053 Signet of Deadly Corruption (PvP)
+3054 Masochism (PvP)
+3058 Unholy Feast (PvP)
+3059 Signet of Agony (PvP)
+3060 Escape (PvP)
+3061 Death Blossom (PvP)
+3062 Finale of Restoration (PvP)
+3063 Mantra of Resolve (PvP)
+3068 Charm Animal (Codex)
+3141 Lightning Reflexes (PvP)
+3143 Renewing Smash (PvP)
+3144 Heal as One (PvP)
+3145 Glass Arrows (PvP)
+3147 Keen Arrow (PvP)
+3148 Anthem of Envy (PvP)
+3149 Mending Refrain (PvP)
+3151 Empathy (PvP)
+3152 Crippling Anguish (PvP)
+3156 Soldier's Stance (PvP)
+3157 Destructive Was Glaive (PvP)
+3179 Mantra of Signets (PvP)
+3180 Shatter Delusions (PvP)
+3181 Illusionary Weaponry (PvP)
+3183 Migraine (PvP)
+3184 Accumulated Pain (PvP)
+3185 Psychic Instability (PvP)
+3186 Shared Burden (PvP)
+3187 Stolen Speed (PvP)
+3188 Unnatural Signet (PvP)
+3189 Spiritual Pain (PvP)
+3190 Frustration (PvP)
+3191 Mistrust (PvP)
+3192 Enchanter's Conundrum (PvP)
+3193 Signet of Clumsiness (PvP)
+3194 Mirror of Disenchantment (PvP)
+3195 Wandering Eye (PvP)
+3196 Calculated Risk (PvP)
+3204 Defy Pain (PvP)
+3232 Heal Party (PvP)
+3233 Spoil Victor (PvP)
+3234 Visions of Regret (PvP)
+3251 Fox Fangs (PvP)
+3252 Wild Strike (PvP)
+3263 Banishing Strike (PvP)
+3264 Twin Moon Sweep (PvP)
+3265 Irresistible Sweep (PvP)
+3266 Pious Assault (PvP)
+3269 Guiding Hands (PvP)
+3270 Avatar of Dwayna (PvP)
+3271 Avatar of Melandru (PvP)
+3272 Mystic Healing (PvP)
+3273 Signet of Pious Restraint (PvP)
+3289 Fevered Dreams (PvP)
+3346 Aura of Thorns (PvP)
+3347 Dust Cloak (PvP)
+3348 Lyssa's Haste (PvP)
+3365 Onslaught (PvP)
+3366 Heart of Fury (PvP)
+3367 Wounding Strike (PvP)
+3368 Pious Fury (PvP)
+3373 Illusion of Haste (PvP)
+3374 Illusion of Pain (PvP)
+3375 Aura of Restoration (PvP)
+3386 Web of Disruption (PvP)
+3396 Lightning Hammer (PvP)
+3397 Elemental Flame (PvP)
+3398 Slippery Ground (PvP)
+3422 Time Ward
+3423 Soul Taker
+3424 Over the Limit
+3425 Judgment Strike
+3426 Seven Weapons Stance
+3427 "Together as One!"
+3428 Shadow Theft
+3429 Weapons of Three Forges
+3430 Vow of Revolution
+3431 Heroic Refrain

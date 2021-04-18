@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_22_180825) do
+ActiveRecord::Schema.define(version: 2021_04_18_061957) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -34,6 +34,16 @@ ActiveRecord::Schema.define(version: 2021_03_22_180825) do
     t.string "tag"
     t.integer "owner_id"
     t.index ["slug"], name: "index_guilds_on_slug", unique: true
+  end
+
+  create_table "matches", force: :cascade do |t|
+    t.integer "winner_team"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.bigint "tournament_id"
+    t.integer "round"
+    t.integer "number_on_round"
+    t.index ["tournament_id"], name: "index_matches_on_tournament_id"
   end
 
   create_table "players", force: :cascade do |t|
@@ -89,6 +99,7 @@ ActiveRecord::Schema.define(version: 2021_03_22_180825) do
     t.string "name"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "profession_id"
   end
 
   create_table "registrations", force: :cascade do |t|
@@ -110,6 +121,31 @@ ActiveRecord::Schema.define(version: 2021_03_22_180825) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "skills", force: :cascade do |t|
+    t.integer "skill_id"
+    t.string "name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "team_player_skills", force: :cascade do |t|
+    t.bigint "team_player_id", null: false
+    t.bigint "skill_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["skill_id"], name: "index_team_player_skills_on_skill_id"
+    t.index ["team_player_id"], name: "index_team_player_skills_on_team_player_id"
+  end
+
+  create_table "team_player_stats", force: :cascade do |t|
+    t.bigint "team_player_id", null: false
+    t.string "stat_key"
+    t.integer "stat_value"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["team_player_id"], name: "index_team_player_stats_on_team_player_id"
+  end
+
   create_table "team_players", force: :cascade do |t|
     t.bigint "team_id", null: false
     t.bigint "player_id", null: false
@@ -117,6 +153,9 @@ ActiveRecord::Schema.define(version: 2021_03_22_180825) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.boolean "is_captain", default: false
+    t.string "igname"
+    t.integer "secondary_profession_id"
+    t.integer "position"
     t.index ["player_id"], name: "index_team_players_on_player_id"
     t.index ["profession_id"], name: "index_team_players_on_profession_id"
     t.index ["team_id"], name: "index_team_players_on_team_id"
@@ -125,6 +164,10 @@ ActiveRecord::Schema.define(version: 2021_03_22_180825) do
   create_table "teams", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "match_id"
+    t.bigint "guild_id"
+    t.index ["guild_id"], name: "index_teams_on_guild_id"
+    t.index ["match_id"], name: "index_teams_on_match_id"
   end
 
   create_table "tournaments", force: :cascade do |t|
@@ -136,9 +179,15 @@ ActiveRecord::Schema.define(version: 2021_03_22_180825) do
     t.index ["slug"], name: "index_tournaments_on_slug", unique: true
   end
 
+  add_foreign_key "matches", "tournaments"
   add_foreign_key "players", "guilds"
   add_foreign_key "registrations", "players"
+  add_foreign_key "team_player_skills", "skills"
+  add_foreign_key "team_player_skills", "team_players"
+  add_foreign_key "team_player_stats", "team_players"
   add_foreign_key "team_players", "players"
   add_foreign_key "team_players", "professions"
   add_foreign_key "team_players", "teams"
+  add_foreign_key "teams", "guilds"
+  add_foreign_key "teams", "matches"
 end

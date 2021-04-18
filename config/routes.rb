@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   resources :guilds, only: [:index, :show, :new, :create]
+  resources :matches, only: [:show]
   resources :players, path: 'p', only: [:index, :show]
   resource :profile, only: [:edit, :update]
   resources :registrations, only: [:create, :destroy]

@@ -1,6 +1,7 @@
 class Guild < ApplicationRecord
-  belongs_to :owner, class_name: 'Player'
+  belongs_to :owner, class_name: 'Player', optional: true
   has_many :players
+  has_many :teams
 
   extend FriendlyId
   friendly_id :name, use: :slugged

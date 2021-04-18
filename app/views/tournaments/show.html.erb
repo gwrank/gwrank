@@ -28,64 +28,23 @@
                             <table class="table table-striped table-responsive mb-60">
                                 <thead>
                                     <tr>
-                                        <th scope="col">Finish</th>
-                                        <th scope="col">Name</th>
-                                        <th scope="col">Status</th>
-                                        <th scope="col">Wins</th>
-                                        <th scope="col">Losses</th>
-                                        <% unless (
-                                                @tournament.year >= 2009 &&
-                                                @tournament.month >= 5
-                                            ) &&
-                                            (
-                                                @tournament.year <= 2010 &&
-                                                @tournament.month <= 8
-                                            )
-                                        %>
-                                            <th scope="col">Match/TB</th>
-                                        <% end %>
-                                        <th scope="col">Ladder</th>
+                                        <th scope="col">Round</th>
+                                        <th scope="col">Team</th>
+                                        <th scope="col"></th>
+                                        <th scope="col">Team</th>
+                                        <th scope="col"></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <%= render "tournaments/#{@tournament.year}/#{@tournament.month}/elimination_results" %>
-                                </tbody>
-                            </table>
-                            <% unless (
-                                        @tournament.year >= 2010 &&
-                                        @tournament.month >= 6
-                                    ) &&
-                                    (
-                                        @tournament.year <= 2010 &&
-                                        @tournament.month <= 7
-                                    )
-                            %>
-                                <h3>Swiss Rounds Results</h3>
-                            <% end %>
-                            <table class="table table-striped table-responsive mb-60">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Finish</th>
-                                        <th scope="col">Name</th>
-                                        <th scope="col">Status</th>
-                                        <th scope="col">Wins</th>
-                                        <th scope="col">Losses</th>
-                                        <% unless (
-                                                @tournament.year >= 2009 &&
-                                                @tournament.month >= 5
-                                            ) &&
-                                            (
-                                                @tournament.year <= 2010 &&
-                                                @tournament.month <= 8
-                                            )
-                                        %>
-                                            <th scope="col">Match/TB</th>
-                                        <% end %>
-                                        <th scope="col">Ladder</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                <%= render "tournaments/#{@tournament.year}/#{@tournament.month}/swiss_rounds_results" %>
+                                    <% @tournament.matches.each do |match| %>
+                                      <tr>
+                                        <td>Round <%= match.round %></td>
+                                        <td><%= match.teams.first.guild.name_with_tag %></td>
+                                        <td>vs.</td>
+                                        <td><%= match.teams.second.guild.name_with_tag %></td>
+                                        <td><%= link_to 'Details', match_path(match) %></td>
+                                      </tr>
+                                    <% end %>
                                 </tbody>
                             </table>
                         </div>
