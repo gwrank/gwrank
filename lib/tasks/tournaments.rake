@@ -14,10 +14,12 @@ namespace :tournaments do
       months = Dir.children(Rails.root.join('data', 'observer', year))
       months.each do |month|
         files = Dir.children(Rails.root.join('data', 'observer', year, month))
-        tournament = Tournament.create!(year: year, month: month)
+        tournament = Tournament.find_by(year: year, month: month)
+        next if tournament.present?
+        tournament = Tournament.create(year: year, month: month)
 
         files.each do |filename|
-          content = File.read(Rails.root.join('data', 'observer', '2021', '4', filename))
+          content = File.read(Rails.root.join('data', 'observer', year, month, filename))
 
           filename_table = filename.split('.')[0].split('-')
           round = filename_table[0]
