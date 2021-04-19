@@ -50,7 +50,7 @@
                                 <thead>
                                     <tr>
                                         <th>Username</th>
-                                        <th>In-game name</th>
+                                        <th>In-game names</th>
                                         <th>Professions</th>
                                     </tr>
                                 </thead>
@@ -60,7 +60,11 @@
                                         <td class="cyberpress-table-item-nickname">
                                             <%= link_to player.username, player_path(player) %>
                                         </td>
-                                        <td><%= player.igname %></td>
+                                        <td>
+                                            <% player.characters.each do |character| %>
+                                                <%= character.igname %><br>
+                                            <% end %>
+                                        </td>
                                         <td>
                                           <% player.professions.each do |profession| %>
                                             <span class="badge badge-primary"><%= profession.capitalize %></span>
