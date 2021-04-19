@@ -39,7 +39,7 @@
                                   <tbody>
                                       <% team.team_players.order(position: :asc).each do |team_player| %>
                                         <tr>
-                                          <td><%= team_player.player.igname.eql?('Gwrank Com') ? team_player.igname : link_to(team_player.igname, player_path(team_player.player)) %></td>
+                                          <td><%= team_player.character.player.present? ? link_to(team_player.igname, player_path(team_player.character.player)) : team_player.igname %></td>
                                           <td><%= team_player.profession.name %></td>
                                           <td>
                                             <%= team_player.html_skills.html_safe %><br>
