@@ -10,10 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_18_215038) do
+ActiveRecord::Schema.define(version: 2021_04_19_135842) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "characters", force: :cascade do |t|
+    t.bigint "player_id"
+    t.string "igname"
+    t.bigint "profession_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["igname"], name: "index_characters_on_igname", unique: true
+    t.index ["player_id"], name: "index_characters_on_player_id"
+    t.index ["profession_id"], name: "index_characters_on_profession_id"
+  end
 
   create_table "friendly_id_slugs", force: :cascade do |t|
     t.string "slug", null: false
@@ -157,6 +168,8 @@ ActiveRecord::Schema.define(version: 2021_04_18_215038) do
     t.string "igname"
     t.integer "secondary_profession_id"
     t.integer "position"
+    t.bigint "character_id"
+    t.index ["character_id"], name: "index_team_players_on_character_id"
     t.index ["player_id"], name: "index_team_players_on_player_id"
     t.index ["profession_id"], name: "index_team_players_on_profession_id"
     t.index ["team_id"], name: "index_team_players_on_team_id"
@@ -180,12 +193,15 @@ ActiveRecord::Schema.define(version: 2021_04_18_215038) do
     t.index ["slug"], name: "index_tournaments_on_slug", unique: true
   end
 
+  add_foreign_key "characters", "players"
+  add_foreign_key "characters", "professions"
   add_foreign_key "matches", "tournaments"
   add_foreign_key "players", "guilds"
   add_foreign_key "registrations", "players"
   add_foreign_key "team_player_skills", "skills"
   add_foreign_key "team_player_skills", "team_players"
   add_foreign_key "team_player_stats", "team_players"
+  add_foreign_key "team_players", "characters"
   add_foreign_key "team_players", "players"
   add_foreign_key "team_players", "professions"
   add_foreign_key "team_players", "teams"

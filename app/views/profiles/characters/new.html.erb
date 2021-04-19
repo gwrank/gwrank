@@ -1,0 +1,40 @@
+<section class="mpl-banner mpl-banner-top mpl-banner-parallax">
+  <div class="mpl-banner-content mpl-box-sm" >
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+          <div class="mpl-content">
+            <h1 data-sr-item="sign" style="visibility: visible;">Edit Profile</h1>
+            <%= form_with model: @character, url: profile_characters_path do |form| %>
+              <div class="mpl-snippet-fill">
+                <h2>Add in-game character</h2>
+                <div class="row hgap-sm vgap-sm">
+                  <div class="col-12">
+                    <%= form.label :igname, 'In-game name' %>
+                    <%= form.text_field :igname, class: 'form-control', required: true %><span class="form-control-bg"></span>
+                  </div>
+                </div>
+              </div>
+              <div class="mpl-snippet-fill">
+                <h2>Add in-game character</h2>
+                <div class="row hgap-sm vgap-sm">
+                  <div class="col-12">
+                    <%= form.label :profession_id, 'Profession' %>
+                    <%= form.select :profession_id, options_from_collection_for_select(@professions, :id, :name, @character.profession_id), { include_blank: true }, class: 'form-control custom-select' %><span class="form-control-bg"></span>
+                  </div>
+                </div>
+              </div>
+              <div class="mpl-snippet-fill">
+                <div class="row hgap-sm vgap-sm">
+                  <div class="col-12">
+                    <%= form.submit 'Publish', class: 'btn btn-md btn-success' %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

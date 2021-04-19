@@ -1,5 +1,6 @@
 class Player < ApplicationRecord
   belongs_to :guild, optional: true
+  has_many :characters
   has_many :registrations
   has_many :team_players
   has_many :teams, through: :team_players
@@ -98,7 +99,7 @@ class Player < ApplicationRecord
 
   def notifications_count
     counter = 0
-    counter += 1 unless igname.present?
+    counter += 1 unless characters.any?
     counter += 1 unless guild_id.present?
     counter += 1 if professions.empty?
     counter

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :skills do
   task import: :environment do
     skills = File.read(Rails.root.join('data', 'code_skills.txt')).split("\n")

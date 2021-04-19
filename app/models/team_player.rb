@@ -1,8 +1,9 @@
 class TeamPlayer < ApplicationRecord
-  belongs_to :team
+  belongs_to :character, optional: true
   belongs_to :player
   belongs_to :profession
   belongs_to :secondary_profession, class_name: 'Profession', optional: true
+  belongs_to :team
   has_many :team_player_skills, dependent: :destroy
   has_many :team_player_stats, dependent: :destroy
 

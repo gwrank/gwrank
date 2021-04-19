@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :tournaments do
   task add_archives: :environment do
     (2008..2010).each do |year|
@@ -51,6 +53,15 @@ namespace :tournaments do
               igname.pop
               igname = igname.drop(1).join(' ')
 
+              profession = Profession.find_by(profession_id: member['primary'])
+              secondary_profession = Profession.find_by(profession_id: member['secondary'])
+
+              position = member['party_index']
+
+              character = Character.where(igname: igname).first_or_create!(
+                profession: profession
+              )
+
               player = Player.find_by(igname: igname)
               unless player
                 player = Player.where(email: 'default@gwrank.com').first_or_create(
@@ -59,17 +70,14 @@ namespace :tournaments do
                 )
               end
 
-              profession = Profession.find_by(profession_id: member['primary'])
-              secondary_profession = Profession.find_by(profession_id: member['secondary'])
-              member['party_id']
-
               team_player = TeamPlayer.create!(
                 team: team,
                 player: player,
+                character: character,
                 igname: igname,
                 profession: profession,
                 secondary_profession: secondary_profession,
-                position: member['party_index']
+                position: position
               )
 
               member['skills'].each do |gw_skill|
