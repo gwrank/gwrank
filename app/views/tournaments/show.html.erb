@@ -56,6 +56,45 @@
                     </div>
                     <div class="col-auto-lg mpl-sidebar" data-sr=widget data-sr-duration=1200 data-sr-distance=20>
                         <%= link_to 'Search matches on Guild Wars Memorial', "https://memorial.redeemer.biz/memorial/#{@tournament.year}/#{@tournament.month}", target: '_blank', class: 'btn btn-md' %>
+                        <h2 data-sr data-sr-duration=1200 data-sr-distance=10 class="mt-30">Comments <small>(<%= @tournament.comments.count %>)</small></h2>
+                        <% if current_player %>
+                            <% if @tournament.comments.any? %>
+                                <ul class="list-unstyled list-vgap-md">
+                                    <% @tournament.comments.each do |comment| %>
+                                        <li data-sr data-sr-duration=1200 data-sr-distance=10>
+                                            <div class="media mpl-media-comment">
+                                                <div class="media-head">
+                                                    <span class="media-image"></span>
+                                                    <div>
+                                                        <%= link_to "#{comment.player.name} (#{comment.player.verification_status})", player_path(comment.player), class: 'media-title h5' %>
+                                                        <div class="media-subtitle"><%= time_ago_in_words(comment.created_at) %></div>
+                                                    </div>
+                                                </div>
+                                                <div class="media-body">
+                                                    <p><%= comment.body %></p>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    <% end %>
+                                </ul>
+                            <% end %>
+                            <h2 data-sr data-sr-duration=1200 data-sr-distance=10 class="mt-30">Leave a Comment</h2>
+                            <%= form_with model: @comment, url: comments_path, class: 'mb-0', data: { 'sr-duration': 1200, 'sr-distance': 10 } do |form| %>
+                                <%= form.hidden_field :commentable_type, value: 'Tournament' %>
+                                <%= form.hidden_field :commentable_id, value: @tournament.id %>
+                                <div class="row vgap">
+                                    <div class="col-12">
+                                        <%= form.text_area :body, rows: 5, placeholder: 'Your Comment', class: 'form-control' %>
+                                    </div>
+                                    <div class="col-12">
+                                        <%= form.submit 'Submit', class: 'btn btn-md btn-success' %>
+                                    </div>
+                                </div>
+                            <% end %>
+                        <% else %>
+                            <p>You need to be logged in to see or post comments.</p>
+                            <%= link_to 'Log in with Discord', omniauth_authorize_path(:player, :discord), class: 'btn btn-md btn-brand' %>
+                        <% end %>
                     </div>
                 </div>
             </div>

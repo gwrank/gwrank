@@ -54,6 +54,10 @@ class Player < ApplicationRecord
     igname.present? ? igname : username
   end
 
+  def verification_status
+    is_verified? ? 'Verified' : 'Unverified'
+  end
+
   def professions
     professions = []
     professions << :warrior if is_warrior?

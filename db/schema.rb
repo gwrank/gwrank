@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_20_134050) do
+ActiveRecord::Schema.define(version: 2021_04_20_180425) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -24,6 +24,16 @@ ActiveRecord::Schema.define(version: 2021_04_20_134050) do
     t.index ["igname"], name: "index_characters_on_igname", unique: true
     t.index ["player_id"], name: "index_characters_on_player_id"
     t.index ["profession_id"], name: "index_characters_on_profession_id"
+  end
+
+  create_table "comments", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.text "body"
+    t.integer "commentable_id"
+    t.string "commentable_type"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["player_id"], name: "index_comments_on_player_id"
   end
 
   create_table "friendly_id_slugs", force: :cascade do |t|
@@ -222,6 +232,7 @@ ActiveRecord::Schema.define(version: 2021_04_20_134050) do
 
   add_foreign_key "characters", "players"
   add_foreign_key "characters", "professions"
+  add_foreign_key "comments", "players"
   add_foreign_key "matches", "tournaments"
   add_foreign_key "players", "guilds"
   add_foreign_key "registrations", "players"

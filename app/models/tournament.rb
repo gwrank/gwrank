@@ -1,4 +1,5 @@
 class Tournament < ApplicationRecord
+  has_many :comments, as: :commentable
   has_many :matches, dependent: :destroy
   has_many :tournament_results, dependent: :destroy
 

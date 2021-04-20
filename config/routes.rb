@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :comments, only: [:create]
   resources :guilds, only: [:index, :show, :new, :create]
   resources :matches, only: [:show]
   resources :players, path: 'p', only: [:index, :show]
