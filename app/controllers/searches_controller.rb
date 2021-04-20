@@ -19,8 +19,9 @@ class SearchesController < ApplicationController
         end
       end
     else
-      @players = Player.joins(:characters).where('characters.id IN (?)', @results.where(searchable_type: 'Character').pluck(:searchable_id))
-      @guilds = Guild.where('id IN (?)', @results.where(searchable_type: 'Guild').pluck(:searchable_id))
+      @guilds = Guild.whose_tag_is(@search_query)
+      @guilds += Guild.whose_name_starts_with(@search_query)
+      @players = Player.where('id IN (?)', Character.whose_igname_starts_with(@search_query).pluck(:player_id))
     end
   end
 

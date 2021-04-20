@@ -5,6 +5,11 @@ class Character < ApplicationRecord
 
   include PgSearch::Model
   multisearchable against: [:igname]
+  pg_search_scope :whose_igname_starts_with,
+                  against: :igname,
+                  using: {
+                    tsearch: { prefix: true }
+                  }
 
   def igname_with_profession
     if profession.present?

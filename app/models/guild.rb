@@ -12,6 +12,13 @@ class Guild < ApplicationRecord
 
   include PgSearch::Model
   multisearchable against: [:name, :tag]
+  pg_search_scope :whose_name_starts_with,
+                  against: :name,
+                  using: {
+                    tsearch: { prefix: true }
+                  }
+  pg_search_scope :whose_tag_is,
+                  against: :tag
 
   validates_presence_of :name
   validates_uniqueness_of :name
