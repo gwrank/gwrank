@@ -5,6 +5,7 @@
 //= require bootstrap/dist/js/bootstrap.min
 //= require jarallax/dist/jarallax.min
 //= require swiper/swiper-bundle.min
+//= require fancybox/dist/jquery.fancybox.min
 //= require jquery-countdown/dist/jquery.countdown.min
 //= require moment/min/moment.min
 //= require moment-timezone/builds/moment-timezone-with-data.min

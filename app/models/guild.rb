@@ -10,11 +10,22 @@ class Guild < ApplicationRecord
   extend FriendlyId
   friendly_id :name, use: :slugged
 
+  include PgSearch::Model
+  multisearchable against: [:name, :tag]
+
   validates_presence_of :name
   validates_uniqueness_of :name
   validates_presence_of :tag
 
   def name_with_tag
     "#{name} [#{tag}]"
+  end
+
+  def best_position
+    if tournament_results.final_standings.order(position: :asc).first
+      tournament_results.final_standings.order(position: :asc).first&.position
+    else
+      'Unknown'
+    end
   end
 end

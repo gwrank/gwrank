@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   end
   resources :registrations, only: [:create, :destroy]
   resources :scrims, only: [:index]
+  resource :search, only: [:show]
   resources :streamers, only: [:index]
   resources :tournaments, only: [:index, :show]
 

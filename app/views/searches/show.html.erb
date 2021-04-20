@@ -1,0 +1,76 @@
+<div class="content-wrap">
+    <div class="mpl-navbar-mobile-overlay"></div>
+    <div>
+        <section class="mpl-banner mpl-banner-top mpl-banner-parallax mpl-banner-small">
+            <div class="mpl-image" data-speed="0.8">
+                <%= image_tag 'background.jpg', class: 'jarallax-img' %>
+            </div>
+            <div class="mpl-banner-content mpl-box-lg">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-10">
+                            <h1 class="display-1 mb-0">Search</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="mpl-box-md">
+            <div class="container">
+                <form action="<%= search_path %>" class="mb-50">
+                    <div class="row hgap-xs">
+                        <div class="col">
+                            <input class="form-control" type="text" id="search" name="q" placeholder="Search" value="<%= @search_query %>"><span class="form-control-bg"></span>
+                        </div>
+                        <div class="col-auto">
+                            <a href="#" class="btn btn-md">
+                                <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </form>
+                <div class="row vgap" data-sr="search" data-sr-duration="1000" data-sr-distance="20">
+                    <div class="col-12 col-lg-6">
+                        <h2>Guilds</h2>
+                        <% if @guilds.any? %>
+                          <% @guilds.each do |guild| %>
+                            <%= link_to guild_path(guild), class: 'mpl-product-item mpl-product-horizontal', data: { 'sr-item': 'search' } do %>
+                              <span class="mpl-product-image">
+                                  <span class="mpl-image">
+                                  </span>
+                              </span>
+                              <span class="mpl-product-content">
+                                  <span class="mpl-product-title h4"><%= guild.name_with_tag %></span>
+                                  <span>Best position: <%= guild.best_position %></span>
+                              </span>
+                            <% end %>
+                          <% end %>
+                        <% end %>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <h2>Players</h2>
+                        <% if @players.any? %>
+                          <% @players.each do |player| %>
+                            <%= link_to player_path(player), class: 'mpl-product-item mpl-product-horizontal', data: { 'sr-item': 'search' } do %>
+                              <span class="mpl-product-image">
+                                  <span class="mpl-image">
+                                  </span>
+                              </span>
+                              <span class="mpl-product-content">
+                                  <span class="mpl-product-title h4"><%= player.igname %></span>
+                                  <% if player.guild.present? %>
+                                    <span><%= player.guild.name_with_tag %></span>
+                                  <% end %>
+                              </span>
+                            <% end %>
+                          <% end %>
+                        <% end %>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <%= render 'footer' %>
+    </div>
+</div>
