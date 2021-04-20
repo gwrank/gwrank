@@ -8,7 +8,7 @@
             <div class="mpl-banner-content mpl-box-lg">
                 <div class="container">
                     <div class="row">
-                        <div class="col-lg-10" data-sr="banner" data-sr-interval="200" data-sr-duration="1200" data-sr-distance="20">
+                        <div class="col-lg-6" data-sr="banner" data-sr-interval="200" data-sr-duration="1200" data-sr-distance="20">
                             <h1 class="display-1" data-sr-item="banner">GWRank</h1>
                             <% if current_player %>
                               <p class="lead" data-sr-item="banner">
@@ -21,6 +21,16 @@
                               <%= link_to 'Log in with Discord', omniauth_authorize_path(:player, :discord), class: 'btn btn-md btn-brand' %>
                             <% end %>
                         </div>
+                        <% if ENV['TWITCH_LIVE_CHANNEL'].present? %>
+                            <div class="col-lg-6" data-sr="banner" data-sr-interval="200" data-sr-duration="1200" data-sr-distance="20">
+                                <h2>Twitch live</h2>
+                                <div class="cyberpress-twitch">
+                                    <div class="cyberpress-twitch-player">
+                                        <iframe src="https://player.twitch.tv/?channel=<%= ENV['TWITCH_LIVE_CHANNEL'] %>&parent=<%= request.host %>" frameborder="0" allowfullscreen="true" scrolling="no"></iframe>
+                                    </div>
+                                </div>
+                            </div>
+                        <% end %>
                     </div>
                 </div>
             </div>
