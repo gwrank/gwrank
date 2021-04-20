@@ -125,7 +125,8 @@ namespace :tournaments do
         map_rotation = mat_infos[2].text.gsub('Map rotation: ', '').to_s
       end
 
-      tournament = Tournament.where(year: year, month: month).first_or_create!(
+      tournament = Tournament.where(year: year, month: month).first_or_create!
+      tournament.update(
         date: date,
         map_rotation: map_rotation,
         guild_number: guild_number
