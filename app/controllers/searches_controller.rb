@@ -21,6 +21,7 @@ class SearchesController < ApplicationController
     else
       @guilds = Guild.whose_tag_is(@search_query)
       @guilds += Guild.whose_name_starts_with(@search_query)
+      @guilds = @guilds.uniq
       @players = Player.where('id IN (?)', Character.whose_igname_starts_with(@search_query).pluck(:player_id))
     end
   end
