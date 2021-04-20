@@ -305,6 +305,7 @@ DEPENDENCIES
   ip_anonymizer
   jbuilder (~> 2.7)
   listen (~> 3.3)
+  nokogiri
   omniauth-discord
   pg (~> 1.1)
   puma (~> 5.0)

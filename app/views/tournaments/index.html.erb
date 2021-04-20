@@ -37,6 +37,25 @@
                                                 Tournament <%= tournament.year %>-<%= tournament.month %>
                                             <% end %>
                                         </h2>
+                                        <ul class="cyberpress-tournament-info">
+                                            <% if tournament.date.present? %>
+                                                <li>
+                                                    <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M16 2V6M8 2V6M3 10H21M5 4H19C20.1046 4 21 4.89543 21 6V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V6C3 4.89543 3.89543 4 5 4Z"></path>
+                                                    </svg><%= tournament.date %>
+                                                </li>
+                                            <% end %>
+                                            <% if tournament.guild_number.present? %>
+                                                <li>
+                                                    Guild number: <%= tournament.guild_number %>
+                                                </li>
+                                            <% end %>
+                                            <% if tournament.winner_guild.present? %>
+                                                <li>
+                                                    Winner: <%= tournament.winner_guild.name_with_tag %>
+                                                </li>
+                                            <% end %>
+                                        </ul>
                                     </div>
                                 </div>
                             <% end %>

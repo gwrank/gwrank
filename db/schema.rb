@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_19_135842) do
+ActiveRecord::Schema.define(version: 2021_04_20_005347) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -44,6 +44,8 @@ ActiveRecord::Schema.define(version: 2021_04_19_135842) do
     t.string "slug"
     t.string "tag"
     t.integer "owner_id"
+    t.string "region"
+    t.boolean "is_archived", default: false
     t.index ["slug"], name: "index_guilds_on_slug", unique: true
   end
 
@@ -184,12 +186,28 @@ ActiveRecord::Schema.define(version: 2021_04_19_135842) do
     t.index ["match_id"], name: "index_teams_on_match_id"
   end
 
+  create_table "tournament_results", force: :cascade do |t|
+    t.bigint "tournament_id", null: false
+    t.integer "round", default: 0
+    t.integer "position"
+    t.integer "trim", default: 0
+    t.bigint "guild_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["guild_id"], name: "index_tournament_results_on_guild_id"
+    t.index ["round"], name: "index_tournament_results_on_round"
+    t.index ["tournament_id"], name: "index_tournament_results_on_tournament_id"
+  end
+
   create_table "tournaments", force: :cascade do |t|
     t.integer "year"
     t.integer "month"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "slug"
+    t.date "date"
+    t.string "map_rotation"
+    t.integer "guild_number"
     t.index ["slug"], name: "index_tournaments_on_slug", unique: true
   end
 
@@ -207,4 +225,6 @@ ActiveRecord::Schema.define(version: 2021_04_19_135842) do
   add_foreign_key "team_players", "teams"
   add_foreign_key "teams", "guilds"
   add_foreign_key "teams", "matches"
+  add_foreign_key "tournament_results", "guilds"
+  add_foreign_key "tournament_results", "tournaments"
 end

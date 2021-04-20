@@ -1,11 +1,9 @@
 class GuildsController < ApplicationController
-  before_action :authenticate_player!
-
   before_action :set_guild, only: [:show, :edit]
 
   def index
     authorize Guild
-    @guilds = Guild.all.order(name: :asc)
+    @guilds = Guild.active.order(name: :asc)
   end
 
   def show

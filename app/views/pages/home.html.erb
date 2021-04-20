@@ -87,10 +87,20 @@
                             <div class="col-12 col-md-6 col-lg-6">
                                 <div class="mpl-feature">
                                     <div class="mpl-feature-title h4">
-                                        <%= pluralize Guild.all.count, 'guild' %>
+                                        <%= pluralize Guild.active.count, 'active guilds' %>
                                     </div>
                                     <div class="mpl-feature-text">
                                         <%= link_to 'See all guilds', guilds_path, class: 'btn btn-md' %>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6 col-lg-6">
+                                <div class="mpl-feature">
+                                    <div class="mpl-feature-title h4">
+                                        <%= pluralize Guild.archived.count, 'archived guilds' %>
+                                    </div>
+                                    <div class="mpl-feature-text">
+                                        <%= link_to 'See archived tournaments', tournaments_path, class: 'btn btn-md' %>
                                     </div>
                                 </div>
                             </div>

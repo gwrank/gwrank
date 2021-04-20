@@ -109,4 +109,65 @@ namespace :tournaments do
       end
     end
   end
+
+  task import_from_gw_memorial: :environment do
+    files = Dir.children(Rails.root.join('data', 'gw-memorial'))
+    files.each do |file_name|
+      file_path = Rails.root.join('data', 'gw-memorial', file_name)
+      parsed_data = Nokogiri::HTML.parse(file_path)
+
+      mat_infos = parsed_data.css('li.mAT_infos')
+      if mat_infos.count.eql?(3)
+        date = mat_infos[0].text.gsub('Date: ', '').to_date
+        year = date.year
+        month = date.month
+        guild_number = mat_infos[1].text.gsub('Number of Guilds: ', '').to_i
+        map_rotation = mat_infos[2].text.gsub('Map rotation: ', '').to_s
+      end
+
+      tournament = Tournament.where(year: year, month: month).first_or_create!(
+        date: date,
+        map_rotation: map_rotation,
+        guild_number: guild_number
+      )
+
+      listing = parsed_data.xpath("//div[@id='resu_finalstandings']")
+      final_standings = parsed_data.css('div#resu_finalstandings')
+      final_standings.each_with_index do |final_standing, index|
+        if index.eql?(0) && final_standings.count.eql?(2)
+          round = 1
+        elsif final_standings.count.eql?(1) || index.eql?(1)
+          round = 2
+        end
+        final_standing.css('div#resu_listing').each do |table|
+          position = table.css('div#resu_table_position').text.gsub('.', '').to_i
+          table_cape = table.css('div#resu_table_cape')
+          if table_cape.to_s.include?('Gold')
+            trim = 1
+          elsif table_cape.to_s.include?('Silver')
+            trim = 2
+          elsif table_cape.to_s.include?('Bronze')
+            trim = 3
+          end
+          region = table.css('div#resu_table_region').attr('class').to_s.gsub('flag', '')
+          guild_name = table.css('div#resu_table_guilds').text
+          guild_tag = table.css('div#resu_table_tag').text
+
+          guild = Guild.where(name: guild_name).first_or_create!(
+            tag: guild_tag,
+            region: region,
+            is_archived: true
+          )
+          tournament_result = TournamentResult.where(
+            tournament: tournament,
+            round: round,
+            position: position
+          ).first_or_create!(
+            trim: trim,
+            guild: guild
+          )
+        end
+      end
+    end
+  end
 end

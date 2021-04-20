@@ -3,7 +3,7 @@ class ProfilesController < ApplicationController
   before_action :set_player, only: [:edit, :update]
 
   def edit
-    @guilds = Guild.all.order(name: :asc)
+    @guilds = Guild.active.order(name: :asc)
   end
 
   def update
@@ -18,7 +18,7 @@ class ProfilesController < ApplicationController
     if @player.update(player_params)
       redirect_to player_path(@player)
     else
-      @guilds = Guild.all.order(name: :asc)
+      @guilds = Guild.active.order(name: :asc)
       render :edit
     end
   end
