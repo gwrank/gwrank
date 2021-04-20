@@ -90,7 +90,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <% @guild.tournament_results.final_standings.each do |tournament_result| %>
+                                        <% @guild.tournament_results.final_standings.order(:position).each do |tournament_result| %>
                                         <tr>
                                             <td>
                                                 <%= link_to tournament_result.tournament.title, tournament_path(tournament_result.tournament) %>
