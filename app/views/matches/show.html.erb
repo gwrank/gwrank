@@ -14,7 +14,7 @@
         <div class="mpl-box-md">
             <div class="container">
                 <div class="row hgap-lg vgap-lg">
-                    <div class="col-lg mpl-content">
+                    <div class="col-lg single-match">
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="/">Home</a></li>
@@ -24,39 +24,58 @@
                             </ol>
                         </nav>
                         <h2><%= @match.title %></h2>
-                        <div class="row vgap" data-sr="tournaments" data-sr-interval="100" data-sr-duration="1000" data-sr-distance="20">
-                            <% @match.teams.each do |team| %>
-                              <h3>Team players <span class="badge badge-brand">Beta</span></h3>
-                              <table class="table table-striped table-responsive mb-60">
-                                  <thead>
-                                      <tr>
-                                          <th scope="col">In-game name</th>
-                                          <th scope="col">Profession</th>
-                                          <th scope="col">Skills</th>
-                                          <th scope="col">Stats</th>
-                                      </tr>
-                                  </thead>
-                                  <tbody>
-                                      <% team.team_players.order(position: :asc).each do |team_player| %>
-                                        <tr>
-                                          <td><%= team_player.character.player.present? ? link_to(team_player.igname, player_path(team_player.character.player)) : team_player.igname %></td>
-                                          <td><%= team_player.profession.name %></td>
-                                          <td>
-                                            <%= team_player.html_skills.html_safe %><br>
-                                            <% unless team_player.team_player_skills.count > 8 %>
-                                              <input type="text" class="form-control" value="<%= team_player.template_code %>" disabled>
+                        <div class="cyberpress-match">
+                            <div class="cyberpress-match-participants">
+                                <div class="cyberpress-match-participant">
+                                    <table class="table table-striped table-responsive mb-60">
+                                        <tbody>
+                                            <% @match.teams.first.team_players.order(position: :asc).each do |team_player| %>
+                                                <tr>
+                                                    <td>
+                                                        <%= team_player.character.player.present? ? link_to(team_player.igname, player_path(team_player.character.player)) : team_player.igname %>
+                                                        <%= team_player.profession.name %>
+                                                        <br>
+                                                        <%= team_player.html_skills.html_safe %>
+                                                        <% unless team_player.team_player_skills.count > 8 %>
+                                                            <input type="text" class="form-control" value="<%= team_player.template_code %>" disabled>
+                                                        <% end %>
+                                                    </td>
+                                                </tr>
                                             <% end %>
-                                          </td>
-                                          <td><span class="badge badge-brand">Soon</span></td>
-                                        </tr>
-                                      <% end %>
-                                  </tbody>
-                              </table>
-                            <% end %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="cyberpress-match-participant-vs">
+                                    <div class="cyberpress-match-participant-time-start"><%= @match.tournament.date %></div>
+                                    <div class="cyberpress-match-points h3">VS</div>
+                                </div>
+                                <div class="cyberpress-match-participant">
+                                    <table class="table table-striped table-responsive mb-60">
+                                        <tbody>
+                                            <% @match.teams.second.team_players.order(position: :asc).each do |team_player| %>
+                                                <tr>
+                                                    <td>
+                                                        <%= team_player.character.player.present? ? link_to(team_player.igname, player_path(team_player.character.player)) : team_player.igname %>
+                                                        <%= team_player.profession.name %>
+                                                        <br>
+                                                        <%= team_player.html_skills.html_safe %>
+                                                        <% unless team_player.team_player_skills.count > 8 %>
+                                                            <input type="text" class="form-control" value="<%= team_player.template_code %>" disabled>
+                                                        <% end %>
+                                                    </td>
+                                                </tr>
+                                            <% end %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-auto-lg mpl-sidebar" data-sr=widget data-sr-duration=1200 data-sr-distance=20>
-                        <%= link_to 'Search matches on Guild Wars Memorial', "https://memorial.redeemer.biz/memorial/#{@match.tournament.year}/#{@match.tournament.month}", target: '_blank', class: 'btn btn-md' %>
+                        <h2>Stats</h2>
+                        <div class="row vgap">
+                            <div class="col-12 col-md-6">
+                                <span class="badge badge-brand">Soon</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
