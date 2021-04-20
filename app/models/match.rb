@@ -10,4 +10,17 @@ class Match < ApplicationRecord
     end
     title.join(' vs. ')
   end
+
+  def round_text
+    case round
+    when 1
+      'Playoff'
+    when 2
+      'Quarterfinal'
+    when 3
+      'Semifinal'
+    when 4
+      'Final'
+    end
+  end
 end
