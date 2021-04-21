@@ -21,6 +21,10 @@ class TeamPlayer < ApplicationRecord
     skills.join
   end
 
+  def professions_text
+    [profession.name, secondary_profession.name].join('/')
+  end
+
   def stats_text
     stats = []
     team_player_stats.each do |team_player_stat|

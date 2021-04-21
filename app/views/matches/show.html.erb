@@ -33,7 +33,7 @@
                                                 <tr>
                                                     <td>
                                                         <%= team_player.character.player.present? ? link_to(team_player.igname, player_path(team_player.character.player)) : team_player.igname %>
-                                                        <%= team_player.profession.name %>
+                                                        <span class="float-right"><%= team_player.professions_text %></span>
                                                         <br>
                                                         <%= team_player.html_skills.html_safe %>
                                                         <% unless team_player.team_player_skills.count > 8 %>
@@ -56,7 +56,7 @@
                                                 <tr>
                                                     <td>
                                                         <%= team_player.character.player.present? ? link_to(team_player.igname, player_path(team_player.character.player)) : team_player.igname %>
-                                                        <%= team_player.profession.name %>
+                                                        <span class="float-right"><%= team_player.professions_text %></span>
                                                         <br>
                                                         <%= team_player.html_skills.html_safe %>
                                                         <% unless team_player.team_player_skills.count > 8 %>
