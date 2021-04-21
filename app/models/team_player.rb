@@ -9,8 +9,14 @@ class TeamPlayer < ApplicationRecord
 
   def html_skills
     skills = []
-    team_player_skills.each do |team_player_skill|
+    team_player_skills.each_with_index do |team_player_skill, index|
       skills << team_player_skill.skill.html_image
+      skills << '<br>' if index.eql?(7)
+    end
+    if team_player_skills.count < 8
+      (8 - team_player_skills.count).times do
+        skills << ActionController::Base.helpers.image_tag('skills/Unknown_Junundu_Ability.jpg', data: { toggle: 'tooltip', placement: 'bottom', 'original-title': 'Unknown' }, width: 42)
+      end
     end
     skills.join
   end
