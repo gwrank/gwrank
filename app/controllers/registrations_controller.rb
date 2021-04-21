@@ -6,7 +6,7 @@ class RegistrationsController < ApplicationController
     if current_player.igname.present?
       message << "\nYour known in-game name is **#{current_player.igname}**. If you want to update it, please type *!register* **Your In Game Name*"
     else
-      message << "\nYour in-game name is unknown. To be guested easily, please type *!register* **Your In Game Name*"
+      message << "\nYour in-game name is unknown. To be guested easily, please type *!register* **Your In Game Name**"
     end
     if current_player.has_current_registration?
       message << "\n<@#{current_player.uid}>, you are already ##{current_registrations.count} in the current queue."
