@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_20_180425) do
+ActiveRecord::Schema.define(version: 2021_04_22_005554) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -21,6 +21,7 @@ ActiveRecord::Schema.define(version: 2021_04_20_180425) do
     t.bigint "profession_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.boolean "is_archived", default: false
     t.index ["igname"], name: "index_characters_on_igname", unique: true
     t.index ["player_id"], name: "index_characters_on_player_id"
     t.index ["profession_id"], name: "index_characters_on_profession_id"
@@ -60,12 +61,14 @@ ActiveRecord::Schema.define(version: 2021_04_20_180425) do
   end
 
   create_table "matches", force: :cascade do |t|
-    t.integer "winner_team"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "tournament_id"
     t.integer "round"
     t.integer "number_on_round"
+    t.integer "loser_team_id"
+    t.integer "winner_team_id"
+    t.integer "memorial_match_id"
     t.index ["tournament_id"], name: "index_matches_on_tournament_id"
   end
 
@@ -227,7 +230,9 @@ ActiveRecord::Schema.define(version: 2021_04_20_180425) do
     t.date "date"
     t.string "map_rotation"
     t.integer "guild_number"
+    t.string "tournament_type"
     t.index ["slug"], name: "index_tournaments_on_slug", unique: true
+    t.index ["tournament_type"], name: "index_tournaments_on_tournament_type"
   end
 
   add_foreign_key "characters", "players"

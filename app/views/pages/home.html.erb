@@ -114,6 +114,16 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-12 col-md-6 col-lg-6">
+                                <div class="mpl-feature">
+                                    <div class="mpl-feature-title h4">
+                                        <%= pluralize Tournament.count, 'tournaments' %>
+                                    </div>
+                                    <div class="mpl-feature-text">
+                                        <%= link_to 'See tournaments', tournaments_path, class: 'btn btn-md' %>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-auto-lg mpl-sidebar" data-sr="widget" data-sr-duration="1200" data-sr-distance="20">

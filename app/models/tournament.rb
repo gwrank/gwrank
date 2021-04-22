@@ -3,6 +3,9 @@ class Tournament < ApplicationRecord
   has_many :matches, dependent: :destroy
   has_many :tournament_results, dependent: :destroy
 
+  scope :monthly, -> { where(tournament_type: 'mat') }
+  scope :daily, -> { where(tournament_type: 'at') }
+
   extend FriendlyId
   friendly_id :slug_candidates, use: :slugged
 

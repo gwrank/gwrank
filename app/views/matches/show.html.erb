@@ -24,6 +24,9 @@
                             </ol>
                         </nav>
                         <h2><%= @match.title %></h2>
+                        <% if @match.memorial_match_id.present? %>
+                            <h3>Imported from Memorial</h3>
+                        <% end %>
                         <div class="cyberpress-match">
                             <div class="cyberpress-match-participants">
                                 <div class="cyberpress-match-participant">

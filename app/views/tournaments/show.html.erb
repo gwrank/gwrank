@@ -26,7 +26,7 @@
                             <% @tournament.matches.order(round: :desc).order(number_on_round: :desc).each do |match| %>
                                 <li class="cyberpress-match" data-sr-item="matches">
                                     <div class="cyberpress-match-participants">
-                                        <div class="cyberpress-match-participant">
+                                        <div class="cyberpress-match-participant col-lg-5">
                                             <h2 class="cyberpress-match-participant-title h4">
                                                 <%= link_to match.teams.first.guild.name_with_tag, match_path(match) %>
                                             </h2>
@@ -34,15 +34,15 @@
                                                 <li><%= link_to 'Guild details', guild_path(match.teams.first.guild) %></li>
                                             </ul>
                                         </div>
-                                        <div class="cyberpress-match-participant-vs">
+                                        <div class="cyberpress-match-participant-vs col-lg-2">
                                             <%= link_to match_path(match) do %>
                                                 <span><%= match.round_text %></span>
                                                 <span class="cyberpress-match-participant-time-start"><%= @tournament.date %></span>
                                                 <span class="cyberpress-match-points h3">VS</span>
                                             <% end %>
                                         </div>
-                                        <div class="cyberpress-match-participant">
-                                            <h2 class="cyberpress-match-participant-title h4">
+                                        <div class="cyberpress-match-participant col-lg-5">
+                                            <h2 class="cyberpress-match-participant-title h4 text-right">
                                                 <%= link_to match.teams.second.guild.name_with_tag, match_path(match) %>
                                             </h2>
                                             <ul class="cyberpress-match-info">
