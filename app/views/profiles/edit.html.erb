@@ -7,13 +7,17 @@
             <h1 data-sr-item="sign" style="visibility: visible;">Edit Profile</h1>
             <%= form_with model: @player, url: profile_path do |form| %>
               <div class="mpl-snippet-fill">
-                <h2>In-game characters</h2>
+              <h2>In-game characters</h2>
                 <div class="row hgap-sm vgap-sm">
-                    <div class="col-12">
-                      <% @player.characters.each do |character| %>
-                        <p><%= character.igname_with_profession %></p>
-                      <% end %>
-                    </div>
+                  <div class="col-12">
+                    <%= form.label :igname, 'Main in-game name' %>
+                    <%= form.text_field :igname, class: 'form-control' %><span class="form-control-bg"></span>
+                  </div>
+                  <div class="col-12">
+                    <% @player.characters.each do |character| %>
+                      <p><%= character.igname_with_profession %></p>
+                    <% end %>
+                  </div>
                 </div>
                 <%= link_to 'Add new character', new_profile_character_path, class: 'btn btn-sm btn-success' %>
               </div>

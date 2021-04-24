@@ -11,7 +11,7 @@ class ProfilesController < ApplicationController
       if @player.is_verified?
         @player.update(is_verified: false)
       end
-      @player.team_players.update_all(player_id: Player.find_by(igname: 'Gwrank Com').id)
+      @player.team_players.update_all(player_id: Player.find_by(email: 'default@gwrank.com').id)
       TeamPlayer.where(igname: player_params[:igname]).update_all(player_id: @player.id)
     end
 

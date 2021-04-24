@@ -140,8 +140,7 @@ namespace :tournaments do
               player = Player.find_by(igname: igname)
               unless player
                 player = Player.where(email: 'default@gwrank.com').first_or_create(
-                  password: Devise.friendly_token[0, 20],
-                  igname: 'Gwrank Com'
+                  password: Devise.friendly_token[0, 20]
                 )
               end
 
@@ -357,8 +356,7 @@ namespace :tournaments do
           player = Player.find_by(igname: igname)
           unless player
             player = Player.where(email: 'default@gwrank.com').first_or_create(
-              password: Devise.friendly_token[0, 20],
-              igname: 'Gwrank Com'
+              password: Devise.friendly_token[0, 20]
             )
           end
 

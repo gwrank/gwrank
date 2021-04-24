@@ -15,6 +15,8 @@ class Player < ApplicationRecord
   validates_length_of :password, within: Devise.password_length, allow_blank: true
   validates_uniqueness_of :igname, on: :update
 
+  scope :with_igname, -> { where.not(igname: nil) }
+
   scope :in_queue, -> { joins(:registrations)
                           .where('registrations.registered_at > ?', DateTime.now - 8.hours)
                           .where('registrations.unregistered_at IS NULL')

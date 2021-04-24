@@ -24,9 +24,42 @@
                             </ol>
                         </nav>
                         <h2><%= @match.title %></h2>
-                        <% if @match.memorial_match_id.present? %>
-                            <h3>Imported from Memorial</h3>
+                            <h3
+                        <% if @match.winner_team.present? %>
+                            <h3>Winner: <%= @match.winner_team.guild&.name_with_tag %></h3>
                         <% end %>
+                        <% if @match.memorial_match_id.present? %>
+                            <h4>Imported <%= link_to 'from Memorial', "https://memorial.redeemer.biz/memorial/match/#{@match.memorial_match_id}/", target: '_blank' %></h4>
+                        <% end %>
+                        <ul class="cyberpress-matchs-archive" data-sr="matches" data-sr-duration="1000">
+                            <li class="cyberpress-match" data-sr-item="matches">
+                                <div class="cyberpress-match-participants">
+                                    <div class="cyberpress-match-participant col-lg-5">
+                                        <h2 class="cyberpress-match-participant-title h4">
+                                            <%= link_to @match.teams.first.guild.name_with_tag, match_path(@match) %>
+                                        </h2>
+                                        <ul class="cyberpress-match-info">
+                                            <li><%= link_to 'Guild details', guild_path(@match.teams.first.guild) %></li>
+                                        </ul>
+                                    </div>
+                                    <div class="cyberpress-match-participant-vs col-lg-2">
+                                        <%= link_to match_path(@match) do %>
+                                            <span><%= @match.round_text %></span>
+                                            <span class="cyberpress-match-participant-time-start"><%= @match.tournament.date %></span>
+                                            <span class="cyberpress-match-points h3">VS</span>
+                                        <% end %>
+                                    </div>
+                                    <div class="cyberpress-match-participant col-lg-5">
+                                        <h2 class="cyberpress-match-participant-title h4 text-right">
+                                            <%= link_to @match.teams.second.guild.name_with_tag, match_path(@match) %>
+                                        </h2>
+                                        <ul class="cyberpress-match-info">
+                                            <li><%= link_to 'Guild details', guild_path(@match.teams.second.guild) %></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
                         <div class="cyberpress-match">
                             <div class="cyberpress-match-participants">
                                 <div class="cyberpress-match-participant">
@@ -36,21 +69,24 @@
                                                 <tr>
                                                     <td>
                                                         <%= team_player.character.player.present? ? link_to(team_player.igname, player_path(team_player.character.player)) : team_player.igname %>
-                                                        <span class="float-right"><%= team_player.professions_text %></span>
+                                                        <div class="float-right">
+                                                            <%= team_player.profession.html_image %>
+                                                            <%= team_player.secondary_profession.html_image %>
+                                                            <% unless team_player.team_player_skills.count > 8 %>
+                                                                <span data-container="body" data-toggle="popover" data-placement="top" data-content="<%= team_player.template_code %>" data-original-title="" title="">
+                                                                    <svg width="14px" class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                        <path d="M5 17H4C3.46957 17 2.96086 16.7893 2.58579 16.4142C2.21071 16.0391 2 15.5304 2 15V5C2 4.46957 2.21071 3.96086 2.58579 3.58579C2.96086 3.21071 3.46957 3 4 3H20C20.5304 3 21.0391 3.21071 21.4142 3.58579C21.7893 3.96086 22 4.46957 22 5V15C22 15.5304 21.7893 16.0391 21.4142 16.4142C21.0391 16.7893 20.5304 17 20 17H19M12 15L17 21H7L12 15Z"></path>
+                                                                    </svg>
+                                                                </span>
+                                                            <% end %>
+                                                        </div>
                                                         <br>
                                                         <%= team_player.html_skills.html_safe %>
-                                                        <% unless team_player.team_player_skills.count > 8 %>
-                                                            <input type="text" class="form-control" value="<%= team_player.template_code %>" disabled>
-                                                        <% end %>
                                                     </td>
                                                 </tr>
                                             <% end %>
                                         </tbody>
                                     </table>
-                                </div>
-                                <div class="cyberpress-match-participant-vs">
-                                    <div class="cyberpress-match-participant-time-start"><%= @match.tournament.date %></div>
-                                    <div class="cyberpress-match-points h3">VS</div>
                                 </div>
                                 <div class="cyberpress-match-participant">
                                     <table class="table table-striped table-responsive mb-60">
@@ -59,12 +95,19 @@
                                                 <tr>
                                                     <td>
                                                         <%= team_player.character.player.present? ? link_to(team_player.igname, player_path(team_player.character.player)) : team_player.igname %>
-                                                        <span class="float-right"><%= team_player.professions_text %></span>
+                                                        <div class="float-right">
+                                                            <%= team_player.profession.html_image %>
+                                                            <%= team_player.secondary_profession.html_image %>
+                                                            <% unless team_player.team_player_skills.count > 8 %>
+                                                                <span data-container="body" data-toggle="popover" data-placement="top" data-content="<%= team_player.template_code %>" data-original-title="" title="">
+                                                                    <svg width="14px" class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                        <path d="M5 17H4C3.46957 17 2.96086 16.7893 2.58579 16.4142C2.21071 16.0391 2 15.5304 2 15V5C2 4.46957 2.21071 3.96086 2.58579 3.58579C2.96086 3.21071 3.46957 3 4 3H20C20.5304 3 21.0391 3.21071 21.4142 3.58579C21.7893 3.96086 22 4.46957 22 5V15C22 15.5304 21.7893 16.0391 21.4142 16.4142C21.0391 16.7893 20.5304 17 20 17H19M12 15L17 21H7L12 15Z"></path>
+                                                                    </svg>
+                                                                </span>
+                                                            <% end %>
+                                                        </div>
                                                         <br>
                                                         <%= team_player.html_skills.html_safe %>
-                                                        <% unless team_player.team_player_skills.count > 8 %>
-                                                            <input type="text" class="form-control" value="<%= team_player.template_code %>" disabled>
-                                                        <% end %>
                                                     </td>
                                                 </tr>
                                             <% end %>
