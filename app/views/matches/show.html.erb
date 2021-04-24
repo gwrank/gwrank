@@ -24,7 +24,6 @@
                             </ol>
                         </nav>
                         <h2><%= @match.title %></h2>
-                            <h3
                         <% if @match.winner_team.present? %>
                             <h3>Winner: <%= @match.winner_team.guild&.name_with_tag %></h3>
                         <% end %>
