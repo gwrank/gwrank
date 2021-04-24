@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   resources :registrations, only: [:create, :destroy]
   resources :scrims, only: [:index]
   resource :search, only: [:show]
+  resources :statistics, only: [:index]
   resources :streamers, only: [:index]
   resources :tournaments, only: [:index, :show]
 

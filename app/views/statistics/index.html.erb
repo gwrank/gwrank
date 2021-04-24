@@ -1,0 +1,29 @@
+<div class="content-wrap">
+    <div class="mpl-navbar-mobile-overlay"></div>
+    <div>
+        <section class="mpl-banner mpl-banner-top mpl-banner-parallax mpl-banner-small">
+            <div class="mpl-image" data-speed="0.8">
+                <%= image_tag 'background.jpg', class: 'jarallax-img' %>
+            </div>
+            <div class="mpl-banner-content mpl-box-lg">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-10">
+                            <h1 class="display-1 mb-0"><span class="badge badge-brand">Beta</span> Statistics</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="container mpl-box-md">
+          <h2>25 most picked skills</h2>
+          <% @most_picked_skills.each do |skill| %>
+            <div class="mpl-counter-box mb-30">
+                <div class="mpl-counter-box-number h4"><%= skill[1] %></div>
+                <div class="mpl-counter-box-content"><%= skill[0] %></div>
+            </div>
+          <% end %>
+        </div>
+        <%= render 'footer' %>
+    </div>
+</div>
