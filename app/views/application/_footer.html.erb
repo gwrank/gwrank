@@ -53,6 +53,11 @@
 </footer>
 <div class="mpl-footer-copyright">
     <div class="container">
-        <p>2020-2021 &copy; GWRank.com. Founded by Ko Arkalon</p>
+        <p>
+            2020-2021 &copy; GWRank.com. Founded by Ko Arkalon.
+            <% if current_player&.is_admin? %>
+                <%= link_to 'Administration', administration_players_path %>
+            <% end %>
+        </p>
     </div>
 </div>

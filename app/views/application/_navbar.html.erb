@@ -36,16 +36,9 @@
                 </li>
                 <li class="<%= 'active' if controller_name.eql?('statistics') %>">
                     <%= link_to statistics_path, class: 'mpl-nav-link' do %>
-                        <span class="mpl-nav-link-name"> Statistics <span class="badge badge-brand">New</span> </span>
+                        <span class="mpl-nav-link-name"> Stats <span class="badge badge-brand">New</span> </span>
                     <% end %>
                 </li>
-                <% if current_player&.is_admin? %>
-                    <li class="<%= 'active' if controller_name.include?('administration') %>">
-                        <%= link_to administration_players_path, class: 'mpl-nav-link' do %>
-                            <span class="mpl-nav-link-name"> Administration </span>
-                        <% end %>
-                    </li>
-                <% end %>
             </ul>
             <ul class="mpl-navbar-nav mpl-navbar-right">
                 <li>
