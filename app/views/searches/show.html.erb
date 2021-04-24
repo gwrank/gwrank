@@ -68,6 +68,23 @@
                           <% end %>
                         <% end %>
                     </div>
+                    <div class="col-12 col-lg-12">
+                        <h2>Matches with player</h2>
+                        <% @characters.each do |character| %>
+                            <% character.team_players.each do |team_player| %>
+                                <%= link_to  match_path(team_player.team.match), class: 'mpl-product-item mpl-product-horizontal', data: { 'sr-item': 'search' } do %>
+                                    <span class="mpl-product-image">
+                                        <span class="mpl-image">
+                                        </span>
+                                    </span>
+                                    <span class="mpl-product-content">
+                                        <span class="mpl-product-title h4"><%= team_player.team.match.title %></span>
+                                        <span><%= character.igname %></span>
+                                    </span>
+                                <% end %>
+                            <% end %>
+                        <% end %>
+                    </div>
                 </div>
             </div>
         </div>
