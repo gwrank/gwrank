@@ -9,7 +9,7 @@ class TeamPlayer < ApplicationRecord
 
   def html_skills
     skills = []
-    team_player_skills.each_with_index do |team_player_skill, index|
+    team_player_skills.order(created_at: :asc).each_with_index do |team_player_skill, index|
       skills << team_player_skill.skill.html_image
       skills << '<br>' if index.eql?(7)
     end
