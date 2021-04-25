@@ -47,7 +47,6 @@ namespace :skills do
 
   task clean_unknown_skills: :environment do
     no_skill_id = Skill.find_by(skill_id: 0).id
-    skill_ids_to_delete = []
     Skill.where(name: 'Unknown').each do |skill|
       skill.team_player_skills.update_all(skill_id: no_skill_id)
       skill.delete

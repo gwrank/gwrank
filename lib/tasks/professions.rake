@@ -11,4 +11,13 @@ namespace :professions do
       )
     end
   end
+
+  task clean_unknown_professions: :environment do
+    no_profession_id = Profession.find_by(profession_id: 0).id
+    Profession.where(name: 'Unknown').each do |profession|
+      profession.characters.update_all(profession_id: no_profession_id)
+      profession.team_players.update_all(profession_id: no_profession_id)
+      profession.delete
+    end
+  end
 end
