@@ -9,47 +9,45 @@ class TeamPlayer < ApplicationRecord
 
   def html_skills
     skills = []
-    unless team_player_skills.first.position.present?
-      secondary_profession_skills = []
-      other_skills = []
-      i = 2
-      team_player_skills.each do |team_player_skill|
-          if team_player_skill.skill.is_elite?
-            position = 1
-          elsif team_player_skill.skill.name.in?(['Resurrection Signet', 'Death Pact Signet', 'Death Pact Signet (PvP)', 'Flesh of My Flesh (PvP)'])
-            position = 8
-          else
-            position = i
-            i += 1
-          end
-          if team_player_skill.skill.profession_id.eql?(team_player_skill.team_player.profession_id)
-            team_player_skill.update(
-              position: position
-            )
-          elsif team_player_skill.skill.profession_id.eql?(team_player_skill.team_player.secondary_profession_id)
-            secondary_profession_skills << team_player_skill
-          else
-            other_skills << team_player_skill
-          end
-      end
-      secondary_profession_skills.each do |secondary_profession_skill|
-        secondary_profession_skill.update(
-          position: i
-        )
+    secondary_profession_skills = []
+    other_skills = []
+    i = 2
+    team_player_skills.each do |team_player_skill|
+      if team_player_skill.skill.is_elite?
+        position = 1
+      elsif team_player_skill.skill.name.in?(['Resurrection Signet', 'Death Pact Signet', 'Death Pact Signet (PvP)', 'Flesh of My Flesh (PvP)'])
+        position = 8
+      else
+        position = i
         i += 1
       end
-      i += 1
-      other_skills.each do |other_skill|
-        if other_skill.skill.name.in?(['Resurrection Signet', 'Death Pact Signet', 'Death Pact Signet (PvP)', 'Flesh of My Flesh (PvP)'])
-          position = 8
-        else
-          position = i
-        end
-        other_skill.update(
+      if team_player_skill.skill.profession_id.eql?(team_player_skill.team_player.profession_id)
+        team_player_skill.update(
           position: position
         )
-        i += 1
+      elsif team_player_skill.skill.profession_id.eql?(team_player_skill.team_player.secondary_profession_id)
+        secondary_profession_skills << team_player_skill
+      else
+        other_skills << team_player_skill
       end
+    end
+    secondary_profession_skills.each do |secondary_profession_skill|
+      secondary_profession_skill.update(
+        position: i
+      )
+      i += 1
+    end
+    i += 1
+    other_skills.each do |other_skill|
+      if other_skill.skill.name.in?(['Resurrection Signet', 'Death Pact Signet', 'Death Pact Signet (PvP)', 'Flesh of My Flesh (PvP)'])
+        position = 8
+      else
+        position = i
+      end
+      other_skill.update(
+        position: position
+      )
+      i += 1
     end
     team_player_skills.order(position: :asc).each_with_index do |team_player_skill, index|
       skills << team_player_skill.skill.html_image
