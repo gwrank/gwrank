@@ -6,6 +6,9 @@ class Character < ApplicationRecord
   scope :active, -> { where(is_archived: false) }
   scope :archived, -> { where(is_archived: true) }
 
+  validates :igname, presence: true
+  validates :igname, uniqueness: true
+
   include PgSearch::Model
   multisearchable against: [:igname]
   pg_search_scope :whose_igname_starts_with,

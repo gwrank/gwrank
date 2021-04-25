@@ -9,14 +9,19 @@ class Profiles::CharactersController < ApplicationController
   end
 
   def create
-    character_igname = character_params[:igname].titleize
+    character_igname = character_params[:igname].strip.titleize
     @character = Character.find_by(igname: character_igname)
     if @player.is_verified?
       @player.update(is_verified: false)
     end
     if @character.present?
-      @character.update(player_id: @player.id) unless @character.player_id.present?
-      redirect_to edit_profile_path
+      if @character.player_id.present?
+        @professions = Profession.all
+        render :new
+      else
+        @character.update(player_id: @player.id)
+        redirect_to edit_profile_path
+      end
     else
       @character = Character.new(character_params)
       @character.igname = character_igname
