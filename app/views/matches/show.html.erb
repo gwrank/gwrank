@@ -61,7 +61,7 @@
                         </ul>
                         <div class="cyberpress-match">
                             <div class="cyberpress-match-participants">
-                                <div class="cyberpress-match-participant">
+                                <div class="cyberpress-match-participant accordion" id="accordion" role="tablist" aria-multiselectable="true">
                                     <table class="table table-striped table-responsive mb-60">
                                         <tbody>
                                             <% @match.teams.first.team_players.order(position: :asc).each do |team_player| %>
