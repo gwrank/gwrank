@@ -1,4 +1,5 @@
 class Profession < ApplicationRecord
+  has_many :skills
   has_many :team_players
 
   def html_image

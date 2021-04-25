@@ -12,6 +12,27 @@ namespace :skills do
     end
   end
 
+  task import_informations: :environment do
+    Profession.where.not(name: 'Unknown').each do |profession|
+      profession = profession
+      filename = "#{profession.name.downcase}.txt"
+      skills = File.read(Rails.root.join('data', 'skills', filename)).split("\n")
+      skills.each do |skill|
+        skill_table = skill.split(' 	')
+        name = skill_table[1]
+        skill_type = skill_table[2].split('.').first
+        is_elite = skill_type.include?('Elite')
+        description = skill_table[2].split('.').drop(1).join('.').strip
+        Skill.find_by(name: name)&.update(
+          skill_type: skill_type,
+          is_elite: is_elite,
+          description: description,
+          profession: profession
+        )
+      end
+    end
+  end
+
   task update_for_template_codes: :environment do
     Skill.where('name LIKE (?)', '%(PvP)').each do |skill|
       skill_common_name = skill.name.gsub(' (PvP)', '')

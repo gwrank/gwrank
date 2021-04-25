@@ -1,0 +1,1 @@
+Resurrection Signet.jpg 	Resurrection Signet 	Signet. Resurrects target party member (100% Health, 25% Energy). This signet only recharges when you gain a morale boost. 			3 Tango-activation-darker.png 	morale boost Tango-recharge-darker.png 	Tango-quest-icon.png		Core
