@@ -20,6 +20,10 @@ class Profiles::CharactersController < ApplicationController
         render :new
       else
         @character.update(player_id: @player.id)
+        TeamPlayer.where(igname: @character.igname).update_all(
+          character_id: @character.id,
+          player_id: @player.id
+        )
         redirect_to edit_profile_path
       end
     else
