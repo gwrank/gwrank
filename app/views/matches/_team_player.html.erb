@@ -15,7 +15,7 @@
         <br>
         <%= team_player.html_skills.html_safe %>
         <% if team_player.team_player_stats.any? %>
-            <a class="collapse-toggle" data-toggle="collapse" href="#collapse<%= team_player.id %>" aria-expanded="false" aria-controls="collapse<%= team_player.id %>">
+            <a class="collapse-toggle collapsed" data-toggle="collapse" href="#collapse<%= team_player.id %>" aria-expanded="false" aria-controls="collapse<%= team_player.id %>">
                 Stats
             </a>
             <div id="collapse<%= team_player.id %>" class="collapse" role="tabpanel" data-parent="#accordion">
