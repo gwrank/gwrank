@@ -20,7 +20,13 @@ namespace :characters do
   task link_to_players: :environment do
     Player.all.each do |player|
       character = Character.find_by(igname: player.igname)
-      character.update(player: player) if character.present?
+      if character.present?
+        character.update(player: player)
+        TeamPlayer.where(igname: character.igname).update_all(
+          character_id: character.id,
+          player_id: player.id
+        )
+      end
     end
   end
 end

@@ -27,7 +27,10 @@ class Profiles::CharactersController < ApplicationController
       @character.igname = character_igname
       @character.player = @player
       if @character.save
-        TeamPlayer.where(igname: @character.igname).update_all(character_id: @character.id)
+        TeamPlayer.where(igname: @character.igname).update_all(
+          character_id: @character.id,
+          player_id: @player.id
+        )
         redirect_to edit_profile_path
       else
         @professions = Profession.all
