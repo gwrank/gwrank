@@ -3,6 +3,7 @@ class Match < ApplicationRecord
   belongs_to :tournament, optional: true
   belongs_to :winner_team, class_name: 'Team', optional: true
   has_many :comments, as: :commentable
+  has_many :movies, as: :movieable
   has_many :teams, dependent: :destroy
 
   def title

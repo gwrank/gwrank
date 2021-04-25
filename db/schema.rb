@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_25_113703) do
+ActiveRecord::Schema.define(version: 2021_04_25_220216) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -70,6 +70,17 @@ ActiveRecord::Schema.define(version: 2021_04_25_113703) do
     t.integer "winner_team_id"
     t.integer "memorial_match_id"
     t.index ["tournament_id"], name: "index_matches_on_tournament_id"
+  end
+
+  create_table "movies", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.string "provider"
+    t.string "video_url"
+    t.integer "movieable_id"
+    t.string "movieable_type"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["player_id"], name: "index_movies_on_player_id"
   end
 
   create_table "pg_search_documents", force: :cascade do |t|
@@ -245,6 +256,7 @@ ActiveRecord::Schema.define(version: 2021_04_25_113703) do
   add_foreign_key "characters", "professions"
   add_foreign_key "comments", "players"
   add_foreign_key "matches", "tournaments"
+  add_foreign_key "movies", "players"
   add_foreign_key "players", "guilds"
   add_foreign_key "registrations", "players"
   add_foreign_key "skills", "professions"

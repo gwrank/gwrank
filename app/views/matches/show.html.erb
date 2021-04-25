@@ -81,6 +81,30 @@
                                 </div>
                             </div>
                         </div>
+                        <% if @match.movies.any? %>
+                            <h2 data-sr data-sr-duration=1200 data-sr-distance=10 class="mt-30">Movies</h2>
+                            <% @match.movies.each do |movie| %>
+                                <% if movie.provider.eql?('youtube') %>
+                                    <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/<%= movie.youtube_embed_id %>" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                <% end %>
+                            <% end %>
+                        <% end %>
+                        <% if current_player&.is_moderator %>
+                            <h2 data-sr data-sr-duration=1200 data-sr-distance=10 class="mt-30">Add a Movie</h2>
+                            <%= form_with model: @movie, url: movies_path, class: 'mb-0', data: { 'sr-duration': 1200, 'sr-distance': 10 } do |form| %>
+                                <%= form.hidden_field :movieable_type, value: 'Match' %>
+                                <%= form.hidden_field :movieable_id, value: @match.id %>
+                                <%= form.hidden_field :provider, value: 'youtube' %>
+                                <div class="row vgap">
+                                    <div class="col-6">
+                                        <%= form.url_field :video_url, placeholder: 'Video URL', class: 'form-control' %><span class="form-control-bg"></span>
+                                    </div>
+                                    <div class="col-6">
+                                        <%= form.submit 'Submit', class: 'btn btn-md btn-success' %>
+                                    </div>
+                                </div>
+                            <% end %>
+                        <% end %>
                         <h2 data-sr data-sr-duration=1200 data-sr-distance=10 class="mt-30">Comments <small>(<%= @match.comments.count %>)</small></h2>
                         <% if current_player %>
                             <% if @match.comments.any? %>

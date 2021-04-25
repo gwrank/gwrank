@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   resources :comments, only: [:create]
   resources :guilds, only: [:index, :show, :new, :create]
   resources :matches, only: [:show]
+  resources :movies, only: [:create]
   resources :players, path: 'p', only: [:index, :show]
   resource :profile, only: [:edit, :update] do
     resources :characters, only: [:new, :create, :destroy], controller: 'profiles/characters'

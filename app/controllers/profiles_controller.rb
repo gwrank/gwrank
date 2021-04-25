@@ -4,6 +4,8 @@ class ProfilesController < ApplicationController
 
   def edit
     @guilds = Guild.active.order(name: :asc)
+    @character = Character.new
+    @professions = Profession.all
   end
 
   def update
