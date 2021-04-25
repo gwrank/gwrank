@@ -4,7 +4,7 @@ Rails.application.routes.draw do
   resources :matches, only: [:show]
   resources :players, path: 'p', only: [:index, :show]
   resource :profile, only: [:edit, :update] do
-    resources :characters, only: [:new, :create], controller: 'profiles/characters'
+    resources :characters, only: [:new, :create, :destroy], controller: 'profiles/characters'
   end
   resources :registrations, only: [:create, :destroy]
   resources :scrims, only: [:index]

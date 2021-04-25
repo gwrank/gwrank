@@ -15,7 +15,10 @@
                   </div>
                   <div class="col-12">
                     <% @player.characters.each do |character| %>
-                      <p><%= character.igname_with_profession %></p>
+                      <p>
+                        <%= character.igname_with_profession %>
+                        <%= link_to 'Delete', profile_character_path(character), method: :delete, class: 'float-right btn btn-sm btn-danger' %>
+                      </p>
                     <% end %>
                   </div>
                 </div>

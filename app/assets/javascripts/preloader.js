@@ -114,7 +114,7 @@ var perfData = window.performance.timing; // The PerformanceTiming interface rep
 var EstimatedTime = -(perfData.loadEventEnd - perfData.navigationStart);
 var time = Math.max(500, Math.min(1000, parseInt(EstimatedTime / 1000 % 60, 10) * 100)); // Preloader Animation
 
-$doc.on('DOMContentLoaded', function () {
+$doc.on('turbo:load', function () {
   var $preloader = $('.mpl-preloader');
   var $preloaderProgress = $preloader.find('.mpl-preloader-progress'); // No preloader available.
 
