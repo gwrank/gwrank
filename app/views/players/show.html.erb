@@ -87,27 +87,48 @@
                                 </div>
                             <% end %>
                         </article>
-                        <h2>Matches</h2>
-                        <table class="table mpl-table-responsive-sm cyberpress-table cyberpress-team-players">
-                            <thead>
-                                <tr>
-                                    <th>Tournament</th>
-                                    <th>Match</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% @player.teams.each do |team| %>
-                                <tr>
-                                    <td class="cyberpress-table-item-nickname">
-                                        <%= link_to team.match.tournament.year_and_month, tournament_path(team.match.tournament) %>
-                                    </td>
-                                    <td>
-                                        <%= link_to team.match.title, match_path(team.match) %>
-                                    </td>
-                                </tr>
-                                <% end %>
-                            </tbody>
-                        </table>
+                        <% if @player.historic_guilds.any? %>
+                            <h2>Played with</h2>
+                            <table class="table mpl-table-responsive-sm cyberpress-table cyberpress-team-players">
+                                <thead>
+                                    <tr>
+                                        <th>Guild</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% @player.historic_guilds.each do |guild| %>
+                                    <tr>
+                                        <td class="cyberpress-table-item-nickname">
+                                            <%= link_to guild.name_with_tag, guild_path(guild) %>
+                                        </td>
+                                    </tr>
+                                    <% end %>
+                                </tbody>
+                            </table>
+                        <% end %>
+                        <% if @player.teams.any? %>
+                            <h2>Matches</h2>
+                            <table class="table mpl-table-responsive-sm cyberpress-table cyberpress-team-players">
+                                <thead>
+                                    <tr>
+                                        <th>Tournament</th>
+                                        <th>Match</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% @player.teams.each do |team| %>
+                                    <tr>
+                                        <td class="cyberpress-table-item-nickname">
+                                            <%= link_to team.match.tournament.year_and_month, tournament_path(team.match.tournament) %>
+                                        </td>
+                                        <td>
+                                            <%= link_to team.match.title, match_path(team.match) %>
+                                        </td>
+                                    </tr>
+                                    <% end %>
+                                </tbody>
+                            </table>
+                        <% end %>
                     </div>
                     <div class="col-auto-lg mpl-sidebar" data-sr=widget data-sr-duration=1200 data-sr-distance=20>
                         <form action="https://memorial.redeemer.biz/memorial/" accept-charset="UTF-8" method="post" target="_blank">

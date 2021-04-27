@@ -52,12 +52,48 @@ class Player < ApplicationRecord
     end
   end
 
+  def afk_registration
+    afk_registrations.order(unregistered_at: :desc).first
+  end
+
+  def afk_registrations
+    registrations.afk_registrations
+  end
+
+  def current_registration
+    current_registrations.order(registered_at: :desc).first
+  end
+
+  def current_registrations
+    registrations.current_registrations
+  end
+
+  def has_afk_registration?
+    afk_registrations.any?
+  end
+
+  def has_current_registration?
+    current_registrations.any?
+  end
+
+  def historic_guilds
+    historic_guilds = []
+    teams.each do |team|
+      historic_guilds << team.guild
+    end
+    historic_guilds = historic_guilds.uniq
+  end
+
   def name
     igname.present? ? igname : username
   end
 
-  def verification_status
-    is_verified? ? 'Verified' : 'Unverified'
+  def notifications_count
+    counter = 0
+    counter += 1 unless characters.any?
+    counter += 1 unless guild_id.present?
+    counter += 1 if professions.empty?
+    counter
   end
 
   def professions
@@ -79,35 +115,7 @@ class Player < ApplicationRecord
     professions.join(', ')
   end
 
-  def current_registrations
-    registrations.current_registrations
-  end
-
-  def current_registration
-    current_registrations.order(registered_at: :desc).first
-  end
-
-  def has_current_registration?
-    current_registrations.any?
-  end
-
-  def afk_registrations
-    registrations.afk_registrations
-  end
-
-  def afk_registration
-    afk_registrations.order(unregistered_at: :desc).first
-  end
-
-  def has_afk_registration?
-    afk_registrations.any?
-  end
-
-  def notifications_count
-    counter = 0
-    counter += 1 unless characters.any?
-    counter += 1 unless guild_id.present?
-    counter += 1 if professions.empty?
-    counter
+  def verification_status
+    is_verified? ? 'Verified' : 'Unverified'
   end
 end

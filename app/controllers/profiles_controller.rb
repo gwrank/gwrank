@@ -9,7 +9,7 @@ class ProfilesController < ApplicationController
   end
 
   def update
-    if @player.igname != player_params[:igname]
+    if @player.igname != player_params[:igname] && !player_params[:igname].empty?
       if @player.is_verified?
         @player.update(is_verified: false)
       end
