@@ -1,5 +1,5 @@
 class Skill < ApplicationRecord
-  belongs_to :profession
+  belongs_to :profession, optional: true
   has_many :team_player_skills
 
   def html_image

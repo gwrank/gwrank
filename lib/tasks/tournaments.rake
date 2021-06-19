@@ -86,96 +86,192 @@ namespace :tournaments do
   end
 
   task import_from_observer: :environment do
+    ROUNDS_MAP = [1, 2, 3, 4]
     years = Dir.children(Rails.root.join('data', 'observer'))
     years.each do |year|
       months = Dir.children(Rails.root.join('data', 'observer', year))
       months.each do |month|
-        files = Dir.children(Rails.root.join('data', 'observer', year, month))
-        tournament = Tournament.find_by(year: year, month: month)
-        next if tournament.present?
-        tournament = Tournament.create(year: year, month: month)
+        if year.to_i.eql?(2021) && month.to_i < 5
+          files = Dir.children(Rails.root.join('data', 'observer', year, month))
+          tournament = Tournament.find_by(year: year, month: month)
+          next if tournament.present?
+          tournament = Tournament.create(year: year, month: month, tournament_type: 'mat')
 
-        files.each do |filename|
-          content = File.read(Rails.root.join('data', 'observer', year, month, filename))
+          files.each do |filename|
+            content = File.read(Rails.root.join('data', 'observer', year, month, filename))
 
-          filename_table = filename.split('.')[0].split('-')
-          round = filename_table[0]
-          number_on_round = filename_table[1]
-          first_team_tag = filename_table[2]
-          second_team_tag = filename_table[4]
+            filename_table = filename.split('.')[0].split('-')
+            round = filename_table[0]
+            number_on_round = filename_table[1]
+            first_team_tag = filename_table[2]
+            second_team_tag = filename_table[4]
 
-          match = Match.create(
-            tournament: tournament,
-            round: round,
-            number_on_round: number_on_round
-          )
-
-          guilds = []
-          guilds << Guild.where(tag: first_team_tag).first_or_create(name: first_team_tag)
-          guilds << Guild.where(tag: second_team_tag).first_or_create(name: second_team_tag)
-
-          puts "Importing round #{round}, match number #{number_on_round}, #{first_team_tag} vs #{second_team_tag}"
-
-          json = JSON.parse(content)
-          json['parties'].each_with_index do |party, index|
-            team = Team.create(
-              guild: guilds[index],
-              match: match
+            match = Match.create(
+              tournament: tournament,
+              round: round,
+              number_on_round: number_on_round
             )
 
-            party['members'].each do |member|
-              igname = member['name'].split(' ')
-              igname.pop
-              igname = igname.drop(1).join(' ')
+            guilds = []
+            guilds << Guild.where(tag: first_team_tag).first_or_create(name: first_team_tag)
+            guilds << Guild.where(tag: second_team_tag).first_or_create(name: second_team_tag)
 
-              profession = Profession.find_by(profession_id: member['primary'])
-              secondary_profession = Profession.find_by(profession_id: member['secondary'])
+            puts "Importing round #{round}, match number #{number_on_round}, #{first_team_tag} vs #{second_team_tag}"
 
-              position = member['party_index']
-
-              character = Character.where(igname: igname).first_or_create!(
-                profession: profession
+            json = JSON.parse(content)
+            json['parties'].each_with_index do |party, index|
+              team = Team.create(
+                guild: guilds[index],
+                match: match
               )
 
-              player = Player.find_by(igname: igname)
-              unless player
-                player = Player.where(email: 'default@gwrank.com').first_or_create(
-                  password: Devise.friendly_token[0, 20]
+              party['members'].each do |member|
+                igname = member['name'].split(' ')
+                igname.pop
+                igname = igname.drop(1).join(' ')
+
+                profession = Profession.find_by(profession_id: member['primary'])
+                secondary_profession = Profession.find_by(profession_id: member['secondary'])
+
+                position = member['party_index']
+
+                character = Character.where(igname: igname).first_or_create!(
+                  profession: profession
                 )
-              end
 
-              team_player = TeamPlayer.create!(
-                team: team,
-                player: player,
-                character: character,
-                igname: igname,
-                profession: profession,
-                secondary_profession: secondary_profession,
-                position: position
-              )
-
-              member['skills'].each do |gw_skill|
-                skill_name = gw_skill['name']
-                skill = Skill.find_by(name: skill_name)
-                unless skill
-                  skill_table = skill_name.split(' ')
-                  skill_table.pop
-                  skill_name = skill_table.join(' ')
-                  skill = Skill.find_by(name: skill_name)
+                player = Player.find_by(igname: igname)
+                unless player
+                  player = Player.where(email: 'default@gwrank.com').first_or_create(
+                    password: Devise.friendly_token[0, 20]
+                  )
                 end
 
-                team_player_skill = TeamPlayerSkill.create!(
-                  team_player: team_player,
-                  skill: skill
+                team_player = TeamPlayer.create!(
+                  team: team,
+                  player: player,
+                  character: character,
+                  igname: igname,
+                  profession: profession,
+                  secondary_profession: secondary_profession,
+                  position: position
                 )
-              end
 
-              member['stats'].each do |stat_key, stat_value|
-                team_player_stat = TeamPlayerStat.create!(
-                  team_player: team_player,
-                  stat_key: stat_key,
-                  stat_value: stat_value
-                )
+                member['skills'].each do |gw_skill|
+                  skill_name = gw_skill['name']
+                  skill = Skill.find_by(name: skill_name)
+                  unless skill
+                    skill_table = skill_name.split(' ')
+                    skill_table.pop
+                    skill_name = skill_table.join(' ')
+                    skill = Skill.find_by(name: skill_name)
+                  end
+
+                  team_player_skill = TeamPlayerSkill.create!(
+                    team_player: team_player,
+                    skill: skill
+                  )
+                end
+
+                member['stats'].each do |stat_key, stat_value|
+                  team_player_stat = TeamPlayerStat.create!(
+                    team_player: team_player,
+                    stat_key: stat_key,
+                    stat_value: stat_value
+                  )
+                end
+              end
+            end
+          end
+        else
+          files = Dir.children(Rails.root.join('data', 'observer', year, month))
+          tournament = Tournament.find_by(year: year, month: month)
+          next if tournament.present?
+          tournament = Tournament.where(year: year, month: month, tournament_type: 'mat').first_or_create!
+
+          files.each do |filename|
+            content = File.read(Rails.root.join('data', 'observer', year, month, filename))
+
+            filename_table = filename.split('.')[0].split('-')
+            round_from_final = filename_table[0]
+            round = ROUNDS_MAP.reverse[round_from_final.to_i - 1]
+            number_on_round = filename_table[1]
+
+            teams_list = filename_table[2].split('_vs_')
+
+            first_team_table = teams_list[0].split('_')
+            first_team_name = first_team_table[0..-2].join(' ')
+            first_team_tag = first_team_table[-1][1..-2]
+
+            second_team_table = teams_list[1].split('_')
+            second_team_name = second_team_table[0..-2].join(' ')
+            second_team_tag = second_team_table[-1][1..-2]
+
+            match = Match.where(
+              tournament: tournament,
+              round: round,
+              number_on_round: number_on_round,
+            ).first_or_create!
+
+            guilds = []
+            guilds << Guild.where(name: first_team_name, tag: first_team_tag).first_or_create!
+            guilds << Guild.where(name: second_team_name, tag: second_team_tag).first_or_create!
+
+            puts "Importing round #{round}, match number #{number_on_round}, #{first_team_tag} vs #{second_team_tag}"
+
+            json = JSON.parse(content)
+            json['parties']['by_id'].each_with_index do |party, index|
+              team = Team.where(
+                guild: guilds[index],
+                match: match
+              ).first_or_create!
+
+              agent_ids = party[1]['agent_ids']
+              agent_ids.each do |agent_id|
+                agent = json['agents']['by_id']["#{agent_id}"]
+
+                igname = agent['sanitized_name']
+                profession = Profession.find_by(profession_id: agent['primary'])
+                secondary_profession = Profession.find_by(profession_id: agent['secondary'])
+                position = agent['party_index']
+
+                character = Character.where(igname: igname).first_or_create!(profession: profession)
+
+                player = character.player
+                unless player
+                  player = Player.where(email: 'default@gwrank.com').first_or_create!(
+                    password: Devise.friendly_token[0, 20]
+                  )
+                end
+
+                team_player = TeamPlayer.where(
+                  team: team,
+                  player: player,
+                  character: character,
+                  igname: igname,
+                  profession: profession,
+                  secondary_profession: secondary_profession,
+                  position: position
+                ).first_or_create!
+
+                agent['stats']['skill_ids_used'].each do |skill_id|
+                  skill = Skill.where(skill_id: skill_id).first_or_create!
+
+                  team_player_skill = TeamPlayerSkill.where(
+                    team_player: team_player,
+                    skill: skill
+                  ).first_or_create!
+                end
+
+                unless team_player.team_player_skills.count.eql?(8)
+                  no_skill = Skill.find_by(skill_id: 0)
+                  count = team_player.team_player_skills.count
+                  (8 - count).times do |index|
+                    TeamPlayerSkill.create!(
+                      team_player: team_player,
+                      skill: no_skill
+                    )
+                  end
+                end
               end
             end
           end
@@ -383,7 +479,7 @@ namespace :tournaments do
           end
 
           unless team_player.team_player_skills.count.eql?(8)
-            no_skill = Skill.where(skill_id: 0)
+            no_skill = Skill.find_by(skill_id: 0)
             count = team_player.team_player_skills.count
             (8 - count).times do |index|
               TeamPlayerSkill.create!(
