@@ -18,7 +18,9 @@
                               <%= link_to 'Edit profile', edit_profile_path, class: 'btn btn-md btn-brand' %>
                               <%= link_to 'Log Out', destroy_player_session_path, method: :delete, class: 'btn btn-md btn-brand' %>
                             <% else %>
-                              <%= link_to 'Log in with Discord', omniauth_authorize_path(:player, :discord), class: 'btn btn-md btn-brand' %>
+                                <%= form_tag(omniauth_authorize_path(:player, :discord), method: 'post', data: { turbo: false }) do %>
+                                    <button type="submit" class="btn btn-block btn-default">Login with Discord</button>
+                                <% end %>
                             <% end %>
                         </div>
                         <% if ENV['TWITCH_LIVE_CHANNEL'].present? %>
@@ -83,7 +85,6 @@
                             </div>
                         </div>
                     </div>
-                    
                 </div>
             </div>
         </div>
