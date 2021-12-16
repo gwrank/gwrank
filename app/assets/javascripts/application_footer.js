@@ -16,5 +16,5 @@
 //= require ion-rangeslider/js/ion.rangeSlider.min
 //= require bootstrap-touchspin/dist/jquery.bootstrap-touchspin.min
 //= require bootstrap-validator/dist/validator.min
-//= require monsterplay.min
+//= require monsterplay
 //= require monsterplay-init

@@ -893,31 +893,7 @@ function initCursor() {
   }).on('mouseleave', 'a, button, input, textarea, [role="button"]', function () {
     $cursor.removeClass('mpl-cursor-hover');
     $cursorOuter.removeClass('mpl-cursor-hover');
-  }); // Move cursor.
-
-  var moveCursor = function moveCursor() {
-    var now = Date.now();
-    var delay = now - lastRunTime;
-    lastRunTime = now; // First run.
-
-    if (xPos === START_POSITION) {
-      dX = clientX;
-      dY = clientY;
-      xPos = clientX;
-      yPos = clientY;
-    } else {
-      dX = clientX - xPos;
-      dY = clientY - yPos;
-      xPos += dX / (tickPos * fps / delay);
-      yPos += dY / (tickPos * fps / delay);
-    }
-
-    $cursor.css('transform', "matrix(1, 0, 0, 1, ".concat(clientX, ", ").concat(clientY, ") translate3d(0,0,0)"));
-    $cursorOuter.css('transform', "matrix(1, 0, 0, 1, ".concat(xPos, ", ").concat(yPos, ") translate3d(0,0,0)"));
-    requestAnimationFrame(moveCursor);
-  };
-
-  requestAnimationFrame(moveCursor);
+  });
 }
 
 
