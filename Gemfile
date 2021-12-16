@@ -28,14 +28,12 @@ gem 'redis', '~> 4.0'
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.4', require: false
 
-gem 'cssbundling-rails'
 gem 'devise'
 gem 'discordrb'
 gem 'friendly_id'
 gem 'high_voltage'
 gem 'hotwire-rails'
 gem 'ip_anonymizer'
-gem 'jsbundling-rails'
 gem 'nokogiri'
 gem 'omniauth'
 gem 'omniauth-discord'
