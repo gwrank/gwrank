@@ -19,7 +19,7 @@
                               <%= link_to 'Log Out', destroy_player_session_path, method: :delete, class: 'btn btn-md btn-brand' %>
                             <% else %>
                                 <%= form_tag(omniauth_authorize_path(:player, :discord), method: 'post', data: { turbo: false }) do %>
-                                    <button type="submit" class="btn btn-block btn-default">Login with Discord</button>
+                                    <button type="submit" class="btn btn-md btn-brand">Login with Discord</button>
                                 <% end %>
                             <% end %>
                         </div>
