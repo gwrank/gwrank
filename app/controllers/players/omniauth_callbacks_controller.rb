@@ -1,6 +1,6 @@
 class Players::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   # See https://github.com/omniauth/omniauth/wiki/FAQ#rails-session-is-clobbered-after-callback-on-developer-strategy
-  skip_before_action :verify_authenticity_token, only: :discord
+  skip_before_action :verify_authenticity_token, only: [:create, :discord]
 
   def discord
     @player = Player.from_omniauth(request.env["omniauth.auth"])

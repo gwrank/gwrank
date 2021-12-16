@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.0.2'
+ruby '3.0.3'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 6.1'
@@ -28,19 +28,23 @@ gem 'redis', '~> 4.0'
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.4', require: false
 
-gem 'ip_anonymizer'
+gem 'cssbundling-rails'
 gem 'devise'
 gem 'discordrb'
 gem 'friendly_id'
 gem 'high_voltage'
 gem 'hotwire-rails'
+gem 'ip_anonymizer'
+gem 'jsbundling-rails'
 gem 'nokogiri'
-gem 'omniauth', '~> 1.9'
+gem 'omniauth'
 gem 'omniauth-discord'
+gem 'omniauth-rails_csrf_protection'
 gem 'pg_search'
 gem 'pundit'
 gem 'seed_dump'
 gem 'sidekiq'
+gem 'turbo-rails'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

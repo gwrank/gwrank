@@ -10,7 +10,9 @@
                     <div class="row">
                         <div class="col-lg-10" data-sr="banner" data-sr-interval="200" data-sr-duration="1200" data-sr-distance="20">
                             <h1 class="display-1" data-sr-item="banner">GWRank Log&nbsp;in</h1>
-                            <%= link_to 'Log in with Discord', omniauth_authorize_path(:player, :discord), class: 'btn btn-md btn-brand' %>
+                            <%= form_tag(omniauth_authorize_path(:player, :discord), method: 'post', data: { turbo: false }) do %>
+                                <button type="submit" class="btn btn-md btn-brand">Login with Discord</button>
+                            <% end %>
                         </div>
                     </div>
                 </div>

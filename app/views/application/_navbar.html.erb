@@ -93,7 +93,9 @@
                         <div class="mpl-dropdown-menu">
                             <div class="row hgap-sm vgap-sm align-items-center">
                                 <div class="col-12">
-                                    <%= link_to 'Log In with Discord', omniauth_authorize_path(:player, :discord), class: 'btn btn-block btn-default' %>
+                                    <%= form_tag(omniauth_authorize_path(:player, :discord), method: 'post', data: { turbo: false }) do %>
+                                        <button type="submit" class="btn btn-block btn-default">Login with Discord</button>
+                                    <% end %>
                                 </div>
                             </div>
                         </div>
