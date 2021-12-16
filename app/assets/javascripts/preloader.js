@@ -112,7 +112,7 @@ var $doc = $(document);
 var perfData = window.performance.timing; // The PerformanceTiming interface represents timing-related performance information for the given page.
 
 var EstimatedTime = -(perfData.loadEventEnd - perfData.navigationStart);
-var time = Math.max(500, Math.min(1000, parseInt(EstimatedTime / 1000 % 60, 10) * 100)); // Preloader Animation
+var time = Math.max(500, Math.min(1000, parseInt((EstimatedTime / 1000 % 60, 10) * 100) / 10)); // Preloader Animation
 
 $doc.on('turbo:load', function () {
   var $preloader = $('.mpl-preloader');
