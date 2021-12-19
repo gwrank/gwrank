@@ -142,7 +142,9 @@
                             <% end %>
                         <% else %>
                             <p>You need to be logged in to see or post comments.</p>
-                            <%= link_to 'Log in with Discord', omniauth_authorize_path(:player, :discord), class: 'btn btn-md btn-brand' %>
+                            <%= form_tag(omniauth_authorize_path(:player, :discord), method: 'post', data: { turbo: false }) do %>
+                                <button type="submit" class="btn btn-md btn-brand">Login with Discord</button>
+                            <% end %>
                         <% end %>
                     </div>
                 </div>

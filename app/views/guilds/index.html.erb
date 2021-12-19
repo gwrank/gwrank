@@ -55,7 +55,9 @@
                                 <%= link_to 'Register my Guild', new_guild_path, class: 'btn btn-md' %>
                             <% end %>
                         <% else %>
-                            <%= link_to 'Log in with Discord to register my guild', omniauth_authorize_path(:player, :discord), class: 'btn btn-md' %>
+                            <%= form_tag(omniauth_authorize_path(:player, :discord), method: 'post', data: { turbo: false }) do %>
+                                <button type="submit" class="btn btn-md">Login with Discord to register my guild</button>
+                            <% end %>
                         <% end %>
                     </div>
                 </div>
