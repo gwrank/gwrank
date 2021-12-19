@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_25_220216) do
+ActiveRecord::Schema.define(version: 2021_12_19_212720) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -57,6 +57,9 @@ ActiveRecord::Schema.define(version: 2021_04_25_220216) do
     t.integer "owner_id"
     t.string "region"
     t.boolean "is_archived", default: false
+    t.integer "gold_trims_count", default: 0
+    t.integer "silver_trims_count", default: 0
+    t.integer "bronze_trims_count", default: 0
     t.index ["slug"], name: "index_guilds_on_slug", unique: true
   end
 

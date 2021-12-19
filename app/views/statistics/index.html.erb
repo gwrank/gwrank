@@ -16,6 +16,29 @@
             </div>
         </section>
         <div class="container mpl-box-md">
+            <h2>Top 16 guilds having trims</h2>
+            <table class="table table-striped table-responsive mb-60">
+                <thead>
+                    <th scope="col">Gold trims</th>
+                    <th scope="col">Silver trims</th>
+                    <th scope="col">Bronze trims</th>
+                    <th scope="col">Guild name</th>
+                    <th scope="col">Guild tag</th>
+                    <th scope="col">Region</th>
+                </thead>
+                <tbody>
+                    <% @trims_guilds.each do |guild| %>
+                        <tr>
+                            <td><%= guild.gold_trims_count %></td>
+                            <td><%= guild.silver_trims_count %></td>
+                            <td><%= guild.bronze_trims_count %></td>
+                            <td><%= link_to guild.name, guild_path(guild) %></td>
+                            <td><%= guild.tag %></td>
+                            <td><%= guild.region %></td>
+                        </tr>
+                    <% end %>
+                </tbody>
+            </table>
           <h2>25 most picked skills</h2>
           <% @most_picked_skills.each do |skill| %>
             <div class="mpl-counter-box mb-30">

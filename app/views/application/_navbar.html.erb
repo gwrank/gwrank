@@ -9,19 +9,16 @@
                         <span class="mpl-nav-link-name"> Home </span>
                     <% end %>
                 </li>
-                <li class="<%= 'active' if controller_name.eql?('streamers') %>">
-                    <%= link_to streamers_path, class: 'mpl-nav-link' do %>
-                        <span class="mpl-nav-link-name"> Streamers </span>
+                <li class="<%= 'active' if controller_name.eql?('tournaments') %>">
+                    <%= link_to tournaments_path, class: 'mpl-nav-link' do %>
+                        <span class="mpl-nav-link-name"> Tournaments </span>
+                        <span class="badge badge-brand">updated</span>
                     <% end %>
                 </li>
-                <li class="<%= 'active' if controller_name.eql?('players') %>">
-                    <%= link_to players_path, class: 'mpl-nav-link' do %>
-                        <span class="mpl-nav-link-name"> Players </span>
-                    <% end %>
-                </li>
-                <li class="<%= 'active' if controller_name.eql?('scrims') %>">
-                    <%= link_to scrims_path, class: 'mpl-nav-link' do %>
-                        <span class="mpl-nav-link-name"> Scrims </span>
+                <li class="<%= 'active' if controller_name.eql?('statistics') %>">
+                    <%= link_to statistics_path, class: 'mpl-nav-link' do %>
+                        <span class="mpl-nav-link-name"> Stats </span>
+                        <span class="badge badge-brand">updated</span>
                     <% end %>
                 </li>
                 <li class="<%= 'active' if controller_name.eql?('guilds') %>">
@@ -29,14 +26,19 @@
                         <span class="mpl-nav-link-name"> Guilds </span>
                     <% end %>
                 </li>
-                <li class="<%= 'active' if controller_name.eql?('tournaments') %>">
-                    <%= link_to tournaments_path, class: 'mpl-nav-link' do %>
-                        <span class="mpl-nav-link-name"> Tournaments </span>
+                <li class="<%= 'active' if controller_name.eql?('players') %>">
+                    <%= link_to players_path, class: 'mpl-nav-link' do %>
+                        <span class="mpl-nav-link-name"> Players </span>
                     <% end %>
                 </li>
-                <li class="<%= 'active' if controller_name.eql?('statistics') %>">
-                    <%= link_to statistics_path, class: 'mpl-nav-link' do %>
-                        <span class="mpl-nav-link-name"> Stats </span>
+                <li class="<%= 'active' if controller_name.eql?('streamers') %>">
+                    <%= link_to streamers_path, class: 'mpl-nav-link' do %>
+                        <span class="mpl-nav-link-name"> Streamers </span>
+                    <% end %>
+                </li>
+                <li class="<%= 'active' if controller_name.eql?('scrims') %>">
+                    <%= link_to scrims_path, class: 'mpl-nav-link' do %>
+                        <span class="mpl-nav-link-name"> Scrims </span>
                     <% end %>
                 </li>
             </ul>

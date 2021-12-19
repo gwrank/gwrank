@@ -35,4 +35,8 @@ class Guild < ApplicationRecord
       'Unknown'
     end
   end
+
+  def gold_trims_count
+    tournament_results.gold_trims.count
+  end
 end
