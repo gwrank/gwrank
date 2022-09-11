@@ -87,6 +87,7 @@ GEM
       railties (>= 4.1.0)
       responders
       warden (~> 1.2.3)
+    digest (3.1.0)
     discordrb (3.4.0)
       discordrb-webhooks (~> 3.3.0)
       ffi (>= 1.9.24)
@@ -123,6 +124,7 @@ GEM
       domain_name (~> 0.5)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
+    io-wait (0.2.1)
     ip_anonymizer (0.1.1)
     jbuilder (2.11.5)
       actionview (>= 5.0.0)
@@ -147,6 +149,13 @@ GEM
     minitest (5.16.3)
     msgpack (1.5.6)
     multi_xml (0.6.0)
+    net-protocol (0.1.2)
+      io-wait
+      timeout
+    net-smtp (0.3.1)
+      digest
+      net-protocol
+      timeout
     netrc (0.11.0)
     nio4r (2.5.8)
     nokogiri (1.13.8)
@@ -275,6 +284,7 @@ GEM
       railties (>= 6.0.0)
     thor (1.2.1)
     tilt (2.0.11)
+    timeout (0.2.0)
     turbo-rails (1.1.1)
       actionpack (>= 6.0.0)
       activejob (>= 6.0.0)
@@ -328,6 +338,7 @@ DEPENDENCIES
   ip_anonymizer
   jbuilder (~> 2.7)
   listen (~> 3.3)
+  net-smtp
   nokogiri
   omniauth
   omniauth-discord
