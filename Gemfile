@@ -34,7 +34,9 @@ gem 'friendly_id'
 gem 'high_voltage'
 gem 'hotwire-rails'
 gem 'ip_anonymizer'
-gem 'net-smtp'
+gem 'net-imap', require: false
+gem 'net-pop', require: false
+gem 'net-smtp', require: false
 gem 'nokogiri'
 gem 'omniauth'
 gem 'omniauth-discord'

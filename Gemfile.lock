@@ -149,6 +149,14 @@ GEM
     minitest (5.16.3)
     msgpack (1.5.6)
     multi_xml (0.6.0)
+    net-imap (0.2.3)
+      digest
+      net-protocol
+      strscan
+    net-pop (0.1.1)
+      digest
+      net-protocol
+      timeout
     net-protocol (0.1.2)
       io-wait
       timeout
@@ -282,6 +290,7 @@ GEM
       sprockets (>= 3.0.0)
     stimulus-rails (1.1.0)
       railties (>= 6.0.0)
+    strscan (3.0.1)
     thor (1.2.1)
     tilt (2.0.11)
     timeout (0.2.0)
@@ -338,6 +347,8 @@ DEPENDENCIES
   ip_anonymizer
   jbuilder (~> 2.7)
   listen (~> 3.3)
+  net-imap
+  net-pop
   net-smtp
   nokogiri
   omniauth
