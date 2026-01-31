@@ -1,5 +1,5 @@
 class GuildsController < ApplicationController
-  before_action :set_guild, only: [:show, :edit]
+  before_action :set_guild, only: [:show]
 
   def index
     authorize Guild

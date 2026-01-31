@@ -10,8 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_12_19_212720) do
-
+ActiveRecord::Schema[7.0].define(version: 2026_01_31_225705) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -19,8 +18,8 @@ ActiveRecord::Schema.define(version: 2021_12_19_212720) do
     t.bigint "player_id"
     t.string "igname"
     t.bigint "profession_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.boolean "is_archived", default: false
     t.index ["igname"], name: "index_characters_on_igname", unique: true
     t.index ["player_id"], name: "index_characters_on_player_id"
@@ -32,8 +31,8 @@ ActiveRecord::Schema.define(version: 2021_12_19_212720) do
     t.text "body"
     t.integer "commentable_id"
     t.string "commentable_type"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["player_id"], name: "index_comments_on_player_id"
   end
 
@@ -42,7 +41,7 @@ ActiveRecord::Schema.define(version: 2021_12_19_212720) do
     t.integer "sluggable_id", null: false
     t.string "sluggable_type", limit: 50
     t.string "scope"
-    t.datetime "created_at"
+    t.datetime "created_at", precision: nil
     t.index ["slug", "sluggable_type", "scope"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type_and_scope", unique: true
     t.index ["slug", "sluggable_type"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type"
     t.index ["sluggable_type", "sluggable_id"], name: "index_friendly_id_slugs_on_sluggable_type_and_sluggable_id"
@@ -50,8 +49,8 @@ ActiveRecord::Schema.define(version: 2021_12_19_212720) do
 
   create_table "guilds", force: :cascade do |t|
     t.string "name"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "slug"
     t.string "tag"
     t.integer "owner_id"
@@ -64,8 +63,8 @@ ActiveRecord::Schema.define(version: 2021_12_19_212720) do
   end
 
   create_table "matches", force: :cascade do |t|
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.bigint "tournament_id"
     t.integer "round"
     t.integer "number_on_round"
@@ -81,8 +80,8 @@ ActiveRecord::Schema.define(version: 2021_12_19_212720) do
     t.string "video_url"
     t.integer "movieable_id"
     t.string "movieable_type"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["player_id"], name: "index_movies_on_player_id"
   end
 
@@ -90,8 +89,8 @@ ActiveRecord::Schema.define(version: 2021_12_19_212720) do
     t.text "content"
     t.string "searchable_type"
     t.bigint "searchable_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["searchable_type", "searchable_id"], name: "index_pg_search_documents_on_searchable"
   end
 
@@ -99,22 +98,22 @@ ActiveRecord::Schema.define(version: 2021_12_19_212720) do
     t.string "email", default: ""
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
-    t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
+    t.datetime "reset_password_sent_at", precision: nil
+    t.datetime "remember_created_at", precision: nil
     t.integer "sign_in_count", default: 0, null: false
-    t.datetime "current_sign_in_at"
-    t.datetime "last_sign_in_at"
+    t.datetime "current_sign_in_at", precision: nil
+    t.datetime "last_sign_in_at", precision: nil
     t.string "current_sign_in_ip"
     t.string "last_sign_in_ip"
     t.string "confirmation_token"
-    t.datetime "confirmed_at"
-    t.datetime "confirmation_sent_at"
+    t.datetime "confirmed_at", precision: nil
+    t.datetime "confirmation_sent_at", precision: nil
     t.string "unconfirmed_email"
     t.integer "failed_attempts", default: 0, null: false
     t.string "unlock_token"
-    t.datetime "locked_at"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "locked_at", precision: nil
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "provider"
     t.string "uid"
     t.string "username"
@@ -146,17 +145,17 @@ ActiveRecord::Schema.define(version: 2021_12_19_212720) do
 
   create_table "professions", force: :cascade do |t|
     t.string "name"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer "profession_id"
   end
 
   create_table "registrations", force: :cascade do |t|
     t.bigint "player_id", null: false
-    t.datetime "registered_at"
-    t.datetime "unregistered_at"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "registered_at", precision: nil
+    t.datetime "unregistered_at", precision: nil
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["player_id"], name: "index_registrations_on_player_id"
   end
 
@@ -166,15 +165,15 @@ ActiveRecord::Schema.define(version: 2021_12_19_212720) do
     t.integer "captain_a_id"
     t.integer "captain_b_id"
     t.integer "winner_team_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "skills", force: :cascade do |t|
     t.integer "skill_id"
     t.string "name"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer "template_skill_id"
     t.string "skill_type"
     t.boolean "is_elite", default: false
@@ -186,8 +185,8 @@ ActiveRecord::Schema.define(version: 2021_12_19_212720) do
   create_table "team_player_skills", force: :cascade do |t|
     t.bigint "team_player_id", null: false
     t.bigint "skill_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer "position", default: 0
     t.index ["skill_id"], name: "index_team_player_skills_on_skill_id"
     t.index ["team_player_id"], name: "index_team_player_skills_on_team_player_id"
@@ -197,8 +196,8 @@ ActiveRecord::Schema.define(version: 2021_12_19_212720) do
     t.bigint "team_player_id", null: false
     t.string "stat_key"
     t.integer "stat_value"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["team_player_id"], name: "index_team_player_stats_on_team_player_id"
   end
 
@@ -206,8 +205,8 @@ ActiveRecord::Schema.define(version: 2021_12_19_212720) do
     t.bigint "team_id", null: false
     t.bigint "player_id", null: false
     t.bigint "profession_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.boolean "is_captain", default: false
     t.string "igname"
     t.integer "secondary_profession_id"
@@ -220,8 +219,8 @@ ActiveRecord::Schema.define(version: 2021_12_19_212720) do
   end
 
   create_table "teams", force: :cascade do |t|
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.bigint "match_id"
     t.bigint "guild_id"
     t.index ["guild_id"], name: "index_teams_on_guild_id"
@@ -234,8 +233,8 @@ ActiveRecord::Schema.define(version: 2021_12_19_212720) do
     t.integer "position"
     t.integer "trim", default: 0
     t.bigint "guild_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["guild_id"], name: "index_tournament_results_on_guild_id"
     t.index ["round"], name: "index_tournament_results_on_round"
     t.index ["tournament_id"], name: "index_tournament_results_on_tournament_id"
@@ -244,8 +243,8 @@ ActiveRecord::Schema.define(version: 2021_12_19_212720) do
   create_table "tournaments", force: :cascade do |t|
     t.integer "year"
     t.integer "month"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "slug"
     t.date "date"
     t.string "map_rotation"
