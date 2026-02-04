@@ -13,8 +13,6 @@ gem 'puma', '~> 6.0'
 gem 'propshaft'
 # CSS Bundling
 gem 'cssbundling-rails'
-# TailwindCSS
-gem 'tailwindcss-rails'
 # JS Bundling
 gem 'jsbundling-rails'
 
