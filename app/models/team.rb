@@ -2,16 +2,21 @@
 #
 # Table name: teams
 #
-#  id         :integer          not null, primary key
+#  id         :bigint           not null, primary key
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
-#  match_id   :integer
-#  guild_id   :integer
+#  guild_id   :bigint
+#  match_id   :bigint
 #
 # Indexes
 #
 #  index_teams_on_guild_id  (guild_id)
 #  index_teams_on_match_id  (match_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (guild_id => guilds.id)
+#  fk_rails_...  (match_id => matches.id)
 #
 
 class Team < ApplicationRecord

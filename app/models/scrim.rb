@@ -2,14 +2,14 @@
 #
 # Table name: scrims
 #
-#  id             :integer          not null, primary key
-#  team_a_id      :integer
-#  team_b_id      :integer
-#  captain_a_id   :integer
-#  captain_b_id   :integer
-#  winner_team_id :integer
+#  id             :bigint           not null, primary key
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null
+#  captain_a_id   :integer
+#  captain_b_id   :integer
+#  team_a_id      :integer
+#  team_b_id      :integer
+#  winner_team_id :integer
 #
 
 class Scrim < ApplicationRecord

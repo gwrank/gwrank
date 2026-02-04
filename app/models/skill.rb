@@ -2,20 +2,24 @@
 #
 # Table name: skills
 #
-#  id                :integer          not null, primary key
-#  skill_id          :integer
+#  id                :bigint           not null, primary key
+#  description       :text
+#  is_elite          :boolean          default(FALSE)
 #  name              :string
+#  skill_type        :string
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
+#  profession_id     :bigint
+#  skill_id          :integer
 #  template_skill_id :integer
-#  skill_type        :string
-#  is_elite          :boolean          default(FALSE)
-#  description       :text
-#  profession_id     :integer
 #
 # Indexes
 #
 #  index_skills_on_profession_id  (profession_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (profession_id => professions.id)
 #
 
 class Skill < ApplicationRecord

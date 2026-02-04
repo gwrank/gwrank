@@ -2,19 +2,23 @@
 #
 # Table name: matches
 #
-#  id                :integer          not null, primary key
+#  id                :bigint           not null, primary key
+#  number_on_round   :integer
+#  round             :integer
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
-#  tournament_id     :integer
-#  round             :integer
-#  number_on_round   :integer
 #  loser_team_id     :integer
-#  winner_team_id    :integer
 #  memorial_match_id :integer
+#  tournament_id     :bigint
+#  winner_team_id    :integer
 #
 # Indexes
 #
 #  index_matches_on_tournament_id  (tournament_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (tournament_id => tournaments.id)
 #
 
 class Match < ApplicationRecord

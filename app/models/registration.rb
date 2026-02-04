@@ -2,16 +2,20 @@
 #
 # Table name: registrations
 #
-#  id              :integer          not null, primary key
-#  player_id       :integer          not null
+#  id              :bigint           not null, primary key
 #  registered_at   :datetime
 #  unregistered_at :datetime
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
+#  player_id       :bigint           not null
 #
 # Indexes
 #
 #  index_registrations_on_player_id  (player_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (player_id => players.id)
 #
 
 class Registration < ApplicationRecord

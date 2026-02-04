@@ -1,3 +1,24 @@
+# == Schema Information
+#
+# Table name: guilds
+#
+#  id                 :bigint           not null, primary key
+#  bronze_trims_count :integer          default(0)
+#  gold_trims_count   :integer          default(0)
+#  is_archived        :boolean          default(FALSE)
+#  name               :string
+#  region             :string
+#  silver_trims_count :integer          default(0)
+#  slug               :string
+#  tag                :string
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  owner_id           :integer
+#
+# Indexes
+#
+#  index_guilds_on_slug  (slug) UNIQUE
+#
 class Guild < ApplicationRecord
   belongs_to :owner, class_name: 'Player', optional: true
   has_many :players

@@ -2,17 +2,17 @@
 #
 # Table name: team_players
 #
-#  id                      :integer          not null, primary key
-#  team_id                 :integer          not null
-#  player_id               :integer          not null
-#  profession_id           :integer
+#  id                      :bigint           not null, primary key
+#  igname                  :string
+#  is_captain              :boolean          default(FALSE)
+#  position                :integer
 #  created_at              :datetime         not null
 #  updated_at              :datetime         not null
-#  is_captain              :boolean          default(FALSE)
-#  igname                  :string
+#  character_id            :bigint
+#  player_id               :bigint           not null
+#  profession_id           :bigint
 #  secondary_profession_id :integer
-#  position                :integer
-#  character_id            :integer
+#  team_id                 :bigint           not null
 #
 # Indexes
 #
@@ -20,6 +20,13 @@
 #  index_team_players_on_player_id      (player_id)
 #  index_team_players_on_profession_id  (profession_id)
 #  index_team_players_on_team_id        (team_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (character_id => characters.id)
+#  fk_rails_...  (player_id => players.id)
+#  fk_rails_...  (profession_id => professions.id)
+#  fk_rails_...  (team_id => teams.id)
 #
 
 class TeamPlayer < ApplicationRecord

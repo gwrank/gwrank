@@ -2,19 +2,24 @@
 #
 # Table name: characters
 #
-#  id            :integer          not null, primary key
-#  player_id     :integer
+#  id            :bigint           not null, primary key
 #  igname        :string
-#  profession_id :integer
+#  is_archived   :boolean          default(FALSE)
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
-#  is_archived   :boolean          default(FALSE)
+#  player_id     :bigint
+#  profession_id :bigint
 #
 # Indexes
 #
 #  index_characters_on_igname         (igname) UNIQUE
 #  index_characters_on_player_id      (player_id)
 #  index_characters_on_profession_id  (profession_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (player_id => players.id)
+#  fk_rails_...  (profession_id => professions.id)
 #
 
 class Character < ApplicationRecord

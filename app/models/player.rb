@@ -1,3 +1,62 @@
+# == Schema Information
+#
+# Table name: players
+#
+#  id                     :bigint           not null, primary key
+#  confirmation_sent_at   :datetime
+#  confirmation_token     :string
+#  confirmed_at           :datetime
+#  current_sign_in_at     :datetime
+#  current_sign_in_ip     :string
+#  email                  :string           default("")
+#  encrypted_password     :string           default(""), not null
+#  failed_attempts        :integer          default(0), not null
+#  igname                 :string
+#  image_url              :string
+#  is_admin               :boolean          default(FALSE)
+#  is_assassin            :boolean          default(FALSE)
+#  is_dervish             :boolean          default(FALSE)
+#  is_elementalist        :boolean          default(FALSE)
+#  is_mesmer              :boolean          default(FALSE)
+#  is_moderator           :boolean          default(FALSE)
+#  is_monk                :boolean          default(FALSE)
+#  is_necromancer         :boolean          default(FALSE)
+#  is_paragon             :boolean          default(FALSE)
+#  is_ranger              :boolean          default(FALSE)
+#  is_ritualist           :boolean          default(FALSE)
+#  is_verified            :boolean          default(FALSE)
+#  is_warrior             :boolean          default(FALSE)
+#  last_sign_in_at        :datetime
+#  last_sign_in_ip        :string
+#  locked_at              :datetime
+#  provider               :string
+#  remember_created_at    :datetime
+#  reset_password_sent_at :datetime
+#  reset_password_token   :string
+#  sign_in_count          :integer          default(0), not null
+#  slug                   :string
+#  twitch_username        :string
+#  uid                    :string
+#  unconfirmed_email      :string
+#  unlock_token           :string
+#  username               :string
+#  created_at             :datetime         not null
+#  updated_at             :datetime         not null
+#  guild_id               :bigint
+#
+# Indexes
+#
+#  index_players_on_confirmation_token    (confirmation_token) UNIQUE
+#  index_players_on_email                 (email) UNIQUE
+#  index_players_on_guild_id              (guild_id)
+#  index_players_on_reset_password_token  (reset_password_token) UNIQUE
+#  index_players_on_slug                  (slug) UNIQUE
+#  index_players_on_unlock_token          (unlock_token) UNIQUE
+#
+# Foreign Keys
+#
+#  fk_rails_...  (guild_id => guilds.id)
+#
 class Player < ApplicationRecord
   belongs_to :guild, optional: true
   has_many :characters

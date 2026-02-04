@@ -2,16 +2,16 @@
 #
 # Table name: tournaments
 #
-#  id              :integer          not null, primary key
-#  year            :integer
+#  id              :bigint           not null, primary key
+#  date            :date
+#  guild_number    :integer
+#  map_rotation    :string
 #  month           :integer
+#  slug            :string
+#  tournament_type :string
+#  year            :integer
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
-#  slug            :string
-#  date            :date
-#  map_rotation    :string
-#  guild_number    :integer
-#  tournament_type :string
 #
 # Indexes
 #

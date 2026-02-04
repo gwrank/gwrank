@@ -2,18 +2,22 @@
 #
 # Table name: movies
 #
-#  id             :integer          not null, primary key
-#  player_id      :integer          not null
+#  id             :bigint           not null, primary key
+#  movieable_type :string
 #  provider       :string
 #  video_url      :string
-#  movieable_id   :integer
-#  movieable_type :string
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null
+#  movieable_id   :integer
+#  player_id      :bigint           not null
 #
 # Indexes
 #
 #  index_movies_on_player_id  (player_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (player_id => players.id)
 #
 
 class Movie < ApplicationRecord
