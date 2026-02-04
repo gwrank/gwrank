@@ -1,93 +1,14 @@
-<div class="content-wrap">
-    <div class="mpl-navbar-mobile-overlay"></div>
-    <div>
-        <section class="mpl-banner mpl-banner-top mpl-banner-parallax">
-            <div class="mpl-image" data-speed="0.8">
-                <%= image_tag 'background.jpg', class: 'jarallax-img' %>
-            </div>
-            <div class="mpl-banner-content mpl-box-lg">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-6" data-sr="banner" data-sr-interval="200" data-sr-duration="1200" data-sr-distance="20">
-                            <h1 class="display-1" data-sr-item="banner">GWRank</h1>
-                            <% if current_player %>
-                              <p class="lead" data-sr-item="banner">
-                                Welcome <%= current_player.name %>
-                              </p>
-                              <%= link_to 'Show profile', player_path(current_player), class: 'btn btn-md btn-brand' %>
-                              <%= link_to 'Edit profile', edit_profile_path, class: 'btn btn-md btn-brand' %>
-                              <%= link_to 'Log Out', destroy_player_session_path, method: :delete, class: 'btn btn-md btn-brand' %>
-                            <% else %>
-                                <%= form_tag(omniauth_authorize_path(:player, :discord), method: 'post', data: { turbo: false }) do %>
-                                    <button type="submit" class="btn btn-md btn-brand">Login with Discord</button>
-                                <% end %>
-                            <% end %>
-                        </div>
-                        <% if ENV['TWITCH_LIVE_CHANNEL'].present? %>
-                            <div class="col-lg-6" data-sr="banner" data-sr-interval="200" data-sr-duration="1200" data-sr-distance="20">
-                                <h2>Twitch live</h2>
-                                <div class="cyberpress-twitch">
-                                    <div class="cyberpress-twitch-player">
-                                        <iframe src="https://player.twitch.tv/?channel=<%= ENV['TWITCH_LIVE_CHANNEL'] %>&parent=<%= request.host %>" frameborder="0" allowfullscreen="true" scrolling="no"></iframe>
-                                    </div>
-                                </div>
-                            </div>
-                        <% end %>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <div class="mpl-box-md">
-            <div class="container">
-                <div class="row hgap-lg vgap-lg">
-                    <div class="col-lg mpl-content">
-                        <div class="row vgap">
-                            <div class="col-12 col-md-6 col-lg-6">
-                                <div class="mpl-feature">
-                                    <div class="mpl-feature-title h4">
-                                        <%= pluralize Player.all.count, 'player' %>
-                                    </div>
-                                    <div class="mpl-feature-text">
-                                        <%= link_to 'See all players', players_path, class: 'btn btn-md' %>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-6 col-lg-6">
-                                <div class="mpl-feature">
-                                    <div class="mpl-feature-title h4">
-                                        <%= pluralize Guild.active.count, 'active guilds' %>
-                                    </div>
-                                    <div class="mpl-feature-text">
-                                        <%= link_to 'See all guilds', guilds_path, class: 'btn btn-md' %>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-6 col-lg-6">
-                                <div class="mpl-feature">
-                                    <div class="mpl-feature-title h4">
-                                        <%= pluralize Guild.archived.count, 'archived guilds' %>
-                                    </div>
-                                    <div class="mpl-feature-text">
-                                        <%= link_to 'See archived tournaments', tournaments_path, class: 'btn btn-md' %>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-6 col-lg-6">
-                                <div class="mpl-feature">
-                                    <div class="mpl-feature-title h4">
-                                        <%= pluralize Tournament.count, 'tournaments' %>
-                                    </div>
-                                    <div class="mpl-feature-text">
-                                        <%= link_to 'See tournaments', tournaments_path, class: 'btn btn-md' %>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <%= render 'footer' %>
+<div class="hero min-h-screen" style="background-image: url(<%= image_url 'background.jpg' %>);">
+  <div class="hero-overlay"></div>
+  <div class="hero-content text-neutral-content text-center">
+    <div class="max-w-md">
+      <h1 class="mb-5 text-5xl font-bold">GWRank Reforged?</h1>
+      <p class="mb-5">
+      <%= pluralize Player.all.count, 'archived players' %>,
+      <%= pluralize Guild.archived.count, 'archived guilds' %> and
+      <%= pluralize Tournament.count, 'archived tournaments' %>...
+      </p>
+      <a href="https://discord.gg/Gjefv7GJ9g" class="btn btn-primary">Join Discord</a>
     </div>
+  </div>
 </div>

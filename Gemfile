@@ -9,11 +9,14 @@ gem 'rails', '~> 8'
 gem 'pg', '~> 1.1'
 # Use Puma as the app server
 gem 'puma', '~> 6.0'
-# Use SCSS for stylesheets
-gem 'sass-rails', '>= 6'
-# Transpile app-like JavaScript. Read more: https://github.com/rails/webpacker
-gem 'webpacker', '~> 5.0'
-# Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
+# Asset pipeline
+gem 'propshaft'
+# CSS Bundling
+gem 'cssbundling-rails'
+# TailwindCSS
+gem 'tailwindcss-rails'
+# JS Bundling
+gem 'jsbundling-rails'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.7'
@@ -63,6 +66,7 @@ group :development do
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
   # GWRank dependencies
+  gem 'bundler-audit'
   gem 'rails-erd'
 end
 
