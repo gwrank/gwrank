@@ -10,131 +10,155 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_01_31_225705) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_04_143836) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
+  enable_extension "pg_catalog.plpgsql"
 
   create_table "characters", force: :cascade do |t|
-    t.bigint "player_id"
-    t.string "igname"
-    t.bigint "profession_id"
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.string "igname"
     t.boolean "is_archived", default: false
+    t.bigint "player_id"
+    t.bigint "profession_id"
+    t.datetime "updated_at", null: false
     t.index ["igname"], name: "index_characters_on_igname", unique: true
     t.index ["player_id"], name: "index_characters_on_player_id"
     t.index ["profession_id"], name: "index_characters_on_profession_id"
   end
 
   create_table "comments", force: :cascade do |t|
-    t.bigint "player_id", null: false
     t.text "body"
     t.integer "commentable_id"
     t.string "commentable_type"
     t.datetime "created_at", null: false
+    t.bigint "player_id", null: false
     t.datetime "updated_at", null: false
     t.index ["player_id"], name: "index_comments_on_player_id"
   end
 
   create_table "friendly_id_slugs", force: :cascade do |t|
+    t.datetime "created_at", precision: nil
+    t.string "scope"
     t.string "slug", null: false
     t.integer "sluggable_id", null: false
     t.string "sluggable_type", limit: 50
-    t.string "scope"
-    t.datetime "created_at", precision: nil
     t.index ["slug", "sluggable_type", "scope"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type_and_scope", unique: true
     t.index ["slug", "sluggable_type"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type"
     t.index ["sluggable_type", "sluggable_id"], name: "index_friendly_id_slugs_on_sluggable_type_and_sluggable_id"
   end
 
   create_table "guilds", force: :cascade do |t|
-    t.string "name"
+    t.integer "bronze_trims_count", default: 0
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "slug"
-    t.string "tag"
+    t.integer "gold_trims_count", default: 0
+    t.boolean "is_archived", default: false
+    t.string "name"
     t.integer "owner_id"
     t.string "region"
-    t.boolean "is_archived", default: false
-    t.integer "gold_trims_count", default: 0
     t.integer "silver_trims_count", default: 0
-    t.integer "bronze_trims_count", default: 0
+    t.string "slug"
+    t.string "tag"
+    t.datetime "updated_at", null: false
     t.index ["slug"], name: "index_guilds_on_slug", unique: true
+  end
+
+  create_table "items", force: :cascade do |t|
+    t.string "campaign"
+    t.string "canonical_title"
+    t.string "categories", default: [], array: true
+    t.string "common_salvage"
+    t.datetime "created_at", null: false
+    t.jsonb "image", default: {}
+    t.jsonb "notes", default: {}
+    t.string "parts", default: [], array: true
+    t.string "rare_salvage"
+    t.string "rarity"
+    t.jsonb "raw_infobox", default: {}
+    t.jsonb "rolls", default: {}
+    t.string "source_url"
+    t.jsonb "stats", default: {}
+    t.string "subtype"
+    t.string "title"
+    t.string "type"
+    t.datetime "updated_at", null: false
+    t.integer "value"
+    t.string "weapon_range"
+    t.string "weapon_type"
   end
 
   create_table "matches", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "tournament_id"
-    t.integer "round"
-    t.integer "number_on_round"
     t.integer "loser_team_id"
-    t.integer "winner_team_id"
     t.integer "memorial_match_id"
+    t.integer "number_on_round"
+    t.integer "round"
+    t.bigint "tournament_id"
+    t.datetime "updated_at", null: false
+    t.integer "winner_team_id"
     t.index ["tournament_id"], name: "index_matches_on_tournament_id"
   end
 
   create_table "movies", force: :cascade do |t|
-    t.bigint "player_id", null: false
-    t.string "provider"
-    t.string "video_url"
+    t.datetime "created_at", null: false
     t.integer "movieable_id"
     t.string "movieable_type"
-    t.datetime "created_at", null: false
+    t.bigint "player_id", null: false
+    t.string "provider"
     t.datetime "updated_at", null: false
+    t.string "video_url"
     t.index ["player_id"], name: "index_movies_on_player_id"
   end
 
   create_table "pg_search_documents", force: :cascade do |t|
     t.text "content"
-    t.string "searchable_type"
-    t.bigint "searchable_id"
     t.datetime "created_at", null: false
+    t.bigint "searchable_id"
+    t.string "searchable_type"
     t.datetime "updated_at", null: false
     t.index ["searchable_type", "searchable_id"], name: "index_pg_search_documents_on_searchable"
   end
 
   create_table "players", force: :cascade do |t|
-    t.string "email", default: ""
-    t.string "encrypted_password", default: "", null: false
-    t.string "reset_password_token"
-    t.datetime "reset_password_sent_at", precision: nil
-    t.datetime "remember_created_at", precision: nil
-    t.integer "sign_in_count", default: 0, null: false
-    t.datetime "current_sign_in_at", precision: nil
-    t.datetime "last_sign_in_at", precision: nil
-    t.string "current_sign_in_ip"
-    t.string "last_sign_in_ip"
+    t.datetime "confirmation_sent_at", precision: nil
     t.string "confirmation_token"
     t.datetime "confirmed_at", precision: nil
-    t.datetime "confirmation_sent_at", precision: nil
-    t.string "unconfirmed_email"
-    t.integer "failed_attempts", default: 0, null: false
-    t.string "unlock_token"
-    t.datetime "locked_at", precision: nil
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "provider"
-    t.string "uid"
-    t.string "username"
-    t.string "image_url"
+    t.datetime "current_sign_in_at", precision: nil
+    t.string "current_sign_in_ip"
+    t.string "email", default: ""
+    t.string "encrypted_password", default: "", null: false
+    t.integer "failed_attempts", default: 0, null: false
+    t.bigint "guild_id"
     t.string "igname"
-    t.boolean "is_warrior", default: false
-    t.boolean "is_ranger", default: false
+    t.string "image_url"
+    t.boolean "is_admin", default: false
+    t.boolean "is_assassin", default: false
+    t.boolean "is_dervish", default: false
+    t.boolean "is_elementalist", default: false
+    t.boolean "is_mesmer", default: false
+    t.boolean "is_moderator", default: false
     t.boolean "is_monk", default: false
     t.boolean "is_necromancer", default: false
-    t.boolean "is_mesmer", default: false
-    t.boolean "is_elementalist", default: false
-    t.boolean "is_assassin", default: false
-    t.boolean "is_ritualist", default: false
     t.boolean "is_paragon", default: false
-    t.boolean "is_dervish", default: false
+    t.boolean "is_ranger", default: false
+    t.boolean "is_ritualist", default: false
     t.boolean "is_verified", default: false
+    t.boolean "is_warrior", default: false
+    t.datetime "last_sign_in_at", precision: nil
+    t.string "last_sign_in_ip"
+    t.datetime "locked_at", precision: nil
+    t.string "provider"
+    t.datetime "remember_created_at", precision: nil
+    t.datetime "reset_password_sent_at", precision: nil
+    t.string "reset_password_token"
+    t.integer "sign_in_count", default: 0, null: false
     t.string "slug"
     t.string "twitch_username"
-    t.bigint "guild_id"
-    t.boolean "is_moderator", default: false
-    t.boolean "is_admin", default: false
+    t.string "uid"
+    t.string "unconfirmed_email"
+    t.string "unlock_token"
+    t.datetime "updated_at", null: false
+    t.string "username"
     t.index ["confirmation_token"], name: "index_players_on_confirmation_token", unique: true
     t.index ["email"], name: "index_players_on_email", unique: true
     t.index ["guild_id"], name: "index_players_on_guild_id"
@@ -144,74 +168,74 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_31_225705) do
   end
 
   create_table "professions", force: :cascade do |t|
-    t.string "name"
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.string "name"
     t.integer "profession_id"
+    t.datetime "updated_at", null: false
   end
 
   create_table "registrations", force: :cascade do |t|
+    t.datetime "created_at", null: false
     t.bigint "player_id", null: false
     t.datetime "registered_at", precision: nil
     t.datetime "unregistered_at", precision: nil
-    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["player_id"], name: "index_registrations_on_player_id"
   end
 
   create_table "scrims", force: :cascade do |t|
-    t.integer "team_a_id"
-    t.integer "team_b_id"
     t.integer "captain_a_id"
     t.integer "captain_b_id"
-    t.integer "winner_team_id"
     t.datetime "created_at", null: false
+    t.integer "team_a_id"
+    t.integer "team_b_id"
     t.datetime "updated_at", null: false
+    t.integer "winner_team_id"
   end
 
   create_table "skills", force: :cascade do |t|
-    t.integer "skill_id"
-    t.string "name"
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer "template_skill_id"
-    t.string "skill_type"
-    t.boolean "is_elite", default: false
     t.text "description"
+    t.boolean "is_elite", default: false
+    t.string "name"
     t.bigint "profession_id"
+    t.integer "skill_id"
+    t.string "skill_type"
+    t.integer "template_skill_id"
+    t.datetime "updated_at", null: false
     t.index ["profession_id"], name: "index_skills_on_profession_id"
   end
 
   create_table "team_player_skills", force: :cascade do |t|
-    t.bigint "team_player_id", null: false
-    t.bigint "skill_id", null: false
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.integer "position", default: 0
+    t.bigint "skill_id", null: false
+    t.bigint "team_player_id", null: false
+    t.datetime "updated_at", null: false
     t.index ["skill_id"], name: "index_team_player_skills_on_skill_id"
     t.index ["team_player_id"], name: "index_team_player_skills_on_team_player_id"
   end
 
   create_table "team_player_stats", force: :cascade do |t|
-    t.bigint "team_player_id", null: false
+    t.datetime "created_at", null: false
     t.string "stat_key"
     t.integer "stat_value"
-    t.datetime "created_at", null: false
+    t.bigint "team_player_id", null: false
     t.datetime "updated_at", null: false
     t.index ["team_player_id"], name: "index_team_player_stats_on_team_player_id"
   end
 
   create_table "team_players", force: :cascade do |t|
-    t.bigint "team_id", null: false
-    t.bigint "player_id", null: false
-    t.bigint "profession_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.boolean "is_captain", default: false
-    t.string "igname"
-    t.integer "secondary_profession_id"
-    t.integer "position"
     t.bigint "character_id"
+    t.datetime "created_at", null: false
+    t.string "igname"
+    t.boolean "is_captain", default: false
+    t.bigint "player_id", null: false
+    t.integer "position"
+    t.bigint "profession_id"
+    t.integer "secondary_profession_id"
+    t.bigint "team_id", null: false
+    t.datetime "updated_at", null: false
     t.index ["character_id"], name: "index_team_players_on_character_id"
     t.index ["player_id"], name: "index_team_players_on_player_id"
     t.index ["profession_id"], name: "index_team_players_on_profession_id"
@@ -220,20 +244,20 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_31_225705) do
 
   create_table "teams", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "match_id"
     t.bigint "guild_id"
+    t.bigint "match_id"
+    t.datetime "updated_at", null: false
     t.index ["guild_id"], name: "index_teams_on_guild_id"
     t.index ["match_id"], name: "index_teams_on_match_id"
   end
 
   create_table "tournament_results", force: :cascade do |t|
-    t.bigint "tournament_id", null: false
-    t.integer "round", default: 0
-    t.integer "position"
-    t.integer "trim", default: 0
-    t.bigint "guild_id", null: false
     t.datetime "created_at", null: false
+    t.bigint "guild_id", null: false
+    t.integer "position"
+    t.integer "round", default: 0
+    t.bigint "tournament_id", null: false
+    t.integer "trim", default: 0
     t.datetime "updated_at", null: false
     t.index ["guild_id"], name: "index_tournament_results_on_guild_id"
     t.index ["round"], name: "index_tournament_results_on_round"
@@ -241,15 +265,15 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_31_225705) do
   end
 
   create_table "tournaments", force: :cascade do |t|
-    t.integer "year"
-    t.integer "month"
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "slug"
     t.date "date"
-    t.string "map_rotation"
     t.integer "guild_number"
+    t.string "map_rotation"
+    t.integer "month"
+    t.string "slug"
     t.string "tournament_type"
+    t.datetime "updated_at", null: false
+    t.integer "year"
     t.index ["slug"], name: "index_tournaments_on_slug", unique: true
     t.index ["tournament_type"], name: "index_tournaments_on_tournament_type"
   end
