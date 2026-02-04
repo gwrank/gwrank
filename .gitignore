@@ -38,3 +38,5 @@ yarn-debug.log*
 .DS_Store
 .env
 
+# Ignore key files for decrypting credentials and more.
+/config/credentials/*.key
