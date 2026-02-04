@@ -1,3 +1,22 @@
+# == Schema Information
+#
+# Table name: matches
+#
+#  id                :integer          not null, primary key
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  tournament_id     :integer
+#  round             :integer
+#  number_on_round   :integer
+#  loser_team_id     :integer
+#  winner_team_id    :integer
+#  memorial_match_id :integer
+#
+# Indexes
+#
+#  index_matches_on_tournament_id  (tournament_id)
+#
+
 class Match < ApplicationRecord
   belongs_to :loser_team, class_name: 'Team', optional: true
   belongs_to :tournament, optional: true

@@ -1,3 +1,14 @@
+# == Schema Information
+#
+# Table name: professions
+#
+#  id            :integer          not null, primary key
+#  name          :string
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  profession_id :integer
+#
+
 class Profession < ApplicationRecord
   has_many :characters
   has_many :skills

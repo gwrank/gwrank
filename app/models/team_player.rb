@@ -1,3 +1,27 @@
+# == Schema Information
+#
+# Table name: team_players
+#
+#  id                      :integer          not null, primary key
+#  team_id                 :integer          not null
+#  player_id               :integer          not null
+#  profession_id           :integer
+#  created_at              :datetime         not null
+#  updated_at              :datetime         not null
+#  is_captain              :boolean          default(FALSE)
+#  igname                  :string
+#  secondary_profession_id :integer
+#  position                :integer
+#  character_id            :integer
+#
+# Indexes
+#
+#  index_team_players_on_character_id   (character_id)
+#  index_team_players_on_player_id      (player_id)
+#  index_team_players_on_profession_id  (profession_id)
+#  index_team_players_on_team_id        (team_id)
+#
+
 class TeamPlayer < ApplicationRecord
   belongs_to :character, optional: true
   belongs_to :player

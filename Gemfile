@@ -64,6 +64,7 @@ group :development do
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
   # GWRank dependencies
+  gem 'annotate'
   gem 'bundler-audit'
   gem 'rails-erd'
 end
