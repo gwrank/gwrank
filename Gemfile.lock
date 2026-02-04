@@ -248,7 +248,7 @@ GEM
       date
       stringio
     public_suffix (7.0.2)
-    puma (6.6.1)
+    puma (7.2.0)
       nio4r (~> 2.0)
     pundit (2.5.2)
       activesupport (>= 3.0.0)
@@ -414,7 +414,7 @@ DEPENDENCIES
   pg (~> 1.1)
   pg_search
   propshaft
-  puma (~> 6.0)
+  puma (~> 7)
   pundit
   rack-mini-profiler (~> 2.0)
   rails (~> 8)
