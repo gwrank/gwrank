@@ -2,7 +2,7 @@ a {
   text-decoration: none;
 }
 
-.table tbody th, .table tbody td {
+.table thead th, .table tbody th, .table tbody td {
   padding: 2px 10px 10px;
 }
 
