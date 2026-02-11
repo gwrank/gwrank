@@ -1,0 +1,11 @@
+a {
+  text-decoration: none;
+}
+
+.table tbody th, .table tbody td {
+  padding: 2px 10px 10px;
+}
+
+.collapse-toggle {
+  padding: 2px;
+}
