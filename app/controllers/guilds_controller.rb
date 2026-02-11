@@ -17,8 +17,8 @@ class GuildsController < ApplicationController
 
   def create
     @guild = Guild.new(guild_params)
-    @guild.owner = current_player
     authorize @guild
+
     if @guild.save
       current_player.update(guild: @guild)
       redirect_to guild_path(@guild)
@@ -34,6 +34,6 @@ class GuildsController < ApplicationController
   end
 
   def guild_params
-    params.require(:guild).permit(:name, :tag)
+    params.require(:guild).permit(:name, :tag).merge(owner: current_player)
   end
 end
