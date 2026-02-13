@@ -1,7 +1,7 @@
 class Profiles::CharactersController < ApplicationController
   before_action :authenticate_player!
   before_action :set_player, only: [:new, :create]
-  before_action :set_character, only: [:edit, :update, :destroy]
+  before_action :set_character, only: [:destroy]
 
   def new
     @character = Character.new
