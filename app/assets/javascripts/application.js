@@ -1,2 +1,2 @@
-//= require jquery/dist/jquery.min
-//= require preloader
+@import "jquery/dist/jquery.min";
+@import "preloader";"

@@ -2,7 +2,7 @@ class GuildsController < ApplicationController
   before_action :set_guild, only: [:show]
 
   def index
-    @guilds = Guild.active.order(name: :asc)
+    @pagy, @guilds = pagy(Guild.order(name: :asc))
     authorize @guilds
   end
 

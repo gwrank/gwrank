@@ -29,12 +29,15 @@ gem 'redis', '~> 4.0'
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.4', require: false
 
+gem 'bootstrap', '~> 5.3.8'
 gem 'devise'
 gem 'discordrb'
 gem 'friendly_id'
 gem 'high_voltage'
 gem 'hotwire-rails'
+gem 'httparty'
 gem 'ip_anonymizer'
+gem 'jquery-rails'
 gem 'net-imap', require: false
 gem 'net-pop', require: false
 gem 'net-smtp', require: false
@@ -42,6 +45,7 @@ gem 'nokogiri'
 gem 'omniauth'
 gem 'omniauth-discord'
 gem 'omniauth-rails_csrf_protection'
+gem 'pagy'
 gem 'pg_search'
 gem 'pundit'
 gem 'seed_dump'

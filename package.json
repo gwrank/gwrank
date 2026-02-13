@@ -12,11 +12,15 @@
     "watch:css": "nodemon --watch ./app/assets/stylesheets/ --ext scss --exec \"yarn build:css\""
   },
   "dependencies": {
+    "@hotwired/stimulus": "^3.2.2",
     "@hotwired/turbo-rails": "^8.0.23",
     "@popperjs/core": "^2.11.8",
+    "@stimulus-components/popover": "^7.0.0",
     "autoprefixer": "^10.4.24",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
+    "fancybox": "^3.0.1",
+    "jquery": "^4.0.0",
     "nodemon": "^3.1.11",
     "postcss": "^8.5.6",
     "postcss-cli": "^11.0.1",

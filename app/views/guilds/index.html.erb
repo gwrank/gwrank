@@ -45,9 +45,10 @@
                                   </div>
                               </div>
                             <% end %>
+                            <%== @pagy.series_nav(:bootstrap) %>
                         </div>
                     </div>
-                    <div class="col-auto-lg mpl-sidebar" data-sr=widget data-sr-duration=1200 data-sr-distance=20>
+                    <div class="col-auto-lg mpl-sidebar" data-sr="widget" data-sr-duration="1200" data-sr-distance="20">
                         <% if current_player %>
                             <% if current_player.guild.present? %>
                                 <%= link_to 'Show my Guild', guild_path(current_player.guild), class: 'btn btn-md' %>
