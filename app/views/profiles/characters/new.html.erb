@@ -18,7 +18,7 @@
                 <div class="row hgap-sm vgap-sm">
                   <div class="col-12">
                     <%= form.label :profession_id, 'Profession' %>
-                    <%= form.select :profession_id, options_from_collection_for_select(@professions, :id, :name, @character.profession_id), { include_blank: true }, class: 'form-control custom-select' %><span class="form-control-bg"></span>
+                    <%= form.select :profession_id, options_from_collection_for_select(@professions, :id, :name, @character.profession_id), { include_blank: true }, class: 'form-control' %><span class="form-control-bg"></span>
                   </div>
                 </div>
               </div>

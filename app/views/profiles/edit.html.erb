@@ -28,7 +28,7 @@
                 <h2>Guild</h2>
                 <div class="row hgap-sm vgap-sm">
                     <div class="col-12">
-                      <%= form.select :guild_id, options_from_collection_for_select(@guilds, :id, :name_with_tag, @player.guild_id), { include_blank: true }, class: 'form-control custom-select' %><span class="form-control-bg"></span>
+                      <%= form.select :guild_id, options_from_collection_for_select(@guilds, :id, :name_with_tag, @player.guild_id), { include_blank: true }, class: 'form-control' %><span class="form-control-bg"></span>
                     </div>
                 </div>
               </div>
