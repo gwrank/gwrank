@@ -30,6 +30,9 @@
                     <div class="col-12">
                       <%= form.select :guild_id, options_from_collection_for_select(@guilds, :id, :name_with_tag, @player.guild_id), { include_blank: true }, class: 'form-control' %><span class="form-control-bg"></span>
                     </div>
+                    <div class="col-12">
+                      <%= link_to 'Add new guild', new_profile_character_path, class: 'btn btn-sm btn-success' %>
+                    </div>
                 </div>
               </div>
               <div class="mpl-snippet-fill">
