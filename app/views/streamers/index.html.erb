@@ -60,6 +60,17 @@
                         </div>
                     </div>
                     <div class="col-auto-lg mpl-sidebar" data-sr="widget" data-sr-duration="1200" data-sr-distance="20">
+                        <% if current_player %>
+                            <% if current_player.twitch_username.present? %>
+                                <%= link_to 'Edit my Twitch', edit_profile_path, class: 'btn btn-md' %>
+                            <% else %>
+                                <%= link_to 'Add my Twitch', edit_profile_path, class: 'btn btn-md' %>
+                            <% end %>
+                        <% else %>
+                            <%= form_tag(omniauth_authorize_path(:player, :discord), method: 'post', data: { turbo: false }) do %>
+                                <button type="submit" class="btn btn-md">Login with Discord to add my Twitch</button>
+                            <% end %>
+                        <% end %>
                     </div>
                 </div>
             </div>
