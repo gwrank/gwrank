@@ -2,7 +2,6 @@
 import "@hotwired/turbo-rails"
 
 import "popper"
-const "boostrap" = require('boostrap')
-import "bootstrap" from "bootstrap"
+import "bootstrap"
 
 import "controllers"
