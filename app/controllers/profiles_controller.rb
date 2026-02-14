@@ -1,6 +1,6 @@
 class ProfilesController < ApplicationController
   before_action :authenticate_player!
-  before_action :set_player, only: [:edit, :update]
+  before_action :set_player, only: [:edit, :update, :destroy]
 
   def edit
     @guilds = Guild.active.order(name: :asc)
@@ -26,6 +26,11 @@ class ProfilesController < ApplicationController
       @guilds = Guild.active.order(name: :asc)
       render :edit
     end
+  end
+
+  def destroy
+    @player.destroy
+    redirect_to root_path
   end
 
   private

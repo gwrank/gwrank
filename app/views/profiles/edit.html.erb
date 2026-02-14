@@ -7,7 +7,7 @@
             <h1 data-sr-item="sign" style="visibility: visible;">Edit Profile</h1>
             <%= form_with model: @player, url: profile_path do |form| %>
               <div class="mpl-snippet-fill">
-              <h2>In-game characters</h2>
+                <h2>In-game characters</h2>
                 <div class="row hgap-sm vgap-sm">
                   <div class="col-12">
                     <%= form.label :igname, 'Main in-game name' %>
@@ -16,8 +16,8 @@
                   <div class="col-12">
                     <% @player.characters.each do |character| %>
                       <p>
-                        <%= character.igname_with_profession %>
-                        <%= link_to 'Delete', profile_character_path(character), method: :delete, class: 'float-right btn btn-sm btn-danger' %>
+                      <%= character.igname_with_profession %>
+                      <%= link_to 'Delete', profile_character_path(character), method: :delete, class: 'float-right btn btn-sm btn-danger' %>
                       </p>
                     <% end %>
                   </div>
@@ -27,18 +27,18 @@
               <div class="mpl-snippet-fill">
                 <h2>Guild</h2>
                 <div class="row hgap-sm vgap-sm">
-                    <div class="col-12">
-                      <%= form.select :guild_id, options_from_collection_for_select(@guilds, :id, :name_with_tag, @player.guild_id), { include_blank: true }, class: 'form-control' %><span class="form-control-bg"></span>
-                    </div>
-                    <div class="col-12">
-                      <%= link_to 'Add new guild', new_profile_character_path, class: 'btn btn-sm btn-success' %>
-                    </div>
+                  <div class="col-12">
+                    <%= form.select :guild_id, options_from_collection_for_select(@guilds, :id, :name_with_tag, @player.guild_id), { include_blank: true }, class: 'form-control' %><span class="form-control-bg"></span>
+                  </div>
+                  <div class="col-12">
+                    <%= link_to 'Add new guild', new_profile_character_path, class: 'btn btn-sm btn-success' %>
+                  </div>
                 </div>
               </div>
               <div class="mpl-snippet-fill">
                 <h2>Professions</h2>
                 <div class="row hgap-sm vgap-sm">
-                    <div class="col-12">
+                  <div class="col-12">
                     <div class="custom-control custom-checkbox">
                       <%= form.check_box :is_warrior, class: 'custom-control-input' %>
                       <%= form.label :is_warrior, 'Warrior', class: 'custom-control-label' %>
@@ -117,6 +117,13 @@
                 </div>
               </div>
             <% end %>
+            <div class="mpl-snippet-fill">
+              <div class="row hgap-sm vgap-sm">
+                <div class="col-12">
+                  <%= button_to 'Delete my account', profile_path, method: :delete, data: { turbo_confirm: "Are you sure?" }, class: 'float-right btn btn-sm btn-danger' %>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

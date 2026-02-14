@@ -59,9 +59,9 @@
 #
 class Player < ApplicationRecord
   belongs_to :guild, optional: true
-  has_many :characters
-  has_many :registrations
-  has_many :team_players
+  has_many :characters, dependent: :nullify
+  has_many :registrations, dependent: :destroy
+  has_many :team_players, dependent: :nullify
   has_many :teams, through: :team_players
 
   extend FriendlyId
