@@ -17,7 +17,7 @@
                     <% @player.characters.each do |character| %>
                       <p>
                       <%= character.igname_with_profession %>
-                      <%= link_to 'Delete', profile_character_path(character), method: :delete, class: 'float-right btn btn-sm btn-danger' %>
+                      <%= link_to 'Delete', profile_character_path(character), data: { turbo_method: :delete }, class: 'float-right btn btn-sm btn-danger' %>
                       </p>
                     <% end %>
                   </div>

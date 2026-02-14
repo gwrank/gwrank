@@ -72,7 +72,7 @@
                                     <% end %>
                                 </li>
                                 <li>
-                                    <%= link_to destroy_player_session_path, method: :delete, class: 'mpl-nav-link' do %>
+                                    <%= link_to destroy_player_session_path, data: { turbo_method: :delete }, class: 'mpl-nav-link' do %>
                                         <span class="mpl-nav-link-name"> Log Out </span>
                                     <% end %>
                                 </li>
