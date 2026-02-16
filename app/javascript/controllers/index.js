@@ -4,5 +4,8 @@
 
 import { application } from "./application"
 
+import PopoverController from "./popover_controller"
+application.register("popover", PopoverController)
+
 import TooltipController from "./tooltip_controller"
 application.register("tooltip", TooltipController)
