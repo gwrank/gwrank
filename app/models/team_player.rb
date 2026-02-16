@@ -86,7 +86,7 @@ class TeamPlayer < ApplicationRecord
     end
     if team_player_skills.count < 8
       (8 - team_player_skills.count).times do
-        skills << ActionController::Base.helpers.image_tag('skills/Unknown_Junundu_Ability.jpg', data: { toggle: 'tooltip', placement: 'bottom', 'original-title': 'Unknown' }, width: 42)
+        skills << ActionController::Base.helpers.image_tag('skills/Unknown_Junundu_Ability.jpg', data: { controller: 'tooltip', bs_toggle: 'tooltip', bs_placement: 'bottom' }, title: 'Unknown', width: 42)
       end
     end
     skills.join

@@ -27,7 +27,7 @@ class Skill < ApplicationRecord
   has_many :team_player_skills
 
   def html_image
-    ActionController::Base.helpers.image_tag("skills/#{filename}", data: { toggle: 'tooltip', placement: 'bottom', 'original-title': "#{name}. #{skill_type}. #{description}" }, width: 42)
+    ActionController::Base.helpers.image_tag("skills/#{filename}", data: { controller: 'tooltip', bs_toggle: 'tooltip', bs_placement: 'bottom' }, title: "#{name}. #{skill_type}. #{description}", width: 42)
   end
 
   private
