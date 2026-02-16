@@ -17,3 +17,13 @@ a {
 .collapse-toggle {
   padding: 2px;
 }
+
+.cyberpress-match .cyberpress-match-participants {
+  justify-content: center;
+}
+
+.cyberpress-match .cyberpress-match-participants > :not(:last-child) {
+  --tw-space-x-reverse: 0;
+  margin-inline-start: 42px;
+  margin-inline-end: 42px;
+};
