@@ -19,6 +19,7 @@ a {
 }
 
 .cyberpress-match .cyberpress-match-participants {
+  flex-wrap: nowrap;
   justify-content: center;
 }
 
