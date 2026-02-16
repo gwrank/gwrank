@@ -47,7 +47,7 @@
                             <% elsif player.igname.present? %>
                               <%= link_to 'Add verified badge', administration_player_checks_path(player), method: :post, class: 'btn btn-sm btn-success' %>
                             <% else %>
-                              <button type="button" class="btn btn-sm btn-danger disabled" data-toggle="tooltip" data-placement="top" title="" data-original-title="The player need an in-game name to be verified">Add verified badge</button>
+                              <button type="button" class="btn btn-sm btn-danger disabled" data-bs-toggle="tooltip" data-bs-placement="top" title="The player need an in-game name to be verified">Add verified badge</button>
                             <% end %>
                             <%= link_to 'Send scrim invitation', administration_player_invitations_path(player), method: :post, class: 'btn btn-sm btn-primary' %>
                           </td>
