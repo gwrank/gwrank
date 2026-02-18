@@ -4,7 +4,7 @@ class CommandBotJob < ApplicationJob
   def perform(*args)
     bot = Discordrb::Commands::CommandBot.new token: ENV['DISCORD_BOT_TOKEN'], client_id: ENV['DISCORD_CLIENT_ID'], prefix: '!'
 
-    bot.command :igname, description: 'to find the in-game name of a player', channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event, player|
+    bot.command :igname, description: 'to find the in-game name of a player' do |event, player|
       if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
         player = player.delete_prefix('<@!').delete_suffix('>')
         player = Player.find_by(uid: player)
@@ -19,7 +19,7 @@ class CommandBotJob < ApplicationJob
       event.respond message
     end
 
-    bot.command :register, description: 'to register yourself in the current queue and your in-game name', channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event, *igname|
+    bot.command :register, description: 'to register yourself in the current queue and your in-game name' do |event, *igname|
       message = ''
       current_registrations = Registration.current_registrations
       player = Player.where(provider: 'discord', uid: event.user.id).first_or_create do |player|
@@ -64,7 +64,7 @@ class CommandBotJob < ApplicationJob
       event.respond message
     end
 
-    bot.command :add, description: 'to add a player in the current queue', channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event, player|
+    bot.command :add, description: 'to add a player in the current queue' do |event, player|
       current_registrations = Registration.current_registrations
       if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
         player = player.delete_prefix('<@!').delete_suffix('>')
@@ -96,7 +96,7 @@ class CommandBotJob < ApplicationJob
       event.respond message
     end
 
-    bot.command :unregister, description: 'to unregister yourself from the current queue', channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event|
+    bot.command :unregister, description: 'to unregister yourself from the current queue' do |event|
       player = Player.find_by(uid: event.user.id)
       if player
         if player.has_current_registration?
@@ -111,7 +111,7 @@ class CommandBotJob < ApplicationJob
       event.respond message
     end
 
-    bot.command :remove, description: 'to remove a player from the current queue', channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event, player|
+    bot.command :remove, description: 'to remove a player from the current queue' do |event, player|
       if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
         player = player.delete_prefix('<@!').delete_suffix('>')
         player = Player.find_by(uid: player)
@@ -131,7 +131,7 @@ class CommandBotJob < ApplicationJob
       event.respond message
     end
 
-    bot.command :afk, description: 'to be / add a player in afk mode', channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event, player|
+    bot.command :afk, description: 'to be / add a player in afk mode' do |event, player|
       if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
         player = player.delete_prefix('<@!').delete_suffix('>')
         player = Player.find_by(uid: player)
@@ -161,7 +161,7 @@ class CommandBotJob < ApplicationJob
       event.respond message
     end
 
-    bot.command :back, description: 'to add yourself / a player again in the current queue', channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event, player|
+    bot.command :back, description: 'to add yourself / a player again in the current queue' do |event, player|
       if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
         player = player.delete_prefix('<@!').delete_suffix('>')
         player = Player.find_by(uid: player)
@@ -191,7 +191,7 @@ class CommandBotJob < ApplicationJob
       event.respond message
     end
 
-    bot.command :captains, description: 'to see the current captains', channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event|
+    bot.command :captains, description: 'to see the current captains' do |event|
       current_registrations = Registration.current_registrations
       if current_registrations.count >= 16
         scrim = Scrim.current_scrims.order(created_at: :desc).first
@@ -205,7 +205,7 @@ class CommandBotJob < ApplicationJob
       event.respond message
     end
 
-    bot.command :newcaptains, description: 'to auto-designate new captains', channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event|
+    bot.command :newcaptains, description: 'to auto-designate new captains' do |event|
       current_registrations = Registration.current_registrations
       if current_registrations.count < 16
         players_required = 16 - current_registrations.count
@@ -225,7 +225,7 @@ class CommandBotJob < ApplicationJob
       event.respond message
     end
 
-    bot.command :forcenewcaptains, description: 'to auto-designate new captains even if you have less than 16 players', channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event|
+    bot.command :forcenewcaptains, description: 'to auto-designate new captains even if you have less than 16 players' do |event|
       captain_a = Registration.current_registrations.order(registered_at: :asc).first(16).sample.player
       captain_b = Registration.current_registrations.where.not(id: captain_a.current_registration.id).order(registered_at: :asc).first(15).sample.player
       scrim = Scrim.create!(
@@ -238,13 +238,13 @@ class CommandBotJob < ApplicationJob
       event.respond message
     end
 
-    bot.command :roll, description: 'to roll 100', channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event|
+    bot.command :roll, description: 'to roll 100' do |event|
       message = "<@#{event.user.id}>, you rolled : "
       message << rand(0..100).to_s
       event.respond message
     end
 
-    bot.command :players, description: 'to see players in the current queue', channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event|
+    bot.command :players, description: 'to see players in the current queue' do |event|
       message = "<@#{event.user.id}>, if the player list is too long to be posted there, you can see it on https://gwrank.com/scrims"
       event.respond message
 
@@ -261,7 +261,7 @@ class CommandBotJob < ApplicationJob
       event.respond message
     end
 
-    bot.command :newteams, description: 'to auto-designate new teams with current captains', channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event|
+    bot.command :newteams, description: 'to auto-designate new teams with current captains' do |event|
       player_ids = Player.in_queue.first(16).pluck(:id)
       selected_player_ids = []
       team_a_player_ids = []
@@ -397,7 +397,7 @@ class CommandBotJob < ApplicationJob
       event.respond message
     end
 
-    bot.command :moveplayers, description: 'to automatically move players to the Scrimers voice channel (moderators only)', channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event|
+    bot.command :moveplayers, description: 'to automatically move players to the Scrimers voice channel (moderators only)' do |event|
       server = bot.server(ENV['DISCORD_SERVER_ID'])
       channel = bot.channel(ENV['DISCORD_SCRIMERS_VOICE_CHANNEL_ID'])
 
@@ -415,7 +415,7 @@ class CommandBotJob < ApplicationJob
       event.respond message
     end
 
-    bot.command :reset, description: 'to reset the current queue (moderators only)', channels: [ENV['DISCORD_COMMAND_CHANNEL']] do |event|
+    bot.command :reset, description: 'to reset the current queue (moderators only)' do |event|
       player = Player.find_by(uid: event.user.id)
       if player.is_moderator?
         Registration.current_registrations.update_all(unregistered_at: DateTime.now)
