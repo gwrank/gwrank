@@ -427,7 +427,7 @@ class CommandBotJob < ApplicationJob
       event.respond message
     end
 
-    # Run the bot in another thread in the background:
-    bot.run(true)
+    at_exit { bot.stop }
+    bot.run
   end
 end
