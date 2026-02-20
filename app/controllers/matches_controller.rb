@@ -9,6 +9,11 @@ class MatchesController < ApplicationController
     @match = Match.find(params[:id])
     @comment = Comment.new
     @movie = Movie.new
+
+    respond_to do |format|
+      format.html
+      format.json { render json: @match.json }
+    end
   end
 
   def new
