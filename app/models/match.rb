@@ -68,6 +68,10 @@ class Match < ApplicationRecord
     match.json = JSON.parse(match_params[:json_file].read)
     match.save!
 
+    date = match.imported_at.to_date
+    year = date.year
+    month = date.month
+
     match.tournament = Tournament.first_or_create!(
       year: year,
       month: month,
