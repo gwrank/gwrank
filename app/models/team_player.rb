@@ -43,7 +43,7 @@ class TeamPlayer < ApplicationRecord
     secondary_profession_skills = []
     other_skills = []
     i = 2
-    team_player_skills.each do |team_player_skill|
+    team_player_skills.includes(:skill, :team_player).each do |team_player_skill|
       if team_player_skill.skill.is_elite?
         position = 1
       elsif team_player_skill.skill.name.in?(['Resurrection Signet', 'Death Pact Signet', 'Death Pact Signet (PvP)', 'Flesh of My Flesh (PvP)'])
@@ -80,7 +80,7 @@ class TeamPlayer < ApplicationRecord
       )
       i += 1
     end
-    team_player_skills.order(position: :asc).each_with_index do |team_player_skill, index|
+    team_player_skills.includes(:skill).order(position: :asc).each_with_index do |team_player_skill, index|
       skills << team_player_skill.skill.html_image
       skills << '<br>' if index.eql?(7)
     end

@@ -6,7 +6,18 @@ class MatchesController < ApplicationController
   end
 
   def show
-    @match = Match.find(params[:id])
+    @match = Match.includes(
+      comments: [:player],
+      teams: [:guild],
+      team_players: {
+        character: [],
+        player: [],
+        profession: [],
+        secondary_profession: [],
+        team_player_skills: [:skill],
+        team_player_stats: []
+      }
+    ).find(params[:id])
     @comment = Comment.new
     @movie = Movie.new
 

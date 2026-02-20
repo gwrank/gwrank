@@ -90,7 +90,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <% @guild.tournament_results.final_standings.order(:position).each do |tournament_result| %>
+                                        <% @guild.tournament_results.includes(:tournament).final_standings.order(:position).each do |tournament_result| %>
                                         <tr>
                                             <td>
                                                 <%= link_to tournament_result.tournament.title, tournament_path(tournament_result.tournament) %>
@@ -127,7 +127,7 @@
                             <% end %>
                         </article>
                     </div>
-                    <div class="col-auto-lg mpl-sidebar" data-sr=widget data-sr-duration=1200 data-sr-distance=20>
+                    <div class="col-auto-lg mpl-sidebar" data-sr="widget" data-sr-duration="1200" data-sr-distance="20">
                         <form action="https://memorial.redeemer.biz/memorial/" accept-charset="UTF-8" method="post" target="_blank">
                             <input type="hidden" name="q" value="<%= @guild.name %>">
                             <input type="submit" name="commit" value="Search on Guild Wars Memorial" class="btn btn-md btn-danger">

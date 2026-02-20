@@ -64,7 +64,7 @@
                                 <div class="cyberpress-match-participant accordion" id="accordion" role="tablist" aria-multiselectable="true">
                                     <table class="table table-striped table-responsive mb-60">
                                         <tbody>
-                                            <% @match.teams.first.team_players.order(position: :asc).each do |team_player| %>
+                                          <% @match.teams.first.team_players.includes(character: [ :player ], profession: [], secondary_profession: [], team_player_skills: [ :skill ], team_player_stats: []).order(position: :asc).each do |team_player| %>
                                                 <%= render 'team_player', team_player: team_player %>
                                             <% end %>
                                         </tbody>
@@ -82,7 +82,7 @@
                             </div>
                         </div>
                         <% if @match.movies.any? %>
-                            <h2 data-sr data-sr-duration=1200 data-sr-distance=10 class="mt-30">Movies</h2>
+                            <h2 data-sr data-sr-duration="1200" data-sr-distance="10" class="mt-30">Movies</h2>
                             <% @match.movies.each do |movie| %>
                                 <% if movie.provider.eql?('youtube') %>
                                     <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/<%= movie.youtube_embed_id %>" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -90,7 +90,7 @@
                             <% end %>
                         <% end %>
                         <% if current_player&.is_moderator %>
-                            <h2 data-sr data-sr-duration=1200 data-sr-distance=10 class="mt-30">Add a Movie</h2>
+                            <h2 data-sr data-sr-duration="1200" data-sr-distance="10" class="mt-30">Add a Movie</h2>
                             <%= form_with model: @movie, url: movies_path, class: 'mb-0', data: { 'sr-duration': 1200, 'sr-distance': 10 } do |form| %>
                                 <%= form.hidden_field :movieable_type, value: 'Match' %>
                                 <%= form.hidden_field :movieable_id, value: @match.id %>
@@ -105,12 +105,12 @@
                                 </div>
                             <% end %>
                         <% end %>
-                        <h2 data-sr data-sr-duration=1200 data-sr-distance=10 class="mt-30">Comments <small>(<%= @match.comments.count %>)</small></h2>
+                        <h2 data-sr data-sr-duration="1200" data-sr-distance="10" class="mt-30">Comments <small>(<%= @match.comments.count %>)</small></h2>
                         <% if current_player %>
                             <% if @match.comments.any? %>
                                 <ul class="list-unstyled list-vgap-md">
                                     <% @match.comments.each do |comment| %>
-                                        <li data-sr data-sr-duration=1200 data-sr-distance=10>
+                                        <li data-sr data-sr-duration="1200" data-sr-distance="10">
                                             <div class="media mpl-media-comment">
                                                 <div class="media-head">
                                                     <span class="media-image"></span>
@@ -127,7 +127,7 @@
                                     <% end %>
                                 </ul>
                             <% end %>
-                            <h2 data-sr data-sr-duration=1200 data-sr-distance=10 class="mt-30">Leave a Comment</h2>
+                            <h2 data-sr data-sr-duration="1200" data-sr-distance="10" class="mt-30">Leave a Comment</h2>
                             <%= form_with model: @comment, url: comments_path, class: 'mb-0', data: { 'sr-duration': 1200, 'sr-distance': 10 } do |form| %>
                                 <%= form.hidden_field :commentable_type, value: 'Match' %>
                                 <%= form.hidden_field :commentable_id, value: @match.id %>
