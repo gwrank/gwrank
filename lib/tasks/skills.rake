@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 namespace :skills do
+  task setup: :environment do
+    Rake::Task["skills:import"].invoke
+    Rake::Task["skills:import_informations"].invoke
+    Rake::Task["skills:update_for_template_codes"].invoke
+  end
+
   task import: :environment do
     unknown_profession = Profession.find_by(profession_id: 0)
     skills = File.read(Rails.root.join('data', 'code_skills.txt')).split("\n")

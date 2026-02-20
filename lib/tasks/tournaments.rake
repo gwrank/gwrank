@@ -43,7 +43,7 @@ module GW
       o.puts("*    Version: #{version}")
       o.puts("*       Code: #{code}")
       o.puts("* Profession: #{Profession[primary]} /" \
-                          " #{Profession[secondary]}")
+        " #{Profession[secondary]}")
       o.puts
       o.puts("* Attributes:")
       o.puts
@@ -76,6 +76,13 @@ module GW
 end
 
 namespace :tournaments do
+  task setup: :environment do
+    Rake::Task["tournaments:add_archives"].invoke
+    Rake::Task["tournaments:make_them_monthly"].invoke
+    Rake::Task["tournaments:import_from_gw_memorial"].invoke
+    Rake::Task["tournaments:import_from_observer"].invoke
+  end
+
   task add_archives: :environment do
     (2008..2010).each do |year|
       (1..12).each do |month|

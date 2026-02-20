@@ -3,6 +3,8 @@
 # Table name: teams
 #
 #  id         :bigint           not null, primary key
+#  rank       :integer
+#  rating     :integer
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #  guild_id   :bigint

@@ -3,21 +3,38 @@
 # Table name: guilds
 #
 #  id                 :bigint           not null, primary key
+#  announcement       :text
 #  bronze_trims_count :integer          default(0)
+#  cape_trim          :string
+#  faction            :string
 #  gold_trims_count   :integer          default(0)
+#  guild_hall         :string
 #  is_archived        :boolean          default(FALSE)
+#  members_count      :string
 #  name               :string
 #  region             :string
 #  silver_trims_count :integer          default(0)
 #  slug               :string
 #  tag                :string
+#  territory          :string
+#  voip               :string
+#  voip_url           :string
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
+#  alliance_id        :bigint
+#  leader_id          :bigint
 #  owner_id           :integer
 #
 # Indexes
 #
-#  index_guilds_on_slug  (slug) UNIQUE
+#  index_guilds_on_alliance_id  (alliance_id)
+#  index_guilds_on_leader_id    (leader_id)
+#  index_guilds_on_slug         (slug) UNIQUE
+#
+# Foreign Keys
+#
+#  fk_rails_...  (alliance_id => alliances.id)
+#  fk_rails_...  (leader_id => players.id)
 #
 class Guild < ApplicationRecord
   belongs_to :owner, class_name: 'Player', optional: true

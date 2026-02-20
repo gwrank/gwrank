@@ -10,9 +10,46 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_04_155419) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_19_233322) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "active_storage_attachments", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.bigint "record_id", null: false
+    t.string "record_type", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", force: :cascade do |t|
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.string "content_type"
+    t.datetime "created_at", null: false
+    t.string "filename", null: false
+    t.string "key", null: false
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "alliances", force: :cascade do |t|
+    t.string "allegiance_rank"
+    t.datetime "created_at", null: false
+    t.integer "faction"
+    t.string "name"
+    t.string "slug"
+    t.datetime "updated_at", null: false
+  end
 
   create_table "characters", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -48,17 +85,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_04_155419) do
   end
 
   create_table "guilds", force: :cascade do |t|
+    t.bigint "alliance_id"
+    t.text "announcement"
     t.integer "bronze_trims_count", default: 0
+    t.string "cape_trim"
     t.datetime "created_at", null: false
+    t.string "faction"
     t.integer "gold_trims_count", default: 0
+    t.string "guild_hall"
     t.boolean "is_archived", default: false
+    t.bigint "leader_id"
+    t.string "members_count"
     t.string "name"
     t.integer "owner_id"
     t.string "region"
     t.integer "silver_trims_count", default: 0
     t.string "slug"
     t.string "tag"
+    t.string "territory"
     t.datetime "updated_at", null: false
+    t.string "voip"
+    t.string "voip_url"
+    t.index ["alliance_id"], name: "index_guilds_on_alliance_id"
+    t.index ["leader_id"], name: "index_guilds_on_leader_id"
     t.index ["slug"], name: "index_guilds_on_slug", unique: true
   end
 
@@ -89,13 +138,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_04_155419) do
 
   create_table "matches", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.datetime "exported_at"
+    t.datetime "imported_at"
+    t.bigint "imported_by_id"
+    t.jsonb "json", default: {}
     t.integer "loser_team_id"
     t.integer "memorial_match_id"
+    t.string "name"
     t.integer "number_on_round"
+    t.datetime "played_at"
     t.integer "round"
     t.bigint "tournament_id"
     t.datetime "updated_at", null: false
     t.integer "winner_team_id"
+    t.index ["imported_by_id"], name: "index_matches_on_imported_by_id"
     t.index ["tournament_id"], name: "index_matches_on_tournament_id"
   end
 
@@ -172,6 +228,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_04_155419) do
     t.datetime "created_at", null: false
     t.string "name"
     t.integer "profession_id"
+    t.string "short_name"
     t.datetime "updated_at", null: false
   end
 
@@ -247,6 +304,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_04_155419) do
     t.datetime "created_at", null: false
     t.bigint "guild_id"
     t.bigint "match_id"
+    t.integer "rank"
+    t.integer "rating"
     t.datetime "updated_at", null: false
     t.index ["guild_id"], name: "index_teams_on_guild_id"
     t.index ["match_id"], name: "index_teams_on_match_id"
@@ -279,9 +338,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_04_155419) do
     t.index ["tournament_type"], name: "index_tournaments_on_tournament_type"
   end
 
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "characters", "players"
   add_foreign_key "characters", "professions"
   add_foreign_key "comments", "players"
+  add_foreign_key "guilds", "alliances"
+  add_foreign_key "guilds", "players", column: "leader_id"
+  add_foreign_key "matches", "players", column: "imported_by_id"
   add_foreign_key "matches", "tournaments"
   add_foreign_key "movies", "players"
   add_foreign_key "players", "guilds"

@@ -1,13 +1,21 @@
 # frozen_string_literal: true
 
 namespace :professions do
+  task setup: :environment do
+    Rake::Task["professions:import"].invoke
+  end
+
   task import: :environment do
     professions = File.read(Rails.root.join('data', 'code_professions.txt')).split("\n")
     professions.each do |profession|
-      profession_id = profession[0..1]
-      profession_name = profession[3..-1]
-      Profession.where(profession_id: profession_id).first_or_create(
-        name: profession_name
+      split = profession.split(' ')
+      profession_id = split[0]
+      profession_name = split[1]
+      profession_short_name = split[2]
+      profession = Profession.where(profession_id: profession_id).first_or_create!
+      profession.update!(
+        name: profession_name,
+        short_name: profession_short_name
       )
     end
   end

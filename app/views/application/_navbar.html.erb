@@ -14,10 +14,15 @@
                         <span class="mpl-nav-link-name"> Tournaments </span>
                     <% end %>
                 </li>
+                <li class="<%= 'active' if controller_name.eql?('matches') %>">
+                    <%= link_to matches_path, class: 'mpl-nav-link' do %>
+                        <span class="mpl-nav-link-name"> Matches </span>
+                        <span class="badge badge-brand">new</span>
+                    <% end %>
+                </li>
                 <li class="<%= 'active' if controller_name.eql?('statistics') %>">
                     <%= link_to statistics_path, class: 'mpl-nav-link' do %>
                         <span class="mpl-nav-link-name"> Stats </span>
-                        <span class="badge badge-brand">updated</span>
                     <% end %>
                 </li>
                 <li class="<%= 'active' if controller_name.eql?('guilds') %>">

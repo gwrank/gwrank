@@ -125,6 +125,7 @@ class TeamPlayer < ApplicationRecord
     binary << ("%04b" % attributes_code).reverse
     binary << ("%04b" % skills_code).reverse
     skills.each do |skill|
+      next unless skill
       binary << ("%12b" % skill).reverse
     end
     binary << ("%01b" % tail).reverse
