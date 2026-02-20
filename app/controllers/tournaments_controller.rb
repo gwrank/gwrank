@@ -1,6 +1,6 @@
 class TournamentsController < ApplicationController
   def index
-    @tournaments = Tournament.monthly.order(year: :asc).order(month: :asc)
+    @tournaments = Tournament.order(year: :desc).order(month: :desc)
   end
 
   def show
