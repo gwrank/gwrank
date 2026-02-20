@@ -72,12 +72,12 @@ class Match < ApplicationRecord
     year = date.year
     month = date.month
 
-    match.tournament = Tournament.first_or_create!(
+    match.tournament = Tournament.where(
       year: year,
       month: month,
       date: date,
       tournament_type: "at"
-    )
+    ).first_or_create!
 
     match.json.dig("parties", "by_id").each do |_id, party|
       guild_name = party.dig("name") # e.g.: "Le Poulpe Divin"
@@ -107,12 +107,12 @@ class Match < ApplicationRecord
         secondary_profession = Profession.find_by(profession_id: secondary)
         position = agent.dig("display_name").split(")").first.split("(").second
 
-        character = Character.first_or_create!(igname:) do |c|
+        character = Character.where(igname: igname).first_or_create! do |c|
           c.profession = profession
         end
 
         player = character.player
-        player ||= Player.first_or_create!(igname:) do |p|
+        player ||= Player.where(igname: igname).first_or_create! do |p|
           p.email = igname.split.join("-").downcase + "@gwrank.com"
           p.password = Devise.friendly_token[0, 20]
         end
