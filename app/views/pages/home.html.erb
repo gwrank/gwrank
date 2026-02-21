@@ -14,13 +14,16 @@
                               <p class="lead" data-sr-item="banner">
                                 Welcome <%= current_player.name %>
                               </p>
-                              <%= link_to 'Show profile', player_path(current_player), class: 'btn btn-md btn-brand' %>
-                              <%= link_to 'Edit profile', edit_profile_path, class: 'btn btn-md btn-brand' %>
-                              <%= link_to 'Log Out', destroy_player_session_path, method: :delete, class: 'btn btn-md btn-brand' %>
+                              <%= link_to 'Add a match', new_match_path, class: 'btn btn-md btn-brand' %>
+                              <%= link_to 'My profile', player_path(current_player), class: 'btn btn-md btn-brand' %>
+                              <%= link_to 'Log Out', destroy_player_session_path, data: { turbo_method: :delete }, class: 'btn btn-md btn-brand' %>
                             <% else %>
-                                <%= form_tag(omniauth_authorize_path(:player, :discord), method: 'post', data: { turbo: false }) do %>
-                                    <button type="submit" class="btn btn-md btn-brand">Login with Discord</button>
-                                <% end %>
+                              <p class="lead" data-sr-item="banner">
+                              Welcome
+                              </p>
+                              <%= form_tag(omniauth_authorize_path(:player, :discord), method: 'post', data: { turbo: false }) do %>
+                                <button type="submit" class="btn btn-md btn-brand">Login with Discord</button>
+                              <% end %>
                             <% end %>
                         </div>
                         <% if ENV['TWITCH_LIVE_CHANNEL'].present? %>

@@ -10,10 +10,11 @@
                     <div class="row justify-content-center">
                         <div class="col-12 col-md-8 col-lg-6 col-xl-5">
                             <div class="mpl-sign-form" data-sr="sign" data-sr-interval="100" data-sr-duration="1000" data-sr-distance="20">
-                                <h1 data-sr-item="sign">New Match</h1>
+                                <h1 data-sr-item="sign">Add a Match</h1>
                                 <%= form_with model: @match do |form| %>
                                     <div class="row hgap-xs vgap-sm align-items-center">
                                         <div class="col-12" data-sr-item="sign">
+                                            <%= form.label :json_file, 'JSON file from GWToolbox Observer Mode :' %>
                                             <%= form.file_field :json_file, placeholder: 'JSON file, from Observer', class: 'form-control', required: true %><span class="form-control-bg"></span>
                                         </div>
                                         <div class="col-12" data-sr-item="sign">

@@ -2,9 +2,11 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :items, only: [:index, :show]
+      resources :matches, only: [:create]
     end
   end
 
+  resource :api_token, only: [:show]
   resources :comments, only: [:create]
   resources :guilds, only: [:index, :show, :new, :create]
   resources :matches, only: [:index, :show, :new, :create]

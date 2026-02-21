@@ -7,6 +7,7 @@ class MatchesController < ApplicationController
 
   def show
     @match = Match.includes(
+      comments: [:player],
       teams: [
         :guild,
         { team_players: [:character, :player, :profession, :secondary_profession, :team_player_skills] }
@@ -18,6 +19,11 @@ class MatchesController < ApplicationController
     
     @comment = Comment.new
     @movie = Movie.new
+
+    respond_to do |format|
+      format.html
+      format.json { render json: @match.json }
+    end
   end
 
   def new
@@ -26,6 +32,11 @@ class MatchesController < ApplicationController
 
   def create
     @match = Match.import!(match_params)
+
+    message = "New match! #{@match.title} : #{match_url(@match)}"
+    bot = Discordrb::Bot.new token: ENV['DISCORD_BOT_TOKEN']
+    bot.channel(ENV['DISCORD_COMMAND_CHANNEL_ID']).send_message(message)
+
     redirect_to match_path(@match)
   end
 

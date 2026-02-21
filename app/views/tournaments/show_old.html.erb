@@ -49,7 +49,7 @@
                                     <th scope="col">Region</th>
                                 </thead>
                                 <tbody>
-                                    <% @tournament.tournament_results.swiss_rounds_results.order(position: :asc).each do |tournament_result| %>
+                                    <% @tournament.tournament_results.includes(:guild).swiss_rounds_results.order(position: :asc).each do |tournament_result| %>
                                         <tr>
                                             <td><%= tournament_result.position %></td>
                                             <td><%= link_to tournament_result.guild.name, guild_path(tournament_result.guild) %></td>
@@ -71,7 +71,7 @@
                                     <th scope="col">Region</th>
                                 </thead>
                                 <tbody>
-                                    <% @tournament.tournament_results.final_standings.order(position: :asc).each do |tournament_result| %>
+                                    <% @tournament.tournament_results.includes(:guild).final_standings.order(position: :asc).each do |tournament_result| %>
                                         <tr>
                                             <td><%= tournament_result.position %></td>
                                             <td><%= tournament_result.trim_text %></td>
@@ -118,14 +118,14 @@
                             <% end %>
                         </div>
                     </div>
-                    <div class="col-auto-lg mpl-sidebar" data-sr=widget data-sr-duration=1200 data-sr-distance=20>
+                    <div class="col-auto-lg mpl-sidebar" data-sr="widget" data-sr-duration="1200" data-sr-distance="20">
                         <%= link_to 'Search matches on Guild Wars Memorial', "https://memorial.redeemer.biz/memorial/#{@tournament.year}/#{@tournament.month}", target: '_blank', class: 'btn btn-md' %>
-                        <h2 data-sr data-sr-duration=1200 data-sr-distance=10 class="mt-30">Comments <small>(<%= @tournament.comments.count %>)</small></h2>
+                        <h2 data-sr data-sr-duration="1200" data-sr-distance="10" class="mt-30">Comments <small>(<%= @tournament.comments.count %>)</small></h2>
                         <% if current_player %>
                             <% if @tournament.comments.any? %>
                                 <ul class="list-unstyled list-vgap-md">
                                     <% @tournament.comments.each do |comment| %>
-                                        <li data-sr data-sr-duration=1200 data-sr-distance=10>
+                                        <li data-sr data-sr-duration="1200" data-sr-distance="10">
                                             <div class="media mpl-media-comment">
                                                 <div class="media-head">
                                                     <span class="media-image"></span>
@@ -142,7 +142,7 @@
                                     <% end %>
                                 </ul>
                             <% end %>
-                            <h2 data-sr data-sr-duration=1200 data-sr-distance=10 class="mt-30">Leave a Comment</h2>
+                            <h2 data-sr data-sr-duration="1200" data-sr-distance="10" class="mt-30">Leave a Comment</h2>
                             <%= form_with model: @comment, url: comments_path, class: 'mb-0', data: { 'sr-duration': 1200, 'sr-distance': 10 } do |form| %>
                                 <%= form.hidden_field :commentable_type, value: 'Tournament' %>
                                 <%= form.hidden_field :commentable_id, value: @tournament.id %>

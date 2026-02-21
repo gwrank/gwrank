@@ -1,8 +1,6 @@
 class PlayersController < ApplicationController
-  before_action :authenticate_player!
-
   def index
-    @players = Player.with_igname.order(igname: :asc)
+    @pagy, @players = pagy(Player.with_igname.order(updated_at: :desc, created_at: :desc))
   end
 
   def show
