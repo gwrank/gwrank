@@ -3,6 +3,7 @@
 # Table name: players
 #
 #  id                     :bigint           not null, primary key
+#  api_token              :string
 #  confirmation_sent_at   :datetime
 #  confirmation_token     :string
 #  confirmed_at           :datetime
@@ -59,6 +60,7 @@
 #
 class Player < ApplicationRecord
   belongs_to :guild, optional: true
+  has_secure_token :api_token
   has_many :characters, dependent: :nullify
   has_many :registrations, dependent: :destroy
   has_many :team_players, dependent: :nullify
@@ -72,7 +74,7 @@ class Player < ApplicationRecord
   validates_presence_of :password, on: :create
   validates_confirmation_of :password, on: :create
   validates_length_of :password, within: Devise.password_length, allow_blank: true
-  validates_uniqueness_of :igname, on: :update
+  validates_uniqueness_of :igname, on: :update, allow_blank: true
 
   scope :with_igname, -> { where.not(igname: nil).where.not(igname: '') }
 
