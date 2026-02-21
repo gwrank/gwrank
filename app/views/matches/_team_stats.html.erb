@@ -1,0 +1,231 @@
+<div class="table-responsive">
+  <table class="table table-striped table-stats">
+    <thead>
+      <tr>
+        <th style="width: 30px;"></th>
+        <th>Player</th>
+        <th>Prof</th>
+        <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Kills / Deaths (K/D Ratio)">K/D</th>
+        <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Damage: Dealt / Received">Damage<br>D/R</th>
+        <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Healing: Dealt / Received">Healing<br>D/R</th>
+        <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Critical Hits: Dealt / Received">Crits<br>D/R</th>
+        <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Skills Interrupted">Int</th>
+        <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Skills Cancelled">Cancel</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% team_stats.each do |player_stat| %>
+        <% stats = player_stat[:stats] %>
+        <tr class="player-row" data-agent-id="<%= player_stat[:agent_id] %>" style="cursor: pointer;">
+          <td class="text-center expand-icon">▶</td>
+          <td><strong><%= player_stat[:name] %></strong></td>
+          <td><span class="badge bg-primary"><%= player_stat[:profession] %></span></td>
+          <td class="text-center">
+            <% kills = stats["kills"] || 0 %>
+            <% deaths = stats["deaths"] || 0 %>
+            <%= kills %>/<%= deaths %> (<%= stats["kdr_str"] || "0.00" %>)
+          </td>
+          <td class="text-center">
+            <span class="text-success"><%= stats["total_damage_dealt"] || 0 %></span> /
+            <span class="text-danger"><%= stats["total_damage_received"] || 0 %></span>
+          </td>
+          <td class="text-center">
+            <span class="text-success"><%= stats["total_healing_dealt"] || 0 %></span> /
+            <span class="text-info"><%= stats["total_healing_received"] || 0 %></span>
+          </td>
+          <td class="text-center">
+            <span class="text-success"><%= stats["total_crits_dealt"] || 0 %></span> /
+            <span class="text-danger"><%= stats["total_crits_received"] || 0 %></span>
+          </td>
+          <td class="text-center"><%= stats["interrupted_count"] || 0 %></td>
+          <td class="text-center"><%= stats["cancelled_count"] || 0 %></td>
+        </tr>
+        <tr class="player-details" id="details-<%= player_stat[:agent_id] %>" style="display: none;">
+          <td colspan="9">
+            <div class="p-3">
+              <div class="row">
+                <div class="col-md-6">
+                  <h5>Damage (Opponents)</h5>
+                  <table class="table table-sm table-striped table-bordered">
+                    <thead>
+                      <tr>
+                        <th>Player</th>
+                        <th class="text-end">Dealt</th>
+                        <th class="text-end">Received</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% damage_to_agents = stats["damage_dealt_to_agents"] || {} %>
+                      <% damage_from_agents = stats["damage_received_from_agents"] || {} %>
+                      <% all_agent_ids = (damage_to_agents.keys + damage_from_agents.keys).uniq %>
+                      <% if all_agent_ids.any? %>
+                        <% all_agent_ids.each do |agent_id| %>
+                          <% agent = @match.agent_by_id(agent_id) %>
+                          <% if agent && agent["guild_id"] != 0 %>
+                            <tr>
+                              <td><%= agent["sanitized_name"] %></td>
+                              <td class="text-end text-danger"><%= damage_to_agents[agent_id] || 0 %></td>
+                              <td class="text-end text-warning"><%= damage_from_agents[agent_id] || 0 %></td>
+                            </tr>
+                          <% end %>
+                        <% end %>
+                      <% else %>
+                        <tr><td colspan="3" class="text-center text-muted">No damage data</td></tr>
+                      <% end %>
+                    </tbody>
+                  </table>
+                </div>
+                
+                <div class="col-md-6">
+                  <h5>Healing (Allies)</h5>
+                  <table class="table table-sm table-striped table-bordered">
+                    <thead>
+                      <tr>
+                        <th>Player</th>
+                        <th class="text-end">Dealt</th>
+                        <th class="text-end">Received</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% healing_to_agents = stats["healing_dealt_to_agents"] || {} %>
+                      <% healing_from_agents = stats["healing_received_from_agents"] || {} %>
+                      <% all_healing_ids = (healing_to_agents.keys + healing_from_agents.keys).uniq %>
+                      <% if all_healing_ids.any? %>
+                        <% all_healing_ids.each do |agent_id| %>
+                          <% agent = @match.agent_by_id(agent_id) %>
+                          <% if agent %>
+                            <tr>
+                              <td><%= agent["sanitized_name"] %></td>
+                              <td class="text-end text-success"><%= healing_to_agents[agent_id] || 0 %></td>
+                              <td class="text-end text-info"><%= healing_from_agents[agent_id] || 0 %></td>
+                            </tr>
+                          <% end %>
+                        <% end %>
+                      <% else %>
+                        <tr><td colspan="3" class="text-center text-muted">No healing data</td></tr>
+                      <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="row mt-3">
+                <div class="col-12">
+                  <h5>Damage by Skill</h5>
+                  <table class="table table-sm table-striped table-bordered">
+                    <thead>
+                      <tr>
+                        <th>Skill</th>
+                        <th class="text-end">Damage</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% damage_by_skill = stats["damage_by_skill"] || {} %>
+                      <% damage_by_skill.sort_by { |_k, v| -v }.each do |skill_id, damage| %>
+                        <% skill = @skills_cache&.dig(skill_id.to_i) %>
+                        <tr>
+                          <td>
+                            <% if skill %>
+                              <%= skill.html_image.html_safe %>
+                              <%= skill.name %>
+                            <% else %>
+                              Unknown (#{skill_id})
+                            <% end %>
+                          </td>
+                          <td class="text-end text-warning"><%= damage %></td>
+                        </tr>
+                      <% end %>
+                      <% if damage_by_skill.empty? %>
+                        <tr><td colspan="2" class="text-center text-muted">No skill damage</td></tr>
+                      <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div class="stats-legend mt-3 mb-5 p-3" style="background-color: rgba(0, 0, 0, 0.3); border-radius: 5px; margin-left: 0; margin-right: 0; width: 100%;">
+  <h6 class="mb-2"><strong>Legend</strong></h6>
+  <div class="row g-0">
+    <div class="col-md-6 pe-md-3">
+      <p class="mb-1"><strong>Abbreviations:</strong></p>
+      <ul class="list-unstyled mb-2" style="font-size: 0.9rem;">
+        <li><strong>K/D</strong> - Kills / Deaths (Ratio)</li>
+        <li><strong>D/R</strong> - Dealt / Received</li>
+        <li><strong>Int</strong> - Interrupts (skills interrupted)</li>
+        <li><strong>Cancel</strong> - Cancels (skills or attacks cancelled)</li>
+      </ul>
+    </div>
+    <div class="col-md-6 ps-md-3">
+      <p class="mb-1"><strong>Color Coding:</strong></p>
+      <ul class="list-unstyled" style="font-size: 0.9rem;">
+        <li><span class="text-success">●</span> <strong>Green</strong> - Damage/Healing Dealt</li>
+        <li><span class="text-danger">●</span> <strong>Red</strong> - Damage/Crits Received</li>
+        <li><span class="text-info">●</span> <strong>Blue</strong> - Healing Received</li>
+        <li><span class="text-warning">●</span> <strong>Yellow</strong> - Skill Damage</li>
+      </ul>
+    </div>
+  </div>
+  <p class="mb-0 mt-2" style="font-size: 0.85rem; opacity: 0.8;"><em>Click on any player row to expand detailed statistics</em></p>
+</div>
+
+<script>
+  function initPlayerStats() {
+    document.querySelectorAll('.player-row').forEach(function(row) {
+      // Remove existing listeners
+      const newRow = row.cloneNode(true);
+      row.parentNode.replaceChild(newRow, row);
+      
+      newRow.addEventListener('click', function() {
+        const agentId = this.getAttribute('data-agent-id');
+        const detailsRow = document.getElementById('details-' + agentId);
+        const expandIcon = this.querySelector('.expand-icon');
+        
+        if (detailsRow.style.display === 'none' || detailsRow.style.display === '') {
+          detailsRow.style.display = 'table-row';
+          this.classList.add('table-active');
+          if (expandIcon) expandIcon.innerHTML = '▼';
+        } else {
+          detailsRow.style.display = 'none';
+          this.classList.remove('table-active');
+          if (expandIcon) expandIcon.innerHTML = '▶';
+        }
+      });
+    });
+  }
+
+  // Initialize on page load
+  document.addEventListener('DOMContentLoaded', initPlayerStats);
+  
+  // Re-initialize after Turbo navigation
+  document.addEventListener('turbo:load', initPlayerStats);
+  
+  // Also initialize immediately in case DOM is already loaded
+  if (document.readyState === 'loading') {
+    // Do nothing, DOMContentLoaded will fire
+  } else {
+    // DOM already loaded, run immediately
+    initPlayerStats();
+  }
+  
+  // Initialize Bootstrap tooltips
+  function initTooltips() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  }
+  
+  document.addEventListener('DOMContentLoaded', initTooltips);
+  document.addEventListener('turbo:load', initTooltips);
+  
+  if (document.readyState !== 'loading') {
+    initTooltips();
+  }
+</script>

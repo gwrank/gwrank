@@ -137,4 +137,58 @@ class Match < ApplicationRecord
     match.save!
     match
   end
+
+  # Memoized player stats to avoid re-parsing JSON
+  def player_stats
+    @player_stats ||= calculate_player_stats
+  end
+  
+  def calculate_player_stats
+    return [] unless json.present?
+    
+    stats = []
+    json.dig("agents", "by_id")&.each do |agent_id, agent|
+      next if agent["sanitized_name"].blank?
+      next if agent["guild_id"] == 0 # Skip NPCs
+      
+      stats << {
+        agent_id: agent_id,
+        name: agent["sanitized_name"],
+        profession: agent["profession"],
+        party_id: agent["party_id"],
+        stats: agent["stats"] || {}
+      }
+    end
+    
+    stats.sort_by { |s| [s[:party_id], s[:name]] }
+  end
+
+  def team_stats(team_index)
+    # Use loaded association instead of querying again
+    team = teams[team_index - 1]
+    return [] unless team
+    
+    # Get player stats for this team
+    team_player_stats = player_stats.select { |s| s[:party_id] == team_index }
+    
+    # Create a hash for quick lookup by name
+    stats_by_name = team_player_stats.index_by { |s| s[:name] }
+    
+    # Order by team_player position (already loaded via includes)
+    ordered_stats = []
+    team.team_players.sort_by(&:position).each do |team_player|
+      stat = stats_by_name[team_player.igname]
+      ordered_stats << stat if stat
+    end
+    
+    # Add any remaining stats that didn't match (shouldn't happen, but just in case)
+    remaining = team_player_stats.reject { |s| ordered_stats.include?(s) }
+    ordered_stats + remaining
+  end
+
+  # Memoize agent lookups
+  def agent_by_id(agent_id)
+    @agents_cache ||= {}
+    @agents_cache[agent_id.to_s] ||= json.dig("agents", "by_id", agent_id.to_s)
+  end
 end
