@@ -31,7 +31,7 @@ gem 'bootsnap', '>= 1.4.4', require: false
 
 gem 'bootstrap', '~> 5.3.8'
 gem 'devise'
-gem 'discordrb'
+gem 'discordrb', github: 'shardlab/discordrb'
 gem 'friendly_id'
 gem 'high_voltage'
 gem 'hotwire-rails'

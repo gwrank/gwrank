@@ -4,6 +4,45 @@ class CommandBotJob < ApplicationJob
   def perform(*args)
     bot = Discordrb::Commands::CommandBot.new token: ENV['DISCORD_BOT_TOKEN'], client_id: ENV['DISCORD_CLIENT_ID'], prefix: '!'
 
+    bot.command :scrim, description: 'to start a scrim' do |event, player|
+      event.send_message!(has_components: true) do |_, view|
+        message_container(view)
+      end
+    end
+
+    bot.button(custom_id: 'register') do |event|
+      current_registrations = Registration.current_registrations
+
+      player = Player.where(provider: 'discord', uid: event.user.id).first_or_create do |player|
+        player.email = "#{event.user.id}@gwrank.com"
+        player.password = Devise.friendly_token[0, 20]
+        player.username = event.user.name
+      end
+
+      if player.has_current_registration?
+        event.respond(content: "You are already registered, #{event.user.username}!", ephemeral: true)
+      else
+        player.registrations.create(registered_at: DateTime.now)
+        event.channel.send_message!(has_components: true) do |_, view|
+          message_container(view)
+        end
+        event.respond(content: "You have been registered, #{event.user.username}!", ephemeral: true)
+      end
+    end
+
+    bot.button(custom_id: 'unregister') do |event|
+      player = Player.find_by(uid: event.user.id)
+      if player && player.has_current_registration?
+        player.current_registration.update(unregistered_at: DateTime.now)
+        event.channel.send_message!(has_components: true) do |_, view|
+          message_container(view)
+        end
+        event.respond(content: "You have been unregistered, #{event.user.username}!", ephemeral: true)
+      else
+        event.respond(content: "You are not registered, #{event.user.username}!", ephemeral: true)
+      end
+    end
+
     bot.command :igname, description: 'to find the in-game name of a player' do |event, player|
       if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
         player = player.delete_prefix('<@!').delete_suffix('>')
@@ -429,5 +468,32 @@ class CommandBotJob < ApplicationJob
 
     at_exit { bot.stop }
     bot.run
+  end
+
+  private
+
+  def message_container(view)
+    view.container do |container|
+      container.section do |section|
+        section.text_display(content: scrim_registration_panel_content)
+        section.thumbnail(url: 'https://gwrank.com/assets/background-a4004a29.jpg')
+      end
+      view.row do |row|
+        row.button(label: 'Register', style: :success, custom_id: 'register')
+        row.button(label: 'Unregister', style: :danger, custom_id: 'unregister')
+      end
+    end
+  end
+
+  def scrim_registration_panel_content
+    players = []
+    Registration.current_registrations.order(registered_at: :asc).each_with_index do |registration, index|
+      player = []
+      player << "\n##{index + 1} <@#{registration.player.uid}>"
+      player << "in-game name **#{registration.player.igname}**" if registration.player.igname.present?
+      player << "#{registration.player.professions_text}" if registration.player.professions_text.present?
+      players << player.join(", ")
+    end
+    "### Scrim Registration Panel\nCurrent registered users:\n#{players.join("\n")}"
   end
 end
