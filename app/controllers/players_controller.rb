@@ -1,6 +1,6 @@
 class PlayersController < ApplicationController
   def index
-    @pagy, @players = pagy(Player.with_igname.order(igname: :asc))
+    @pagy, @players = pagy(Player.with_igname.order(updated_at: :desc, created_at: :desc))
   end
 
   def show
