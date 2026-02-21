@@ -23,7 +23,7 @@ class CommandBotJob < ApplicationJob
         event.respond(content: "You are already registered, #{event.user.username}!", ephemeral: true)
       else
         player.registrations.create(registered_at: DateTime.now)
-        event.channel.send_message!(has_components: true) do |_, view|
+        event.interaction.update_message(has_components: true) do |_, view|
           message_container(view)
         end
         event.respond(content: "You have been registered, #{event.user.username}!", ephemeral: true)
@@ -34,7 +34,7 @@ class CommandBotJob < ApplicationJob
       player = Player.find_by(uid: event.user.id)
       if player && player.has_current_registration?
         player.current_registration.update(unregistered_at: DateTime.now)
-        event.channel.send_message!(has_components: true) do |_, view|
+        event.interaction.update_message(has_components: true) do |_, view|
           message_container(view)
         end
         event.respond(content: "You have been unregistered, #{event.user.username}!", ephemeral: true)
