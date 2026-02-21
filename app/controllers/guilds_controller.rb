@@ -2,7 +2,7 @@ class GuildsController < ApplicationController
   before_action :set_guild, only: [:show]
 
   def index
-    @pagy, @guilds = pagy(Guild.includes(:players).order(name: :asc))
+    @pagy, @guilds = pagy(Guild.includes(:players).order(members_count: :desc, gold_trims_count: :desc, silver_trims_count: :desc, bronze_trims_count: :desc, name: :asc))
     authorize @guilds
   end
 
