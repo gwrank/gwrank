@@ -205,12 +205,11 @@ class CommandBotJob < ApplicationJob
       current_registrations = Registration.current_registrations
       if current_registrations.count >= 16
         scrim = Scrim.current_scrims.order(created_at: :desc).first
-        message = "<@#{event.user.id}>, the current captains are @#{scrim.captain_a.username} and @#{scrim.captain_b.username}."
+        message = "<@#{event.user.id}>, the current captains are @#{scrim.captain_a.username} (#{scrim.captain_a.igname}) and @#{scrim.captain_b.username} (#{scrim.captain_b.igname})."
         message << "\nIf you want new captains, you can type *!newcaptains*"
       else
         players_required = 16 - current_registrations.count
         message = "<@#{event.user.id}>, we need #{players_required} more players to designate captains."
-        message << "\nIf you really want new captains with the current queue, you can type *!forcenewcaptains*"
       end
       event.respond message
     end
