@@ -7,13 +7,14 @@ Chart.register(LineController, LineElement, PointElement, LinearScale, Title, To
 
 export default class extends Controller {
   static values = {
-    data: Object
+    data: Object,
+    initialMode: String
   }
   
   static targets = ["resetButton", "healthButton", "moraleButton", "timelineButton"]
 
   connect() {
-    this.currentMode = 'health' // 'health', 'morale', or 'timeline'
+    this.currentMode = this.hasInitialModeValue ? this.initialModeValue : 'health'
     this.createChart()
   }
 
@@ -111,41 +112,10 @@ export default class extends Controller {
     
     if (this.currentMode === 'health') {
       // Health percentage datasets
-      datasets.push({
-        label: healthData.team1.name,
-        data: healthData.team1.data,
-        borderColor: team1Color,
-        borderWidth: 2,
-        pointRadius: 0,
-        pointHoverRadius: 5,
-        pointHoverBackgroundColor: team1Color,
-        pointHoverBorderColor: '#fff',
-        pointHoverBorderWidth: 2,
-        fill: false,
-        tension: 0.4,
-        order: 1
-      })
-      
-      datasets.push({
-        label: healthData.team2.name,
-        data: healthData.team2.data,
-        borderColor: team2Color,
-        borderWidth: 2,
-        pointRadius: 0,
-        pointHoverRadius: 5,
-        pointHoverBackgroundColor: team2Color,
-        pointHoverBorderColor: '#fff',
-        pointHoverBorderWidth: 2,
-        fill: false,
-        tension: 0.4,
-        order: 1
-      })
-    } else if (this.currentMode === 'morale') {
-      // Morale datasets
-      if (healthData.morale_data) {
+      if (healthData.team1 && healthData.team1.data && healthData.team1.data.length > 0) {
         datasets.push({
-          label: healthData.morale_data.team1.name,
-          data: healthData.morale_data.team1.data,
+          label: healthData.team1.name,
+          data: healthData.team1.data,
           borderColor: team1Color,
           borderWidth: 2,
           pointRadius: 0,
@@ -157,10 +127,12 @@ export default class extends Controller {
           tension: 0.4,
           order: 1
         })
-        
+      }
+      
+      if (healthData.team2 && healthData.team2.data && healthData.team2.data.length > 0) {
         datasets.push({
-          label: healthData.morale_data.team2.name,
-          data: healthData.morale_data.team2.data,
+          label: healthData.team2.name,
+          data: healthData.team2.data,
           borderColor: team2Color,
           borderWidth: 2,
           pointRadius: 0,
@@ -172,6 +144,43 @@ export default class extends Controller {
           tension: 0.4,
           order: 1
         })
+      }
+    } else if (this.currentMode === 'morale') {
+      // Morale datasets
+      if (healthData.morale_data) {
+        if (healthData.morale_data.team1 && healthData.morale_data.team1.data && healthData.morale_data.team1.data.length > 0) {
+          datasets.push({
+            label: healthData.morale_data.team1.name,
+            data: healthData.morale_data.team1.data,
+            borderColor: team1Color,
+            borderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: team1Color,
+            pointHoverBorderColor: '#fff',
+            pointHoverBorderWidth: 2,
+            fill: false,
+            tension: 0.4,
+            order: 1
+          })
+        }
+        
+        if (healthData.morale_data.team2 && healthData.morale_data.team2.data && healthData.morale_data.team2.data.length > 0) {
+          datasets.push({
+            label: healthData.morale_data.team2.name,
+            data: healthData.morale_data.team2.data,
+            borderColor: team2Color,
+            borderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: team2Color,
+            pointHoverBorderColor: '#fff',
+            pointHoverBorderWidth: 2,
+            fill: false,
+            tension: 0.4,
+            order: 1
+          })
+        }
       }
     }
     // For timeline mode, we don't add health or morale lines
@@ -417,6 +426,15 @@ export default class extends Controller {
           hitRadius: 15
         })
       }
+    }
+
+    // If no datasets were created, show a message
+    if (datasets.length === 0) {
+      ctx.font = '16px Arial'
+      ctx.fillStyle = '#ccc'
+      ctx.textAlign = 'center'
+      ctx.fillText('No data available for this view', canvas.width / 2, canvas.height / 2)
+      return
     }
 
     const yAxisConfig = this.currentMode === 'health' 
