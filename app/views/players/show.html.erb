@@ -79,7 +79,7 @@
                                 <h2>Twitch</h2>
                                 <div class="cyberpress-twitch">
                                     <div class="cyberpress-twitch-player">
-                                        <iframe src="https://player.twitch.tv/?channel=<%= @player.twitch_username %>&parent=<%= request.host %>" frameborder="0" allowfullscreen="true" scrolling="no"></iframe>
+                                        <iframe src="https://player.twitch.tv/?channel=<%= @player.twitch_username %>&parent=<%= request.host %>" frameborder="0" allowfullscreen scrolling="no"></iframe>
                                     </div>
                                     <div class="cyberpress-twitch-chat">
                                         <iframe src="https://www.twitch.tv/embed/<%= @player.twitch_username %>/chat?parent=<%= request.host %>" frameborder="0" scrolling="no"></iframe>
@@ -130,7 +130,7 @@
                             </table>
                         <% end %>
                     </div>
-                    <div class="col-auto-lg mpl-sidebar" data-sr=widget data-sr-duration=1200 data-sr-distance=20>
+                    <div class="col-auto-lg mpl-sidebar" data-sr="widget" data-sr-duration="1200" data-sr-distance="20">
                         <form action="https://memorial.redeemer.biz/memorial/" accept-charset="UTF-8" method="post" target="_blank">
                             <input type="hidden" name="q" value="<%= @player.igname %>">
                             <input type="submit" name="commit" value="Search on Guild Wars Memorial" class="btn btn-md btn-danger">
