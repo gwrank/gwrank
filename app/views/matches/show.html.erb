@@ -84,6 +84,40 @@
 
                         <% if @match.json.present? %>
                             <h2 data-sr data-sr-duration=1200 data-sr-distance=10 class="mt-60 mb-30">Match Statistics</h2>
+                            
+                            <% health_data = @match.health_percentage_data %>
+                            <% if health_data %>
+                                <div class="cyberpress-match mb-60">
+                                    <div class="cyberpress-match-participants">
+                                        <div class="cyberpress-match-participant" style="width: 100%;">
+                                            <div style="background: rgba(0, 0, 0, 0.3); padding: 30px; border-radius: 8px; min-height: 500px; width: 100%;" data-controller="health-chart" data-health-chart-data-value='<%= health_data.to_json %>'>
+                                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                                    <p style="color: #ccc; margin: 0; font-size: 14px;">
+                                                        💡 Use mouse wheel to zoom • Click & drag to pan
+                                                    </p>
+                                                    <div style="display: flex; gap: 10px;">
+                                                        <button 
+                                                            data-action="click->health-chart#toggleMode"
+                                                            data-health-chart-target="toggleButton"
+                                                            class="btn btn-sm btn-outline-primary"
+                                                            style="font-size: 12px; padding: 4px 12px;">
+                                                            Show Morale
+                                                        </button>
+                                                        <button 
+                                                            data-action="click->health-chart#resetZoom"
+                                                            class="btn btn-sm btn-outline-light"
+                                                            style="font-size: 12px; padding: 4px 12px;">
+                                                            Reset Zoom
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <canvas style="max-height: 450px; height: 450px;"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% end %>
+                            
                             <div class="cyberpress-match">
                                 <div class="cyberpress-match-participants">
                                     <div class="cyberpress-match-participant">
@@ -94,7 +128,7 @@
                                                 <span style="color: #ffc107; font-size: 1.2rem;">🏆</span>
                                             <% end %>
                                         </h3>
-                                        <%= render 'team_stats', team: @match.teams.first, team_stats: @match.team_stats(1) %>
+                                        <%= render 'team_stats', team: @match.teams.first, team_stats: @match.team_stats(1), team_index: 1, match: @match %>
                                     </div>
                                     <div class="cyberpress-match-participant">
                                         <h3 class="mb-20 text-right">
@@ -103,7 +137,7 @@
                                             <% end %>
                                             <%= @match.teams.second.guild.name_with_tag %>
                                         </h3>
-                                        <%= render 'team_stats', team: @match.teams.second, team_stats: @match.team_stats(2) %>
+                                        <%= render 'team_stats', team: @match.teams.second, team_stats: @match.team_stats(2), team_index: 2, match: @match %>
                                     </div>
                                 </div>
                             </div>

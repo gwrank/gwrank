@@ -37,7 +37,8 @@ RUN yarn build && yarn build:css
 
 # Add a script to be executed every time the container starts
 COPY entrypoint.sh /usr/bin/
-RUN chmod +x /usr/bin/entrypoint.sh
+RUN chmod +x /usr/bin/entrypoint.sh && \
+    sed -i 's/\r$//' /usr/bin/entrypoint.sh
 ENTRYPOINT ["entrypoint.sh"]
 
 # Expose port 3000
