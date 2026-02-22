@@ -11,8 +11,6 @@ class CommandBotJob < ApplicationJob
     end
 
     bot.button(custom_id: 'register') do |event|
-      current_registrations = Registration.current_registrations
-
       player = Player.where(provider: 'discord', uid: event.user.id).first_or_create do |player|
         player.email = "#{event.user.id}@gwrank.com"
         player.password = Devise.friendly_token[0, 20]
@@ -23,6 +21,7 @@ class CommandBotJob < ApplicationJob
         event.respond(content: "You are already registered, #{event.user.username}!", ephemeral: true)
       else
         player.registrations.create(registered_at: DateTime.now)
+        auto_designate_captains(event) if Registration.current_registrations.count.eql?(16)
         event.interaction.update_message(has_components: true) do |_, view|
           message_container(view)
         end
@@ -32,7 +31,8 @@ class CommandBotJob < ApplicationJob
 
     bot.button(custom_id: 'unregister') do |event|
       player = Player.find_by(uid: event.user.id)
-      if player && player.has_current_registration?
+
+      if player&.has_current_registration?
         player.current_registration.update(unregistered_at: DateTime.now)
         event.interaction.update_message(has_components: true) do |_, view|
           message_container(view)
@@ -90,15 +90,6 @@ class CommandBotJob < ApplicationJob
         message << "\n<@#{event.user.id}>, you are ##{current_registrations.count} in the current queue for the next 8 hours."
         message << "\nIf you're out, please type *!unregister*"
 
-        if current_registrations.count < 16
-          players_required = 16 - current_registrations.count
-          message << "\nWe need #{players_required} more players."
-        elsif current_registrations.count.eql?(16)
-          message << "\nWe have 16 players!"
-          message << "\nTo see the players list, you can type *!players* or go on https://gwrank.com/scrims"
-          message << "\nTo roll 100, captains can type *!roll*"
-          message << "\nTo automatically designate captains, you can type *!newcaptains*"
-        end
       end
       event.respond message
     end
@@ -472,13 +463,24 @@ class CommandBotJob < ApplicationJob
 
   private
 
+  def auto_designate_captains(event)
+    captain_a = Registration.current_registrations.order(registered_at: :asc).first(16).sample.player
+    captain_b = Registration.current_registrations.where.not(id: captain_a.current_registration.id).order(registered_at: :asc).first(15).sample.player
+    scrim = Scrim.create!(
+      captain_a: captain_a,
+      captain_b: captain_b,
+    )
+    message = "We are 16 players! The randomly auto-designated captains are: <@#{scrim.captain_a.uid}> (#{scrim.captain_a.igname}) and <@#{scrim.captain_b.uid}> (#{scrim.captain_b.igname})"
+    event.channel.send_message message
+  end
+
   def message_container(view)
     view.container do |container|
       container.section do |section|
         section.text_display(content: scrim_registration_panel_content)
         section.thumbnail(url: 'https://gwrank.com/assets/background-a4004a29.jpg')
       end
-      view.row do |row|
+      container.row do |row|
         row.button(label: 'Register', style: :success, custom_id: 'register')
         row.button(label: 'Unregister', style: :danger, custom_id: 'unregister')
       end
