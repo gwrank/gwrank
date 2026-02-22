@@ -92,7 +92,8 @@
                                 <% has_events = (health_data[:death_events]&.any? || health_data[:resurrection_events]&.any? || health_data[:morale_boosts]&.any? || health_data[:npc_death_events]&.any?) %>
                                 <% initial_mode = has_health ? 'health' : (has_events ? 'timeline' : 'health') %>
                                 
-                                <div class="cyberpress-match mb-60">
+                                <% if has_health || has_events %>
+                                    <div class="cyberpress-match mb-60">
                                     <div class="cyberpress-match-participants">
                                         <div class="cyberpress-match-participant" style="width: 100%;">
                                             <div style="background: rgba(0, 0, 0, 0.3); padding: 30px; border-radius: 8px; min-height: 500px; width: 100%;" 
@@ -144,6 +145,7 @@
                                         </div>
                                     </div>
                                 </div>
+                            <% end %>
                             <% end %>
                             
                             <div class="cyberpress-match">
