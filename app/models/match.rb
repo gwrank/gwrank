@@ -191,4 +191,461 @@ class Match < ApplicationRecord
     @agents_cache ||= {}
     @agents_cache[agent_id.to_s] ||= json.dig("agents", "by_id", agent_id.to_s)
   end
+  
+  # Calculate NPC kills for a team
+  def npc_kills(team_index)
+    return 0 unless json.present?
+    
+    total_kills = 0
+    
+    # Get all NPCs (guild_id == 0) that were killed
+    json.dig("agents", "by_id")&.each do |agent_id, agent|
+      next unless agent["guild_id"] == 0 # Only NPCs
+      next if agent["stats"].blank?
+      
+      deaths = agent.dig("stats", "deaths") || 0
+      next if deaths == 0
+      
+      # Check damage dealt to this NPC by team members
+      damage_to_npc = 0
+      player_stats.select { |s| s[:party_id] == team_index }.each do |player_stat|
+        damage_dealt = player_stat[:stats].dig("damage_dealt_to_agents", agent_id) || 0
+        damage_to_npc += damage_dealt
+      end
+      
+      # If this team dealt damage to the NPC and it died, count it as a kill
+      total_kills += 1 if damage_to_npc > 0 && deaths > 0
+    end
+    
+    total_kills
+  end
+  
+  # Extract health snapshots for graphing
+  def health_percentage_data
+    return nil unless json.present?
+    
+    parties = json.dig("parties", "by_id")
+    return nil unless parties
+    
+    team1_data = parties["1"]&.dig("health_snapshots") || []
+    team2_data = parties["2"]&.dig("health_snapshots") || []
+    
+    # Sample data if there are too many points (keep every Nth point for performance)
+    # Target approximately 300-500 points for smooth rendering
+    max_points = 500
+    sample_rate = [(team1_data.length / max_points.to_f).ceil, (team2_data.length / max_points.to_f).ceil, 1].max
+    
+    team1_sampled = sample_rate > 1 ? team1_data.each_with_index.select { |_, i| i % sample_rate == 0 }.map(&:first) : team1_data
+    team2_sampled = sample_rate > 1 ? team2_data.each_with_index.select { |_, i| i % sample_rate == 0 }.map(&:first) : team2_data
+    
+    # Get team names
+    team1_name = parties["1"]&.dig("display_name") || "Team 1"
+    team2_name = parties["2"]&.dig("display_name") || "Team 2"
+    
+    # Get guild wrapped tags
+    guilds = json.dig("guilds", "by_id") || {}
+    team1_guild_id = parties["1"]&.dig("guild_id")
+    team2_guild_id = parties["2"]&.dig("guild_id")
+    team1_tag = team1_guild_id ? guilds[team1_guild_id.to_s]&.dig("wrapped_tag") : nil
+    team2_tag = team2_guild_id ? guilds[team2_guild_id.to_s]&.dig("wrapped_tag") : nil
+    
+    # Extract all events
+    death_events = extract_death_events
+    resurrection_events = extract_resurrection_events
+    morale_boosts = extract_morale_boost_events(team1_tag, team2_tag)
+    npc_death_events = extract_npc_death_events(team1_tag, team2_tag)
+    
+    # Get morale data
+    morale_data = party_morale_data
+    
+    {
+      team1: {
+        name: team1_name,
+        tag: team1_tag,
+        data: team1_sampled.map { |snapshot| 
+          {
+            x: snapshot["timestamp_ms"],
+            y: (snapshot["hp_percentage"] * 100).round(2)
+          }
+        }
+      },
+      team2: {
+        name: team2_name,
+        tag: team2_tag,
+        data: team2_sampled.map { |snapshot| 
+          {
+            x: snapshot["timestamp_ms"],
+            y: (snapshot["hp_percentage"] * 100).round(2)
+          }
+        }
+      },
+      death_events: death_events,
+      resurrection_events: resurrection_events,
+      morale_boosts: morale_boosts,
+      npc_death_events: npc_death_events,
+      morale_data: morale_data
+    }
+  end
+  
+  # Extract death events from all agents
+  def extract_death_events
+    return [] unless json.present?
+    
+    events = []
+    agents = json.dig("agents", "by_id") || {}
+    
+    agents.each do |agent_id, agent|
+      next unless agent["death_events"].present?
+      
+      party_id = agent["party_id"]
+      agent_name = agent["sanitized_name"] || agent["display_name"] || "Unknown"
+      is_npc = agent["guild_id"] == 0
+      
+      agent["death_events"].each do |death_event|
+        killing_skill_id = death_event["killing_skill_id"]
+        killer_agent_id = death_event["killer_agent_id"]
+        
+        # Check if death was caused by Death Pact
+        is_death_pact = killing_skill_id == 0 && killer_agent_id == 0
+        
+        # Get skill name if available
+        killing_skill_name = nil
+        if killing_skill_id && killing_skill_id > 0
+          skill = Skill.find_by(skill_id: killing_skill_id)
+          killing_skill_name = skill&.name
+        end
+        
+        events << {
+          timestamp_ms: death_event["timestamp_ms"],
+          agent_name: agent_name,
+          agent_id: agent_id,
+          party_id: party_id,
+          is_npc: is_npc,
+          killer_agent_id: killer_agent_id,
+          killing_skill_id: killing_skill_id,
+          killing_skill_name: killing_skill_name,
+          is_death_pact: is_death_pact
+        }
+      end
+    end
+    
+    events.sort_by { |e| e[:timestamp_ms] }
+  end
+  
+  # Extract resurrection events
+  def extract_resurrection_events
+    return [] unless json.present?
+    
+    events = []
+    agents = json.dig("agents", "by_id") || {}
+    
+    agents.each do |agent_id, agent|
+      next unless agent["resurrection_events"].present?
+      next if agent["guild_id"] == 0 # Skip NPCs
+      
+      party_id = agent["party_id"]
+      agent_name = agent["sanitized_name"] || agent["display_name"] || "Unknown"
+      
+      agent["resurrection_events"].each do |res_event|
+        resurrector_agent_id = res_event["resurrector_agent_id"]
+        resurrector = resurrector_agent_id ? agents[resurrector_agent_id.to_s] : nil
+        resurrector_name = resurrector ? (resurrector["sanitized_name"] || resurrector["display_name"]) : nil
+        
+        resurrection_skill_id = res_event["resurrection_skill_id"]
+        resurrection_skill_name = nil
+        if resurrection_skill_id && resurrection_skill_id > 0
+          skill = Skill.find_by(skill_id: resurrection_skill_id)
+          resurrection_skill_name = skill&.name
+        end
+        
+        events << {
+          timestamp_ms: res_event["timestamp_ms"],
+          agent_id: agent_id,
+          agent_name: agent_name,
+          party_id: party_id,
+          resurrector_agent_id: resurrector_agent_id,
+          resurrector_name: resurrector_name,
+          resurrection_skill_id: resurrection_skill_id,
+          resurrection_skill_name: resurrection_skill_name,
+          is_base_res: resurrector_agent_id.nil? || resurrector_agent_id == 0
+        }
+      end
+    end
+    
+    events.sort_by { |e| e[:timestamp_ms] }
+  end
+  
+  # Extract morale boost events
+  def extract_morale_boost_events(team1_tag = nil, team2_tag = nil)
+    return [] unless json.present?
+    
+    events = []
+    parties = json.dig("parties", "by_id") || {}
+    
+    parties.each do |party_id, party|
+      next unless party["morale_boosts"].present?
+      
+      guild_tag = party_id.to_i == 1 ? team1_tag : team2_tag
+      
+      party["morale_boosts"].each do |boost_event|
+        events << {
+          timestamp_ms: boost_event["timestamp_ms"],
+          party_id: party_id.to_i,
+          guild_tag: guild_tag
+        }
+      end
+    end
+    
+    events.sort_by { |e| e[:timestamp_ms] }
+  end
+  
+  # Extract NPC death events (filtered to important NPCs only)
+  def extract_npc_death_events(team1_tag = nil, team2_tag = nil)
+    return [] unless json.present?
+    
+    events = []
+    agents = json.dig("agents", "by_id") || {}
+    
+    # List of important NPC types we want to track
+    important_npcs = ["Archer", "Guild Lord", "Footman", "Knight", "Bodyguard"]
+    
+    agents.each do |agent_id, agent|
+      next unless agent["death_events"].present?
+      next unless agent["guild_id"] == 0 # NPCs have guild_id 0
+      
+      agent_name = agent["sanitized_name"] || agent["display_name"] || "Unknown"
+      
+      # Skip if not in important NPCs list
+      next unless important_npcs.any? { |npc_type| agent_name.include?(npc_type) }
+      
+      agent["death_events"].each do |death_event|
+        killer_agent_id = death_event["killer_agent_id"]
+        
+        # Determine which team the NPC belongs to by looking at who killed it
+        # If killed by team 1, NPC belongs to team 2, and vice versa
+        npc_party_id = nil
+        npc_tag = nil
+        if killer_agent_id && killer_agent_id > 0
+          killer = agents[killer_agent_id.to_s]
+          if killer && killer["party_id"]
+            killer_party = killer["party_id"]
+            # NPC belongs to opposite team of killer
+            npc_party_id = killer_party == 1 ? 2 : 1
+            npc_tag = npc_party_id == 1 ? team1_tag : team2_tag
+          end
+        end
+        
+        # Skip if we couldn't determine team ownership
+        next unless npc_party_id
+        
+        events << {
+          timestamp_ms: death_event["timestamp_ms"],
+          agent_name: agent_name,
+          agent_id: agent_id,
+          party_id: npc_party_id,
+          guild_tag: npc_tag,
+          is_npc: true,
+          npc_type: important_npcs.find { |npc_type| agent_name.include?(npc_type) }
+        }
+      end
+    end
+    
+    events.sort_by { |e| e[:timestamp_ms] }
+  end
+  
+  # Calculate party morale over time based on death penalty formula
+  # according to https://wiki.guildwars.com/wiki/Death_Penalty
+  def party_morale_data
+    return nil unless json.present?
+    
+    parties = json.dig("parties", "by_id")
+    return nil unless parties
+    
+    # Get all events sorted by timestamp
+    death_events = extract_death_events.select { |e| !e[:is_npc] } # Only player deaths TODO: check if pets are considered npcs ? 
+    resurrection_events = extract_resurrection_events
+    morale_boosts = extract_morale_boost_events
+    
+    # Calculate death penalty for each player over time
+    player_death_penalty = {}
+    
+    # Track last resurrection time for each player
+    last_res_time = {}
+    
+    # Track which players are currently alive
+    player_alive_status = {}
+    
+    # Initialize all players
+    agents = json.dig("agents", "by_id") || {}
+    agents.each do |agent_id, agent|
+      next if agent["guild_id"] == 0 # Skip NPCs
+      next if agent["party_id"] == 0 # Skip party 0 (NPCs)
+      
+      player_death_penalty[agent_id] = {
+        party_id: agent["party_id"],
+        penalty: 0,
+        events: [{timestamp_ms: 0, penalty: 0}]
+      }
+      player_alive_status[agent_id] = true # Everyone starts alive
+    end
+    
+    # Process all events chronologically
+    all_events = []
+    death_events.each { |e| all_events << e.merge(type: :death) }
+    resurrection_events.each { |e| all_events << e.merge(type: :resurrection) }
+    morale_boosts.each { |e| all_events << e.merge(type: :morale_boost) }
+    all_events.sort_by! { |e| e[:timestamp_ms] }
+    
+    all_events.each do |event|
+      case event[:type]
+      when :death
+        agent_id = event[:agent_id]
+        next unless player_death_penalty[agent_id]
+        
+        # Mark player as dead
+        player_alive_status[agent_id] = false
+        
+        # Check if death should be penalized
+        should_penalize = true
+        
+        # Exception: Death Pact (killing_skill_id = 0 and killer_agent_id = 0)
+        if event[:killing_skill_id] == 0 && event[:killer_agent_id] == 0
+          should_penalize = false
+        end
+        
+        # Exception: Death within 5 seconds of resurrection
+        if last_res_time[agent_id] && (event[:timestamp_ms] - last_res_time[agent_id]) < 5000
+          should_penalize = false
+        end
+        
+        if should_penalize
+          new_penalty = player_death_penalty[agent_id][:penalty] - 15
+          # Cap at -60%
+          new_penalty = [new_penalty, -60].max
+          player_death_penalty[agent_id][:penalty] = new_penalty
+          player_death_penalty[agent_id][:events] << {
+            timestamp_ms: event[:timestamp_ms],
+            penalty: new_penalty
+          }
+        end
+        
+        # Check if killer is a player from opposing party (PvP kill)
+        killer_agent_id = event[:killer_agent_id]
+        if killer_agent_id && killer_agent_id > 0 && player_death_penalty[killer_agent_id.to_s]
+          killer_data = player_death_penalty[killer_agent_id.to_s]
+          victim_party = player_death_penalty[agent_id][:party_id]
+          
+          # Only apply bonus if killer and victim are from different parties
+          if killer_data[:party_id] != victim_party
+            # Apply -2% DP to each living teammate of the killer (including the killer)
+            player_death_penalty.each do |teammate_id, teammate_data|
+              # Skip if not same party as killer or if dead
+              next if teammate_data[:party_id] != killer_data[:party_id]
+              next unless player_alive_status[teammate_id]
+              
+              # Reduce DP by 2% for this living teammate (including killer)
+              new_penalty = teammate_data[:penalty] + 2
+              # Kill rewards can only reduce DP to 0, cannot boost morale (go positive)
+              new_penalty = [new_penalty, 0].min
+              teammate_data[:penalty] = new_penalty
+              teammate_data[:events] << {
+                timestamp_ms: event[:timestamp_ms],
+                penalty: new_penalty
+              }
+            end
+          end
+        end
+        
+      when :resurrection
+        agent_id = event[:agent_id]
+        last_res_time[agent_id] = event[:timestamp_ms]
+        # Mark player as alive again
+        player_alive_status[agent_id] = true
+        
+      when :morale_boost
+        party_id = event[:party_id]
+        # Apply +10% to all players in this party
+        player_death_penalty.each do |agent_id, data|
+          if data[:party_id] == party_id
+            new_penalty = data[:penalty] + 10
+            # Cap at +10% (max morale boost)
+            new_penalty = [new_penalty, 10].min
+            data[:penalty] = new_penalty
+            data[:events] << {
+              timestamp_ms: event[:timestamp_ms],
+              penalty: new_penalty
+            }
+          end
+        end
+      end
+    end
+    
+    # Calculate average party morale over time
+    # Group by party and calculate average at each timestamp
+    party1_morale = calculate_party_morale_timeline(1, player_death_penalty)
+    party2_morale = calculate_party_morale_timeline(2, player_death_penalty)
+    
+    # Get team names
+    team1_name = parties["1"]&.dig("display_name") || "Team 1"
+    team2_name = parties["2"]&.dig("display_name") || "Team 2"
+    
+    {
+      team1: {
+        name: team1_name,
+        data: party1_morale
+      },
+      team2: {
+        name: team2_name,
+        data: party2_morale
+      }
+    }
+  end
+  
+  private
+  
+  def calculate_party_morale_timeline(party_id, player_death_penalty)
+    # Get all players in this party
+    party_players = player_death_penalty.select { |_, data| data[:party_id] == party_id }
+    return [] if party_players.empty?
+    
+    # Collect all timestamps across all players
+    all_timestamps = party_players.flat_map { |_, data| data[:events].map { |e| e[:timestamp_ms] } }.uniq.sort
+    
+    # Create step-function timeline with constant values between events
+    timeline = []
+    previous_avg = 0
+    
+    # Start at 0%
+    timeline << { x: 0, y: 0 }
+    
+    all_timestamps.each do |timestamp|
+      # Calculate average penalty at this timestamp
+      penalties = party_players.map do |agent_id, data|
+        relevant_events = data[:events].select { |e| e[:timestamp_ms] <= timestamp }
+        relevant_events.last[:penalty]
+      end
+      
+      avg_penalty = penalties.sum / penalties.length.to_f
+      
+      # If value changed, add point at previous value just before this timestamp
+      # This creates the "step" effect
+      if avg_penalty != previous_avg && timeline.length > 0
+        # Add a point 1ms before the change with the old value (creates horizontal line)
+        timeline << { x: timestamp - 1, y: previous_avg.round(2) }
+      end
+      
+      # Add point at new value
+      timeline << { x: timestamp, y: avg_penalty.round(2) }
+      previous_avg = avg_penalty
+    end
+    
+    # Sample if too many points (but keep step structure)
+    max_points = 500
+    if timeline.length > max_points
+      sample_rate = (timeline.length / max_points.to_f).ceil
+      timeline = timeline.each_with_index.select { |_, i| i % sample_rate == 0 }.map(&:first)
+    end
+    
+    timeline
+  end
 end

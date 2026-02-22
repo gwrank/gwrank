@@ -12,6 +12,10 @@ until PGPASSWORD=$DATABASE_PASSWORD psql -h "$DATABASE_HOST" -U "$DATABASE_USER"
 done
 echo "PostgreSQL is up - continuing"
 
+# Install/update gems
+echo "Installing gems..."
+bundle install
+
 # Create database if it doesn't exist
 if ! PGPASSWORD=$DATABASE_PASSWORD psql -h "$DATABASE_HOST" -U "$DATABASE_USER" -lqt | cut -d \| -f 1 | grep -qw gwrank_development; then
   echo "Creating database..."
