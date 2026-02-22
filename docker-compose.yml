@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  web:
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -b '0.0.0.0'"
+    env_file:
+      - .env
+    volumes:
+      - .:/rails:cached
+      - bundle_cache:/usr/local/bundle
+      - node_modules:/rails/node_modules
+      - rails_cache:/rails/tmp/cache
+      - rails_log:/rails/log
+      - rails_tmp:/rails/tmp
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      DATABASE_HOST: db
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+      REDIS_URL: redis://redis:6379/1
+      RAILS_ENV: development
+      BOOTSNAP_CACHE_DIR: /rails/tmp/cache/bootsnap
+    stdin_open: true
+    tty: true
+
+  css:
+    build: .
+    command: yarn watch:css
+    volumes:
+      - .:/rails:cached
+      - node_modules:/rails/node_modules
+    environment:
+      RAILS_ENV: development
+
+  js:
+    build: .
+    command: yarn build --watch
+    volumes:
+      - .:/rails:cached
+      - node_modules:/rails/node_modules
+    environment:
+      RAILS_ENV: development
+
+volumes:
+  postgres_data:
+  redis_data:
+  bundle_cache:
+  node_modules:
+  rails_cache:
+  rails_log:
+  rails_tmp:

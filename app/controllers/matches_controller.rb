@@ -8,16 +8,15 @@ class MatchesController < ApplicationController
   def show
     @match = Match.includes(
       comments: [:player],
-      teams: [:guild],
-      team_players: {
-        character: [],
-        player: [],
-        profession: [],
-        secondary_profession: [],
-        team_player_skills: [:skill],
-        team_player_stats: []
-      }
+      teams: [
+        :guild,
+        { team_players: [:character, :player, :profession, :secondary_profession, :team_player_skills] }
+      ]
     ).find(params[:id])
+    
+    # Preload all skills that might be used in stats
+    @skills_cache = preload_skills_for_match if @match.json.present?
+    
     @comment = Comment.new
     @movie = Movie.new
 
@@ -34,7 +33,7 @@ class MatchesController < ApplicationController
   def create
     @match = Match.import!(match_params)
 
-    message = "New match! #{match.title} : #{match_url(match)}"
+    message = "New match! #{@match.title} : #{match_url(@match)}"
     bot = Discordrb::Bot.new token: ENV['DISCORD_BOT_TOKEN']
     bot.channel(ENV['DISCORD_COMMAND_CHANNEL_ID']).send_message(message)
 
@@ -42,6 +41,18 @@ class MatchesController < ApplicationController
   end
 
   private
+  
+  def preload_skills_for_match
+    # Extract all skill IDs from the match JSON
+    skill_ids = []
+    @match.json.dig("agents", "by_id")&.each do |_agent_id, agent|
+      damage_by_skill = agent.dig("stats", "damage_by_skill") || {}
+      skill_ids.concat(damage_by_skill.keys.map(&:to_i))
+    end
+    
+    # Load all skills at once and return as hash
+    Skill.where(skill_id: skill_ids.uniq).index_by(&:skill_id)
+  end
 
   def match_params
     params.require(:match).permit(:json_file).merge(imported_by: current_player, imported_at: Time.zone.now)

@@ -1,0 +1,46 @@
+# Git
+.git
+.gitignore
+
+# Logs
+log/*
+tmp/*
+*.log
+
+# Dependencies
+node_modules
+vendor/bundle
+
+# Test files
+test
+spec
+
+# Documentation
+README.md
+*.md
+
+# Environment files
+.env
+.env.*
+
+# Storage
+storage/*
+
+# Compiled assets (will be built in container)
+app/assets/builds/*
+public/assets/*
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
