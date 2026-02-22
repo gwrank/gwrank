@@ -191,7 +191,6 @@ class Match < ApplicationRecord
     @agents_cache ||= {}
     @agents_cache[agent_id.to_s] ||= json.dig("agents", "by_id", agent_id.to_s)
   end
-<<<<<<< HEAD
   
   # Calculate NPC kills for a team
   def npc_kills(team_index)
