@@ -97,11 +97,25 @@
                                                     </p>
                                                     <div style="display: flex; gap: 10px;">
                                                         <button 
-                                                            data-action="click->health-chart#toggleMode"
-                                                            data-health-chart-target="toggleButton"
+                                                            data-action="click->health-chart#setModeHealth"
+                                                            data-health-chart-target="healthButton"
+                                                            class="btn btn-sm btn-primary"
+                                                            style="font-size: 12px; padding: 4px 12px;">
+                                                            Health
+                                                        </button>
+                                                        <button 
+                                                            data-action="click->health-chart#setModeMorale"
+                                                            data-health-chart-target="moraleButton"
                                                             class="btn btn-sm btn-outline-primary"
                                                             style="font-size: 12px; padding: 4px 12px;">
-                                                            Show Morale
+                                                            Morale
+                                                        </button>
+                                                        <button 
+                                                            data-action="click->health-chart#setModeTimeline"
+                                                            data-health-chart-target="timelineButton"
+                                                            class="btn btn-sm btn-outline-primary"
+                                                            style="font-size: 12px; padding: 4px 12px;">
+                                                            Timeline
                                                         </button>
                                                         <button 
                                                             data-action="click->health-chart#resetZoom"

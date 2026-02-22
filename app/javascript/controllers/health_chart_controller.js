@@ -10,10 +10,10 @@ export default class extends Controller {
     data: Object
   }
   
-  static targets = ["resetButton", "toggleButton"]
+  static targets = ["resetButton", "healthButton", "moraleButton", "timelineButton"]
 
   connect() {
-    this.currentMode = 'health' // 'health' or 'morale'
+    this.currentMode = 'health' // 'health', 'morale', or 'timeline'
     this.createChart()
   }
 
@@ -30,20 +30,62 @@ export default class extends Controller {
     }
   }
   
-  toggleMode(event) {
+  setModeHealth(event) {
     event.preventDefault()
-    this.currentMode = this.currentMode === 'health' ? 'morale' : 'health'
+    this.setMode('health')
+  }
+  
+  setModeMorale(event) {
+    event.preventDefault()
+    this.setMode('morale')
+  }
+  
+  setModeTimeline(event) {
+    event.preventDefault()
+    this.setMode('timeline')
+  }
+  
+  setMode(mode) {
+    if (this.currentMode === mode) return
     
-    // Update button text
-    if (this.hasToggleButtonTarget) {
-      this.toggleButtonTarget.textContent = this.currentMode === 'health' ? 'Show Morale' : 'Show Health'
-    }
+    this.currentMode = mode
+    
+    // Update button styles
+    this.updateButtonStyles()
     
     // Recreate chart with new mode
     if (this.chart) {
       this.chart.destroy()
     }
     this.createChart()
+  }
+  
+  updateButtonStyles() {
+    // Remove active class from all buttons
+    if (this.hasHealthButtonTarget) {
+      this.healthButtonTarget.classList.remove('btn-primary')
+      this.healthButtonTarget.classList.add('btn-outline-primary')
+    }
+    if (this.hasMoraleButtonTarget) {
+      this.moraleButtonTarget.classList.remove('btn-primary')
+      this.moraleButtonTarget.classList.add('btn-outline-primary')
+    }
+    if (this.hasTimelineButtonTarget) {
+      this.timelineButtonTarget.classList.remove('btn-primary')
+      this.timelineButtonTarget.classList.add('btn-outline-primary')
+    }
+    
+    // Add active class to current mode button
+    const activeButton = {
+      'health': this.healthButtonTarget,
+      'morale': this.moraleButtonTarget,
+      'timeline': this.timelineButtonTarget
+    }[this.currentMode]
+    
+    if (activeButton) {
+      activeButton.classList.remove('btn-outline-primary')
+      activeButton.classList.add('btn-primary')
+    }
   }
 
   createChart() {
@@ -98,7 +140,7 @@ export default class extends Controller {
         tension: 0.4,
         order: 1
       })
-    } else {
+    } else if (this.currentMode === 'morale') {
       // Morale datasets
       if (healthData.morale_data) {
         datasets.push({
@@ -132,18 +174,51 @@ export default class extends Controller {
         })
       }
     }
+    // For timeline mode, we don't add health or morale lines
     
-    // Add death events (always shown)
+    // Helper function to get Y position based on mode
+    const getYPosition = (eventType) => {
+      if (this.currentMode === 'timeline') {
+        // Timeline mode - stack events at different levels
+        const positions = {
+          'death': 10,
+          'resurrection': 20,
+          'morale_boost': 30,
+          'npc_death': 40
+        }
+        return positions[eventType] || 0
+      } else if (this.currentMode === 'health') {
+        // Health mode - position near bottom/top
+        const positions = {
+          'death': 5,
+          'resurrection': 10,
+          'morale_boost': 15,
+          'npc_death': 20
+        }
+        return positions[eventType] || 5
+      } else {
+        // Morale mode - position in negative range
+        const positions = {
+          'death': -20,
+          'resurrection': -15,
+          'morale_boost': -10,
+          'npc_death': -5
+        }
+        return positions[eventType] || -20
+      }
+    }
+    
+    // Add death events (player deaths)
     if (healthData.death_events && healthData.death_events.length > 0) {
-      const team1Deaths = healthData.death_events.filter(e => e.party_id === 1)
-      const team2Deaths = healthData.death_events.filter(e => e.party_id === 2)
+      const team1Deaths = healthData.death_events.filter(e => e.party_id === 1 && !e.is_npc)
+      const team2Deaths = healthData.death_events.filter(e => e.party_id === 2 && !e.is_npc)
       
       if (team1Deaths.length > 0) {
         datasets.push({
           label: `Deaths (${healthData.team1.tag || 'Team 1'})`,
           data: team1Deaths.map(e => ({ 
             x: e.timestamp_ms, 
-            y: this.currentMode === 'health' ? 5 : -20, 
+            y: getYPosition('death'), 
             name: e.agent_name, 
             isNpc: e.is_npc,
             isDeathPact: e.is_death_pact,
@@ -166,7 +241,7 @@ export default class extends Controller {
           label: `Deaths (${healthData.team2.tag || 'Team 2'})`,
           data: team2Deaths.map(e => ({ 
             x: e.timestamp_ms, 
-            y: this.currentMode === 'health' ? 5 : -20, 
+            y: getYPosition('death'), 
             name: e.agent_name, 
             isNpc: e.is_npc,
             isDeathPact: e.is_death_pact,
@@ -185,6 +260,61 @@ export default class extends Controller {
       }
     }
     
+    // Add NPC death events (only in timeline mode)
+    if (this.currentMode === 'timeline' && healthData.npc_death_events && healthData.npc_death_events.length > 0) {
+      // Split NPC deaths by team
+      const team1NpcDeaths = healthData.npc_death_events.filter(e => e.party_id === 1)
+      const team2NpcDeaths = healthData.npc_death_events.filter(e => e.party_id === 2)
+      
+      if (team1NpcDeaths.length > 0) {
+        datasets.push({
+          label: `NPC Deaths (${healthData.team1.tag || 'Team 1'})`,
+          data: team1NpcDeaths.map(e => ({ 
+            x: e.timestamp_ms, 
+            y: getYPosition('npc_death'),
+            name: e.agent_name,
+            npcType: e.npc_type,
+            partyId: e.party_id,
+            guildTag: e.guild_tag,
+            eventType: 'npc_death'
+          })),
+          type: 'scatter',
+          backgroundColor: team1Color,
+          borderColor: '#fff',
+          borderWidth: 2,
+          pointRadius: 8,
+          pointHoverRadius: 12,
+          pointStyle: 'crossRot',
+          order: 0,
+          hitRadius: 15
+        })
+      }
+      
+      if (team2NpcDeaths.length > 0) {
+        datasets.push({
+          label: `NPC Deaths (${healthData.team2.tag || 'Team 2'})`,
+          data: team2NpcDeaths.map(e => ({ 
+            x: e.timestamp_ms, 
+            y: getYPosition('npc_death'),
+            name: e.agent_name,
+            npcType: e.npc_type,
+            partyId: e.party_id,
+            guildTag: e.guild_tag,
+            eventType: 'npc_death'
+          })),
+          type: 'scatter',
+          backgroundColor: team2Color,
+          borderColor: '#fff',
+          borderWidth: 2,
+          pointRadius: 8,
+          pointHoverRadius: 12,
+          pointStyle: 'crossRot',
+          order: 0,
+          hitRadius: 15
+        })
+      }
+    }
+    
     // Add resurrection events
     if (healthData.resurrection_events && healthData.resurrection_events.length > 0) {
       const team1Res = healthData.resurrection_events.filter(e => e.party_id === 1)
@@ -195,7 +325,7 @@ export default class extends Controller {
           label: `Resurrections (${healthData.team1.tag || 'Team 1'})`,
           data: team1Res.map(e => ({ 
             x: e.timestamp_ms, 
-            y: this.currentMode === 'health' ? 10 : -15,
+            y: getYPosition('resurrection'),
             name: e.agent_name,
             resurrector: e.resurrector_name,
             skillId: e.resurrection_skill_id,
@@ -220,7 +350,7 @@ export default class extends Controller {
           label: `Resurrections (${healthData.team2.tag || 'Team 2'})`,
           data: team2Res.map(e => ({ 
             x: e.timestamp_ms, 
-            y: this.currentMode === 'health' ? 10 : -15,
+            y: getYPosition('resurrection'),
             name: e.agent_name,
             resurrector: e.resurrector_name,
             skillId: e.resurrection_skill_id,
@@ -251,7 +381,8 @@ export default class extends Controller {
           label: `Morale Boosts (${healthData.team1.tag || 'Team 1'})`,
           data: team1Boosts.map(e => ({ 
             x: e.timestamp_ms, 
-            y: this.currentMode === 'health' ? 15 : -10,
+            y: getYPosition('morale_boost'),
+            guildTag: e.guild_tag,
             eventType: 'morale_boost'
           })),
           type: 'scatter',
@@ -271,7 +402,8 @@ export default class extends Controller {
           label: `Morale Boosts (${healthData.team2.tag || 'Team 2'})`,
           data: team2Boosts.map(e => ({ 
             x: e.timestamp_ms, 
-            y: this.currentMode === 'health' ? 15 : -10,
+            y: getYPosition('morale_boost'),
+            guildTag: e.guild_tag,
             eventType: 'morale_boost'
           })),
           type: 'scatter',
@@ -307,7 +439,8 @@ export default class extends Controller {
             color: 'rgba(255, 255, 255, 0.1)'
           }
         }
-      : {
+      : this.currentMode === 'morale'
+      ? {
           title: {
             display: true,
             text: 'Death Penalty %',
@@ -318,6 +451,31 @@ export default class extends Controller {
             color: '#ccc',
             callback: function(value) {
               return value + '%'
+            }
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
+          }
+        }
+      : {
+          min: 0,
+          max: 50,
+          title: {
+            display: true,
+            text: 'Event Type',
+            color: '#fff',
+            font: { size: 14 }
+          },
+          ticks: {
+            color: '#ccc',
+            callback: function(value) {
+              const labels = {
+                10: 'Deaths',
+                20: 'Resurrections',
+                30: 'Morale Boosts',
+                40: 'NPC Deaths'
+              }
+              return labels[value] || ''
             }
           },
           grid: {
@@ -339,7 +497,11 @@ export default class extends Controller {
         plugins: {
           title: {
             display: true,
-            text: this.currentMode === 'health' ? 'Team Health Over Time' : 'Team Morale (Death Penalty) Over Time',
+            text: this.currentMode === 'health' 
+              ? 'Team Health Over Time' 
+              : this.currentMode === 'morale'
+              ? 'Team Morale (Death Penalty) Over Time'
+              : 'Match Event Timeline',
             color: '#fff',
             font: {
               size: 18,
@@ -391,6 +553,12 @@ export default class extends Controller {
                   return deathMessage
                 }
                 
+                if (dataPoint.eventType === 'npc_death') {
+                  const npcName = dataPoint.name
+                  const guildTag = dataPoint.guildTag ? ` ${dataPoint.guildTag}` : ''
+                  return `⚔️ NPC Killed: ${npcName}${guildTag} (${dataPoint.npcType})`
+                }
+                
                 if (dataPoint.eventType === 'resurrection') {
                   if (dataPoint.isBaseRes) {
                     return `🏠 Base Res: ${dataPoint.name}`
@@ -401,7 +569,8 @@ export default class extends Controller {
                 }
                 
                 if (dataPoint.eventType === 'morale_boost') {
-                  return `🏁 Morale Boost`
+                  const guildTag = dataPoint.guildTag ? `${dataPoint.guildTag} ` : ''
+                  return `🏁 ${guildTag}Morale Boost`
                 }
                 
                 // Regular health/morale percentage
@@ -413,7 +582,11 @@ export default class extends Controller {
           zoom: {
             limits: {
               x: {min: 'original', max: 'original'},
-              y: this.currentMode === 'health' ? {min: 0, max: 100} : {min: 'original', max: 'original'}
+              y: this.currentMode === 'health' 
+                ? {min: 0, max: 100} 
+                : this.currentMode === 'timeline'
+                ? {min: 0, max: 50}
+                : {min: 'original', max: 'original'}
             },
             zoom: {
               wheel: {

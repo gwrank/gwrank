@@ -252,7 +252,8 @@ class Match < ApplicationRecord
     # Extract all events
     death_events = extract_death_events
     resurrection_events = extract_resurrection_events
-    morale_boosts = extract_morale_boost_events
+    morale_boosts = extract_morale_boost_events(team1_tag, team2_tag)
+    npc_death_events = extract_npc_death_events(team1_tag, team2_tag)
     
     # Get morale data
     morale_data = party_morale_data
@@ -281,6 +282,7 @@ class Match < ApplicationRecord
       death_events: death_events,
       resurrection_events: resurrection_events,
       morale_boosts: morale_boosts,
+      npc_death_events: npc_death_events,
       morale_data: morale_data
     }
   end
@@ -374,7 +376,7 @@ class Match < ApplicationRecord
   end
   
   # Extract morale boost events
-  def extract_morale_boost_events
+  def extract_morale_boost_events(team1_tag = nil, team2_tag = nil)
     return [] unless json.present?
     
     events = []
@@ -383,10 +385,67 @@ class Match < ApplicationRecord
     parties.each do |party_id, party|
       next unless party["morale_boosts"].present?
       
+      guild_tag = party_id.to_i == 1 ? team1_tag : team2_tag
+      
       party["morale_boosts"].each do |boost_event|
         events << {
           timestamp_ms: boost_event["timestamp_ms"],
-          party_id: party_id.to_i
+          party_id: party_id.to_i,
+          guild_tag: guild_tag
+        }
+      end
+    end
+    
+    events.sort_by { |e| e[:timestamp_ms] }
+  end
+  
+  # Extract NPC death events (filtered to important NPCs only)
+  def extract_npc_death_events(team1_tag = nil, team2_tag = nil)
+    return [] unless json.present?
+    
+    events = []
+    agents = json.dig("agents", "by_id") || {}
+    
+    # List of important NPC types we want to track
+    important_npcs = ["Archer", "Guild Lord", "Footman", "Knight", "Bodyguard"]
+    
+    agents.each do |agent_id, agent|
+      next unless agent["death_events"].present?
+      next unless agent["guild_id"] == 0 # NPCs have guild_id 0
+      
+      agent_name = agent["sanitized_name"] || agent["display_name"] || "Unknown"
+      
+      # Skip if not in important NPCs list
+      next unless important_npcs.any? { |npc_type| agent_name.include?(npc_type) }
+      
+      agent["death_events"].each do |death_event|
+        killer_agent_id = death_event["killer_agent_id"]
+        
+        # Determine which team the NPC belongs to by looking at who killed it
+        # If killed by team 1, NPC belongs to team 2, and vice versa
+        npc_party_id = nil
+        npc_tag = nil
+        if killer_agent_id && killer_agent_id > 0
+          killer = agents[killer_agent_id.to_s]
+          if killer && killer["party_id"]
+            killer_party = killer["party_id"]
+            # NPC belongs to opposite team of killer
+            npc_party_id = killer_party == 1 ? 2 : 1
+            npc_tag = npc_party_id == 1 ? team1_tag : team2_tag
+          end
+        end
+        
+        # Skip if we couldn't determine team ownership
+        next unless npc_party_id
+        
+        events << {
+          timestamp_ms: death_event["timestamp_ms"],
+          agent_name: agent_name,
+          agent_id: agent_id,
+          party_id: npc_party_id,
+          guild_tag: npc_tag,
+          is_npc: true,
+          npc_type: important_npcs.find { |npc_type| agent_name.include?(npc_type) }
         }
       end
     end
