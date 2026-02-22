@@ -48,24 +48,26 @@ class CommandBotJob < ApplicationJob
         player = player.delete_prefix('<@!').delete_suffix('>')
         player = Player.find_by(uid: player)
         if player.present?
-          message = "<@#{event.user.id}>, his in-game name is **#{player.igname}**"
+          message = "<@#{event.user.id}> (**#{player.igname}**)"
         else
-          message = "<@#{event.user.id}>, his in-game name is not found."
+          message = "<@#{event.user.id}> (in-game name not found)"
         end
       else
-        message = "<@#{event.user.id}>, this is an invalid player."
+        message = "<@#{event.user.id}> (invalid player)"
       end
+
       event.respond message
     end
 
-    bot.command :register, description: 'to register yourself in the current queue and your in-game name' do |event, *igname|
+    bot.command :register, description: 'to register your in-game name' do |event, *igname|
       message = ''
-      current_registrations = Registration.current_registrations
+
       player = Player.where(provider: 'discord', uid: event.user.id).first_or_create do |player|
         player.email = "#{event.user.id}@gwrank.com"
         player.password = Devise.friendly_token[0, 20]
         player.username = event.user.name
       end
+
       if player.igname.present?
         if igname.count > 1 && player.igname != igname
           igname = igname.join(' ')
@@ -80,17 +82,10 @@ class CommandBotJob < ApplicationJob
           player.update(igname: igname)
           message << "\nYour known in-game name is **#{player.igname}**. You successfully updated it."
         else
-          message << "\nYour in-game name is unknown. To be guested easily, please type *!register* **Your In Game Name**"
+          message << "\nYour in-game name is unknown. To be easily guested, please type *!register* **Your In Game Name**"
         end
       end
-      if player.has_current_registration?
-        message << "\n<@#{event.user.id}>, you are already ##{current_registrations.count} in the current queue."
-      else
-        player.registrations.create(registered_at: DateTime.now)
-        message << "\n<@#{event.user.id}>, you are ##{current_registrations.count} in the current queue for the next 8 hours."
-        message << "\nIf you're out, please type *!unregister*"
 
-      end
       event.respond message
     end
 
@@ -122,21 +117,6 @@ class CommandBotJob < ApplicationJob
         end
       else
         message = "<@#{event.user.id}>, this is an invalid player."
-      end
-      event.respond message
-    end
-
-    bot.command :unregister, description: 'to unregister yourself from the current queue' do |event|
-      player = Player.find_by(uid: event.user.id)
-      if player
-        if player.has_current_registration?
-          player.current_registration.update(unregistered_at: DateTime.now)
-          message = "<@#{event.user.id}>, you are not anymore in the current queue."
-        else
-          message = "<@#{event.user.id}>, you were not in the current queue."
-        end
-      else
-        message = "<@#{event.user.id}>, you need to !register yourself first."
       end
       event.respond message
     end
@@ -236,56 +216,31 @@ class CommandBotJob < ApplicationJob
     end
 
     bot.command :newcaptains, description: 'to auto-designate new captains' do |event|
-      current_registrations = Registration.current_registrations
-      if current_registrations.count < 16
+      if Registration.current_registrations.count >= 16
+        auto_designate_captains(event)
+      else
         players_required = 16 - current_registrations.count
-        message = "<@#{event.user.id}>, we need #{players_required} more players to designate captains."
-      elsif current_registrations.count >= 16
-        captain_a = Registration.current_registrations.order(registered_at: :asc).first(16).sample.player
-        captain_b = Registration.current_registrations.where.not(id: captain_a.current_registration.id).order(registered_at: :asc).first(15).sample.player
-        scrim = Scrim.create!(
-          captain_a: captain_a,
-          captain_b: captain_b,
-        )
-        message = "<@#{event.user.id}>, the new captains are: <@#{scrim.captain_a.uid}> and <@#{scrim.captain_b.uid}>."
-        message << "\nTo see the players list, you can type *!players* or go on https://gwrank.com/scrims"
-        message << "\nTo roll 100, captains can type *!roll*"
-        message << "\nTo automatically make teams with these new captains, you can type *!newteams*"
+        event.respond "<@#{event.user.id}>, we need #{players_required} more players to designate captains."
       end
-      event.respond message
-    end
-
-    bot.command :forcenewcaptains, description: 'to auto-designate new captains even if you have less than 16 players' do |event|
-      captain_a = Registration.current_registrations.order(registered_at: :asc).first(16).sample.player
-      captain_b = Registration.current_registrations.where.not(id: captain_a.current_registration.id).order(registered_at: :asc).first(15).sample.player
-      scrim = Scrim.create!(
-        captain_a: captain_a,
-        captain_b: captain_b,
-      )
-      message = "<@#{event.user.id}>, the new captains are: <@#{scrim.captain_a.uid}> and <@#{scrim.captain_b.uid}>."
-      message << "\nTo see the players list, you can type *!players* or go on https://gwrank.com/scrims"
-      message << "\nTo roll 100, captains can type *!roll*"
-      event.respond message
     end
 
     bot.command :roll, description: 'to roll 100' do |event|
-      message = "<@#{event.user.id}>, you rolled : "
+      message = "<@#{event.user.id}>, you rolled: "
       message << rand(0..100).to_s
       event.respond message
     end
 
     bot.command :players, description: 'to see players in the current queue' do |event|
-      message = "<@#{event.user.id}>, if the player list is too long to be posted there, you can see it on https://gwrank.com/scrims"
-      event.respond message
-
-      message = "<@#{event.user.id}>, the current players ordered by registration time are :"
+      message = "<@#{event.user.id}>, the current players ordered by registration time are:"
       Registration.current_registrations.order(registered_at: :asc).each_with_index do |registration, index|
-        message << "\n##{index + 1} <@#{registration.player.uid}>"
-        message << ", in-game name **#{registration.player.igname}**" if registration.player.igname.present?
-        message << ", #{registration.player.professions_text}" if registration.player.professions_text.present?
-        if index.eql?(15)
-          event.respond message
-          message = ''
+        if registration.player.igname.present?
+          if registration.player.professions_text.present?
+            message << "\n##{index + 1} <@#{registration.player.uid}> (#{registration.player.igname})"
+          else
+            message << "\n##{index + 1} <@#{registration.player.uid}> (#{registration.player.igname}) [#{registration.player.professions_text}}"
+          end
+        else
+          message << "\n##{index + 1} <@#{registration.player.uid}>"
         end
       end
       event.respond message
@@ -492,9 +447,9 @@ class CommandBotJob < ApplicationJob
     Registration.current_registrations.order(registered_at: :asc).each_with_index do |registration, index|
       player = []
       player << "\n##{index + 1} <@#{registration.player.uid}>"
-      player << "in-game name **#{registration.player.igname}**" if registration.player.igname.present?
-      player << "#{registration.player.professions_text}" if registration.player.professions_text.present?
-      players << player.join(", ")
+      player << "(**#{registration.player.igname}**)" if registration.player.igname.present?
+      player << "[#{registration.player.professions_text}]" if registration.player.professions_text.present?
+      players << player.join(" ")
     end
     "### Scrim Registration Panel\nCurrent registered users:\n#{players.join("\n")}"
   end
