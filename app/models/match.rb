@@ -94,18 +94,57 @@ class Match < ApplicationRecord
   def self.import!(match_params)
     match = Match.new(match_params)
     match.json = JSON.parse(match_params[:json_file].read)
+    
+    # Extract match_date from JSON and set as played_at
+    match_date_str = match.json.dig('match_date')
+    if match_date_str.present?
+      match.played_at = DateTime.parse(match_date_str) rescue match.imported_at
+    else
+      match.played_at = match.imported_at
+    end
+    
     match.save!
 
-    date = match.imported_at.to_date
+    # Use match_date for tournament date if available, otherwise fall back to imported_at
+    date = match.played_at.to_date
     year = date.year
     month = date.month
+
+    # Extract match_type from JSON to determine tournament type
+    match_type_str = match.json.dig('match_type')
+    tournament_type = "at" # default to automated tournament
+    
+    if match_type_str.present?
+      # Convert match_type to tournament_type
+      # MAT = Monthly Automated Tournament, AT = Automated Tournament
+      tournament_type = match_type_str.downcase.include?("mat") ? "mat" : "at"
+    end
 
     match.tournament = Tournament.where(
       year: year,
       month: month,
       date: date,
-      tournament_type: "at"
+      tournament_type: tournament_type
     ).first_or_create!
+
+    # Set round from mat_round if it's MAT
+    if tournament_type == "mat"
+      mat_round_value = match.json.dig('mat_round')
+      if mat_round_value.present?
+        case mat_round_value.to_s.downcase
+        when /playoff/
+          match.round = 1
+        when /quarter/
+          match.round = 2
+        when /semi/
+          match.round = 3
+        when /final/
+          match.round = 4
+        else
+          match.round = mat_round_value.to_i if mat_round_value.to_i > 0
+        end
+      end
+    end
 
     match.json.dig("parties", "by_id").each do |_id, party|
       guild_name = party.dig("name") # e.g.: "Le Poulpe Divin"
