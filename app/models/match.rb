@@ -10,6 +10,7 @@
 #  number_on_round   :integer
 #  played_at         :datetime
 #  round             :integer
+#  slug              :string
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
 #  imported_by_id    :bigint
@@ -41,6 +42,17 @@ class Match < ApplicationRecord
   has_many :movies, as: :movieable
   has_many :teams, dependent: :destroy
   has_many :team_players, through: :teams
+
+  extend FriendlyId
+  friendly_id :slug_candidates, use: :slugged
+
+  def slug_candidates
+    opponents = teams.includes(:guild).map do |team|
+      team.guild.slug
+    end
+    opponents_slug = opponents.join('-vs-')
+    tournament.present? ? [tournament.slug, opponents_slug].join('-') : opponents_slug
+  end
 
   def title
     title = []
