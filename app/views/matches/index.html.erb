@@ -33,7 +33,12 @@
                                         </div>
                                         <div class="cyberpress-match-participants">
                                             <div class="cyberpress-match-participant">
-                                                <h3 class="cyberpress-match-participant-title"><%= match.teams.first.guild.name_with_tag %></h3>
+                                                <h3 class="cyberpress-match-participant-title">
+                                                    <% if match.teams.first.rank.present? %>
+                                                        <span class="guild-rank">#<%= match.teams.first.rank %></span>
+                                                    <% end %>
+                                                    <%= match.teams.first.guild.name_with_tag %>
+                                                </h3>
                                                 <div class="cyberpress-match-professions">
                                                     <% match.teams.first.team_players.order(:position).each do |team_player| %>
                                                         <%= team_player.profession.html_image.html_safe %>
@@ -44,7 +49,12 @@
                                                 <span>VS</span>
                                             </div>
                                             <div class="cyberpress-match-participant cyberpress-match-participant-right">
-                                                <h3 class="cyberpress-match-participant-title"><%= match.teams.second.guild.name_with_tag %></h3>
+                                                <h3 class="cyberpress-match-participant-title">
+                                                    <% if match.teams.second.rank.present? %>
+                                                        <span class="guild-rank">#<%= match.teams.second.rank %></span>
+                                                    <% end %>
+                                                    <%= match.teams.second.guild.name_with_tag %>
+                                                </h3>
                                                 <div class="cyberpress-match-professions">
                                                     <% match.teams.second.team_players.order(:position).each do |team_player| %>
                                                         <%= team_player.profession.html_image.html_safe %>

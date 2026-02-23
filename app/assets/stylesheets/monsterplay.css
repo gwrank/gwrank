@@ -13925,3 +13925,10 @@ body.compensate-for-scrollbar {
         order: 3;
     }
 }
+
+/* Guild rank styling */
+.guild-rank {
+    color: #d3b61c;
+    font-weight: 700;
+    margin-right: 4px;
+}
