@@ -31,15 +31,23 @@ class Tournament < ApplicationRecord
   friendly_id :slug_candidates, use: :slugged
 
   def slug_candidates
-    [ "#{year}-#{month}" ]
+    case tournament_type
+    when 'at'
+      ["#{date}-at"]
+    when 'mat'
+      ["#{year}-#{month}-mat"]
+    end
   end
 
   def title
-    "#{year}-#{month} Tournament Series Championship GvG Results"
-  end
-
-  def year_and_month
-    "#{year}-#{month}"
+    case tournament_type
+    when 'at'
+      "#{date} AT"
+    when 'mat'
+      "#{year}/#{month} mAT"
+    else
+      date
+    end
   end
 
   def winner_guild
