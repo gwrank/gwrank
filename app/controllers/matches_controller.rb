@@ -46,8 +46,17 @@ class MatchesController < ApplicationController
     # Extract all skill IDs from the match JSON
     skill_ids = []
     @match.json.dig("agents", "by_id")&.each do |_agent_id, agent|
+      # Get skills from damage_by_skill (damage-dealing skills)
       damage_by_skill = agent.dig("stats", "damage_by_skill") || {}
       skill_ids.concat(damage_by_skill.keys.map(&:to_i))
+      
+      # Get skills from skills_used (ALL skills cast, including heals/prots)
+      skills_used = agent.dig("stats", "skills_used") || {}
+      skill_ids.concat(skills_used.keys.map(&:to_i))
+      
+      # Get skills from skill_ids_used as backup
+      skill_ids_used = agent.dig("stats", "skill_ids_used") || []
+      skill_ids.concat(skill_ids_used)
     end
     
     # Load all skills at once and return as hash

@@ -261,7 +261,8 @@ namespace :tournaments do
                 ).first_or_create!
 
                 agent['stats']['skill_ids_used'].each do |skill_id|
-                  skill = Skill.where(skill_id: skill_id).first_or_create!
+                  skill = Skill.find_by(skill_id: skill_id)
+                  next unless skill
 
                   team_player_skill = TeamPlayerSkill.where(
                     team_player: team_player,
@@ -474,10 +475,8 @@ namespace :tournaments do
           )
 
           template_reader.skills.each do |skill_id|
-            skill = Skill.where(skill_id: skill_id).first_or_create!(
-              name: 'No Skill',
-              template_skill_id: skill_id
-            )
+            skill = Skill.find_by(skill_id: skill_id)
+            next unless skill
 
             TeamPlayerSkill.create!(
               team_player: team_player,
