@@ -45,6 +45,9 @@ class Match < ApplicationRecord
 
   extend FriendlyId
   friendly_id :slug_candidates, use: :slugged
+  def should_generate_new_friendly_id?
+    slug.blank? || name_changed?
+  end
 
   def slug_candidates
     opponents = teams.includes(:guild).map do |team|

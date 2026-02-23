@@ -68,6 +68,9 @@ class Player < ApplicationRecord
 
   extend FriendlyId
   friendly_id :username, use: :slugged
+  def should_generate_new_friendly_id?
+    slug.blank? || username_changed?
+  end
 
   devise :database_authenticatable, :omniauthable, :rememberable, :lockable
 
