@@ -12,7 +12,7 @@ class MatchesController < ApplicationController
         :guild,
         { team_players: [:character, :player, :profession, :secondary_profession, :team_player_skills] }
       ]
-    ).find(params[:id])
+    ).friendly.find(params[:id])
     
     # Preload all skills that might be used in stats
     @skills_cache = preload_skills_for_match if @match.json.present?
