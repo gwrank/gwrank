@@ -28,7 +28,7 @@
                                         <div class="cyberpress-match-header">
                                             <div class="cyberpress-match-meta">
                                                 <span class="cyberpress-match-round"><%= match.round_text %></span>
-                                                <span class="cyberpress-match-date"><%= match.played_at %></span>
+                                                <span class="cyberpress-match-date"><%= match.played_at&.to_date %></span>
                                             </div>
                                         </div>
                                         <div class="cyberpress-match-participants">
