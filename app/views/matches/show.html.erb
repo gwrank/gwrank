@@ -52,7 +52,12 @@
                                 <div class="cyberpress-match-participants">
                                     <div class="cyberpress-match-participant col-lg-5">
                                         <h2 class="cyberpress-match-participant-title h4">
-                                            <%= link_to @match.teams.first.guild.name_with_tag, match_path(@match) %>
+                                            <%= link_to match_path(@match) do %>
+                                                <% if @match.teams.first.rank.present? %>
+                                                    <span class="guild-rank">#<%= @match.teams.first.rank %></span>
+                                                <% end %>
+                                                <%= @match.teams.first.guild.name_with_tag %>
+                                            <% end %>
                                             <% if @match.winner_team == @match.teams.first %>
                                                 <span style="color: #ffc107; font-size: 1.2rem;">🏆</span>
                                             <% end %>
@@ -73,7 +78,12 @@
                                             <% if @match.winner_team == @match.teams.second %>
                                                 <span style="color: #ffc107; font-size: 1.2rem;">🏆</span>
                                             <% end %>
-                                            <%= link_to @match.teams.second.guild.name_with_tag, match_path(@match) %>
+                                            <%= link_to match_path(@match) do %>
+                                                <% if @match.teams.second.rank.present? %>
+                                                    <span class="guild-rank">#<%= @match.teams.second.rank %></span>
+                                                <% end %>
+                                                <%= @match.teams.second.guild.name_with_tag %>
+                                            <% end %>
                                         </h2>
                                         <ul class="cyberpress-match-info">
                                             <li><%= link_to 'Guild details', guild_path(@match.teams.second.guild) %></li>
