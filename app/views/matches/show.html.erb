@@ -24,8 +24,25 @@
                             </ol>
                         </nav>
                         <h2><%= @match.title %></h2>
-                        <% if @match.winner_team.present? %>
-                            <h3>Winner: <%= @match.winner_team.guild&.name_with_tag %></h3>
+                        <% if @match.map_name.present? %>
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="flex-grow-1 text-center">
+                                    <h4 class="mb-2"><%= @match.map_name %></h4>
+                                    <% if @match.match_type.present? || @match.mat_round.present? %>
+                                        <p class="mb-0">
+                                            <% if @match.match_type.present? %>
+                                                <%= @match.match_type %>
+                                            <% end %>
+                                            <% if @match.match_type&.include?("MAT") && @match.mat_round.present? %>
+                                                - <%= @match.mat_round %>
+                                            <% end %>
+                                        </p>
+                                    <% end %>
+                                </div>
+                                <% if @match.map_id.present? && File.exist?(Rails.root.join("app/assets/images/guildhalls/#{@match.map_id}.jpg")) %>
+                                    <%= image_tag "guildhalls/#{@match.map_id}.jpg", alt: @match.map_name, class: 'img-fluid', style: 'max-width: 400px; border-radius: 8px;' %>
+                                <% end %>
+                            </div>
                         <% end %>
                         <% if @match.memorial_match_id.present? %>
                             <h4>Imported <%= link_to 'from Memorial', "https://memorial.redeemer.biz/memorial/match/#{@match.memorial_match_id}/", target: '_blank' %></h4>
@@ -36,6 +53,9 @@
                                     <div class="cyberpress-match-participant col-lg-5">
                                         <h2 class="cyberpress-match-participant-title h4">
                                             <%= link_to @match.teams.first.guild.name_with_tag, match_path(@match) %>
+                                            <% if @match.winner_team == @match.teams.first %>
+                                                <span style="color: #ffc107; font-size: 1.2rem;">🏆</span>
+                                            <% end %>
                                         </h2>
                                         <ul class="cyberpress-match-info">
                                             <li><%= link_to 'Guild details', guild_path(@match.teams.first.guild) %></li>
@@ -50,6 +70,9 @@
                                     </div>
                                     <div class="cyberpress-match-participant col-lg-5">
                                         <h2 class="cyberpress-match-participant-title h4 text-right">
+                                            <% if @match.winner_team == @match.teams.second %>
+                                                <span style="color: #ffc107; font-size: 1.2rem;">🏆</span>
+                                            <% end %>
                                             <%= link_to @match.teams.second.guild.name_with_tag, match_path(@match) %>
                                         </h2>
                                         <ul class="cyberpress-match-info">
@@ -99,7 +122,10 @@
                                             <div style="background: rgba(0, 0, 0, 0.3); padding: 30px; border-radius: 8px; min-height: 500px; width: 100%;" 
                                                  data-controller="health-chart" 
                                                  data-health-chart-data-value='<%= health_data.to_json %>'
-                                                 data-health-chart-initial-mode-value="<%= initial_mode %>">
+                                                 data-health-chart-initial-mode-value="<%= initial_mode %>"
+                                                 data-health-chart-shrine-icon-value="<%= image_path('commons/shrine.jpg') %>"
+                                                 data-health-chart-ressig-icon-value="<%= image_path('commons/ressig.jpg') %>"
+                                                 data-health-chart-morale-icon-value="<%= image_path('commons/Morale_Boost.jpg') %>">
                                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                                                     <p style="color: #ccc; margin: 0; font-size: 14px;">
                                                         💡 Use mouse wheel to zoom • Click & drag to pan
