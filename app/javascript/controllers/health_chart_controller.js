@@ -8,20 +8,73 @@ Chart.register(LineController, LineElement, PointElement, LinearScale, Title, To
 export default class extends Controller {
   static values = {
     data: Object,
-    initialMode: String
+    initialMode: String,
+    shrineIcon: String,
+    ressigIcon: String,
+    moraleIcon: String
   }
   
   static targets = ["resetButton", "healthButton", "moraleButton", "timelineButton"]
 
   connect() {
     this.currentMode = this.hasInitialModeValue ? this.initialModeValue : 'health'
-    this.createChart()
+    // Create icon images for use in charts
+    this.flagIcon = this.createEmojiIcon('🚩', 20)
+    this.towerIcon = this.createEmojiIcon('🗼', 20)
+    this.skullIcon = this.createEmojiIcon('💀', 20)
+    
+    // Load external images asynchronously
+    this.loadAllIcons().then(() => {
+      this.createChart()
+    })
   }
-
+  
+  async loadAllIcons() {
+    this.resurrectionShrineIcon = await this.loadImageIconAsync(this.shrineIconValue, 20)
+    this.resurrectionSignetIcon = await this.loadImageIconAsync(this.ressigIconValue, 20)
+    this.moraleBoostIcon = await this.loadImageIconAsync(this.moraleIconValue, 20)
+  }
+  
   disconnect() {
     if (this.chart) {
       this.chart.destroy()
     }
+  }
+  
+  // Helper to load an external image as an icon (async)
+  loadImageIconAsync(url, size) {
+    return new Promise((resolve) => {
+      const img = new Image(size, size)
+      img.onload = () => resolve(img)
+      img.onerror = () => {
+        console.error(`Failed to load icon: ${url}`)
+        // Return a fallback empty image
+        const fallback = new Image(size, size)
+        resolve(fallback)
+      }
+      img.src = url
+    })
+  }
+  
+  // Helper to create an image from an emoji
+  createEmojiIcon(emoji, size) {
+    const canvas = document.createElement('canvas')
+    canvas.width = size
+    canvas.height = size
+    const ctx = canvas.getContext('2d')
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, size, size)
+    
+    // Use a font stack that supports emoji and slightly smaller to ensure it fits
+    ctx.font = `${Math.floor(size * 0.9)}px "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", sans-serif`
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(emoji, size / 2, size / 2)
+    
+    const img = new Image()
+    img.src = canvas.toDataURL()
+    return img
   }
   
   resetZoom(event) {
@@ -124,7 +177,7 @@ export default class extends Controller {
           pointHoverBorderColor: '#fff',
           pointHoverBorderWidth: 2,
           fill: false,
-          tension: 0.4,
+          tension: 0,
           order: 1
         })
       }
@@ -141,7 +194,7 @@ export default class extends Controller {
           pointHoverBorderColor: '#fff',
           pointHoverBorderWidth: 2,
           fill: false,
-          tension: 0.4,
+          tension: 0,
           order: 1
         })
       }
@@ -160,7 +213,7 @@ export default class extends Controller {
             pointHoverBorderColor: '#fff',
             pointHoverBorderWidth: 2,
             fill: false,
-            tension: 0.4,
+            stepped: true,
             order: 1
           })
         }
@@ -177,7 +230,7 @@ export default class extends Controller {
             pointHoverBorderColor: '#fff',
             pointHoverBorderWidth: 2,
             fill: false,
-            tension: 0.4,
+            stepped: true,
             order: 1
           })
         }
@@ -193,7 +246,9 @@ export default class extends Controller {
           'death': 10,
           'resurrection': 20,
           'morale_boost': 30,
-          'npc_death': 40
+          'npc_death': 40,
+          'tower_capture': 50,
+          'shrine_capture': 60
         }
         return positions[eventType] || 0
       } else if (this.currentMode === 'health') {
@@ -202,7 +257,9 @@ export default class extends Controller {
           'death': 5,
           'resurrection': 10,
           'morale_boost': 15,
-          'npc_death': 20
+          'npc_death': 20,
+          'tower_capture': 25,
+          'shrine_capture': 30
         }
         return positions[eventType] || 5
       } else {
@@ -211,7 +268,9 @@ export default class extends Controller {
           'death': -20,
           'resurrection': -15,
           'morale_boost': -10,
-          'npc_death': -5
+          'npc_death': -5,
+          'tower_capture': -25,
+          'shrine_capture': -30
         }
         return positions[eventType] || -20
       }
@@ -239,7 +298,7 @@ export default class extends Controller {
           borderWidth: 2,
           pointRadius: 10,
           pointHoverRadius: 14,
-          pointStyle: 'rectRot',
+          pointStyle: this.skullIcon,
           order: 0,
           hitRadius: 15
         })
@@ -262,7 +321,7 @@ export default class extends Controller {
           borderWidth: 2,
           pointRadius: 10,
           pointHoverRadius: 14,
-          pointStyle: 'rectRot',
+          pointStyle: this.skullIcon,
           order: 0,
           hitRadius: 15
         })
@@ -324,40 +383,122 @@ export default class extends Controller {
       }
     }
     
-    // Add resurrection events
-    if (healthData.resurrection_events && healthData.resurrection_events.length > 0) {
-      const team1Res = healthData.resurrection_events.filter(e => e.party_id === 1)
-      const team2Res = healthData.resurrection_events.filter(e => e.party_id === 2)
+    // Add tower capture events (flags)
+    if (healthData.tower_captures && healthData.tower_captures.length > 0) {
+      const team1TowerCaptures = healthData.tower_captures.filter(e => e.party_id === 1)
+      const team2TowerCaptures = healthData.tower_captures.filter(e => e.party_id === 2)
       
-      if (team1Res.length > 0) {
+      if (team1TowerCaptures.length > 0) {
         datasets.push({
-          label: `Resurrections (${healthData.team1.tag || 'Team 1'})`,
-          data: team1Res.map(e => ({ 
+          label: `Flag Captures (${healthData.team1.tag || 'Team 1'})`,
+          data: team1TowerCaptures.map(e => ({ 
             x: e.timestamp_ms, 
-            y: getYPosition('resurrection'),
-            name: e.agent_name,
-            resurrector: e.resurrector_name,
-            skillId: e.resurrection_skill_id,
-            skillName: e.resurrection_skill_name,
-            isBaseRes: e.is_base_res,
-            eventType: 'resurrection'
+            y: getYPosition('tower_capture'),
+            partyId: e.party_id,
+            partyName: e.party_name,
+            guildTag: e.guild_tag,
+            eventType: 'tower_capture'
           })),
           type: 'scatter',
-          backgroundColor: 'rgba(34, 197, 94, 1)',
+          backgroundColor: team1Color,
           borderColor: '#fff',
           borderWidth: 2,
-          pointRadius: 8,
-          pointHoverRadius: 12,
-          pointStyle: 'triangle',
+          pointRadius: 10,
+          pointHoverRadius: 14,
+          pointStyle: this.flagIcon,
           order: 0,
           hitRadius: 15
         })
       }
       
-      if (team2Res.length > 0) {
+      if (team2TowerCaptures.length > 0) {
         datasets.push({
-          label: `Resurrections (${healthData.team2.tag || 'Team 2'})`,
-          data: team2Res.map(e => ({ 
+          label: `Flag Captures (${healthData.team2.tag || 'Team 2'})`,
+          data: team2TowerCaptures.map(e => ({ 
+            x: e.timestamp_ms, 
+            y: getYPosition('tower_capture'),
+            partyId: e.party_id,
+            partyName: e.party_name,
+            guildTag: e.guild_tag,
+            eventType: 'tower_capture'
+          })),
+          type: 'scatter',
+          backgroundColor: team2Color,
+          borderColor: '#fff',
+          borderWidth: 2,
+          pointRadius: 10,
+          pointHoverRadius: 14,
+          pointStyle: this.flagIcon,
+          order: 0,
+          hitRadius: 15
+        })
+      }
+    }
+    
+    // Add shrine capture events
+    if (healthData.shrine_captures && healthData.shrine_captures.length > 0) {
+      const team1ShrineCaptures = healthData.shrine_captures.filter(e => e.party_id === 1)
+      const team2ShrineCaptures = healthData.shrine_captures.filter(e => e.party_id === 2)
+      
+      if (team1ShrineCaptures.length > 0) {
+        datasets.push({
+          label: `Shrine Captures (${healthData.team1.tag || 'Team 1'})`,
+          data: team1ShrineCaptures.map(e => ({ 
+            x: e.timestamp_ms, 
+            y: getYPosition('shrine_capture'),
+            partyId: e.party_id,
+            partyName: e.party_name,
+            guildTag: e.guild_tag,
+            eventType: 'shrine_capture'
+          })),
+          type: 'scatter',
+          backgroundColor: team1Color,
+          borderColor: '#fff',
+          borderWidth: 2,
+          pointRadius: 10,
+          pointHoverRadius: 14,
+          pointStyle: this.towerIcon,
+          order: 0,
+          hitRadius: 15
+        })
+      }
+      
+      if (team2ShrineCaptures.length > 0) {
+        datasets.push({
+          label: `Shrine Captures (${healthData.team2.tag || 'Team 2'})`,
+          data: team2ShrineCaptures.map(e => ({ 
+            x: e.timestamp_ms, 
+            y: getYPosition('shrine_capture'),
+            partyId: e.party_id,
+            partyName: e.party_name,
+            guildTag: e.guild_tag,
+            eventType: 'shrine_capture'
+          })),
+          type: 'scatter',
+          backgroundColor: team2Color,
+          borderColor: '#fff',
+          borderWidth: 2,
+          pointRadius: 10,
+          pointHoverRadius: 14,
+          pointStyle: this.towerIcon,
+          order: 0,
+          hitRadius: 15
+        })
+      }
+    }
+    
+    // Add resurrection events
+    if (healthData.resurrection_events && healthData.resurrection_events.length > 0) {
+      const team1BaseRes = healthData.resurrection_events.filter(e => e.party_id === 1 && e.is_base_res)
+      const team2BaseRes = healthData.resurrection_events.filter(e => e.party_id === 2 && e.is_base_res)
+      const team1SkillRes = healthData.resurrection_events.filter(e => e.party_id === 1 && !e.is_base_res)
+      const team2SkillRes = healthData.resurrection_events.filter(e => e.party_id === 2 && !e.is_base_res)
+      
+      // Base resurrections (from shrine)
+      if (team1BaseRes.length > 0) {
+        datasets.push({
+          label: `Base Res (${healthData.team1.tag || 'Team 1'})`,
+          data: team1BaseRes.map(e => ({ 
             x: e.timestamp_ms, 
             y: getYPosition('resurrection'),
             name: e.agent_name,
@@ -371,9 +512,85 @@ export default class extends Controller {
           backgroundColor: 'rgba(34, 197, 94, 1)',
           borderColor: '#fff',
           borderWidth: 2,
-          pointRadius: 8,
-          pointHoverRadius: 12,
-          pointStyle: 'triangle',
+          pointRadius: 10,
+          pointHoverRadius: 14,
+          pointStyle: this.resurrectionShrineIcon,
+          order: 0,
+          hitRadius: 15
+        })
+      }
+      
+      if (team2BaseRes.length > 0) {
+        datasets.push({
+          label: `Base Res (${healthData.team2.tag || 'Team 2'})`,
+          data: team2BaseRes.map(e => ({ 
+            x: e.timestamp_ms, 
+            y: getYPosition('resurrection'),
+            name: e.agent_name,
+            resurrector: e.resurrector_name,
+            skillId: e.resurrection_skill_id,
+            skillName: e.resurrection_skill_name,
+            isBaseRes: e.is_base_res,
+            eventType: 'resurrection'
+          })),
+          type: 'scatter',
+          backgroundColor: 'rgba(34, 197, 94, 1)',
+          borderColor: '#fff',
+          borderWidth: 2,
+          pointRadius: 10,
+          pointHoverRadius: 14,
+          pointStyle: this.resurrectionShrineIcon,
+          order: 0,
+          hitRadius: 15
+        })
+      }
+      
+      // Skill resurrections
+      if (team1SkillRes.length > 0) {
+        datasets.push({
+          label: `Skill Res (${healthData.team1.tag || 'Team 1'})`,
+          data: team1SkillRes.map(e => ({ 
+            x: e.timestamp_ms, 
+            y: getYPosition('resurrection'),
+            name: e.agent_name,
+            resurrector: e.resurrector_name,
+            skillId: e.resurrection_skill_id,
+            skillName: e.resurrection_skill_name,
+            isBaseRes: e.is_base_res,
+            eventType: 'resurrection'
+          })),
+          type: 'scatter',
+          backgroundColor: 'rgba(34, 197, 94, 1)',
+          borderColor: '#fff',
+          borderWidth: 2,
+          pointRadius: 10,
+          pointHoverRadius: 14,
+          pointStyle: this.resurrectionSignetIcon,
+          order: 0,
+          hitRadius: 15
+        })
+      }
+      
+      if (team2SkillRes.length > 0) {
+        datasets.push({
+          label: `Skill Res (${healthData.team2.tag || 'Team 2'})`,
+          data: team2SkillRes.map(e => ({ 
+            x: e.timestamp_ms, 
+            y: getYPosition('resurrection'),
+            name: e.agent_name,
+            resurrector: e.resurrector_name,
+            skillId: e.resurrection_skill_id,
+            skillName: e.resurrection_skill_name,
+            isBaseRes: e.is_base_res,
+            eventType: 'resurrection'
+          })),
+          type: 'scatter',
+          backgroundColor: 'rgba(34, 197, 94, 1)',
+          borderColor: '#fff',
+          borderWidth: 2,
+          pointRadius: 10,
+          pointHoverRadius: 14,
+          pointStyle: this.resurrectionSignetIcon,
           order: 0,
           hitRadius: 15
         })
@@ -398,9 +615,9 @@ export default class extends Controller {
           backgroundColor: 'rgba(234, 179, 8, 1)',
           borderColor: '#fff',
           borderWidth: 2,
-          pointRadius: 8,
-          pointHoverRadius: 12,
-          pointStyle: 'star',
+          pointRadius: 10,
+          pointHoverRadius: 14,
+          pointStyle: this.moraleBoostIcon,
           order: 0,
           hitRadius: 15
         })
@@ -419,9 +636,9 @@ export default class extends Controller {
           backgroundColor: 'rgba(234, 179, 8, 1)',
           borderColor: '#fff',
           borderWidth: 2,
-          pointRadius: 8,
-          pointHoverRadius: 12,
-          pointStyle: 'star',
+          pointRadius: 10,
+          pointHoverRadius: 14,
+          pointStyle: this.moraleBoostIcon,
           order: 0,
           hitRadius: 15
         })
@@ -440,7 +657,7 @@ export default class extends Controller {
     const yAxisConfig = this.currentMode === 'health' 
       ? {
           min: 0,
-          max: 100,
+          max: 120,
           title: {
             display: true,
             text: 'Health %',
@@ -459,6 +676,8 @@ export default class extends Controller {
         }
       : this.currentMode === 'morale'
       ? {
+          min: -70,
+          max: 20,
           title: {
             display: true,
             text: 'Death Penalty %',
@@ -477,7 +696,7 @@ export default class extends Controller {
         }
       : {
           min: 0,
-          max: 50,
+          max: 70,
           title: {
             display: true,
             text: 'Event Type',
@@ -491,7 +710,9 @@ export default class extends Controller {
                 10: 'Deaths',
                 20: 'Resurrections',
                 30: 'Morale Boosts',
-                40: 'NPC Deaths'
+                40: 'NPC Deaths',
+                50: 'Flag Captures',
+                60: 'Shrine Captures'
               }
               return labels[value] || ''
             }
@@ -589,6 +810,16 @@ export default class extends Controller {
                 if (dataPoint.eventType === 'morale_boost') {
                   const guildTag = dataPoint.guildTag ? `${dataPoint.guildTag} ` : ''
                   return `🏁 ${guildTag}Morale Boost`
+                }
+                
+                if (dataPoint.eventType === 'tower_capture') {
+                  const guildTag = dataPoint.guildTag ? `${dataPoint.guildTag} ` : ''
+                  return `🚩 ${guildTag}Flag Captured`
+                }
+                
+                if (dataPoint.eventType === 'shrine_capture') {
+                  const guildTag = dataPoint.guildTag ? `${dataPoint.guildTag} ` : ''
+                  return `🗼 ${guildTag}Shrine Captured`
                 }
                 
                 // Regular health/morale percentage
