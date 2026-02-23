@@ -106,7 +106,7 @@
                         </div>
 
                         <% if @match.json.present? %>
-                            <h2 data-sr data-sr-duration=1200 data-sr-distance=10 class="mt-60 mb-30">Match Statistics</h2>
+                            <h2 data-sr data-sr-duration="1200" data-sr-distance="10" class="mt-60 mb-30">Match Statistics</h2>
                             
                             <% health_data = @match.health_percentage_data %>
                             <% if health_data %>
@@ -121,7 +121,7 @@
                                         <div class="cyberpress-match-participant" style="width: 100%;">
                                             <div style="background: rgba(0, 0, 0, 0.3); padding: 30px; border-radius: 8px; min-height: 500px; width: 100%;" 
                                                  data-controller="health-chart" 
-                                                 data-health-chart-data-value='<%= health_data.to_json %>'
+                                                 data-health-chart-data-value="<%= health_data.to_json %>"
                                                  data-health-chart-initial-mode-value="<%= initial_mode %>"
                                                  data-health-chart-shrine-icon-value="<%= image_path('commons/shrine.jpg') %>"
                                                  data-health-chart-ressig-icon-value="<%= image_path('commons/ressig.jpg') %>"
