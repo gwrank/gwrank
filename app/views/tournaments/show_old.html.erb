@@ -119,7 +119,6 @@
                         </div>
                     </div>
                     <div class="col-auto-lg mpl-sidebar" data-sr="widget" data-sr-duration="1200" data-sr-distance="20">
-                        <%= link_to 'Search matches on Guild Wars Memorial', "https://memorial.redeemer.biz/memorial/#{@tournament.year}/#{@tournament.month}", target: '_blank', class: 'btn btn-md' %>
                         <h2 data-sr data-sr-duration="1200" data-sr-distance="10" class="mt-30">Comments <small>(<%= @tournament.comments.count %>)</small></h2>
                         <% if current_player %>
                             <% if @tournament.comments.any? %>

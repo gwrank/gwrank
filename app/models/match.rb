@@ -10,6 +10,7 @@
 #  number_on_round   :integer
 #  played_at         :datetime
 #  round             :integer
+#  slug              :string
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
 #  imported_by_id    :bigint
@@ -42,6 +43,17 @@ class Match < ApplicationRecord
   has_many :teams, dependent: :destroy
   has_many :team_players, through: :teams
 
+  extend FriendlyId
+  friendly_id :slug_candidates, use: :slugged
+
+  def slug_candidates
+    opponents = teams.includes(:guild).map do |team|
+      team.guild.slug
+    end
+    opponents_slug = opponents.join('-vs-')
+    tournament.present? ? [tournament.slug, opponents_slug].join('-') : opponents_slug
+  end
+
   def title
     title = []
     teams.includes(:guild).each do |team|
@@ -61,6 +73,22 @@ class Match < ApplicationRecord
     when 4
       'Final'
     end
+  end
+
+  def map_name
+    json&.dig('map', 'name')
+  end
+
+  def map_id
+    json&.dig('map', 'map_id')
+  end
+
+  def match_type
+    json&.dig('match_type')
+  end
+
+  def mat_round
+    json&.dig('mat_round')
   end
 
   def self.import!(match_params)
@@ -129,7 +157,7 @@ class Match < ApplicationRecord
 
         skill_ids = agent.dig("stats", "skill_ids_used").each do |skill_id|
           skill = Skill.find_by(skill_id: skill_id)
-          team_player.team_player_skills.create!(skill: skill)
+          team_player.team_player_skills.create!(skill: skill) if skill
         end
       end
     end
@@ -254,6 +282,8 @@ class Match < ApplicationRecord
     resurrection_events = extract_resurrection_events
     morale_boosts = extract_morale_boost_events(team1_tag, team2_tag)
     npc_death_events = extract_npc_death_events(team1_tag, team2_tag)
+    tower_captures = extract_tower_capture_events(team1_tag, team2_tag)
+    shrine_captures = extract_shrine_capture_events(team1_tag, team2_tag)
     
     # Get morale data
     morale_data = party_morale_data
@@ -283,6 +313,8 @@ class Match < ApplicationRecord
       resurrection_events: resurrection_events,
       morale_boosts: morale_boosts,
       npc_death_events: npc_death_events,
+      tower_captures: tower_captures,
+      shrine_captures: shrine_captures,
       morale_data: morale_data
     }
   end
@@ -392,6 +424,58 @@ class Match < ApplicationRecord
           timestamp_ms: boost_event["timestamp_ms"],
           party_id: party_id.to_i,
           guild_tag: guild_tag
+        }
+      end
+    end
+    
+    events.sort_by { |e| e[:timestamp_ms] }
+  end
+  
+  # Extract tower (flag) capture events
+  def extract_tower_capture_events(team1_tag = nil, team2_tag = nil)
+    return [] unless json.present?
+    
+    events = []
+    parties = json.dig("parties", "by_id") || {}
+    
+    parties.each do |party_id, party|
+      next unless party["tower_captures"].present?
+      
+      guild_tag = party_id.to_i == 1 ? team1_tag : team2_tag
+      party_name = party["name"] || party["display_name"] || "Team #{party_id}"
+      
+      party["tower_captures"].each do |capture_event|
+        events << {
+          timestamp_ms: capture_event["timestamp_ms"],
+          party_id: party_id.to_i,
+          guild_tag: guild_tag,
+          party_name: party_name
+        }
+      end
+    end
+    
+    events.sort_by { |e| e[:timestamp_ms] }
+  end
+  
+  # Extract shrine capture events
+  def extract_shrine_capture_events(team1_tag = nil, team2_tag = nil)
+    return [] unless json.present?
+    
+    events = []
+    parties = json.dig("parties", "by_id") || {}
+    
+    parties.each do |party_id, party|
+      next unless party["shrine_captures"].present?
+      
+      guild_tag = party_id.to_i == 1 ? team1_tag : team2_tag
+      party_name = party["name"] || party["display_name"] || "Team #{party_id}"
+      
+      party["shrine_captures"].each do |capture_event|
+        events << {
+          timestamp_ms: capture_event["timestamp_ms"],
+          party_id: party_id.to_i,
+          guild_tag: guild_tag,
+          party_name: party_name
         }
       end
     end
@@ -543,15 +627,17 @@ class Match < ApplicationRecord
               next if teammate_data[:party_id] != killer_data[:party_id]
               next unless player_alive_status[teammate_id]
               
-              # Reduce DP by 2% for this living teammate (including killer)
-              new_penalty = teammate_data[:penalty] + 2
-              # Kill rewards can only reduce DP to 0, cannot boost morale (go positive)
-              new_penalty = [new_penalty, 0].min
-              teammate_data[:penalty] = new_penalty
-              teammate_data[:events] << {
-                timestamp_ms: event[:timestamp_ms],
-                penalty: new_penalty
-              }
+              # Kill rewards only reduce death penalty, not morale boosts
+              # Only apply if player has negative penalty (death penalty)
+              current_penalty = teammate_data[:penalty]
+              if current_penalty < 0
+                new_penalty = [current_penalty + 2, 0].min
+                teammate_data[:penalty] = new_penalty
+                teammate_data[:events] << {
+                  timestamp_ms: event[:timestamp_ms],
+                  penalty: new_penalty
+                }
+              end
             end
           end
         end
@@ -582,8 +668,16 @@ class Match < ApplicationRecord
     
     # Calculate average party morale over time
     # Group by party and calculate average at each timestamp
-    party1_morale = calculate_party_morale_timeline(1, player_death_penalty)
-    party2_morale = calculate_party_morale_timeline(2, player_death_penalty)
+    
+    # Get match duration from health snapshots or last event
+    match_duration = [
+      parties["1"]&.dig("health_snapshots")&.last&.dig("timestamp_ms"),
+      parties["2"]&.dig("health_snapshots")&.last&.dig("timestamp_ms"),
+      all_events.last&.dig(:timestamp_ms)
+    ].compact.max || 0
+    
+    party1_morale = calculate_party_morale_timeline(1, player_death_penalty, match_duration)
+    party2_morale = calculate_party_morale_timeline(2, player_death_penalty, match_duration)
     
     # Get team names
     team1_name = parties["1"]&.dig("display_name") || "Team 1"
@@ -603,47 +697,45 @@ class Match < ApplicationRecord
   
   private
   
-  def calculate_party_morale_timeline(party_id, player_death_penalty)
+  def calculate_party_morale_timeline(party_id, player_death_penalty, match_duration)
     # Get all players in this party
     party_players = player_death_penalty.select { |_, data| data[:party_id] == party_id }
     return [] if party_players.empty?
     
-    # Collect all timestamps across all players
-    all_timestamps = party_players.flat_map { |_, data| data[:events].map { |e| e[:timestamp_ms] } }.uniq.sort
+    # Collect all unique timestamps across all players
+    all_timestamps = party_players.flat_map { |_, data| 
+      data[:events].map { |e| e[:timestamp_ms] }
+    }.uniq.sort
     
-    # Create step-function timeline with constant values between events
-    timeline = []
+    # Always start at timestamp 0 with morale 0
+    timeline = [{ x: 0, y: 0 }]
     previous_avg = 0
     
-    # Start at 0%
-    timeline << { x: 0, y: 0 }
-    
     all_timestamps.each do |timestamp|
-      # Calculate average penalty at this timestamp
+      # Skip timestamp 0 since we already added it
+      next if timestamp == 0
+      
+      # Calculate average penalty at this timestamp for all players in this party
       penalties = party_players.map do |agent_id, data|
+        # Find the penalty value for this player at this exact timestamp
+        # by getting the last event that occurred at or before this timestamp
         relevant_events = data[:events].select { |e| e[:timestamp_ms] <= timestamp }
         relevant_events.last[:penalty]
       end
       
       avg_penalty = penalties.sum / penalties.length.to_f
       
-      # If value changed, add point at previous value just before this timestamp
-      # This creates the "step" effect
-      if avg_penalty != previous_avg && timeline.length > 0
-        # Add a point 1ms before the change with the old value (creates horizontal line)
-        timeline << { x: timestamp - 1, y: previous_avg.round(2) }
+      # Add point at this timestamp with the current average
+      # Only add if different from previous point (avoid duplicate consecutive values)
+      if (previous_avg - avg_penalty).abs > 0.001
+        timeline << { x: timestamp, y: avg_penalty.round(2) }
+        previous_avg = avg_penalty
       end
-      
-      # Add point at new value
-      timeline << { x: timestamp, y: avg_penalty.round(2) }
-      previous_avg = avg_penalty
     end
     
-    # Sample if too many points (but keep step structure)
-    max_points = 500
-    if timeline.length > max_points
-      sample_rate = (timeline.length / max_points.to_f).ceil
-      timeline = timeline.each_with_index.select { |_, i| i % sample_rate == 0 }.map(&:first)
+    # Add final point at match duration to extend the stepped line
+    if timeline.any? && match_duration > 0 && timeline.last[:x] < match_duration
+      timeline << { x: match_duration, y: timeline.last[:y] }
     end
     
     timeline

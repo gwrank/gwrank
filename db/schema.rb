@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_21_115500) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_23_205504) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -148,6 +148,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_21_115500) do
     t.integer "number_on_round"
     t.datetime "played_at"
     t.integer "round"
+    t.string "slug"
     t.bigint "tournament_id"
     t.datetime "updated_at", null: false
     t.integer "winner_team_id"

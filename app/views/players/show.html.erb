@@ -119,7 +119,7 @@
                                     <% @player.teams.each do |team| %>
                                     <tr>
                                         <td class="cyberpress-table-item-nickname">
-                                            <%= link_to team.match.tournament.year_and_month, tournament_path(team.match.tournament) %>
+                                            <%= link_to team.match.tournament.title, tournament_path(team.match.tournament) %>
                                         </td>
                                         <td>
                                             <%= link_to team.match.title, match_path(team.match) %>
@@ -131,10 +131,6 @@
                         <% end %>
                     </div>
                     <div class="col-auto-lg mpl-sidebar" data-sr="widget" data-sr-duration="1200" data-sr-distance="20">
-                        <form action="https://memorial.redeemer.biz/memorial/" accept-charset="UTF-8" method="post" target="_blank">
-                            <input type="hidden" name="q" value="<%= @player.igname %>">
-                            <input type="submit" name="commit" value="Search on Guild Wars Memorial" class="btn btn-md btn-danger">
-                        </form>
                         <% if @player.eql?(current_player) %>
                             <%= link_to 'Edit profile', edit_profile_path, class: 'btn btn-md' %>
                         <% end %>

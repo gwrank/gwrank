@@ -2,15 +2,24 @@
   <strong>NPCs Killed:</strong> <span class="text-warning"><%= match.npc_kills(team_index) %></span>
 </div>
 
+<div class="mb-3">
+  <div class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" id="excludeNpcToggle-<%= team_index %>" checked>
+    <label class="form-check-label" for="excludeNpcToggle-<%= team_index %>">
+      <strong>Include NPC Damage in Stats</strong>
+    </label>
+  </div>
+</div>
+
 <div class="table-responsive">
-  <table class="table table-striped table-stats">
+  <table class="table table-striped table-stats" data-team-index="<%= team_index %>">
     <thead>
       <tr>
         <th style="width: 30px;"></th>
         <th>Player</th>
         <th>Prof</th>
         <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Kills / Deaths (K/D Ratio)">K/D</th>
-        <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Damage: Dealt / Received">Damage<br>D/R</th>
+        <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Damage: Dealt / Received (Toggle above to include/exclude NPC damage)">Damage<br>D/R</th>
         <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Healing: Dealt / Received">Healing<br>D/R</th>
         <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Critical Hits: Dealt / Received">Crits<br>D/R</th>
         <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Skills Interrupted">Int</th>
@@ -20,6 +29,27 @@
     <tbody>
       <% team_stats.each do |player_stat| %>
         <% stats = player_stat[:stats] %>
+        <% 
+          # Calculate player-only damage (excluding NPCs)
+          damage_to_agents = stats["damage_dealt_to_agents"] || {}
+          damage_from_agents = stats["damage_received_from_agents"] || {}
+          
+          player_damage_dealt = 0
+          player_damage_received = 0
+          
+          damage_to_agents.each do |agent_id, damage|
+            agent = @match.agent_by_id(agent_id)
+            player_damage_dealt += damage if agent && agent["guild_id"] != 0
+          end
+          
+          damage_from_agents.each do |agent_id, damage|
+            agent = @match.agent_by_id(agent_id)
+            player_damage_received += damage if agent && agent["guild_id"] != 0
+          end
+          
+          total_damage_dealt = stats["total_damage_dealt"] || 0
+          total_damage_received = stats["total_damage_received"] || 0
+        %>
         <tr class="player-row" data-agent-id="<%= player_stat[:agent_id] %>" style="cursor: pointer;">
           <td class="text-center expand-icon">▶</td>
           <td><strong><%= player_stat[:name] %></strong></td>
@@ -29,9 +59,13 @@
             <% deaths = stats["deaths"] || 0 %>
             <%= kills %>/<%= deaths %> (<%= stats["kdr_str"] || "0.00" %>)
           </td>
-          <td class="text-center">
-            <span class="text-success"><%= stats["total_damage_dealt"] || 0 %></span> /
-            <span class="text-danger"><%= stats["total_damage_received"] || 0 %></span>
+          <td class="text-center damage-cell" 
+              data-total-dealt="<%= total_damage_dealt %>" 
+              data-total-received="<%= total_damage_received %>"
+              data-player-dealt="<%= player_damage_dealt %>" 
+              data-player-received="<%= player_damage_received %>">
+            <span class="text-success damage-dealt"><%= total_damage_dealt %></span> /
+            <span class="text-danger damage-received"><%= total_damage_received %></span>
           </td>
           <td class="text-center">
             <span class="text-success"><%= stats["total_healing_dealt"] || 0 %></span> /
@@ -115,18 +149,74 @@
 
               <div class="row mt-3">
                 <div class="col-12">
-                  <h5>Damage by Skill</h5>
+                  <h5>Damage (NPCs)</h5>
                   <table class="table table-sm table-striped table-bordered">
                     <thead>
                       <tr>
-                        <th>Skill</th>
-                        <th class="text-end">Damage</th>
+                        <th>NPC</th>
+                        <th class="text-end">Kills</th>
+                        <th class="text-end">Dealt</th>
+                        <th class="text-end">Received</th>
                       </tr>
                     </thead>
                     <tbody>
+                      <% damage_to_agents = stats["damage_dealt_to_agents"] || {} %>
+                      <% damage_from_agents = stats["damage_received_from_agents"] || {} %>
+                      <% all_agent_ids = (damage_to_agents.keys + damage_from_agents.keys).uniq %>
+                      <% player_agent_id = player_stat[:agent_id].to_s %>
+                      <% npc_grouped = Hash.new { |h, k| h[k] = { dealt: 0, received: 0, kills: 0 } } %>
+                      <% all_agent_ids.each do |agent_id| %>
+                        <% agent = @match.agent_by_id(agent_id) %>
+                        <% if agent && agent["guild_id"] == 0 %>
+                          <% npc_name = agent["sanitized_name"] %>
+                          <% npc_grouped[npc_name][:dealt] += damage_to_agents[agent_id] || 0 %>
+                          <% npc_grouped[npc_name][:received] += damage_from_agents[agent_id] || 0 %>
+                          <% death_events = agent["death_events"] || [] %>
+                          <% death_events.each do |death_event| %>
+                            <% if death_event["killer_agent_id"].to_s == player_agent_id %>
+                              <% npc_grouped[npc_name][:kills] += 1 %>
+                            <% end %>
+                          <% end %>
+                        <% end %>
+                      <% end %>
+                      <% if npc_grouped.any? %>
+                        <% npc_grouped.sort_by { |_name, data| -data[:dealt] }.each do |npc_name, data| %>
+                          <tr>
+                            <td><%= npc_name %></td>
+                            <td class="text-end text-success"><%= data[:kills] %></td>
+                            <td class="text-end text-danger"><%= data[:dealt] %></td>
+                            <td class="text-end text-warning"><%= data[:received] %></td>
+                          </tr>
+                        <% end %>
+                      <% else %>
+                        <tr><td colspan="4" class="text-center text-muted">No NPC damage data</td></tr>
+                      <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="row mt-3">
+                <div class="col-12">
+                  <h5>Spells Cast</h5>
+                  <table class="table table-sm table-striped table-bordered">
+                    <thead>
+                      <tr>
+                        <th>Spell</th>
+                        <th class="text-end">Cancelled</th>
+                        <th class="text-end">Interrupted</th>
+                        <th class="text-end">Finished</th>
+                        <th class="text-end">Damage/Heal</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% skills_used = stats["skills_used"] || {} %>
                       <% damage_by_skill = stats["damage_by_skill"] || {} %>
-                      <% damage_by_skill.sort_by { |_k, v| -v }.each do |skill_id, damage| %>
+                      <% healing_by_skill = stats["healing_by_skill"] || {} %>
+                      <% skills_used.sort_by { |_k, v| -(v["started"] || 0) }.each do |skill_id, skill_data| %>
                         <% skill = @skills_cache&.dig(skill_id.to_i) %>
+                        <% damage = damage_by_skill[skill_id] || 0 %>
+                        <% healing = healing_by_skill[skill_id] || 0 %>
                         <tr>
                           <td>
                             <% if skill %>
@@ -136,11 +226,24 @@
                               Unknown (#{skill_id})
                             <% end %>
                           </td>
-                          <td class="text-end text-warning"><%= damage %></td>
+                          <td class="text-end text-warning"><%= skill_data["stopped"] || 0 %></td>
+                          <td class="text-end text-danger"><%= skill_data["interrupted"] || 0 %></td>
+                          <td class="text-end text-success"><%= skill_data["finished"] || 0 %></td>
+                          <td class="text-end">
+                            <% if damage > 0 && healing > 0 %>
+                              <span class="text-warning"><%= damage %></span> / <span class="text-success"><%= healing %></span>
+                            <% elsif damage > 0 %>
+                              <span class="text-warning"><%= damage %></span>
+                            <% elsif healing > 0 %>
+                              <span class="text-success"><%= healing %></span>
+                            <% else %>
+                              <span class="text-muted">-</span>
+                            <% end %>
+                          </td>
                         </tr>
                       <% end %>
-                      <% if damage_by_skill.empty? %>
-                        <tr><td colspan="2" class="text-center text-muted">No skill damage</td></tr>
+                      <% if skills_used.empty? %>
+                        <tr><td colspan="5" class="text-center text-muted">No spells cast</td></tr>
                       <% end %>
                     </tbody>
                   </table>
@@ -169,14 +272,14 @@
     <div class="col-md-6 ps-md-3">
       <p class="mb-1"><strong>Color Coding:</strong></p>
       <ul class="list-unstyled" style="font-size: 0.9rem;">
-        <li><span class="text-success">●</span> <strong>Green</strong> - Damage/Healing Dealt</li>
-        <li><span class="text-danger">●</span> <strong>Red</strong> - Damage/Crits Received</li>
+        <li><span class="text-success">●</span> <strong>Green</strong> - Damage/Healing Dealt, Finished Casts</li>
+        <li><span class="text-danger">●</span> <strong>Red</strong> - Damage/Crits Received, Interrupted Casts</li>
         <li><span class="text-info">●</span> <strong>Blue</strong> - Healing Received</li>
-        <li><span class="text-warning">●</span> <strong>Yellow</strong> - Skill Damage</li>
+        <li><span class="text-warning">●</span> <strong>Yellow</strong> - Skill Damage, Cancelled Casts</li>
       </ul>
     </div>
   </div>
-  <p class="mb-0 mt-2" style="font-size: 0.85rem; opacity: 0.8;"><em>Click on any player row to expand detailed statistics</em></p>
+  <p class="mb-0 mt-2" style="font-size: 0.85rem; opacity: 0.8;"><em>Click on any player row to expand detailed statistics including spell casting breakdown</em></p>
 </div>
 
 <script>
@@ -231,5 +334,46 @@
   
   if (document.readyState !== 'loading') {
     initTooltips();
+  }
+  
+  // NPC Damage Toggle functionality
+  function initNpcToggle() {
+    document.querySelectorAll('[id^="excludeNpcToggle-"]').forEach(function(toggle) {
+      const teamIndex = toggle.id.split('-')[1];
+      const table = document.querySelector('.table-stats[data-team-index="' + teamIndex + '"]');
+      
+      if (!table) return;
+      
+      // Remove existing listeners
+      const newToggle = toggle.cloneNode(true);
+      toggle.parentNode.replaceChild(newToggle, toggle);
+      
+      newToggle.addEventListener('change', function() {
+        const includeNpc = this.checked;
+        const damageCells = table.querySelectorAll('.damage-cell');
+        
+        damageCells.forEach(function(cell) {
+          const dealtSpan = cell.querySelector('.damage-dealt');
+          const receivedSpan = cell.querySelector('.damage-received');
+          
+          if (includeNpc) {
+            // Show total damage (including NPCs)
+            dealtSpan.textContent = cell.getAttribute('data-total-dealt');
+            receivedSpan.textContent = cell.getAttribute('data-total-received');
+          } else {
+            // Show player-only damage (excluding NPCs)
+            dealtSpan.textContent = cell.getAttribute('data-player-dealt');
+            receivedSpan.textContent = cell.getAttribute('data-player-received');
+          }
+        });
+      });
+    });
+  }
+  
+  document.addEventListener('DOMContentLoaded', initNpcToggle);
+  document.addEventListener('turbo:load', initNpcToggle);
+  
+  if (document.readyState !== 'loading') {
+    initNpcToggle();
   }
 </script>
