@@ -2,7 +2,7 @@ class MatchesController < ApplicationController
   before_action :authenticate_player!, only: [:new, :create]
 
   def index
-    @pagy, @matches = pagy(Match.order(played_at: :desc))
+    @pagy, @matches = pagy(Match.includes(teams: [:guild, { team_players: :profession }]).order(played_at: :desc))
   end
 
   def show
