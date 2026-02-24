@@ -22,7 +22,7 @@
               </ol>
             </nav>
             <ul class="cyberpress-matchs-archive" data-sr="matches" data-sr-duration="1000">
-              <% @tournament.matches.each do |match| %>
+              <% @tournament.matches.order(round: :desc, number_on_round: :desc).each do |match| %>
                 <li class="cyberpress-match cyberpress-match-compact" data-sr-item="matches">
                   <%= link_to match_path(match) do %>
                     <div class="cyberpress-match-header">
