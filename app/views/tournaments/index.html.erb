@@ -40,9 +40,7 @@
                                 <div class="col-12 col-lg-6" data-sr-item="tournaments">
                                     <div class="cyberpress-tournament">
                                         <h2 class="cyberpress-tournament-title h4">
-                                            <%= link_to tournament_path(tournament) do %>
-                                                Tournament <%= tournament.year %>-<%= tournament.month %>
-                                            <% end %>
+                                            <%= link_to tournament.title, tournament_path(tournament) %>
                                         </h2>
                                         <ul class="cyberpress-tournament-info">
                                             <% if tournament.date.present? %>

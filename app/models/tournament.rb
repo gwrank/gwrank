@@ -29,6 +29,9 @@ class Tournament < ApplicationRecord
 
   extend FriendlyId
   friendly_id :slug_candidates, use: :slugged
+  def should_generate_new_friendly_id?
+    slug.blank? || tournament_type_changed? || date_changed?
+  end
 
   def slug_candidates
     case tournament_type

@@ -41,6 +41,9 @@
                                                         <span class="guild-rank">#<%= match.teams.first.rank %></span>
                                                     <% end %>
                                                     <%= match.teams.first.guild.name_with_tag %>
+                                                    <% if match.winner_team == match.teams.first %>
+                                                      <span style="color: #ffc107; font-size: 1.2rem;">🏆</span>
+                                                    <% end %>
                                                 </h3>
                                                 <div class="cyberpress-match-professions" data-action="mouseenter->match-builds#show mouseleave->match-builds#hide">
                                                     <% match.teams.first.team_players.order(:position).each do |team_player| %>
@@ -57,6 +60,9 @@
                                                         <span class="guild-rank">#<%= match.teams.second.rank %></span>
                                                     <% end %>
                                                     <%= match.teams.second.guild.name_with_tag %>
+                                                    <% if match.winner_team == match.teams.second %>
+                                                      <span style="color: #ffc107; font-size: 1.2rem;">🏆</span>
+                                                    <% end %>
                                                 </h3>
                                                 <div class="cyberpress-match-professions" data-action="mouseenter->match-builds#show mouseleave->match-builds#hide">
                                                     <% match.teams.second.team_players.order(:position).each do |team_player| %>
