@@ -59,7 +59,7 @@
 #  fk_rails_...  (guild_id => guilds.id)
 #
 class Player < ApplicationRecord
-  belongs_to :guild, optional: true
+  belongs_to :guild, optional: true, counter_cache: true
   has_secure_token :api_token
   has_many :characters, dependent: :nullify
   has_many :registrations, dependent: :destroy
