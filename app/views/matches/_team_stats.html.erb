@@ -97,15 +97,27 @@
                       <% damage_from_agents = stats["damage_received_from_agents"] || {} %>
                       <% all_agent_ids = (damage_to_agents.keys + damage_from_agents.keys).uniq %>
                       <% if all_agent_ids.any? %>
-                        <% all_agent_ids.each do |agent_id| %>
+                        <% 
+                          # Get opponent team and create position map
+                          opponent_team = team_index == 1 ? @match.teams.second : @match.teams.first
+                          agent_position_map = {}
+                          opponent_team.team_players.each do |tp|
+                            agent = @match.json.dig("agents", "by_id")&.find { |_id, a| a["sanitized_name"] == tp.igname }
+                            agent_position_map[agent[0]] = tp.position if agent
+                          end
+                          # Sort agent IDs by opponent team position
+                          sorted_agent_ids = all_agent_ids.select do |agent_id|
+                            agent = @match.agent_by_id(agent_id)
+                            agent && agent["guild_id"] != 0
+                          end.sort_by { |agent_id| agent_position_map[agent_id] || 999 }
+                        %>
+                        <% sorted_agent_ids.each do |agent_id| %>
                           <% agent = @match.agent_by_id(agent_id) %>
-                          <% if agent && agent["guild_id"] != 0 %>
-                            <tr>
-                              <td><%= agent["sanitized_name"] %></td>
-                              <td class="text-end text-danger"><%= damage_to_agents[agent_id] || 0 %></td>
-                              <td class="text-end text-warning"><%= damage_from_agents[agent_id] || 0 %></td>
-                            </tr>
-                          <% end %>
+                          <tr>
+                            <td><%= agent["sanitized_name"] %></td>
+                            <td class="text-end text-danger"><%= damage_to_agents[agent_id] || 0 %></td>
+                            <td class="text-end text-warning"><%= damage_from_agents[agent_id] || 0 %></td>
+                          </tr>
                         <% end %>
                       <% else %>
                         <tr><td colspan="3" class="text-center text-muted">No damage data</td></tr>
@@ -129,7 +141,17 @@
                       <% healing_from_agents = stats["healing_received_from_agents"] || {} %>
                       <% all_healing_ids = (healing_to_agents.keys + healing_from_agents.keys).uniq %>
                       <% if all_healing_ids.any? %>
-                        <% all_healing_ids.each do |agent_id| %>
+                        <% 
+                          # Create position map for current team
+                          agent_position_map = {}
+                          team.team_players.each do |tp|
+                            agent = @match.json.dig("agents", "by_id")&.find { |_id, a| a["sanitized_name"] == tp.igname }
+                            agent_position_map[agent[0]] = tp.position if agent
+                          end
+                          # Sort agent IDs by current team position
+                          sorted_healing_ids = all_healing_ids.sort_by { |agent_id| agent_position_map[agent_id] || 999 }
+                        %>
+                        <% sorted_healing_ids.each do |agent_id| %>
                           <% agent = @match.agent_by_id(agent_id) %>
                           <% if agent %>
                             <tr>
