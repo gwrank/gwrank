@@ -24,6 +24,9 @@
                             </ol>
                         </nav>
                         <h2><%= @match.title %></h2>
+                        <% if current_player&.is_moderator? && @match.imported_by.eql?(current_player) %>
+                          <%= button_to 'Delete match', match_path, method: :delete, data: { turbo_confirm: "Are you sure?" }, class: 'btn btn-md btn-danger' %>
+                        <% end %>
                         <% if @match.map_name.present? %>
                             <div class="d-flex align-items-center mb-4">
                                 <div class="flex-grow-1 text-center">
