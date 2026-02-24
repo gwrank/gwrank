@@ -1,20 +1,21 @@
 import { Controller } from "@hotwired/stimulus"
-import { Chart, LineController, LineElement, PointElement, LinearScale, Title, Tooltip, Legend, TimeScale, Filler, ScatterController } from "chart.js"
+import { Chart, LineController, BarController, BarElement, CategoryScale, LineElement, PointElement, LinearScale, Title, Tooltip, Legend, TimeScale, Filler, ScatterController } from "chart.js"
 import zoomPlugin from "chartjs-plugin-zoom"
 
 // Register Chart.js components
-Chart.register(LineController, LineElement, PointElement, LinearScale, Title, Tooltip, Legend, TimeScale, Filler, ScatterController, zoomPlugin)
+Chart.register(LineController, BarController, BarElement, CategoryScale, LineElement, PointElement, LinearScale, Title, Tooltip, Legend, TimeScale, Filler, ScatterController, zoomPlugin)
 
 export default class extends Controller {
   static values = {
     data: Object,
+    guildLordData: Object,
     initialMode: String,
     shrineIcon: String,
     ressigIcon: String,
     moraleIcon: String
   }
   
-  static targets = ["resetButton", "healthButton", "moraleButton", "timelineButton"]
+  static targets = ["resetButton", "healthButton", "moraleButton", "timelineButton", "guildLordButton"]
 
   connect() {
     this.currentMode = this.hasInitialModeValue ? this.initialModeValue : 'health'
@@ -99,6 +100,11 @@ export default class extends Controller {
     this.setMode('timeline')
   }
   
+  setModeGuildLord(event) {
+    event.preventDefault()
+    this.setMode('guildlord')
+  }
+  
   setMode(mode) {
     if (this.currentMode === mode) return
     
@@ -128,12 +134,17 @@ export default class extends Controller {
       this.timelineButtonTarget.classList.remove('btn-primary')
       this.timelineButtonTarget.classList.add('btn-outline-primary')
     }
+    if (this.hasGuildLordButtonTarget) {
+      this.guildLordButtonTarget.classList.remove('btn-primary')
+      this.guildLordButtonTarget.classList.add('btn-outline-primary')
+    }
     
     // Add active class to current mode button
     const activeButton = {
       'health': this.healthButtonTarget,
       'morale': this.moraleButtonTarget,
-      'timeline': this.timelineButtonTarget
+      'timeline': this.timelineButtonTarget,
+      'guildlord': this.guildLordButtonTarget
     }[this.currentMode]
     
     if (activeButton) {
@@ -150,6 +161,13 @@ export default class extends Controller {
     }
     
     const ctx = canvas.getContext('2d')
+    
+    // Handle guild lord mode separately
+    if (this.currentMode === 'guildlord') {
+      this.createGuildLordChart(ctx)
+      return
+    }
+    
     const healthData = this.dataValue
 
     if (!healthData || !healthData.team1 || !healthData.team2) {
@@ -877,6 +895,146 @@ export default class extends Controller {
             }
           },
           y: yAxisConfig
+        }
+      }
+    })
+  }
+  
+  createGuildLordChart(ctx) {
+    const data = this.hasGuildLordDataValue ? this.guildLordDataValue : null
+    
+    if (!data || !data.guild_lords || data.guild_lords.length === 0) {
+      console.error("Guild Lord data not available")
+      return
+    }
+    
+    const guildLordData = data.guild_lords
+    const teamGuilds = data.team_guilds || {}
+    
+    // Calculate total damage dealt by each team across all guild lords
+    let team1Total = 0
+    let team2Total = 0
+    const team1Players = new Map() // player name -> damage
+    const team2Players = new Map()
+    
+    guildLordData.forEach(lord => {
+      lord.damage_dealers.forEach(dealer => {
+        if (dealer.party_id === 1) {
+          team1Total += dealer.damage
+          const current = team1Players.get(dealer.name) || 0
+          team1Players.set(dealer.name, current + dealer.damage)
+        } else if (dealer.party_id === 2) {
+          team2Total += dealer.damage
+          const current = team2Players.get(dealer.name) || 0
+          team2Players.set(dealer.name, current + dealer.damage)
+        }
+      })
+    })
+    
+    // Get top 8 players from each team
+    const team1Top8 = Array.from(team1Players.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+    const team2Top8 = Array.from(team2Players.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+    
+    // Use guild names or fallback to Team 1/2
+    const team1Label = teamGuilds[1] || 'Team 1'
+    const team2Label = teamGuilds[2] || 'Team 2'
+    
+    this.chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: [team1Label, team2Label],
+        datasets: [{
+          label: 'Total Damage Dealt',
+          data: [team1Total, team2Total],
+          backgroundColor: [
+            'rgba(54, 162, 235, 0.8)',
+            'rgba(255, 206, 86, 0.8)'
+          ],
+          borderColor: [
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)'
+          ],
+          borderWidth: 2,
+          barPercentage: 0.5,
+          categoryPercentage: 0.6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Total Damage Dealt to Guild Lords',
+            color: '#fff',
+            font: {
+              size: 18,
+              weight: 'bold'
+            }
+          },
+          legend: {
+            display: false
+          },
+          tooltip: {
+            enabled: true,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            borderColor: 'rgba(255, 255, 255, 0.3)',
+            borderWidth: 1,
+            padding: 12,
+            callbacks: {
+              label: function(context) {
+                const teamIndex = context.dataIndex
+                const topPlayers = teamIndex === 0 ? team1Top8 : team2Top8
+                
+                const lines = [`Total Damage: ${context.parsed.y.toLocaleString()}`]
+                
+                if (topPlayers.length > 0) {
+                  lines.push('')
+                  lines.push('Top Damage Dealers:')
+                  topPlayers.forEach(([name, damage], idx) => {
+                    lines.push(`${idx + 1}. ${name}: ${damage.toLocaleString()}`)
+                  })
+                }
+                
+                return lines
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: {
+              color: '#fff'
+            },
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            }
+          },
+          y: {
+            ticks: {
+              color: '#fff',
+              callback: function(value) {
+                return value.toLocaleString()
+              }
+            },
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            title: {
+              display: true,
+              text: 'Damage',
+              color: '#fff',
+              font: {
+                size: 14
+              }
+            }
+          }
         }
       }
     })
