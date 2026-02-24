@@ -92,6 +92,19 @@ class TeamPlayer < ApplicationRecord
     skills.join
   end
 
+  def html_skills_simple
+    skills = []
+    team_player_skills.includes(:skill).order(position: :asc).each do |team_player_skill|
+      skills << team_player_skill.skill.html_image_simple(size: 32)
+    end
+    if team_player_skills.count < 8
+      (8 - team_player_skills.count).times do
+        skills << ActionController::Base.helpers.image_tag('skills/Unknown_Junundu_Ability.jpg', title: 'Unknown', width: 32, loading: 'lazy')
+      end
+    end
+    skills.join
+  end
+
   def professions_text
     [profession.name, secondary_profession.name].join('/')
   end

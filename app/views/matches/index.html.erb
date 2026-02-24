@@ -23,7 +23,7 @@
                         </nav>
                         <ul class="cyberpress-matchs-archive" data-sr="matches" data-sr-duration="1000">
                             <% @matches.each do |match| %>
-                                <li class="cyberpress-match cyberpress-match-compact" data-sr-item="matches">
+                                <li class="cyberpress-match cyberpress-match-compact" data-sr-item="matches" data-controller="match-builds" data-match-builds-match-id-value="<%= match.id %>">
                                     <%= link_to match_path(match) do %>
                                         <div class="cyberpress-match-header">
                                             <div class="cyberpress-match-meta">
@@ -42,7 +42,7 @@
                                                     <% end %>
                                                     <%= match.teams.first.guild.name_with_tag %>
                                                 </h3>
-                                                <div class="cyberpress-match-professions">
+                                                <div class="cyberpress-match-professions" data-action="mouseenter->match-builds#show mouseleave->match-builds#hide">
                                                     <% match.teams.first.team_players.order(:position).each do |team_player| %>
                                                         <%= team_player.profession.html_image.html_safe %>
                                                     <% end %>
@@ -58,7 +58,7 @@
                                                     <% end %>
                                                     <%= match.teams.second.guild.name_with_tag %>
                                                 </h3>
-                                                <div class="cyberpress-match-professions">
+                                                <div class="cyberpress-match-professions" data-action="mouseenter->match-builds#show mouseleave->match-builds#hide">
                                                     <% match.teams.second.team_players.order(:position).each do |team_player| %>
                                                         <%= team_player.profession.html_image.html_safe %>
                                                     <% end %>
@@ -66,6 +66,33 @@
                                             </div>
                                         </div>
                                     <% end %>
+                                    
+                                    <!-- Builds popup -->
+                                    <div class="match-builds-popup" data-match-builds-target="popup" style="display: none;">
+                                        <div class="match-builds-popup-content">
+                                            <div class="match-builds-teams">
+                                                <% match.teams.each do |team| %>
+                                                    <div class="match-builds-team">
+                                                        <h4 class="match-builds-team-name"><%= team.guild.name_with_tag %></h4>
+                                                        <div class="match-builds-players">
+                                                            <% team.team_players.order(:position).each do |team_player| %>
+                                                                <div class="match-builds-player">
+                                                                    <div class="match-builds-player-header">
+                                                                        <%= team_player.profession.html_image_simple.html_safe %>
+                                                                        <%= team_player.secondary_profession.html_image_simple.html_safe %>
+                                                                        <span class="match-builds-player-name"><%= team_player.igname %></span>
+                                                                    </div>
+                                                                    <div class="match-builds-player-skills">
+                                                                        <%= team_player.html_skills_simple.html_safe %>
+                                                                    </div>
+                                                                </div>
+                                                            <% end %>
+                                                        </div>
+                                                    </div>
+                                                <% end %>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </li>
                             <% end %>
                             <%== @pagy.series_nav(:bootstrap) %>
