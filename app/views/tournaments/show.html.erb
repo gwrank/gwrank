@@ -23,47 +23,7 @@
             </nav>
             <ul class="cyberpress-matchs-archive" data-sr="matches" data-sr-duration="1000">
               <% @tournament.matches.order(round: :desc, number_on_round: :desc).each do |match| %>
-                <li class="cyberpress-match cyberpress-match-compact" data-sr-item="matches">
-                  <%= link_to match_path(match) do %>
-                    <div class="cyberpress-match-header">
-                      <div class="cyberpress-match-meta">
-                        <span class="cyberpress-match-round"><%= match.round_text %></span>
-                        <span class="cyberpress-match-date"><%= match.played_at&.to_date %></span>
-                      </div>
-                    </div>
-                    <div class="cyberpress-match-participants">
-                      <div class="cyberpress-match-participant">
-                        <h3 class="cyberpress-match-participant-title">
-                          <%= match.teams.first.guild.name_with_tag %>
-                          <% if match.winner_team == match.teams.first %>
-                            <span style="color: #ffc107; font-size: 1.2rem;">🏆</span>
-                          <% end %>
-                        </h3>
-                        <div class="cyberpress-match-professions">
-                          <% match.teams.first.team_players.order(:position).each do |team_player| %>
-                            <%= team_player.profession.html_image.html_safe %>
-                          <% end %>
-                        </div>
-                      </div>
-                      <div class="cyberpress-match-vs">
-                        <span>VS</span>
-                      </div>
-                      <div class="cyberpress-match-participant cyberpress-match-participant-right">
-                        <h3 class="cyberpress-match-participant-title">
-                          <%= match.teams.second.guild.name_with_tag %>
-                          <% if match.winner_team == match.teams.second %>
-                            <span style="color: #ffc107; font-size: 1.2rem;">🏆</span>
-                          <% end %>
-                        </h3>
-                        <div class="cyberpress-match-professions">
-                          <% match.teams.second.team_players.order(:position).each do |team_player| %>
-                            <%= team_player.profession.html_image.html_safe %>
-                          <% end %>
-                        </div>
-                      </div>
-                    </div>
-                  <% end %>
-                </li>
+                <%= render "matches/match", match: match %>
               <% end %>
             </ul>
           </div>
