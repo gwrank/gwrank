@@ -122,10 +122,12 @@
                             <h2 data-sr data-sr-duration="1200" data-sr-distance="10" class="mt-60 mb-30">Match Statistics</h2>
                             
                             <% health_data = @match.health_percentage_data %>
+                            <% guild_lord_data = @match.guild_lord_damage_data %>
                             <% if health_data %>
                                 <% has_health = health_data[:team1] && health_data[:team1][:data]&.any? %>
                                 <% has_morale = health_data[:morale_data] && (health_data[:morale_data][:team1][:data]&.any? || health_data[:morale_data][:team2][:data]&.any?) %>
                                 <% has_events = (health_data[:death_events]&.any? || health_data[:resurrection_events]&.any? || health_data[:morale_boosts]&.any? || health_data[:npc_death_events]&.any?) %>
+                                <% has_guild_lords = guild_lord_data && guild_lord_data[:guild_lords]&.any? %>
                                 <% initial_mode = has_health ? 'health' : (has_events ? 'timeline' : 'health') %>
                                 
                                 <% if has_health || has_events %>
@@ -135,6 +137,7 @@
                                             <div style="background: rgba(0, 0, 0, 0.3); padding: 30px; border-radius: 8px; min-height: 500px; width: 100%;" 
                                                  data-controller="health-chart" 
                                                  data-health-chart-data-value="<%= health_data.to_json %>"
+                                                 data-health-chart-guild-lord-data-value="<%= (guild_lord_data || {}).to_json %>"
                                                  data-health-chart-initial-mode-value="<%= initial_mode %>"
                                                  data-health-chart-shrine-icon-value="<%= image_path('commons/shrine.jpg') %>"
                                                  data-health-chart-ressig-icon-value="<%= image_path('commons/ressig.jpg') %>"
@@ -169,6 +172,15 @@
                                                                 class="btn btn-sm <%= initial_mode == 'timeline' ? 'btn-primary' : 'btn-outline-primary' %>"
                                                                 style="font-size: 12px; padding: 4px 12px;">
                                                                 Timeline
+                                                            </button>
+                                                        <% end %>
+                                                        <% if has_guild_lords %>
+                                                            <button 
+                                                                data-action="click->health-chart#setModeGuildLord"
+                                                                data-health-chart-target="guildLordButton"
+                                                                class="btn btn-sm btn-outline-primary"
+                                                                style="font-size: 12px; padding: 4px 12px;">
+                                                                Guild Lord Damage
                                                             </button>
                                                         <% end %>
                                                         <button 

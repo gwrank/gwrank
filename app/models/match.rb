@@ -737,6 +737,87 @@ class Match < ApplicationRecord
     }
   end
   
+  # Extract guild lord damage data for charting
+  def guild_lord_damage_data
+    return nil unless json.present?
+    
+    agents = json.dig("agents", "by_id") || {}
+    parties = json.dig("parties", "by_id") || {}
+    guilds = json.dig("guilds", "by_id") || {}
+    
+    # Get guild names from teams association (teams[0] is party_id 1, teams[1] is party_id 2)
+    team_guilds = {}
+    teams.includes(:guild).each_with_index do |team, index|
+      party_id = index + 1
+      team_guilds[party_id] = team.guild.name_with_tag if team.guild
+    end
+    
+    # Find guild lord agents
+    guild_lords = []
+    agents.each do |agent_id, agent|
+      next unless agent["guild_id"] == 0 # Only NPCs
+      agent_name = agent["sanitized_name"] || agent["display_name"] || ""
+      next unless agent_name.include?("Guild Lord")
+      
+      # Get damage received from each agent
+      damage_dealers = []
+      damage_from_agents = agent.dig("stats", "damage_received_from_agents") || {}
+      total_damage = 0
+      
+      # Determine which party this guild lord belongs to by looking at attackers
+      # Guild lords are attacked by the opposite team
+      attacker_parties = []
+      
+      damage_from_agents.each do |attacker_id, damage|
+        attacker = agents[attacker_id]
+        next unless attacker
+        
+        total_damage += damage
+        attacker_party_id = attacker["party_id"]
+        attacker_parties << attacker_party_id if attacker_party_id && attacker_party_id > 0
+        
+        damage_dealers << {
+          agent_id: attacker_id,
+          name: attacker["sanitized_name"] || "Unknown",
+          profession: attacker["profession"],
+          party_id: attacker_party_id,
+          damage: damage
+        }
+      end
+      
+      # Skip if no damage data or can't determine team
+      next if damage_dealers.empty?
+      
+      # The guild lord belongs to the opposite team of the attackers
+      # If attackers are mostly from party 1, the lord is from party 2, and vice versa
+      attacking_party = attacker_parties.max_by { |p| attacker_parties.count(p) }
+      lord_party_id = attacking_party == 1 ? 2 : 1
+      
+      guild_id = parties[lord_party_id.to_s]&.dig("guild_id")
+      guild_tag = guild_id ? guilds[guild_id.to_s]&.dig("wrapped_tag") : nil
+      party_name = parties[lord_party_id.to_s]&.dig("display_name") || "Team #{lord_party_id}"
+      
+      # Sort by damage descending
+      damage_dealers.sort_by! { |d| -d[:damage] }
+      
+      guild_lords << {
+        agent_id: agent_id,
+        name: party_name,
+        tag: guild_tag,
+        party_id: lord_party_id,
+        total_damage: total_damage,
+        damage_dealers: damage_dealers
+      }
+    end
+    
+    return nil if guild_lords.empty?
+    
+    {
+      guild_lords: guild_lords,
+      team_guilds: team_guilds
+    }
+  end
+  
   private
   
   def calculate_party_morale_timeline(party_id, player_death_penalty, match_duration)
