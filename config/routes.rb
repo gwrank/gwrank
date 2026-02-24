@@ -9,7 +9,7 @@ Rails.application.routes.draw do
   resource :api_token, only: [:show]
   resources :comments, only: [:create]
   resources :guilds, only: [:index, :show, :new, :create]
-  resources :matches, only: [:index, :show, :new, :create]
+  resources :matches, only: [:index, :show, :new, :create, :destroy]
   resources :movies, only: [:create]
   resources :players, path: 'p', only: [:index, :show]
   resource :profile, only: [:edit, :update, :destroy] do

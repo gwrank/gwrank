@@ -59,7 +59,7 @@
 #  fk_rails_...  (guild_id => guilds.id)
 #
 class Player < ApplicationRecord
-  belongs_to :guild, optional: true
+  belongs_to :guild, optional: true, counter_cache: true
   has_secure_token :api_token
   has_many :characters, dependent: :nullify
   has_many :registrations, dependent: :destroy
@@ -68,6 +68,9 @@ class Player < ApplicationRecord
 
   extend FriendlyId
   friendly_id :username, use: :slugged
+  def should_generate_new_friendly_id?
+    slug.blank? || username_changed?
+  end
 
   devise :database_authenticatable, :omniauthable, :rememberable, :lockable
 

@@ -7,6 +7,9 @@ import { application } from "./application"
 import HealthChartController from "./health_chart_controller"
 application.register("health-chart", HealthChartController)
 
+import MatchBuildsController from "./match_builds_controller"
+application.register("match-builds", MatchBuildsController)
+
 import PopoverController from "./popover_controller"
 application.register("popover", PopoverController)
 
