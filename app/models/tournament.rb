@@ -47,7 +47,7 @@ class Tournament < ApplicationRecord
     when 'at'
       "#{date} AT"
     when 'mat'
-      "#{year}/#{month} mAT"
+      "#{year}-#{month} mAT"
     else
       date
     end
