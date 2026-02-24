@@ -28,6 +28,9 @@
                                         <div class="cyberpress-match-header">
                                             <div class="cyberpress-match-meta">
                                                 <span class="cyberpress-match-round"><%= match.round_text %></span>
+                                                <% if match.tournament&.tournament_type.present? %>
+                                                    <span class="cyberpress-match-tournament-type"><%= match.tournament.tournament_type.upcase %></span>
+                                                <% end %>
                                                 <span class="cyberpress-match-date"><%= match.played_at&.to_date %></span>
                                             </div>
                                         </div>

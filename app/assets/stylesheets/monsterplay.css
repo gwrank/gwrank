@@ -13844,6 +13844,13 @@ body.compensate-for-scrollbar {
     margin-bottom: 2px;
 }
 
+.cyberpress-match-compact .cyberpress-match-tournament-type {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #d31c3e;
+    margin-bottom: 2px;
+}
+
 .cyberpress-match-compact .cyberpress-match-date {
     font-size: 0.7rem;
     color: #827f92;
