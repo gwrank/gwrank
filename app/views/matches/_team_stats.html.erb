@@ -83,7 +83,10 @@
             <div class="p-3">
               <div class="row">
                 <div class="col-md-6">
-                  <h5>Damage (Opponents)</h5>
+                  <h5 style="cursor: pointer; user-select: none;" data-bs-toggle="collapse" data-bs-target="#damage-opponents-<%= player_stat[:agent_id] %>" aria-expanded="true">
+                    <span class="collapse-icon">▼</span> Damage (Opponents)
+                  </h5>
+                  <div class="collapse show" id="damage-opponents-<%= player_stat[:agent_id] %>">
                   <table class="table table-sm table-striped table-bordered">
                     <thead>
                       <tr>
@@ -124,10 +127,14 @@
                       <% end %>
                     </tbody>
                   </table>
+                  </div>
                 </div>
                 
                 <div class="col-md-6">
-                  <h5>Healing (Allies)</h5>
+                  <h5 style="cursor: pointer; user-select: none;" data-bs-toggle="collapse" data-bs-target="#healing-allies-<%= player_stat[:agent_id] %>" aria-expanded="true">
+                    <span class="collapse-icon">▼</span> Healing (Allies)
+                  </h5>
+                  <div class="collapse show" id="healing-allies-<%= player_stat[:agent_id] %>">
                   <table class="table table-sm table-striped table-bordered">
                     <thead>
                       <tr>
@@ -166,12 +173,16 @@
                       <% end %>
                     </tbody>
                   </table>
+                  </div>
                 </div>
               </div>
 
               <div class="row mt-3">
                 <div class="col-12">
-                  <h5>Damage (NPCs)</h5>
+                  <h5 style="cursor: pointer; user-select: none;" data-bs-toggle="collapse" data-bs-target="#damage-npcs-<%= player_stat[:agent_id] %>" aria-expanded="true">
+                    <span class="collapse-icon">▼</span> Damage (NPCs)
+                  </h5>
+                  <div class="collapse show" id="damage-npcs-<%= player_stat[:agent_id] %>">
                   <table class="table table-sm table-striped table-bordered">
                     <thead>
                       <tr>
@@ -215,12 +226,16 @@
                       <% end %>
                     </tbody>
                   </table>
+                  </div>
                 </div>
               </div>
 
               <div class="row mt-3">
                 <div class="col-12">
-                  <h5>Spells Cast</h5>
+                  <h5 style="cursor: pointer; user-select: none;" data-bs-toggle="collapse" data-bs-target="#spells-cast-<%= player_stat[:agent_id] %>" aria-expanded="true">
+                    <span class="collapse-icon">▼</span> Spells Cast
+                  </h5>
+                  <div class="collapse show" id="spells-cast-<%= player_stat[:agent_id] %>">
                   <table class="table table-sm table-striped table-bordered">
                     <thead>
                       <tr>
@@ -269,6 +284,7 @@
                       <% end %>
                     </tbody>
                   </table>
+                  </div>
                 </div>
               </div>
             </div>
@@ -397,5 +413,30 @@
   
   if (document.readyState !== 'loading') {
     initNpcToggle();
+  }
+  
+  // Collapse icon rotation for damage/healing sections
+  function initCollapseIcons() {
+    document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function(trigger) {
+      const target = document.querySelector(trigger.getAttribute('data-bs-target'));
+      if (!target) return;
+      
+      target.addEventListener('show.bs.collapse', function() {
+        const icon = trigger.querySelector('.collapse-icon');
+        if (icon) icon.textContent = '▼';
+      });
+      
+      target.addEventListener('hide.bs.collapse', function() {
+        const icon = trigger.querySelector('.collapse-icon');
+        if (icon) icon.textContent = '▶';
+      });
+    });
+  }
+  
+  document.addEventListener('DOMContentLoaded', initCollapseIcons);
+  document.addEventListener('turbo:load', initCollapseIcons);
+  
+  if (document.readyState !== 'loading') {
+    initCollapseIcons();
   }
 </script>
