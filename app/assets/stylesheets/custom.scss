@@ -1,5 +1,26 @@
+:root {
+  --color-bg: #0a0a08;
+  --color-headings: #e8B87b;
+  --color-offwhite: #ece5dd;
+  --color-brown: #362417;
+  --color-text-link: #d4af37;
+  --color-box-1: #673030;
+  --color-box-2: #3F1E1E;
+  --color-button-border: rgba(255, 255, 255, 0.4);
+  --mask-height: 110px;
+  --dimebar-height: 35px;
+  --footer-height: 221px;
+  --mobile-footer-height: 588px;
+  --color-text-shadow: rgba(0, 0, 0, 0.9);
+  --box-shadow: #0000006c 4px 4px 15px;
+  --font-family-heading: sans-serif;
+  --font-family-body: sans-serif;
+  --font-family-body2: sans-serif;
+}
+
 a {
   text-decoration: none;
+  color: var(--color-text-link);
 }
 
 .table > :not(caption) > * > * {
@@ -7,7 +28,7 @@ a {
 }
 
 .table thead tr th {
-  color: white;
+  color: var(--color-offwhite);
 }
 
 .table tbody th, .table tbody td {
@@ -24,39 +45,39 @@ a {
   td, th {
     background-color: transparent !important;
   }
-  
-  // White text for headers
+
+  // Text color for headers
   th {
-    color: #fff !important;
+    color: var(--color-offwhite) !important;
   }
-  
+
   tbody {
     tr.player-row {
       cursor: pointer;
-      
+
       td.expand-icon {
         font-size: 0.7rem;
         opacity: 0.6;
         transition: all 0.2s ease;
         padding: 0.75rem 0.25rem;
       }
-      
+
       &.table-active {
         .expand-icon {
-          color: #ffc107;
+          color: var(--color-text-link);
         }
       }
     }
   }
-  
+
   // Also ensure transparent backgrounds for nested tables
   .table-striped {
     td, th {
       background-color: transparent !important;
     }
-    
+
     th {
-      color: #fff !important;
+      color: var(--color-offwhite) !important;
     }
   }
 }
@@ -66,8 +87,10 @@ a {
   td, th {
     background-color: transparent !important;
   }
-  
+
   tbody tr {
     background-color: transparent !important;
   }
 }
+
+
