@@ -4,418 +4,567 @@ class CommandBotJob < ApplicationJob
   def perform(*args)
     bot = Discordrb::Commands::CommandBot.new token: ENV['DISCORD_BOT_TOKEN'], client_id: ENV['DISCORD_CLIENT_ID'], prefix: '!'
 
+    # Register all commands
+    register_commands(bot)
+
+    # Start the bot
+    at_exit { bot.stop }
+    bot.run
+  end
+
+  private
+
+  def register_commands(bot)
+    # Scrim command
     bot.command :scrim, description: 'to start a scrim' do |event, player|
       event.send_message!(has_components: true) do |_, view|
         message_container(view)
       end
     end
 
+    # Register button
     bot.button(custom_id: 'register') do |event|
-      player = Player.where(provider: 'discord', uid: event.user.id).first_or_create do |player|
-        player.email = "#{event.user.id}@gwrank.com"
-        player.password = Devise.friendly_token[0, 20]
-        player.username = event.user.name
-      end
-
-      if player.has_current_registration?
-        event.respond(content: "You are already registered, #{event.user.username}!", ephemeral: true)
-      else
-        player.registrations.create(registered_at: DateTime.now)
-        auto_designate_captains(event) if Registration.current_registrations.count.eql?(16)
-        event.interaction.update_message(has_components: true) do |_, view|
-          message_container(view)
-        end
-        event.respond(content: "You have been registered, #{event.user.username}!", ephemeral: true)
-      end
+      handle_register_button(event)
     end
 
+    # Unregister button
     bot.button(custom_id: 'unregister') do |event|
-      player = Player.find_by(uid: event.user.id)
+      handle_unregister_button(event)
+    end
 
-      if player&.has_current_registration?
-        player.current_registration.update(unregistered_at: DateTime.now)
-        event.interaction.update_message(has_components: true) do |_, view|
-          message_container(view)
+    # Professions buttons
+    bot.button do |event|
+      # Check if this is a profession button click
+      if event.custom_id.start_with?('prof_')
+        player = Player.where(provider: 'discord', uid: event.user.id).first_or_create do |p|
+          p.email = "#{event.user.id}@gwrank.com"
+          p.password = Devise.friendly_token[0, 20]
+          p.username = event.user.name
         end
-        event.respond(content: "You have been unregistered, #{event.user.username}!", ephemeral: true)
-      else
-        event.respond(content: "You are not registered, #{event.user.username}!", ephemeral: true)
+        handle_professions_button(event, player)
       end
     end
 
+    # IG name command
     bot.command :igname, description: 'to find the in-game name of a player' do |event, player|
-      if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
-        player = player.delete_prefix('<@!').delete_suffix('>')
-        player = Player.find_by(uid: player)
-        if player.present?
-          message = "<@#{event.user.id}> (**#{player.igname}**)"
-        else
-          message = "<@#{event.user.id}> (in-game name not found)"
-        end
-      else
-        message = "<@#{event.user.id}> (invalid player)"
-      end
-
-      event.respond message
+      handle_igname_command(event, player)
     end
 
+    # Register command
     bot.command :register, description: 'to register your in-game name' do |event, *igname|
-      message = ''
-
-      player = Player.where(provider: 'discord', uid: event.user.id).first_or_create do |player|
-        player.email = "#{event.user.id}@gwrank.com"
-        player.password = Devise.friendly_token[0, 20]
-        player.username = event.user.name
-      end
-
-      if player.igname.present?
-        if igname.count > 1 && player.igname != igname
-          igname = igname.join(' ')
-          player.update(igname: igname)
-          message << "\nYour known in-game name is **#{player.igname}**."
-        else
-          message << "\nYour known in-game name is **#{player.igname}**. If you want to update it, please type *!register* **Your In Game Name**"
-        end
-      else
-        if igname.count > 1 && player.igname != igname
-          igname = igname.join(' ')
-          player.update(igname: igname)
-          message << "\nYour known in-game name is **#{player.igname}**. You successfully updated it."
-        else
-          message << "\nYour in-game name is unknown. To be easily guested, please type *!register* **Your In Game Name**"
-        end
-      end
-
-      event.respond message
+      handle_register_command(event, igname)
     end
 
+    # Add player command
     bot.command :add, description: 'to add a player in the current queue' do |event, player|
-      current_registrations = Registration.current_registrations
-      if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
-        player = player.delete_prefix('<@!').delete_suffix('>')
-        player = Player.find_by(uid: player)
-        if player.present?
-          if player.has_current_registration?
-            message = "<@#{event.user.id}>, the player #{player.name} is already ##{current_registrations.count} in the current queue."
-          else
-            player.registrations.create(registered_at: DateTime.now)
-            message = "<@#{event.user.id}>, the player #{player.name} is now ##{current_registrations.count} in the current queue for the next 8 hours."
-            message << "\nIf he's out, he have to type *!unregister*"
-
-            if current_registrations.count < 16
-              players_required = 16 - current_registrations.count
-              message << "\nWe need #{players_required} more players."
-            elsif current_registrations.count.eql?(16)
-              message << "\nWe have 16 players!"
-              message << "\nTo see the players list, you can type *!players* or go on https://gwrank.com/scrims"
-              message << "\nTo roll 100, captains can type *!roll*"
-              message << "\nTo automatically designate captains, you can type *!newcaptains*"
-            end
-          end
-        else
-          message = "<@#{event.user.id}>, the player is not found and have first to !register himself."
-        end
-      else
-        message = "<@#{event.user.id}>, this is an invalid player."
-      end
-      event.respond message
+      handle_add_command(event, player)
     end
 
+    # Remove player command
     bot.command :remove, description: 'to remove a player from the current queue' do |event, player|
-      if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
-        player = player.delete_prefix('<@!').delete_suffix('>')
-        player = Player.find_by(uid: player)
-        if player.present?
-          if player.has_current_registration?
-            player.current_registration.update(unregistered_at: DateTime.now)
-            message = "<@#{event.user.id}>, the player #{player.name} is not anymore in the current queue."
-          else
-            message = "<@#{event.user.id}>, the player #{player.name} was not in the current queue."
-          end
-        else
-          message = "<@#{event.user.id}>, the player is not found and have first to !register himself."
-        end
-      else
-        message = "<@#{event.user.id}>, this is an invalid player."
-      end
-      event.respond message
+      handle_remove_command(event, player)
     end
 
+    # AFK command
     bot.command :afk, description: 'to be / add a player in afk mode' do |event, player|
-      if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
-        player = player.delete_prefix('<@!').delete_suffix('>')
-        player = Player.find_by(uid: player)
-        if player.present?
-          if player.has_current_registration?
-            player.current_registration.update(unregistered_at: DateTime.now)
-            message = "<@#{event.user.id}>, the player #{player.name} is now in AFK mode, he have to write *!back* to be back in the current queue."
-          else
-            message = "<@#{event.user.id}>, the player #{player.name} is not in the current queue."
-          end
-        else
-          message = "<@#{event.user.id}>, the player is not found and have first to !register himself."
-        end
-      else
-        player = Player.find_by(uid: event.user.id)
-        if player
-          if player.has_current_registration?
-            player.current_registration.update(unregistered_at: DateTime.now)
-            message = "<@#{event.user.id}>, you are now in AFK mode."
-          else
-            message = "<@#{event.user.id}>, you were not in the current queue."
-          end
-        else
-          message = "<@#{event.user.id}>, you need to !register yourself first."
-        end
-      end
-      event.respond message
+      handle_afk_command(event, player)
     end
 
+    # Back command
     bot.command :back, description: 'to add yourself / a player again in the current queue' do |event, player|
-      if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
-        player = player.delete_prefix('<@!').delete_suffix('>')
-        player = Player.find_by(uid: player)
-        if player.present?
-          if player.has_afk_registration?
-            player.afk_registration.update(unregistered_at: DateTime.now)
-            message = "<@#{event.user.id}>, the player #{player.name} is now back in the queue."
-          else
-            message = "<@#{event.user.id}>, the player #{player.name} was not in AFK mode."
-          end
-        else
-          message = "<@#{event.user.id}>, the player is not found and have first to !register himself."
-        end
-      else
-        player = Player.find_by(uid: event.user.id)
-        if player
-          if player.has_afk_registration?
-            player.afk_registration.update(unregistered_at: nil)
-            message = "<@#{event.user.id}>, welcome back!"
-          else
-            message = "<@#{event.user.id}>, you were not in the current queue."
-          end
-        else
-          message = "<@#{event.user.id}>, you need to !register yourself first."
-        end
-      end
-      event.respond message
+      handle_back_command(event, player)
     end
 
+    # Captains command
     bot.command :captains, description: 'to see the current captains' do |event|
-      current_registrations = Registration.current_registrations
-      if current_registrations.count >= 16
-        scrim = Scrim.current_scrims.order(created_at: :desc).first
-        message = "<@#{event.user.id}>, the current captains are @#{scrim.captain_a.username} (#{scrim.captain_a.igname}) and @#{scrim.captain_b.username} (#{scrim.captain_b.igname})."
-        message << "\nIf you want new captains, you can type *!newcaptains*"
-      else
-        players_required = 16 - current_registrations.count
-        message = "<@#{event.user.id}>, we need #{players_required} more players to designate captains."
-      end
-      event.respond message
+      handle_captains_command(event)
     end
 
+    # New captains command
     bot.command :newcaptains, description: 'to auto-designate new captains' do |event|
-      if Registration.current_registrations.count >= 16
-        auto_designate_captains(event)
-      else
-        players_required = 16 - current_registrations.count
-        event.respond "<@#{event.user.id}>, we need #{players_required} more players to designate captains."
-      end
+      handle_newcaptains_command(event)
     end
 
+    # Roll command
     bot.command :roll, description: 'to roll 100' do |event|
-      message = "<@#{event.user.id}>, you rolled: "
-      message << rand(0..100).to_s
-      event.respond message
+      handle_roll_command(event)
     end
 
+    # Players command
     bot.command :players, description: 'to see players in the current queue' do |event|
-      message = "<@#{event.user.id}>, the current players ordered by registration time are:"
-      Registration.current_registrations.order(registered_at: :asc).each_with_index do |registration, index|
-        if registration.player.igname.present?
-          if registration.player.professions_text.present?
-            message << "\n##{index + 1} <@#{registration.player.uid}> (#{registration.player.igname})"
-          else
-            message << "\n##{index + 1} <@#{registration.player.uid}> (#{registration.player.igname}) [#{registration.player.professions_text}}"
-          end
-        else
-          message << "\n##{index + 1} <@#{registration.player.uid}>"
-        end
-      end
-      event.respond message
+      handle_players_command(event)
     end
 
+    # New teams command
     bot.command :newteams, description: 'to auto-designate new teams with current captains' do |event|
-      player_ids = Player.in_queue.first(16).pluck(:id)
-      selected_player_ids = []
-      team_a_player_ids = []
-      team_b_player_ids = []
-
-      scrim = Scrim.order(created_at: :desc).first
-
-      captain_a = scrim.captain_a
-      team_a_player_ids << captain_a.id
-      selected_player_ids << captain_a.id
-      player_ids.delete(captain_a.id)
-
-      captain_b = scrim.captain_b
-      team_b_player_ids << captain_b.id
-      selected_player_ids << captain_b.id
-      player_ids.delete(captain_b.id)
-
-      monks_count = Player.where('id IN (?)', player_ids).monks.count
-
-      unless monks_count.eql?(0)
-        monks_team_a = Player.where('id IN (?)', player_ids).monks.sample(monks_count / 2 + monks_count % 2)
-        unless monks_team_a.count.eql?(0)
-          team_a_player_ids << monks_team_a.pluck(:id)
-          selected_player_ids << monks_team_a.pluck(:id)
-          monks_team_a.pluck(:id).each do |monk_id|
-            player_ids.delete(monk_id)
-          end
-        end
-
-        monks_team_b = Player.where('id IN (?)', player_ids).monks.sample(monks_count / 2)
-        unless monks_team_b.count.eql?(0)
-          team_b_player_ids << monks_team_b.pluck(:id)
-          selected_player_ids << monks_team_b.pluck(:id)
-          monks_team_b.pluck(:id).each do |monk_id|
-            player_ids.delete(monk_id)
-          end
-        end
-      end
-
-      frontliners_count = Player.where('id IN (?)', player_ids).frontliners.count
-      unless frontliners_count.eql?(0)
-        frontliners_team_a = Player.where('id IN (?)', player_ids).frontliners.sample(frontliners_count / 2)
-        unless frontliners_team_a.count.eql?(0)
-          team_a_player_ids << frontliners_team_a.pluck(:id)
-          selected_player_ids << frontliners_team_a.pluck(:id)
-          frontliners_team_a.pluck(:id).each do |frontliner_id|
-            player_ids.delete(frontliner_id)
-          end
-        end
-
-        frontliners_team_b = Player.where('id IN (?)', player_ids).frontliners.sample(frontliners_count / 2 + frontliners_count % 2)
-        unless frontliners_team_b.count.eql?(0)
-          team_b_player_ids << frontliners_team_b.pluck(:id)
-          selected_player_ids << frontliners_team_b.pluck(:id)
-          frontliners_team_b.pluck(:id).each do |frontliner_id|
-            player_ids.delete(frontliner_id)
-          end
-        end
-      end
-
-      midliners_count = Player.where('id IN (?)', player_ids).midliners.count
-      unless midliners_count.eql?(0)
-        midliners_team_a = Player.where('id IN (?)', player_ids).midliners.sample(midliners_count / 2 + midliners_count % 2)
-        unless midliners_team_a.count.eql?(0)
-          team_a_player_ids << midliners_team_a.pluck(:id)
-          selected_player_ids << midliners_team_a.pluck(:id)
-          midliners_team_a.pluck(:id).each do |midliner_id|
-            player_ids.delete(midliner_id)
-          end
-        end
-
-        midliners_team_b = Player.where('id IN (?)', player_ids).midliners.sample(midliners_count / 2)
-        unless midliners_team_b.count.eql?(0)
-          team_b_player_ids << midliners_team_b.pluck(:id)
-          selected_player_ids << midliners_team_b.pluck(:id)
-          midliners_team_b.pluck(:id).each do |midliner_id|
-            player_ids.delete(midliner_id)
-          end
-        end
-      end
-
-      other_players_count = Player.where('id IN (?)', player_ids).count
-      unless other_players_count.eql?(0)
-        team_a_player_ids = team_a_player_ids.flatten
-        other_players_team_a = Player.where('id IN (?)', player_ids).sample(8 - team_a_player_ids.count)
-        unless other_players_team_a.count.eql?(0)
-          team_a_player_ids << other_players_team_a.pluck(:id)
-          selected_player_ids << other_players_team_a.pluck(:id)
-          other_players_team_a.pluck(:id).each do |other_player_id|
-            player_ids.delete(other_player_id)
-          end
-        end
-
-        team_b_player_ids = team_b_player_ids.flatten
-        other_players_team_b = Player.where('id IN (?)', player_ids).sample(8 - team_b_player_ids.count)
-        unless other_players_team_b.count.eql?(0)
-          team_b_player_ids << other_players_team_b.pluck(:id)
-          selected_player_ids << other_players_team_b.pluck(:id)
-          other_players_team_b.pluck(:id).each do |other_player_id|
-            player_ids.delete(other_player_id)
-          end
-        end
-      end
-
-      selected_player_ids = selected_player_ids.flatten
-      team_a_player_ids = team_a_player_ids.flatten
-      team_b_player_ids = team_b_player_ids.flatten
-
-      message = 'Team A:'
-      Player.where('id IN (?)', team_a_player_ids).each do |player|
-        message << "\n<@#{player.uid}>"
-        message << ', captain' if scrim.captain_a_id == player.id
-        message << ", in-game name **#{player.igname}**" if player.igname.present?
-        message << ", #{player.professions_text}" if player.professions_text.present?
-      end
-      event.respond message
-
-      message = 'Team B:'
-      Player.where('id IN (?)', team_b_player_ids).each do |player|
-        message << "\n<@#{player.uid}>"
-        message << ', captain' if scrim.captain_b_id == player.id
-        message << ", in-game name **#{player.igname}**" if player.igname.present?
-        message << ", #{player.professions_text}" if player.professions_text.present?
-      end
-      event.respond message
-
-      message = 'Next players by order:'
-      Player.where.not('players.id IN (?)', selected_player_ids).in_queue.each do |player|
-        message << "\n<@#{player.uid}>"
-        message << ", in-game name **#{player.igname}**" if player.igname.present?
-        message << ", #{player.professions_text}" if player.professions_text.present?
-      end
-      event.respond message
+      handle_newteams_command(event)
     end
 
+    # Move players command
     bot.command :moveplayers, description: 'to automatically move players to the Scrimers voice channel (moderators only)' do |event|
-      server = bot.server(ENV['DISCORD_SERVER_ID'])
-      channel = bot.channel(ENV['DISCORD_SCRIMERS_VOICE_CHANNEL_ID'])
-
-      player = Player.find_by(uid: event.user.id)
-      if player.is_moderator?
-        Registration.current_registrations.order(registered_at: :asc).first(16).each do |registration|
-          user = bot.user(registration.player.uid)
-          server.move(user, channel)
-        end
-        message = "<@#{event.user.id}>, the current first 16 players were moved to the Scrimers voice channel."
-      else
-        message = "<@#{event.user.id}>, you need to ask a moderator to move players."
-      end
-
-      event.respond message
+      handle_moveplayers_command(event)
     end
 
+    # Reset command
     bot.command :reset, description: 'to reset the current queue (moderators only)' do |event|
-      player = Player.find_by(uid: event.user.id)
-      if player.is_moderator?
-        Registration.current_registrations.update_all(unregistered_at: DateTime.now)
-        message = "<@#{event.user.id}>, you successfully reset the current queue."
-        message << "\nPlayers can *!register* themselves again."
-      else
-        message = "<@#{event.user.id}>, you need to ask a moderator to reset the current queue."
-      end
-      event.respond message
+      handle_reset_command(event)
     end
 
-    at_exit { bot.stop }
-    bot.run
+    # Professions command
+    bot.command :professions, description: 'to set your professions' do |event|
+      handle_professions_command(event)
+    end
   end
 
-  private
+  def handle_register_button(event)
+    player = Player.where(provider: 'discord', uid: event.user.id).first_or_create do |player|
+      player.email = "#{event.user.id}@gwrank.com"
+      player.password = Devise.friendly_token[0, 20]
+      player.username = event.user.name
+    end
+
+    if player.has_current_registration?
+      event.respond(content: "You are already registered, #{event.user.username}!", ephemeral: true)
+    else
+      player.registrations.create(registered_at: DateTime.now)
+      auto_designate_captains(event) if Registration.current_registrations.count.eql?(16)
+      event.interaction.update_message(has_components: true) do |_, view|
+        message_container(view)
+      end
+      event.respond(content: "You have been registered, #{event.user.username}!", ephemeral: true)
+    end
+  end
+
+  def handle_unregister_button(event)
+    player = Player.find_by(uid: event.user.id)
+
+    if player&.has_current_registration?
+      player.current_registration.update(unregistered_at: DateTime.now)
+      event.interaction.update_message(has_components: true) do |_, view|
+        message_container(view)
+      end
+      event.respond(content: "You have been unregistered, #{event.user.username}!", ephemeral: true)
+    else
+      event.respond(content: "You are not registered, #{event.user.username}!", ephemeral: true)
+    end
+  end
+
+  def handle_igname_command(event, player)
+    if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
+      player = player.delete_prefix('<@!').delete_suffix('>')
+      player = Player.find_by(uid: player)
+      if player.present?
+        message = "<@#{event.user.id}> (**#{player.igname}**)"
+      else
+        message = "<@#{event.user.id}> (in-game name not found)"
+      end
+    else
+      message = "<@#{event.user.id}> (invalid player)"
+    end
+
+    event.respond message
+  end
+
+  def handle_professions_command(event)
+    player = Player.where(provider: 'discord', uid: event.user.id).first_or_create do |p|
+      p.email = "#{event.user.id}@gwrank.com"
+      p.password = Devise.friendly_token[0, 20]
+      p.username = event.user.name
+    end
+
+    event.send_message!(has_components: true) do |_, view|
+      professions_container(view, player)
+    end
+  end
+
+  def handle_register_command(event, igname)
+    message = ''
+
+    player = Player.where(provider: 'discord', uid: event.user.id).first_or_create do |player|
+      player.email = "#{event.user.id}@gwrank.com"
+      player.password = Devise.friendly_token[0, 20]
+      player.username = event.user.name
+    end
+
+    if player.igname.present?
+      if igname.count > 1 && player.igname != igname
+        igname = igname.join(' ')
+        player.update(igname: igname)
+        message << "\nYour known in-game name is **#{player.igname}**."
+      else
+        message << "\nYour known in-game name is **#{player.igname}**. If you want to update it, please type *!register* **Your In Game Name**"
+      end
+    else
+      if igname.count > 1 && player.igname != igname
+        igname = igname.join(' ')
+        player.update(igname: igname)
+        message << "\nYour known in-game name is **#{player.igname}**. You successfully updated it."
+      else
+        message << "\nYour in-game name is unknown. To be easily guested, please type *!register* **Your In Game Name**"
+      end
+    end
+
+    event.respond message
+  end
+
+  def handle_add_command(event, player)
+    current_registrations = Registration.current_registrations
+    if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
+      player = player.delete_prefix('<@!').delete_suffix('>')
+      player = Player.find_by(uid: player)
+      if player.present?
+        if player.has_current_registration?
+          message = "<@#{event.user.id}>, the player #{player.name} is already ##{current_registrations.count} in the current queue."
+        else
+          player.registrations.create(registered_at: DateTime.now)
+          message = "<@#{event.user.id}>, the player #{player.name} is now ##{current_registrations.count} in the current queue for the next 8 hours."
+          message << "\nIf he's out, he have to type *!unregister*"
+
+          if current_registrations.count < 16
+            players_required = 16 - current_registrations.count
+            message << "\nWe need #{players_required} more players."
+          elsif current_registrations.count.eql?(16)
+            message << "\nWe have 16 players!"
+            message << "\nTo see the players list, you can type *!players* or go on https://gwrank.com/scrims"
+            message << "\nTo roll 100, captains can type *!roll*"
+            message << "\nTo automatically designate captains, you can type *!newcaptains*"
+          end
+        end
+      else
+        message = "<@#{event.user.id}>, the player is not found and have first to !register himself."
+      end
+    else
+      message = "<@#{event.user.id}>, this is an invalid player."
+    end
+    event.respond message
+  end
+
+  def handle_remove_command(event, player)
+    if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
+      player = player.delete_prefix('<@!').delete_suffix('>')
+      player = Player.find_by(uid: player)
+      if player.present?
+        if player.has_current_registration?
+          player.current_registration.update(unregistered_at: DateTime.now)
+          message = "<@#{event.user.id}>, the player #{player.name} is not anymore in the current queue."
+        else
+          message = "<@#{event.user.id}>, the player #{player.name} was not in the current queue."
+        end
+      else
+        message = "<@#{event.user.id}>, the player is not found and have first to !register himself."
+      end
+    else
+      message = "<@#{event.user.id}>, this is an invalid player."
+    end
+    event.respond message
+  end
+
+  def handle_afk_command(event, player)
+    if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
+      player = player.delete_prefix('<@!').delete_suffix('>')
+      player = Player.find_by(uid: player)
+      if player.present?
+        if player.has_current_registration?
+          player.current_registration.update(unregistered_at: DateTime.now)
+          message = "<@#{event.user.id}>, the player #{player.name} is now in AFK mode, he have to write *!back* to be back in the current queue."
+        else
+          message = "<@#{event.user.id}>, the player #{player.name} is not in the current queue."
+        end
+      else
+        message = "<@#{event.user.id}>, the player is not found and have first to !register himself."
+      end
+    else
+      player = Player.find_by(uid: event.user.id)
+      if player
+        if player.has_current_registration?
+          player.current_registration.update(unregistered_at: DateTime.now)
+          message = "<@#{event.user.id}>, you are now in AFK mode."
+        else
+          message = "<@#{event.user.id}>, you were not in the current queue."
+        end
+      else
+        message = "<@#{event.user.id}>, you need to !register yourself first."
+      end
+    end
+    event.respond message
+  end
+
+  def handle_back_command(event, player)
+    if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
+      player = player.delete_prefix('<@!').delete_suffix('>')
+      player = Player.find_by(uid: player)
+      if player.present?
+        if player.has_afk_registration?
+          player.afk_registration.update(unregistered_at: DateTime.now)
+          message = "<@#{event.user.id}>, the player #{player.name} is now back in the queue."
+        else
+          message = "<@#{event.user.id}>, the player #{player.name} was not in AFK mode."
+        end
+      else
+        message = "<@#{event.user.id}>, the player is not found and have first to !register himself."
+      end
+    else
+      player = Player.find_by(uid: event.user.id)
+      if player
+        if player.has_afk_registration?
+          player.afk_registration.update(unregistered_at: nil)
+          message = "<@#{event.user.id}>, welcome back!"
+        else
+          message = "<@#{event.user.id}>, you were not in the current queue."
+        end
+      else
+        message = "<@#{event.user.id}>, you need to !register yourself first."
+      end
+    end
+    event.respond message
+  end
+
+  def handle_captains_command(event)
+    current_registrations = Registration.current_registrations
+    if current_registrations.count >= 16
+      scrim = Scrim.current_scrims.order(created_at: :desc).first
+      message = "<@#{event.user.id}>, the current captains are @#{scrim.captain_a.username} (#{scrim.captain_a.igname}) and @#{scrim.captain_b.username} (#{scrim.captain_b.igname})."
+      message << "\nIf you want new captains, you can type *!newcaptains*"
+    else
+      players_required = 16 - current_registrations.count
+      message = "<@#{event.user.id}>, we need #{players_required} more players to designate captains."
+    end
+    event.respond message
+  end
+
+  def handle_newcaptains_command(event)
+    if Registration.current_registrations.count >= 16
+      auto_designate_captains(event)
+    else
+      players_required = 16 - Registration.current_registrations.count
+      event.respond "<@#{event.user.id}>, we need #{players_required} more players to designate captains."
+    end
+  end
+
+  def handle_roll_command(event)
+    message = "<@#{event.user.id}>, you rolled: "
+    message << rand(0..100).to_s
+    event.respond message
+  end
+
+  def handle_players_command(event)
+    message = "<@#{event.user.id}>, the current players ordered by registration time are:"
+    Registration.current_registrations.order(registered_at: :asc).each_with_index do |registration, index|
+      if registration.player.igname.present?
+        if registration.player.professions_text.present?
+          message << "\n##{index + 1} <@#{registration.player.uid}> (#{registration.player.igname})"
+        else
+          message << "\n##{index + 1} <@#{registration.player.uid}> (#{registration.player.igname}) [#{registration.player.professions_text}}"
+        end
+      else
+        message << "\n##{index + 1} <@#{registration.player.uid}>"
+      end
+    end
+    event.respond message
+  end
+
+  def handle_newteams_command(event)
+    player_ids = Player.in_queue.first(16).pluck(:id)
+    selected_player_ids = []
+    team_a_player_ids = []
+    team_b_player_ids = []
+
+    scrim = Scrim.order(created_at: :desc).first
+
+    captain_a = scrim.captain_a
+    team_a_player_ids << captain_a.id
+    selected_player_ids << captain_a.id
+    player_ids.delete(captain_a.id)
+
+    captain_b = scrim.captain_b
+    team_b_player_ids << captain_b.id
+    selected_player_ids << captain_b.id
+    player_ids.delete(captain_b.id)
+
+    monks_count = Player.where('id IN (?)', player_ids).monks.count
+
+    unless monks_count.eql?(0)
+      monks_team_a = Player.where('id IN (?)', player_ids).monks.sample(monks_count / 2 + monks_count % 2)
+      unless monks_team_a.count.eql?(0)
+        team_a_player_ids << monks_team_a.pluck(:id)
+        selected_player_ids << monks_team_a.pluck(:id)
+        monks_team_a.pluck(:id).each do |monk_id|
+          player_ids.delete(monk_id)
+        end
+      end
+
+      monks_team_b = Player.where('id IN (?)', player_ids).monks.sample(monks_count / 2)
+      unless monks_team_b.count.eql?(0)
+        team_b_player_ids << monks_team_b.pluck(:id)
+        selected_player_ids << monks_team_b.pluck(:id)
+        monks_team_b.pluck(:id).each do |monk_id|
+          player_ids.delete(monk_id)
+        end
+      end
+    end
+
+    frontliners_count = Player.where('id IN (?)', player_ids).frontliners.count
+    unless frontliners_count.eql?(0)
+      frontliners_team_a = Player.where('id IN (?)', player_ids).frontliners.sample(frontliners_count / 2)
+      unless frontliners_team_a.count.eql?(0)
+        team_a_player_ids << frontliners_team_a.pluck(:id)
+        selected_player_ids << frontliners_team_a.pluck(:id)
+        frontliners_team_a.pluck(:id).each do |frontliner_id|
+          player_ids.delete(frontliner_id)
+        end
+      end
+
+      frontliners_team_b = Player.where('id IN (?)', player_ids).frontliners.sample(frontliners_count / 2 + frontliners_count % 2)
+      unless frontliners_team_b.count.eql?(0)
+        team_b_player_ids << frontliners_team_b.pluck(:id)
+        selected_player_ids << frontliners_team_b.pluck(:id)
+        frontliners_team_b.pluck(:id).each do |frontliner_id|
+          player_ids.delete(frontliner_id)
+        end
+      end
+    end
+
+    midliners_count = Player.where('id IN (?)', player_ids).midliners.count
+    unless midliners_count.eql?(0)
+      midliners_team_a = Player.where('id IN (?)', player_ids).midliners.sample(midliners_count / 2 + midliners_count % 2)
+      unless midliners_team_a.count.eql?(0)
+        team_a_player_ids << midliners_team_a.pluck(:id)
+        selected_player_ids << midliners_team_a.pluck(:id)
+        midliners_team_a.pluck(:id).each do |midliner_id|
+          player_ids.delete(midliner_id)
+        end
+      end
+
+      midliners_team_b = Player.where('id IN (?)', player_ids).midliners.sample(midliners_count / 2)
+      unless midliners_team_b.count.eql?(0)
+        team_b_player_ids << midliners_team_b.pluck(:id)
+        selected_player_ids << midliners_team_b.pluck(:id)
+        midliners_team_b.pluck(:id).each do |midliner_id|
+          player_ids.delete(midliner_id)
+        end
+      end
+    end
+
+    other_players_count = Player.where('id IN (?)', player_ids).count
+    unless other_players_count.eql?(0)
+      team_a_player_ids = team_a_player_ids.flatten
+      other_players_team_a = Player.where('id IN (?)', player_ids).sample(8 - team_a_player_ids.count)
+      unless other_players_team_a.count.eql?(0)
+        team_a_player_ids << other_players_team_a.pluck(:id)
+        selected_player_ids << other_players_team_a.pluck(:id)
+        other_players_team_a.pluck(:id).each do |other_player_id|
+          player_ids.delete(other_player_id)
+        end
+      end
+
+      team_b_player_ids = team_b_player_ids.flatten
+      other_players_team_b = Player.where('id IN (?)', player_ids).sample(8 - team_b_player_ids.count)
+      unless other_players_team_b.count.eql?(0)
+        team_b_player_ids << other_players_team_b.pluck(:id)
+        selected_player_ids << other_players_team_b.pluck(:id)
+        other_players_team_b.pluck(:id).each do |other_player_id|
+          player_ids.delete(other_player_id)
+        end
+      end
+    end
+
+    selected_player_ids = selected_player_ids.flatten
+    team_a_player_ids = team_a_player_ids.flatten
+    team_b_player_ids = team_b_player_ids.flatten
+
+    message = 'Team A:'
+    Player.where('id IN (?)', team_a_player_ids).each do |player|
+      message << "\n<@#{player.uid}>"
+      message << ', captain' if scrim.captain_a_id == player.id
+      message << ", in-game name **#{player.igname}**" if player.igname.present?
+      message << ", #{player.professions_text}" if player.professions_text.present?
+    end
+    event.respond message
+
+    message = 'Team B:'
+    Player.where('id IN (?)', team_b_player_ids).each do |player|
+      message << "\n<@#{player.uid}>"
+      message << ', captain' if scrim.captain_b_id == player.id
+      message << ", in-game name **#{player.igname}**" if player.igname.present?
+      message << ", #{player.professions_text}" if player.professions_text.present?
+    end
+    event.respond message
+
+    message = 'Next players by order:'
+    Player.where.not('players.id IN (?)', selected_player_ids).in_queue.each do |player|
+      message << "\n<@#{player.uid}>"
+      message << ", in-game name **#{player.igname}**" if player.igname.present?
+      message << ", #{player.professions_text}" if player.professions_text.present?
+    end
+    event.respond message
+  end
+
+  def handle_moveplayers_command(event)
+    server = bot.server(ENV['DISCORD_SERVER_ID'])
+    channel = bot.channel(ENV['DISCORD_SCRIMERS_VOICE_CHANNEL_ID'])
+
+    player = Player.find_by(uid: event.user.id)
+    if player.is_moderator?
+      Registration.current_registrations.order(registered_at: :asc).first(16).each do |registration|
+        user = bot.user(registration.player.uid)
+        server.move(user, channel)
+      end
+      message = "<@#{event.user.id}>, the current first 16 players were moved to the Scrimers voice channel."
+    else
+      message = "<@#{event.user.id}>, you need to ask a moderator to move players."
+    end
+
+    event.respond message
+  end
+
+  def handle_reset_command(event)
+    player = Player.find_by(uid: event.user.id)
+    if player.is_moderator?
+      Registration.current_registrations.update_all(unregistered_at: DateTime.now)
+      message = "<@#{event.user.id}>, you successfully reset the current queue."
+      message << "\nPlayers can *!register* themselves again."
+    else
+      message = "<@#{event.user.id}>, you need to ask a moderator to reset the current queue."
+    end
+    event.respond message
+  end
+
+  def handle_professions_button(event, player)
+    # This method will handle the button clicks for professions
+    # We'll need to process the button click and update the player's professions
+    if event.custom_id.start_with?('prof_')
+      profession = event.custom_id.split('_')[1]
+
+      # Update the player's profession
+      case profession
+      when 'warrior'
+        player.update(is_warrior: !player.is_warrior)
+      when 'ranger'
+        player.update(is_ranger: !player.is_ranger)
+      when 'monk'
+        player.update(is_monk: !player.is_monk)
+      when 'necromancer'
+        player.update(is_necromancer: !player.is_necromancer)
+      when 'mesmer'
+        player.update(is_mesmer: !player.is_mesmer)
+      when 'elementalist'
+        player.update(is_elementalist: !player.is_elementalist)
+      when 'assassin'
+        player.update(is_assassin: !player.is_assassin)
+      when 'ritualist'
+        player.update(is_ritualist: !player.is_ritualist)
+      when 'paragon'
+        player.update(is_paragon: !player.is_paragon)
+      when 'dervish'
+        player.update(is_dervish: !player.is_dervish)
+      end
+
+      # Update the message with the new professions
+      event.interaction.update_message(has_components: true) do |_, view|
+        professions_container(view, player)
+      end
+    end
+  end
 
   def auto_designate_captains(event)
     captain_a = Registration.current_registrations.order(registered_at: :asc).first(16).sample.player
@@ -437,6 +586,35 @@ class CommandBotJob < ApplicationJob
       container.row do |row|
         row.button(label: 'Register', style: :success, custom_id: 'register')
         row.button(label: 'Unregister', style: :danger, custom_id: 'unregister')
+      end
+    end
+  end
+
+  def professions_container(view, player)
+    view.container do |container|
+      container.section do |section|
+        section.text_display(content: "### Professions Panel\nYour current professions:\n#{player.professions_text.presence || 'No professions set'}")
+        section.thumbnail(url: 'https://gwrank.com/assets/background-a4004a29.jpg')
+      end
+      container.row do |row|
+        row.button(label: 'Warrior', style: player.is_warrior ? :success : :secondary, custom_id: 'prof_warrior')
+        row.button(label: 'Ranger', style: player.is_ranger ? :success : :secondary, custom_id: 'prof_ranger')
+      end
+      container.row do |row|
+        row.button(label: 'Monk', style: player.is_monk ? :success : :secondary, custom_id: 'prof_monk')
+        row.button(label: 'Necromancer', style: player.is_necromancer ? :success : :secondary, custom_id: 'prof_necromancer')
+      end
+      container.row do |row|
+        row.button(label: 'Mesmer', style: player.is_mesmer ? :success : :secondary, custom_id: 'prof_mesmer')
+        row.button(label: 'Elementalist', style: player.is_elementalist ? :success : :secondary, custom_id: 'prof_elementalist')
+      end
+      container.row do |row|
+        row.button(label: 'Assassin', style: player.is_assassin ? :success : :secondary, custom_id: 'prof_assassin')
+        row.button(label: 'Ritualist', style: player.is_ritualist ? :success : :secondary, custom_id: 'prof_ritualist')
+      end
+      container.row do |row|
+        row.button(label: 'Paragon', style: player.is_paragon ? :success : :secondary, custom_id: 'prof_paragon')
+        row.button(label: 'Dervish', style: player.is_dervish ? :success : :secondary, custom_id: 'prof_dervish')
       end
     end
   end
