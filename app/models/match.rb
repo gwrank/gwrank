@@ -115,18 +115,19 @@ class Match < ApplicationRecord
 
     # Extract match_type from JSON to determine tournament type
     match_type_str = match.json.dig('match_type')
-    tournament_type = "at" # default to automated tournament
-    
     if match_type_str.present?
       # Convert match_type to tournament_type
       # MAT = Monthly Automated Tournament, AT = Automated Tournament
       tournament_type = match_type_str.downcase.include?("mat") ? "mat" : "at"
+      # Add tournament region (a, b or c)
+      region = match_type_str.split(' ').last.downcase
     end
 
     match.tournament = Tournament.where(
       year: year,
       month: month,
       date: date,
+      region: region,
       tournament_type: tournament_type
     ).first_or_create!
 

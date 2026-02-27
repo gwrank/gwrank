@@ -7,6 +7,7 @@
 #  guild_number    :integer
 #  map_rotation    :string
 #  month           :integer
+#  region          :string
 #  slug            :string
 #  tournament_type :string
 #  year            :integer
@@ -36,7 +37,7 @@ class Tournament < ApplicationRecord
   def slug_candidates
     case tournament_type
     when 'at'
-      ["#{date}-at"]
+      ["#{date}-at-#{region}"]
     when 'mat'
       ["#{year}-#{month}-mat"]
     end
@@ -45,7 +46,7 @@ class Tournament < ApplicationRecord
   def title
     case tournament_type
     when 'at'
-      "#{date} AT"
+      "#{date} AT #{region}"
     when 'mat'
       "#{year}-#{month} mAT"
     else
