@@ -11,14 +11,25 @@
             <div class="col-lg-12 mb-6" data-sr="banner" data-sr-interval="200" data-sr-duration="1200" data-sr-distance="20">
               <h1 class="display-1" data-sr-item="banner">GWRank Reforged</h1>
               <p class="lead" data-sr-item="banner">
-                GvG match database with stats for Guild Wars. Track your tournaments and guild performances.
+              GvG match database with stats for Guild Wars. Track your tournaments and guild performances.
               </p>
               <% if current_player %>
-                <%= link_to 'Add a match', new_match_path, class: 'btn btn-md btn-brand' %>
-                <%= link_to 'My profile', player_path(current_player), class: 'btn btn-md btn-brand' %>
-                <%= link_to 'Log Out', destroy_player_session_path, data: { turbo_method: :delete }, class: 'btn btn-md btn-brand' %>
+                <div class="mt-3">
+                  <%= link_to 'Add a match from GWToolbox', new_match_path, class: 'btn btn-md btn-brand me-2' %>
+                  <%= link_to 'Edit your profile', player_path(current_player), class: 'btn btn-md btn-outline-brand' %>
+                </div>
+                <p class="small mt-2" data-sr-item="banner">
+                  Logged in as: <strong><%= current_player.name %></strong> |
+                  <a href="<%= destroy_player_session_path %>" data-turbo-method="delete">Log Out</a>
+                </p>
               <% else %>
-                <%= link_to 'Login to Add Matches', new_player_session_path, class: 'btn btn-md btn-brand' %>
+                <div class="mt-3">
+                  <%= link_to 'Login with Discord to Add Matches', new_player_session_path, class: 'btn btn-md btn-brand' %>
+                </div>
+                <p class="small mt-2" data-sr-item="banner">
+                  Open source on <a href="https://github.com/gwrank/gwrank" target="_blank" class="text-primary">GitHub</a>.
+                  Your privacy matters - we never see your Discord email or password.
+                </p>
               <% end %>
             </div>
             <div class="col-lg-12 mb-6">
