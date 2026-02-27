@@ -176,6 +176,7 @@ class Match < ApplicationRecord
         secondary = agent.dig("secondary") # e.g.: 7
         secondary_profession = Profession.find_by(profession_id: secondary)
         position = agent.dig("display_name").split(")").first.split("(").second
+        position ||= team.team_players.count + 1
 
         character = Character.where(igname: igname).first_or_create! do |c|
           c.profession = profession
