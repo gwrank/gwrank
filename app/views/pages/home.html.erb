@@ -1,96 +1,117 @@
 <div class="content-wrap">
-    <div class="mpl-navbar-mobile-overlay"></div>
-    <div>
-        <section class="mpl-banner mpl-banner-top mpl-banner-parallax">
-            <div class="mpl-image" data-speed="0.8">
-                <%= image_tag 'background.jpg', class: 'jarallax-img' %>
+  <div class="mpl-navbar-mobile-overlay"></div>
+  <div>
+    <section class="mpl-banner mpl-banner-top mpl-banner-parallax">
+      <div class="mpl-image" data-speed="0.8">
+        <%= image_tag 'background.jpg', class: 'jarallax-img' %>
+      </div>
+      <div class="mpl-banner-content mpl-box-lg">
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-6" data-sr="banner" data-sr-interval="200" data-sr-duration="1200" data-sr-distance="20">
+              <h1 class="display-1" data-sr-item="banner">GWRank Reforged</h1>
+              <p class="lead" data-sr-item="banner">
+                Last tournaments and matches
+              </p>
+              <%= link_to 'Add a match', new_match_path, class: 'btn btn-md btn-brand' %>
             </div>
-            <div class="mpl-banner-content mpl-box-lg">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-6" data-sr="banner" data-sr-interval="200" data-sr-duration="1200" data-sr-distance="20">
-                            <h1 class="display-1" data-sr-item="banner">GWRank Reforged</h1>
-                            <% if current_player %>
-                              <p class="lead" data-sr-item="banner">
-                                Welcome <%= current_player.name %>
-                              </p>
-                              <%= link_to 'Add a match', new_match_path, class: 'btn btn-md btn-brand' %>
-                              <%= link_to 'My profile', player_path(current_player), class: 'btn btn-md btn-brand' %>
-                              <%= link_to 'Log Out', destroy_player_session_path, data: { turbo_method: :delete }, class: 'btn btn-md btn-brand' %>
-                            <% else %>
-                              <p class="lead" data-sr-item="banner">
-                              Welcome
-                              </p>
-                              <%= form_tag(omniauth_authorize_path(:player, :discord), method: 'post', data: { turbo: false }) do %>
-                                <button type="submit" class="btn btn-md btn-brand">Login with Discord</button>
-                              <% end %>
-                            <% end %>
-                        </div>
-                        <% if ENV['TWITCH_LIVE_CHANNEL'].present? %>
-                            <div class="col-lg-6" data-sr="banner" data-sr-interval="200" data-sr-duration="1200" data-sr-distance="20">
-                                <h2>Twitch live</h2>
-                                <div class="cyberpress-twitch">
-                                    <div class="cyberpress-twitch-player">
-                                        <iframe src="https://player.twitch.tv/?channel=<%= ENV['TWITCH_LIVE_CHANNEL'] %>&parent=<%= request.host %>" frameborder="0" allowfullscreen scrolling="no"></iframe>
-                                    </div>
-                                </div>
-                            </div>
-                        <% end %>
-                    </div>
+            <div class="row vgap" data-sr="tournaments" data-sr-interval="100" data-sr-duration="1000" data-sr-distance="20">
+              <% @tournaments.each do |tournament| %>
+                <div class="col-12 col-lg-6" data-sr-item="tournaments">
+                  <div class="cyberpress-tournament">
+                    <h2 class="cyberpress-tournament-title h4">
+                      <%= link_to tournament.title, tournament_path(tournament) %>
+                    </h2>
+                    <ul class="cyberpress-tournament-info">
+                      <% if tournament.date.present? %>
+                        <li>
+                          <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 2V6M8 2V6M3 10H21M5 4H19C20.1046 4 21 4.89543 21 6V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V6C3 4.89543 3.89543 4 5 4Z"></path>
+                          </svg><%= tournament.date %>
+                        </li>
+                      <% end %>
+                      <% if tournament.guild_number.present? %>
+                        <li>
+                          Guild number: <%= tournament.guild_number %>
+                        </li>
+                      <% end %>
+                      <% if tournament.winner_guild.present? %>
+                        <li>
+                          Winner: <%= tournament.winner_guild.name_with_tag %>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
                 </div>
+              <% end %>
+              <%== @pagy.series_nav(:bootstrap) %>
             </div>
-        </section>
 
-        <div class="mpl-box-md">
-            <div class="container">
-                <div class="row hgap-lg vgap-lg">
-                    <div class="col-lg mpl-content">
-                        <div class="row vgap">
-                            <div class="col-12 col-md-6 col-lg-6">
-                                <div class="mpl-feature">
-                                    <div class="mpl-feature-title h4">
-                                        <%= pluralize Player.all.count, 'player' %>
-                                    </div>
-                                    <div class="mpl-feature-text">
-                                        <%= link_to 'See all players', players_path, class: 'btn btn-md' %>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-6 col-lg-6">
-                                <div class="mpl-feature">
-                                    <div class="mpl-feature-title h4">
-                                        <%= pluralize Guild.active.count, 'active guilds' %>
-                                    </div>
-                                    <div class="mpl-feature-text">
-                                        <%= link_to 'See all guilds', guilds_path, class: 'btn btn-md' %>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-6 col-lg-6">
-                                <div class="mpl-feature">
-                                    <div class="mpl-feature-title h4">
-                                        <%= pluralize Guild.archived.count, 'archived guilds' %>
-                                    </div>
-                                    <div class="mpl-feature-text">
-                                        <%= link_to 'See archived tournaments', tournaments_path, class: 'btn btn-md' %>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-6 col-lg-6">
-                                <div class="mpl-feature">
-                                    <div class="mpl-feature-title h4">
-                                        <%= pluralize Tournament.count, 'tournaments' %>
-                                    </div>
-                                    <div class="mpl-feature-text">
-                                        <%= link_to 'See tournaments', tournaments_path, class: 'btn btn-md' %>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <% if ENV['TWITCH_LIVE_CHANNEL'].present? %>
+              <div class="col-lg-6" data-sr="banner" data-sr-interval="200" data-sr-duration="1200" data-sr-distance="20">
+                <h2>Twitch live</h2>
+                <div class="cyberpress-twitch">
+                  <div class="cyberpress-twitch-player">
+                    <iframe src="https://player.twitch.tv/?channel=<%= ENV['TWITCH_LIVE_CHANNEL'] %>&parent=<%= request.host %>" frameborder="0" allowfullscreen scrolling="no"></iframe>
+                  </div>
                 </div>
-            </div>
+              </div>
+            <% end %>
+          </div>
         </div>
-        <%= render 'footer' %>
+      </div>
+    </section>
+
+    <div class="mpl-box-md">
+      <div class="container">
+        <div class="row hgap-lg vgap-lg">
+          <div class="col-lg mpl-content">
+            <div class="row vgap">
+              <div class="col-12 col-md-6 col-lg-6">
+                <div class="mpl-feature">
+                  <div class="mpl-feature-title h4">
+                    <%= pluralize Player.all.count, 'player' %>
+                  </div>
+                  <div class="mpl-feature-text">
+                    <%= link_to 'See all players', players_path, class: 'btn btn-md' %>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-lg-6">
+                <div class="mpl-feature">
+                  <div class="mpl-feature-title h4">
+                    <%= pluralize Guild.active.count, 'active guilds' %>
+                  </div>
+                  <div class="mpl-feature-text">
+                    <%= link_to 'See all guilds', guilds_path, class: 'btn btn-md' %>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-lg-6">
+                <div class="mpl-feature">
+                  <div class="mpl-feature-title h4">
+                    <%= pluralize Guild.archived.count, 'archived guilds' %>
+                  </div>
+                  <div class="mpl-feature-text">
+                    <%= link_to 'See archived tournaments', tournaments_path, class: 'btn btn-md' %>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-lg-6">
+                <div class="mpl-feature">
+                  <div class="mpl-feature-title h4">
+                    <%= pluralize Tournament.count, 'tournaments' %>
+                  </div>
+                  <div class="mpl-feature-text">
+                    <%= link_to 'See tournaments', tournaments_path, class: 'btn btn-md' %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+    <%= render 'footer' %>
+  </div>
 </div>
