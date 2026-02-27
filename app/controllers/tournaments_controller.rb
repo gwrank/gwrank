@@ -1,6 +1,6 @@
 class TournamentsController < ApplicationController
   def index
-    @pagy, @tournaments = pagy(Tournament.order(year: :desc).order(month: :desc))
+    @pagy, @tournaments = pagy(Tournament.order(date: :desc, year: :desc, month: :desc))
   end
 
   def show
