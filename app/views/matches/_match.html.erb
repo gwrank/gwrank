@@ -12,7 +12,7 @@
     <div class="cyberpress-match-participants">
       <div class="cyberpress-match-participant">
         <h3 class="cyberpress-match-participant-title">
-          <% if match.teams.first.rank.present? %>
+          <% if match.teams.first.rank %>
             <span class="guild-rank">#<%= match.teams.first.rank %></span>
           <% end %>
           <%= match.teams.first.guild.name_with_tag %>

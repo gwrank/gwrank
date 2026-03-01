@@ -154,8 +154,8 @@ class Match < ApplicationRecord
       guild_name = party.dig("name") # e.g.: "Le Poulpe Divin"
       guild_display_name = party.dig("display_name") # e.g.: "Le Poulpe Divin [KrkN]"
       guild_tag = guild_display_name.split("[").last.split("]").first
-      guild_rank = party.dig("rank")
-      guild_rating = party.dig("rating")
+      guild_rank = party&.dig("rank")
+      guild_rating = party&.dig("rating")
 
       guild = Guild.where(name: guild_name, tag: guild_tag).first_or_create!
       team = match.teams.create!(guild: guild, rank: guild_rank, rating: guild_rating)
