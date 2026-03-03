@@ -64,6 +64,7 @@ class Player < ApplicationRecord
   has_many :characters, dependent: :nullify
   has_many :registrations, dependent: :destroy
   has_many :team_players, dependent: :nullify
+  has_many :team_player_stats, through: :team_players
   has_many :teams, through: :team_players
 
   extend FriendlyId
@@ -181,5 +182,11 @@ class Player < ApplicationRecord
 
   def verification_status
     is_verified? ? 'Verified' : 'Unverified'
+  end
+
+  def average_dpm
+    average_dpms = team_player_stats.where(stat_key: "average_dpm")
+    return unless average_dpms
+    average_dpms.sum(:stat_value) / average_dpms.count
   end
 end

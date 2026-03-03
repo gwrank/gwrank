@@ -38,6 +38,12 @@ class TeamPlayer < ApplicationRecord
   has_many :team_player_skills, dependent: :destroy
   has_many :team_player_stats, dependent: :destroy
 
+  def average_dpm
+    average_dpm = team_player_stats.find_by(stat_key: "average_dpm")
+    return unless average_dpm
+    average_dpm.stat_value
+  end
+
   def html_skills
     skills = []
     secondary_profession_skills = []

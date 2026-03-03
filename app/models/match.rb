@@ -49,6 +49,30 @@ class Match < ApplicationRecord
     slug.blank? || name_changed?
   end
 
+  def add_average_dpm_to_team_players!
+    return unless json.present?
+
+    json.dig("parties", "by_id").each do |_id, party|
+      agent_ids = party.dig("agent_ids")
+      agent_ids.each do |agent_id|
+        agent = json.dig("agents", "by_id")[agent_id.to_s]
+        igname = agent.dig("sanitized_name") # e.g.: Divin Arkalon
+
+        team_player = team_players.find_by(igname: igname)
+        next unless team_player
+
+        next unless match_duration_mins = json.dig("match_duration_mins")
+        next if match_duration_mins == 0
+
+        total_damage_dealt = agent.dig("stats", "total_damage_dealt")
+        total_healing_dealt = agent.dig("stats", "total_healing_dealt")
+
+        average_dpm = total_damage_dealt / match_duration_mins
+        team_player.team_player_stats.where(stat_key: "average_dpm").first_or_create!(stat_value: average_dpm)
+      end
+    end
+  end
+
   def slug_candidates
     opponents = teams.includes(:guild).map do |team|
       team.guild.slug
