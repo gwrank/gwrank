@@ -41,6 +41,7 @@ class Match < ApplicationRecord
   has_many :comments, as: :commentable
   has_many :movies, as: :movieable
   has_many :teams, dependent: :destroy
+  has_many :players, through: :teams
   has_many :team_players, through: :teams
 
   extend FriendlyId
@@ -71,6 +72,9 @@ class Match < ApplicationRecord
         team_player.team_player_stats.where(stat_key: "average_dpm").first_or_create!(stat_value: average_dpm)
       end
     end
+
+    players.find_each(&:store_average_dpm!)
+    self
   end
 
   def slug_candidates

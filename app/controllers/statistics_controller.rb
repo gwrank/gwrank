@@ -11,5 +11,7 @@ class StatisticsController < ApplicationController
     @trims_guilds = Guild.where('gold_trims_count >= ?', 1)
       .order(gold_trims_count: :desc, silver_trims_count: :desc, bronze_trims_count: :desc)
       .first(16)
+
+    @best_dpm_players = Player.order(average_dpm: :desc)
   end
 end

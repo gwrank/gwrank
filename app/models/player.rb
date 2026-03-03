@@ -4,6 +4,7 @@
 #
 #  id                     :bigint           not null, primary key
 #  api_token              :string
+#  average_dpm            :integer          default(0)
 #  confirmation_sent_at   :datetime
 #  confirmation_token     :string
 #  confirmed_at           :datetime
@@ -184,9 +185,11 @@ class Player < ApplicationRecord
     is_verified? ? 'Verified' : 'Unverified'
   end
 
-  def average_dpm
+  def store_average_dpm!
     average_dpms = team_player_stats.where(stat_key: "average_dpm")
     return unless average_dpms
-    average_dpms.sum(:stat_value) / average_dpms.count
+    return unless average_dpms.count > 0
+    self.average_dpm = average_dpms.sum(:stat_value) / average_dpms.count
+    self.save!
   end
 end
