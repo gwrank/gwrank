@@ -42,7 +42,7 @@
       <h2>5 best DPM players</h2>
       <% @best_dpm_players.each do |player| %>
         <div class="mpl-counter-box mb-30">
-          <div class="mpl-counter-box-number h4"><%= link_to player %></div>
+          <div class="mpl-counter-box-number h4"><%= link_to player.igname, player_path(player) %></div>
           <div class="mpl-counter-box-content"><%= player.average_dpm %></div>
         </div>
       <% end %>
