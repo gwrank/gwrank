@@ -9,9 +9,12 @@ class StatisticsController < ApplicationController
       .order(count: :desc)
       .count
       .first(10)
-    
+
     @trims_guilds = Guild.where('gold_trims_count >= ?', 1)
       .order(gold_trims_count: :desc, silver_trims_count: :desc, bronze_trims_count: :desc)
       .first(16)
+
+    @best_dpm_warriors = Player.warriors.order(average_dpm: :desc).first(5)
+    @best_dpm_dervishes = Player.dervishs.order(average_dpm: :desc).first(5)
   end
 end

@@ -73,7 +73,7 @@ class Match < ApplicationRecord
       end
     end
 
-    players.find_each(&:store_average_dpm!)
+    players.find_each(&:prepare_stats!)
     self
   end
 

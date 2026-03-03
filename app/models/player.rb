@@ -185,11 +185,51 @@ class Player < ApplicationRecord
     is_verified? ? 'Verified' : 'Unverified'
   end
 
-  def store_average_dpm!
-    average_dpms = team_player_stats.where(stat_key: "average_dpm")
+  def prepare_stats!
+    set_professions_from_team_players
+    set_average_dpm_from_team_player_stats
+    save!
+  end
+
+  def set_average_dpm_from_team_player_stats
+    average_dpms = team_player_stats.where(stat_key: 'average_dpm')
     return unless average_dpms
-    return unless average_dpms.count > 0
+    return unless average_dpms.count.positive?
+
     self.average_dpm = average_dpms.sum(:stat_value) / average_dpms.count
-    self.save!
+    self
+  end
+
+  def set_professions_from_team_players
+    return if team_players.empty?
+
+    team_players.each do |team_player|
+      # Update the player's profession boolean fields based on the profession name
+      profession_name = team_player.profession.name&.downcase
+      case profession_name
+      when 'warrior'
+        self.is_warrior = true
+      when 'ranger'
+        self.is_ranger = true
+      when 'monk'
+        self.is_monk = true
+      when 'necromancer'
+        self.is_necromancer = true
+      when 'mesmer'
+        self.is_mesmer = true
+      when 'elementalist'
+        self.is_elementalist = true
+      when 'assassin'
+        self.is_assassin = true
+      when 'ritualist'
+        self.is_ritualist = true
+      when 'paragon'
+        self.is_paragon = true
+      when 'dervish'
+        self.is_dervish = true
+      end
+    end
+
+    self
   end
 end
