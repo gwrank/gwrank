@@ -8,7 +8,7 @@ class StatisticsController < ApplicationController
       .group('skills.name')
       .order(count: :desc)
       .count
-      .first(25)
+      .first(10)
     
     @trims_guilds = Guild.where('gold_trims_count >= ?', 1)
       .order(gold_trims_count: :desc, silver_trims_count: :desc, bronze_trims_count: :desc)

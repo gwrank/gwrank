@@ -16,6 +16,20 @@
       </div>
     </section>
     <div class="container mpl-box-md">
+      <h2>5 best DPM players</h2>
+      <% @best_dpm_players.each do |player| %>
+        <div class="mpl-counter-box mb-30">
+          <div class="mpl-counter-box-number h4"><%= link_to player.igname, player_path(player) %></div>
+          <div class="mpl-counter-box-content"><%= player.average_dpm %></div>
+        </div>
+      <% end %>
+      <h2>10 most picked skills</h2>
+      <% @most_picked_skills.each do |skill| %>
+        <div class="mpl-counter-box mb-30">
+          <div class="mpl-counter-box-number h4"><%= skill[1] %></div>
+          <div class="mpl-counter-box-content"><%= skill[0] %></div>
+        </div>
+      <% end %>
       <h2>Top 16 guilds having trims</h2>
       <table class="table table-striped table-responsive mb-60">
         <thead>
@@ -39,20 +53,7 @@
           <% end %>
         </tbody>
       </table>
-      <h2>5 best DPM players</h2>
-      <% @best_dpm_players.each do |player| %>
-        <div class="mpl-counter-box mb-30">
-          <div class="mpl-counter-box-number h4"><%= link_to player.igname, player_path(player) %></div>
-          <div class="mpl-counter-box-content"><%= player.average_dpm %></div>
-        </div>
-      <% end %>
-      <h2>25 most picked skills</h2>
-      <% @most_picked_skills.each do |skill| %>
-        <div class="mpl-counter-box mb-30">
-          <div class="mpl-counter-box-number h4"><%= skill[1] %></div>
-          <div class="mpl-counter-box-content"><%= skill[0] %></div>
-        </div>
-      <% end %>
+
     </div>
     <%= render 'footer' %>
   </div>
