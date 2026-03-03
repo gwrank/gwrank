@@ -1,5 +1,7 @@
 class StatisticsController < ApplicationController
   def index
+    @best_dpm_players = Player.order(average_dpm: :desc).first(5)
+
     @most_picked_skills = TeamPlayerSkill.joins(:skill)
       .where.not('skills.name': 'No Skill')
       .where.not('skills.name': 'Unknown')
@@ -11,7 +13,5 @@ class StatisticsController < ApplicationController
     @trims_guilds = Guild.where('gold_trims_count >= ?', 1)
       .order(gold_trims_count: :desc, silver_trims_count: :desc, bronze_trims_count: :desc)
       .first(16)
-
-    @best_dpm_players = Player.order(average_dpm: :desc)
   end
 end
