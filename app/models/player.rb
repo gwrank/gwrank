@@ -5,6 +5,7 @@
 #  id                     :bigint           not null, primary key
 #  api_token              :string
 #  average_dpm            :integer          default(0)
+#  average_warrior_cpm    :integer
 #  confirmation_sent_at   :datetime
 #  confirmation_token     :string
 #  confirmed_at           :datetime
@@ -187,16 +188,16 @@ class Player < ApplicationRecord
 
   def prepare_stats!
     set_professions_from_team_players
-    set_average_dpm_from_team_player_stats
+    set_average_warrior_cpm_from_team_player_stats
     save!
   end
 
-  def set_average_dpm_from_team_player_stats
-    average_dpms = team_player_stats.where(stat_key: 'average_dpm')
-    return unless average_dpms
-    return unless average_dpms.count.positive?
+  def set_average_warrior_cpm_from_team_player_stats
+    average_warrior_cpms = team_player_stats.where(stat_key: 'average_warrior_cpm')
+    return unless average_warrior_cpms
+    return unless average_warrior_cpms.count.positive?
 
-    self.average_dpm = average_dpms.sum(:stat_value) / average_dpms.count
+    self.average_warrior_cpm = average_warrior_cpms.sum(:stat_value) / average_warrior_cpms.count
     self
   end
 

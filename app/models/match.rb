@@ -50,7 +50,7 @@ class Match < ApplicationRecord
     slug.blank? || name_changed?
   end
 
-  def add_average_dpm_to_team_players!
+  def prepare_stats!
     return unless json.present?
 
     json.dig("parties", "by_id").each do |_id, party|
@@ -65,19 +65,16 @@ class Match < ApplicationRecord
         next unless match_duration_mins = json.dig("match_duration_mins")
         next if match_duration_mins == 0
 
-        total_damage_dealt = agent.dig("stats", "total_damage_dealt")
-        total_healing_dealt = agent.dig("stats", "total_healing_dealt")
-
         primary = agent.dig("primary")
         profession = Profession.find_by(profession_id: primary)
 
         case profession.name&.downcase
         when 'warrior'
-          average_dpm = total_damage_dealt / match_duration_mins
-          team_player.team_player_stats.where(stat_key: "average_dpm").first_or_create!(stat_value: average_dpm)
-        when 'dervish'
-          average_dpm = total_damage_dealt / match_duration_mins
-          team_player.team_player_stats.where(stat_key: "average_dpm").first_or_create!(stat_value: average_dpm)
+          total_crits_dealt = agent.dig("stats", "total_crits_dealt")
+          average_cpm = total_crits_dealt / match_duration_mins
+          team_player.team_player_stats.where(stat_key: "average_warrior_cpm").first_or_create!(stat_value: average_cpm)
+        when 'monk'
+          total_healing_dealt = agent.dig("stats", "total_healing_dealt")
         end
       end
     end
