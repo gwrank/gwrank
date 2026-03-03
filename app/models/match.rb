@@ -68,9 +68,17 @@ class Match < ApplicationRecord
         total_damage_dealt = agent.dig("stats", "total_damage_dealt")
         total_healing_dealt = agent.dig("stats", "total_healing_dealt")
 
-        average_dpm = total_damage_dealt / match_duration_mins
-        next if average_dpm < 500
-        team_player.team_player_stats.where(stat_key: "average_dpm").first_or_create!(stat_value: average_dpm)
+        primary = agent.dig("primary")
+        profession = Profession.find_by(profession_id: primary)
+
+        case profession.name&.downcase
+        when 'warrior'
+          average_dpm = total_damage_dealt / match_duration_mins
+          team_player.team_player_stats.where(stat_key: "average_dpm").first_or_create!(stat_value: average_dpm)
+        when 'dervish'
+          average_dpm = total_damage_dealt / match_duration_mins
+          team_player.team_player_stats.where(stat_key: "average_dpm").first_or_create!(stat_value: average_dpm)
+        end
       end
     end
 
