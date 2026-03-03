@@ -69,6 +69,7 @@ class Match < ApplicationRecord
         total_healing_dealt = agent.dig("stats", "total_healing_dealt")
 
         average_dpm = total_damage_dealt / match_duration_mins
+        next if average_dpm < 500
         team_player.team_player_stats.where(stat_key: "average_dpm").first_or_create!(stat_value: average_dpm)
       end
     end
