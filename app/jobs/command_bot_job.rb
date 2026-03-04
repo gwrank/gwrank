@@ -56,23 +56,23 @@ class CommandBotJob < ApplicationJob
     end
 
     # Add player command
-    bot.command :add, description: 'to add a player in the current queue' do |event, player|
-      handle_add_command(event, player)
+    bot.command :add, description: 'to add a player in the current queue' do |event, *igname|
+      handle_add_command(event, igname.join(' '))
     end
 
     # Remove player command
-    bot.command :remove, description: 'to remove a player from the current queue' do |event, player|
-      handle_remove_command(event, player)
+    bot.command :remove, description: 'to remove a player from the current queue' do |event, *igname|
+      handle_remove_command(event, igname.join(' '))
     end
 
     # AFK command
-    bot.command :afk, description: 'to be / add a player in afk mode' do |event, player|
-      handle_afk_command(event, player)
+    bot.command :afk, description: 'to add a player in afk mode' do |event, *igname|
+      handle_afk_command(event, igname.join(' '))
     end
 
     # Back command
-    bot.command :back, description: 'to add yourself / a player again in the current queue' do |event, player|
-      handle_back_command(event, player)
+    bot.command :back, description: 'to add a player again in the current queue' do |event, *igname|
+      handle_back_command(event, igname.join(' '))
     end
 
     # Captains command
@@ -239,10 +239,9 @@ class CommandBotJob < ApplicationJob
     event.respond message
   end
 
-  def handle_remove_command(event, player)
-    if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
-      player = player.delete_prefix('<@!').delete_suffix('>')
-      player = Player.find_by(uid: player)
+  def handle_remove_command(event, igname)
+    if igname.present?
+      player = Player.find_by(igname: igname)
       if player.present?
         if player.has_current_registration?
           player.current_registration.update(unregistered_at: DateTime.now)
@@ -251,10 +250,10 @@ class CommandBotJob < ApplicationJob
           message = "<@#{event.user.id}>, the player #{player.name} was not in the current queue."
         end
       else
-        message = "<@#{event.user.id}>, the player is not found and have first to !register himself."
+        message = "<@#{event.user.id}>, #{igname} is not found and have first to !register himself."
       end
     else
-      message = "<@#{event.user.id}>, this is an invalid player."
+      message = "<@#{event.user.id}>, #{igname} is an invalid player."
     end
     event.respond message
   end
