@@ -4,7 +4,7 @@
 #
 #  id             :bigint           not null, primary key
 #  stat_key       :string
-#  stat_value     :integer
+#  stat_value     :float
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null
 #  team_player_id :bigint           not null

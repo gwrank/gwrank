@@ -71,7 +71,7 @@ class Match < ApplicationRecord
         case profession.name&.downcase
         when 'warrior'
           total_crits_dealt = agent.dig("stats", "total_crits_dealt")
-          average_cpm = total_crits_dealt / match_duration_mins
+          average_cpm = total_crits_dealt.to_f / match_duration_mins.to_f
           team_player.team_player_stats.where(stat_key: "average_warrior_cpm").first_or_create!(stat_value: average_cpm)
         when 'monk'
           total_healing_dealt = agent.dig("stats", "total_healing_dealt")

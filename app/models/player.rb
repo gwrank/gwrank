@@ -5,7 +5,7 @@
 #  id                     :bigint           not null, primary key
 #  api_token              :string
 #  average_dpm            :integer          default(0)
-#  average_warrior_cpm    :integer
+#  average_warrior_cpm    :float
 #  confirmation_sent_at   :datetime
 #  confirmation_token     :string
 #  confirmed_at           :datetime
@@ -197,7 +197,7 @@ class Player < ApplicationRecord
     return unless average_warrior_cpms
     return unless average_warrior_cpms.count.positive?
 
-    self.average_warrior_cpm = average_warrior_cpms.sum(:stat_value) / average_warrior_cpms.count
+    self.average_warrior_cpm = average_warrior_cpms.sum(:stat_value).to_f / average_warrior_cpms.count.to_f
     self
   end
 

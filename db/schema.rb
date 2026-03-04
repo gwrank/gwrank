@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_03_215619) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_04_001007) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -179,7 +179,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_03_215619) do
   create_table "players", force: :cascade do |t|
     t.string "api_token"
     t.integer "average_dpm", default: 0
-    t.integer "average_warrior_cpm"
+    t.float "average_warrior_cpm"
     t.datetime "confirmation_sent_at", precision: nil
     t.string "confirmation_token"
     t.datetime "confirmed_at", precision: nil
@@ -281,7 +281,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_03_215619) do
   create_table "team_player_stats", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "stat_key"
-    t.integer "stat_value"
+    t.float "stat_value"
     t.bigint "team_player_id", null: false
     t.datetime "updated_at", null: false
     t.index ["team_player_id"], name: "index_team_player_stats_on_team_player_id"
