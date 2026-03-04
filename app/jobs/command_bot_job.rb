@@ -56,23 +56,27 @@ class CommandBotJob < ApplicationJob
     end
 
     # Add player command
-    bot.command :add, description: 'to add a player in the current queue' do |event, *igname|
-      handle_add_command(event, igname.join(' '))
+    bot.command :add, description: 'to add a player in the current queue (moderators only)' do |event, *igname|
+      player = Player.find_by(uid: event.user.id)
+      handle_add_command(event, igname.join(' ')) if player.is_moderator?
     end
 
     # Remove player command
-    bot.command :remove, description: 'to remove a player from the current queue' do |event, *igname|
-      handle_remove_command(event, igname.join(' '))
+    bot.command :remove, description: 'to remove a player from the current queue (moderators only)' do |event, *igname|
+      player = Player.find_by(uid: event.user.id)
+      handle_remove_command(event, igname.join(' ')) if player.is_moderator?
     end
 
     # AFK command
-    bot.command :afk, description: 'to add a player in afk mode' do |event, *igname|
-      handle_afk_command(event, igname.join(' '))
+    bot.command :afk, description: 'to add a player in afk mode (moderators only)' do |event, *igname|
+      player = Player.find_by(uid: event.user.id)
+      handle_afk_command(event, igname.join(' ')) if player.is_moderator?
     end
 
     # Back command
-    bot.command :back, description: 'to add a player again in the current queue' do |event, *igname|
-      handle_back_command(event, igname.join(' '))
+    bot.command :back, description: 'to add a player again in the current queue (moderators only)' do |event, *igname|
+      player = Player.find_by(uid: event.user.id)
+      handle_back_command(event, igname.join(' ')) if player.is_moderator?
     end
 
     # Captains command
@@ -207,11 +211,10 @@ class CommandBotJob < ApplicationJob
     event.respond message
   end
 
-  def handle_add_command(event, player)
+  def handle_add_command(event, igname)
     current_registrations = Registration.current_registrations
-    if player.present? && player.starts_with?('<@!') && player.ends_with?('>')
-      player = player.delete_prefix('<@!').delete_suffix('>')
-      player = Player.find_by(uid: player)
+    if igname.present?
+      player = Player.find_by(igname: igname)
       if player.present?
         if player.has_current_registration?
           message = "<@#{event.user.id}>, the player #{player.name} is already ##{current_registrations.count} in the current queue."
