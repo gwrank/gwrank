@@ -195,7 +195,7 @@ class Player < ApplicationRecord
   def set_average_warrior_cpm_from_team_player_stats
     average_warrior_cpms = team_player_stats.where(stat_key: 'average_warrior_cpm')
     return unless average_warrior_cpms
-    return unless average_warrior_cpms.count.positive?
+    return if average_warrior_cpms.count < 2
 
     self.average_warrior_cpm = average_warrior_cpms.sum(:stat_value).to_f / average_warrior_cpms.count.to_f
     self
