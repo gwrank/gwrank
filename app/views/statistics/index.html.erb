@@ -16,6 +16,7 @@
       </div>
     </section>
     <div class="container mpl-box-md">
+      <%= render "searches/form", search_query: '' %>
       <h2>10 best crits / minute Warriors</h2>
       <% @best_cpm_warriors.each do |player| %>
         <div class="mpl-counter-box mb-30">
