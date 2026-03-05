@@ -147,42 +147,34 @@
                                💡 Use mouse wheel to zoom • Click & drag to pan
                                </p>
                                <div style="display: flex; gap: 10px;">
-                                 <% if has_health %>
-                                   <button 
+                                 <button 
                                     data-action="click->health-chart#setModeHealth"
                                     data-health-chart-target="healthButton"
                                     class="btn btn-sm <%= initial_mode == 'health' ? 'btn-primary' : 'btn-outline-primary' %>"
                                     style="font-size: 12px; padding: 4px 12px;">
                                     Health
-                                   </button>
-                                 <% end %>
-                                 <% if has_health && has_morale %>
-                                   <button 
+                                 </button>
+                                 <button 
                                     data-action="click->health-chart#setModeMorale"
                                     data-health-chart-target="moraleButton"
                                     class="btn btn-sm <%= initial_mode == 'morale' ? 'btn-primary' : 'btn-outline-primary' %>"
                                     style="font-size: 12px; padding: 4px 12px;">
                                     Morale
-                                   </button>
-                                 <% end %>
-                                 <% if has_events %>
-                                   <button 
+                                 </button>
+                                 <button 
                                     data-action="click->health-chart#setModeTimeline"
                                     data-health-chart-target="timelineButton"
                                     class="btn btn-sm <%= initial_mode == 'timeline' ? 'btn-primary' : 'btn-outline-primary' %>"
                                     style="font-size: 12px; padding: 4px 12px;">
                                     Timeline
-                                   </button>
-                                 <% end %>
-                                 <% if has_guild_lords %>
-                                   <button 
+                                 </button>
+                                 <button 
                                     data-action="click->health-chart#setModeGuildLord"
                                     data-health-chart-target="guildLordButton"
                                     class="btn btn-sm btn-outline-primary"
                                     style="font-size: 12px; padding: 4px 12px;">
                                     Guild Lord Damage
-                                   </button>
-                                 <% end %>
+                                 </button>
                                  <button 
                                     data-action="click->health-chart#resetZoom"
                                     class="btn btn-sm btn-outline-light"
