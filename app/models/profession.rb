@@ -19,11 +19,11 @@ class Profession < ApplicationRecord
     if name.eql?('None')
       ''
     else
-      ActionController::Base.helpers.image_tag("professions/#{name}.png", data: { controller: 'tooltip', bs_toggle: 'tooltip', bs_placement: 'bottom' }, title: name, width: 20, loading: 'lazy')
+      ActionController::Base.helpers.image_tag("professions/#{name}.png", data: { controller: 'tooltip', bs_toggle: 'tooltip', bs_placement: 'bottom' }, title: name, width: 33, loading: 'lazy')
     end
   end
 
-  def html_image_simple(size: 20)
+  def html_image_simple(size: 33)
     if name.eql?('None')
       ''
     else
