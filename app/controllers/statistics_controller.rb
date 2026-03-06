@@ -29,6 +29,9 @@ class StatisticsController < ApplicationController
     # ELO distribution by profession
     @elo_by_profession = calculate_elo_by_profession
 
+    # Top 10 players by ELO for each profession
+    @top_players_by_profession = calculate_top_players_by_profession
+
     # Guild ELO rankings
     @top_guilds_by_elo = calculate_guild_elo_rankings
   end
@@ -78,5 +81,21 @@ class StatisticsController < ApplicationController
       .order('AVG(players.elo_rating) DESC')
       .select('guilds.id, guilds.name, guilds.tag, guilds.slug, AVG(players.elo_rating) as avg_elo, COUNT(team_players.id) as match_count')
       .first(10)
+  end
+
+  def calculate_top_players_by_profession
+    # Get top 10 players by ELO for each profession
+    profession_stats = {}
+    Profession.all.each do |profession|
+      players = Player.joins(:team_players)
+        .where.not(elo_rating: nil)
+        .where('team_players.profession_id' => profession.id)
+        .merge(TeamPlayer.joins(:team).merge(Team.where.not(match_id: nil)))
+        .group('players.id', 'players.igname')
+        .order('players.elo_rating DESC')
+        .first(10)
+      profession_stats[profession.name] = players
+    end
+    profession_stats
   end
 end

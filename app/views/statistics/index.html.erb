@@ -73,6 +73,21 @@
         </div>
       <% end %>
 
+      <h2>Top 10 Players by ELO for Each Profession</h2>
+      <% @top_players_by_profession.each do |profession_name, players| %>
+        <div class="mb-4">
+          <h3 class="h5"><%= profession_name %></h3>
+          <% players.each_with_index do |player, index| %>
+            <div class="mpl-counter-box mb-15">
+              <div class="mpl-counter-box-number h5"><%= index + 1 %>. <%= link_to player.igname, player_path(player) %></div>
+              <div class="mpl-counter-box-content">
+                <span class="badge badge-success">ELO: <%= player.elo_rating %></span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
       <h2>Top Guilds by ELO</h2>
       <% @top_guilds_by_elo.each_with_index do |guild, index| %>
         <div class="mpl-counter-box mb-30">
