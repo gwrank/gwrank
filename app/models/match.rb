@@ -192,6 +192,7 @@ class Match < ApplicationRecord
       guild_rating = party&.dig("rating")
 
       guild = Guild.where(name: guild_name, tag: guild_tag).first_or_create!
+      guild.update!(is_archived: false) unless guild.new_record?
       team = match.teams.create!(guild: guild, rank: guild_rank, rating: guild_rating)
 
       is_victorious = party.dig("is_victorious")
