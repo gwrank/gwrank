@@ -150,14 +150,31 @@
       <% end %>
 
       <h2>Top guilds by GWR</h2>
-      <% @top_guilds_by_elo.each_with_index do |guild, index| %>
-        <div class="mpl-counter-box mb-30">
-          <div class="mpl-counter-box-number h4"><%= index + 1 %>. <%= link_to guild.name_with_tag, guild_path(guild) %></div>
-          <div class="mpl-counter-box-content">
-            <span class="badge badge-warning">Avg GWR: <%= guild.avg_elo.round %></span>
-            <small>(<%= guild.match_count %> player-matches)</small>
-          </div>
+      <% if @top_guilds_by_elo.any? %>
+        <div class="table-responsive">
+          <table class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th style="width: 50px;">Rank</th>
+                <th>Guild</th>
+                <th style="width: 120px;">Avg GWR</th>
+                <th style="width: 100px;">Players</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @top_guilds_by_elo.each_with_index do |guild, index| %>
+                <tr>
+                  <td><strong>#<%= index + 1 %></strong></td>
+                  <td><%= link_to guild.name_with_tag, guild_path(guild), class: 'text-link' %></td>
+                  <td><span class="badge badge-success"><%= guild.avg_elo.round %></span></td>
+                  <td><small><%= guild.players.count %> players</small></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
         </div>
+      <% else %>
+        <div class="alert alert-warning">No guild statistics available yet.</div>
       <% end %>
 
       <h2 class="mb-20">Top 10 players by GWR for each profession</h2>
