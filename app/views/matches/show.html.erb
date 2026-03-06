@@ -7,7 +7,15 @@
       </div>
       <div class="mpl-banner-content mpl-box-sm">
         <div class="container">
-          <h1 class="display-1 mb-0"><%= @match.title %></h1>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="/">Home</a></li>
+              <li class="breadcrumb-item"><%= link_to 'Tournaments', tournaments_path %></li>
+              <li class="breadcrumb-item"><%= link_to @match.tournament.title, tournament_path(@match.tournament) %></li>
+              <li class="breadcrumb-item active" aria-current="page"><%= @match.title %></li>
+            </ol>
+          </nav>
+          <h1 class="lg:display-1 mb-0"><%= @match.title %></h1>
         </div>
       </div>
     </section>
@@ -15,15 +23,6 @@
       <div class="container">
         <div class="row hgap-lg vgap-lg">
           <div class="col-lg single-match">
-            <nav aria-label="breadcrumb">
-              <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/">Home</a></li>
-                <li class="breadcrumb-item"><%= link_to 'Tournaments', tournaments_path %></li>
-                <li class="breadcrumb-item"><%= link_to @match.tournament.title, tournament_path(@match.tournament) %></li>
-                <li class="breadcrumb-item active" aria-current="page"><%= @match.title %></li>
-              </ol>
-            </nav>
-            <h2><%= @match.title %></h2>
             <% if current_player&.is_moderator? && @match.imported_by.eql?(current_player) %>
               <%= button_to 'Delete match', match_path, method: :delete, data: { turbo_confirm: "Are you sure?" }, class: 'btn btn-md btn-danger' %>
             <% end %>
@@ -51,7 +50,7 @@
               <h4>Imported <%= link_to 'from Memorial', "https://memorial.redeemer.biz/memorial/match/#{@match.memorial_match_id}/", target: '_blank' %></h4>
             <% end %>
             <ul class="cyberpress-matchs-archive" data-sr="matches" data-sr-duration="1000">
-              <li class="cyberpress-match" data-sr-item="matches">
+              <li class="cyberpress-match rounded-top-5" data-sr-item="matches">
                 <div class="cyberpress-match-participants">
                   <div class="cyberpress-match-participant col-lg-5">
                     <h2 class="cyberpress-match-participant-title h4">
@@ -95,7 +94,7 @@
                 </div>
               </li>
             </ul>
-            <div class="cyberpress-match">
+            <div class="cyberpress-match rounded-bottom-5">
               <div class="cyberpress-match-participants">
                 <div class="cyberpress-match-participant accordion" id="accordion" role="tablist" aria-multiselectable="true">
                   <table class="table table-striped table-responsive mb-60">
