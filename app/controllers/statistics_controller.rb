@@ -76,7 +76,7 @@ class StatisticsController < ApplicationController
       .group('guilds.id', 'guilds.name', 'guilds.tag')
       # FIXME: .having('COUNT(team_players.id) >= 10')
       .order('SUM(players.elo_rating) DESC')
-      .select('guilds.id, guilds.name, guilds.tag, SUM(players.elo_rating) as total_elo, COUNT(team_players.id) as match_count')
+      .select('guilds.id, guilds.name, guilds.tag, guilds.slug, SUM(players.elo_rating) as total_elo, COUNT(team_players.id) as match_count')
       .first(10)
   end
 end
