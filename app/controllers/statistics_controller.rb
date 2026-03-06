@@ -70,13 +70,13 @@ class StatisticsController < ApplicationController
   end
 
   def calculate_guild_elo_rankings
-    # Calculate guild ELO based on sum of player ELO ratings
+    # Calculate guild ELO based on average player ELO ratings
     Guild.joins(players: :team_players)
       .merge(TeamPlayer.joins(:team).merge(Team.where.not(match_id: nil)))
       .group('guilds.id', 'guilds.name', 'guilds.tag')
       # FIXME: .having('COUNT(team_players.id) >= 10')
-      .order('SUM(players.elo_rating) DESC')
-      .select('guilds.id, guilds.name, guilds.tag, guilds.slug, SUM(players.elo_rating) as total_elo, COUNT(team_players.id) as match_count')
+      .order('AVG(players.elo_rating) DESC')
+      .select('guilds.id, guilds.name, guilds.tag, guilds.slug, AVG(players.elo_rating) as avg_elo, COUNT(team_players.id) as match_count')
       .first(10)
   end
 end
