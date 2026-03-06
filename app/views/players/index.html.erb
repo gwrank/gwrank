@@ -7,7 +7,13 @@
       </div>
       <div class="mpl-banner-content mpl-box-sm">
         <div class="container">
-          <h1 class="display-1 mb-0">Players</h1>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="/">Home</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Players</li>
+            </ol>
+          </nav>
+          <h1 class="lg:display-1 mb-0">Players</h1>
         </div>
       </div>
     </section>
@@ -16,12 +22,6 @@
         <%= render "searches/form", search_query: '' %>
         <div class="row hgap-lg vgap-lg">
           <div id="players" class="col-lg mpl-content">
-            <nav aria-label="breadcrumb">
-              <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/">Home</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Players</li>
-              </ol>
-            </nav>
             <div class="row vgap" data-sr="players" data-sr-interval="100" data-sr-duration="1000" data-sr-distance="20">
               <% @players.each do |player| %>
                 <div class="col-12 col-sm-6 col-xl-4" data-sr-item="players" style="visibility: visible;">

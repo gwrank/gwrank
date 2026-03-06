@@ -7,7 +7,14 @@
       </div>
       <div class="mpl-banner-content mpl-box-sm">
         <div class="container">
-          <h1 class="display-1 mb-0"><%= @guild.name_with_tag %></h1>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="/">Home</a></li>
+              <li class="breadcrumb-item"><%= link_to 'Guilds', guilds_path %></li>
+              <li class="breadcrumb-item active" aria-current="page"><%= @guild.name_with_tag %></li>
+            </ol>
+          </nav>
+          <h1 class="lg:display-1 mb-0"><%= @guild.name_with_tag %></h1>
         </div>
       </div>
     </section>
@@ -16,15 +23,6 @@
         <div class="row hgap-lg vgap-lg">
           <div class="col-lg mpl-content single-team">
             <article class="mpl-post">
-              <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                  <li class="breadcrumb-item"><a href="/">Home</a></li>
-                  <li class="breadcrumb-item">
-                    <%= link_to 'Guilds', guilds_path %>
-                  </li>
-                  <li class="breadcrumb-item active" aria-current="page"><%= @guild.name_with_tag %></li>
-                </ol>
-              </nav>
               <div class="cyberpress-team">
                 <div class="cyberpress-team-thumbnail">
                   <span class="mpl-image">
