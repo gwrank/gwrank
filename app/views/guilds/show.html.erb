@@ -24,10 +24,6 @@
           <div class="col-lg mpl-content single-team">
             <article class="mpl-post">
               <div class="cyberpress-team">
-                <div class="cyberpress-team-thumbnail">
-                  <span class="mpl-image">
-                  </span>
-                </div>
                 <ul class="cyberpress-team-info">
                   <li>
                     <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -66,7 +62,7 @@
                         </td>
                         <td>
                           <% player.professions.each do |profession| %>
-                            <span class="badge badge-primary"><%= profession.capitalize %></span>
+                            <span class="badge badge-secondary"><%= profession.capitalize %></span>
                           <% end %>
                           <% if player.professions.empty? %>
                             <span class="badge badge-warning">Without profession</span>

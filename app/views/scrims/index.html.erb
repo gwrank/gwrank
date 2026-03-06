@@ -77,7 +77,7 @@
                         </td>
                         <td>
                           <% current_registration.player.professions.each do |profession| %>
-                            <span class="badge badge-primary"><%= profession.capitalize %></span>
+                            <span class="badge badge-secondary"><%= profession.capitalize %></span>
                           <% end %>
                           <% if current_registration.player.professions.empty? %>
                             <span class="badge badge-warning">Without profession</span>
