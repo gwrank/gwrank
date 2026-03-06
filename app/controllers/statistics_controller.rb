@@ -1,19 +1,5 @@
 class StatisticsController < ApplicationController
   def index
-    @best_cpm_warriors = Player.warriors.order(average_warrior_cpm: :desc).first(10)
-
-    @most_picked_skills = TeamPlayerSkill.joins(:skill)
-      .where.not('skills.name': 'No Skill')
-      .where.not('skills.name': 'Unknown')
-      .group('skills.name')
-      .order(count: :desc)
-      .count
-      .first(10)
-
-    @trims_guilds = Guild.where('gold_trims_count >= ?', 1)
-      .order(gold_trims_count: :desc, silver_trims_count: :desc, bronze_trims_count: :desc)
-      .first(16)
-
     # ELO statistics - top 10 players by ELO rating
     @top_elo_players = Player.joins(:team_players)
       .where.not(elo_rating: nil)
@@ -31,9 +17,6 @@ class StatisticsController < ApplicationController
 
     # Top 10 players by ELO for each profession
     @top_players_by_profession = calculate_top_players_by_profession
-
-    # Guild ELO rankings
-    @top_guilds_by_elo = calculate_guild_elo_rankings
   end
 
   private
@@ -70,17 +53,6 @@ class StatisticsController < ApplicationController
         }
       end
     profession_stats
-  end
-
-  def calculate_guild_elo_rankings
-    # Calculate guild ELO based on average player ELO ratings
-    Guild.joins(players: :team_players)
-      .merge(TeamPlayer.joins(:team).merge(Team.where.not(match_id: nil)))
-      .group('guilds.id', 'guilds.name', 'guilds.tag')
-      # FIXME: .having('COUNT(team_players.id) >= 10')
-      .order('AVG(players.elo_rating) DESC')
-      .select('guilds.id, guilds.name, guilds.tag, guilds.slug, AVG(players.elo_rating) as avg_elo, COUNT(team_players.id) as match_count')
-      .first(10)
   end
 
   def calculate_top_players_by_profession

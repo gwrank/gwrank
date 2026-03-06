@@ -87,26 +87,6 @@
           <% end %>
         </div>
       <% end %>
-
-      <h2>Top Guilds by ELO</h2>
-      <% @top_guilds_by_elo.each_with_index do |guild, index| %>
-        <div class="mpl-counter-box mb-30">
-          <div class="mpl-counter-box-number h4"><%= index + 1 %>. <%= link_to guild.name_with_tag, guild_path(guild) %></div>
-          <div class="mpl-counter-box-content">
-            <span class="badge badge-warning">Avg ELO: <%= guild.avg_elo.round %></span>
-            <small>(<%= guild.match_count %> player-matches)</small>
-          </div>
-        </div>
-      <% end %>
-
-      <h2>10 best crits / minute Warriors</h2>
-      <% @best_cpm_warriors.each do |player| %>
-        <div class="mpl-counter-box mb-30">
-          <div class="mpl-counter-box-number h4"><%= link_to player.igname, player_path(player) %></div>
-          <div class="mpl-counter-box-content"><%= player.average_warrior_cpm.round(2) %></div>
-        </div>
-      <% end %>
-    </div>
     <%= render 'footer' %>
   </div>
 </div>
