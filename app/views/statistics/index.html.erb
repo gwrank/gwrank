@@ -78,7 +78,7 @@
         <div class="mpl-counter-box mb-30">
           <div class="mpl-counter-box-number h4"><%= index + 1 %>. <%= link_to guild.name_with_tag, guild_path(guild) %></div>
           <div class="mpl-counter-box-content">
-            <span class="badge badge-warning">Total ELO: <%= guild.total_elo %></span>
+            <span class="badge badge-warning">Avg ELO: <%= guild.avg_elo.round %></span>
             <small>(<%= guild.match_count %> player-matches)</small>
           </div>
         </div>
