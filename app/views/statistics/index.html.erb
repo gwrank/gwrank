@@ -23,18 +23,51 @@
     </section>
     <div class="container mpl-box-md">
       <%= render "searches/form", search_query: '' %>
+
+      <h2>ELO Rankings - Top 10 Players</h2>
+      <div class="alert alert-brand" role="alert">
+        <strong>New Feature!</strong> Our ELO-based ranking system is now live. This system tracks player performance
+        across all matches and updates ratings after each game. Players need at least 5 matches to qualify.
+        <br>
+        <a href="https://discord.gg/Gjefv7GJ9g" target="_blank" class="btn btn-brand">Join our Discord to contribute!</a>
+      </div>
+      <% @top_elo_players.each_with_index do |player, index| %>
+        <div class="mpl-counter-box mb-30">
+          <div class="mpl-counter-box-number h4"><%= index + 1 %>. <%= link_to player.igname, player_path(player) %></div>
+          <div class="mpl-counter-box-content">
+            <span class="badge badge-success">ELO: <%= player.elo_rating %></span>
+            <small>(<%= player.elo_matches %> matches)</small>
+          </div>
+        </div>
+      <% end %>
+
+      <h2>ELO by Profession</h2>
+      <% @elo_by_profession.each do |profession, stats| %>
+        <div class="mpl-counter-box mb-30">
+          <div class="mpl-counter-box-number h4"><%= profession %></div>
+          <div class="mpl-counter-box-content">
+            <span class="badge badge-primary">Avg ELO: <%= stats[:avg_elo] %></span>
+            <small>(<%= stats[:player_count] %> players)</small>
+          </div>
+        </div>
+      <% end %>
+
+      <h2>Top Guilds by ELO</h2>
+      <% @top_guilds_by_elo.each_with_index do |guild, index| %>
+        <div class="mpl-counter-box mb-30">
+          <div class="mpl-counter-box-number h4"><%= index + 1 %>. <%= link_to guild.name_with_tag, guild_path(guild) %></div>
+          <div class="mpl-counter-box-content">
+            <span class="badge badge-warning">Total ELO: <%= guild.total_elo %></span>
+            <small>(<%= guild.match_count %> player-matches)</small>
+          </div>
+        </div>
+      <% end %>
+
       <h2>10 best crits / minute Warriors</h2>
       <% @best_cpm_warriors.each do |player| %>
         <div class="mpl-counter-box mb-30">
           <div class="mpl-counter-box-number h4"><%= link_to player.igname, player_path(player) %></div>
           <div class="mpl-counter-box-content"><%= player.average_warrior_cpm.round(2) %></div>
-        </div>
-      <% end %>
-      <h2>10 most picked skills</h2>
-      <% @most_picked_skills.each do |skill| %>
-        <div class="mpl-counter-box mb-30">
-          <div class="mpl-counter-box-number h4"><%= skill[1] %></div>
-          <div class="mpl-counter-box-content"><%= skill[0] %></div>
         </div>
       <% end %>
     </div>

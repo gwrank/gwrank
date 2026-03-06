@@ -3,6 +3,7 @@
 # Table name: matches
 #
 #  id                :bigint           not null, primary key
+#  elo_calculated    :boolean
 #  exported_at       :datetime
 #  imported_at       :datetime
 #  json              :jsonb
@@ -241,8 +242,70 @@ class Match < ApplicationRecord
       end
     end
 
+    match.calculate_elo! if match.winner_team && match.loser_team
     match.save!
     match
+  end
+
+  # Calculate ELO ratings for all players in this match
+  def calculate_elo!
+    return unless winner_team && loser_team
+
+    winner_elo_sum = winner_team.players.where.not(elo_rating: nil).sum(:elo_rating)
+    loser_elo_sum = loser_team.players.where.not(elo_rating: nil).sum(:elo_rating)
+
+    winner_avg = winner_team.players.where.not(elo_rating: nil).count > 0 ?
+      winner_elo_sum / winner_team.players.where.not(elo_rating: nil).count : 1200
+    loser_avg = loser_team.players.where.not(elo_rating: nil).count > 0 ?
+      loser_elo_sum / loser_team.players.where.not(elo_rating: nil).count : 1200
+
+    # K-factor: higher for new players, max 32
+    k_factor = 32
+
+    winner_team.team_players.each do |team_player|
+      player = team_player.player
+      next unless player
+
+      player_elo = player.elo_rating || 1200
+      player_elo_matches = player.elo_matches || 0
+
+      # Expected score based on ELO difference
+      expected_score = 1 / (1 + 10 ** ((loser_avg - player_elo) / 400.0))
+
+      # New ELO = Old ELO + K * (Actual Score - Expected Score)
+      # Win = 1 point
+      new_elo = (player_elo + k_factor * (1 - expected_score)).round
+
+      player.update(elo_rating: new_elo, elo_matches: player_elo_matches + 1)
+    end
+
+    loser_team.team_players.each do |team_player|
+      player = team_player.player
+      next unless player
+
+      player_elo = player.elo_rating || 1200
+      player_elo_matches = player.elo_matches || 0
+
+      # Expected score based on ELO difference
+      expected_score = 1 / (1 + 10 ** ((winner_avg - player_elo) / 400.0))
+
+      # Loss = 0 point
+      new_elo = (player_elo + k_factor * (0 - expected_score)).round
+
+      player.update(elo_rating: new_elo, elo_matches: player_elo_matches + 1)
+    end
+
+    self
+  end
+
+  # Recalculate ELO for all matches (for initial ELO setup)
+  def self.recalculate_all_elo!
+    Player.update_all(elo_rating: nil, elo_matches: 0)
+
+    Match.where.not(winner_team_id: nil).where.not(loser_team_id: nil)
+      .order(:played_at, :id).each do |match|
+        match.calculate_elo!
+      end
   end
 
   # Memoized player stats to avoid re-parsing JSON

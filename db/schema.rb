@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_04_001007) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_06_131053) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -138,6 +138,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_04_001007) do
 
   create_table "matches", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.boolean "elo_calculated"
     t.datetime "exported_at"
     t.datetime "imported_at"
     t.bigint "imported_by_id"
@@ -186,6 +187,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_04_001007) do
     t.datetime "created_at", null: false
     t.datetime "current_sign_in_at", precision: nil
     t.string "current_sign_in_ip"
+    t.integer "elo_matches"
+    t.integer "elo_rating"
     t.string "email", default: ""
     t.string "encrypted_password", default: "", null: false
     t.integer "failed_attempts", default: 0, null: false

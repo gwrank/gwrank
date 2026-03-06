@@ -11,6 +11,8 @@
 #  confirmed_at           :datetime
 #  current_sign_in_at     :datetime
 #  current_sign_in_ip     :string
+#  elo_matches            :integer
+#  elo_rating             :integer
 #  email                  :string           default("")
 #  encrypted_password     :string           default(""), not null
 #  failed_attempts        :integer          default(0), not null
