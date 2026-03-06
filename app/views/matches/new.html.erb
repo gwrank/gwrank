@@ -12,12 +12,12 @@
               <div class="mpl-sign-form" data-sr="sign" data-sr-interval="100" data-sr-duration="1000" data-sr-distance="20">
                 <h1 data-sr-item="sign">Add a Match</h1>
                 <p class="lead" data-sr-item="sign">
-                  Export your matches from GWToolbox Observer mode and import them here.
+                  Export your matches from GWToolbox Observer Module and import them here.
                 </p>
                 <%= form_with model: @match do |form| %>
                   <div class="row hgap-xs vgap-sm align-items-center">
                     <div class="col-12" data-sr-item="sign">
-                      <%= form.label :json_file, 'JSON file from GWToolbox Observer Mode :' %>
+                      <%= form.label :json_file, 'JSON file from GWToolbox Observer Module :' %>
                       <%= form.file_field :json_file, placeholder: 'JSON file, from Observer', class: 'form-control', required: true %><span class="form-control-bg"></span>
                     </div>
                     <div class="col-12" data-sr-item="sign">
@@ -27,7 +27,7 @@
                 <% end %>
                 <div class="mt-4 small" data-sr-item="sign">
                   <strong>How it works:</strong><br>
-                  1. Launch GWToolbox in Observer mode<br>
+                  1. Launch GWToolbox Observer Module<br>
                   2. Export your match as JSON version 1.0<br>
                   3. Upload the file here to add it to GWRank
                 </div>
