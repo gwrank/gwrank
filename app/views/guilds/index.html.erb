@@ -42,6 +42,12 @@
                         </svg>
                         <%= pluralize guild.players.count, 'player' %>
                       </li>
+                      <li>
+                        <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 2L2 12H7V22H17V12H22L12 2Z" />
+                        </svg>
+                        Average GWR: <%= guild.average_elo %>
+                      </li>
                     </ul>
                   </div>
                 </div>

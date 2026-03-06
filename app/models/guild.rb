@@ -80,4 +80,9 @@ class Guild < ApplicationRecord
   def gold_trims_count
     tournament_results.gold_trims.count
   end
+
+  def average_elo
+    return 0 if players.empty?
+    players.average(:elo_rating).to_i
+  end
 end

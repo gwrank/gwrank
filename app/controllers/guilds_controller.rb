@@ -5,7 +5,9 @@ class GuildsController < ApplicationController
     @pagy, @guilds = pagy(
       Guild.includes(:players)
         .active
-        .order(members_count: :desc, gold_trims_count: :desc, silver_trims_count: :desc, bronze_trims_count: :desc, name: :asc)
+        .joins("LEFT JOIN players ON players.guild_id = guilds.id")
+        .group("guilds.id")
+        .order('AVG(players.elo_rating) DESC NULLS LAST, guilds.members_count DESC, guilds.gold_trims_count DESC, guilds.silver_trims_count DESC, guilds.bronze_trims_count DESC, guilds.name ASC')
     )
     authorize @guilds
   end

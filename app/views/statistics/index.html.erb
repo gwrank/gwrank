@@ -12,10 +12,10 @@
               <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                   <li class="breadcrumb-item"><a href="/">Home</a></li>
-                  <li class="breadcrumb-item active">Statistics</li>
+                  <li class="breadcrumb-item active">Ranks</li>
                 </ol>
               </nav>
-              <h1 class="lg:display-1 mb-0"><span class="badge badge-brand">Beta</span> Statistics</h1>
+              <h1 class="lg:display-1 mb-0"><span class="badge badge-brand">Beta</span> Ranks</h1>
             </div>
           </div>
         </div>
@@ -24,20 +24,29 @@
     <div class="container mpl-box-md">
       <%= render "searches/form", search_query: '' %>
 
-      <!-- How ELO Works Section -->
+      <!-- How GWR Works Section -->
       <section class="mb-50">
-        <h2 class="h4 mb-20"><strong>How ELO Works</strong></h2>
+        <h2 class="h4 mb-20"><strong>How GWR works</strong></h2>
         <div class="mpl-counter-box">
           <div class="row vgap-20">
             <div class="col-lg-8">
               <p class="mb-15">
-                The ELO rating system is a method for calculating the relative skill levels of players.
+                The GWR rating system is a method for calculating the relative skill levels of players.
                 After each match, players gain or lose points based on the outcome and the skill level of their opponents.
               </p>
 
-              <h5 class="mb-15">The ELO Formula</h5>
+              <div class="alert alert-brand mb-15">
+                <strong class="small">Important: Complete Match Data</strong><br>
+                <p class="mb-0 small">
+                  GWR ratings are calculated from <strong>all KNOWN matches</strong> - both observed and non-observed on Top GvG Tournament Battles.
+                  Guilds that do not import all their match history from GWToolbox Observer Tool will have
+                  <strong>inaccurate GWR ratings</strong>.
+                </p>
+              </div>
+
+              <h5 class="mb-15">The GWR Formula</h5>
               <div class="p-3 bg-light rounded mb-15" style="font-family: monospace; font-size: 0.9em; overflow-x: auto;">
-                <p class="mb-10 fw-bold">New ELO = Old ELO + K × (Actual Score - Expected Score)</p>
+                <p class="mb-10 fw-bold">New GWR = Old GWR + K × (Actual Score - Expected Score)</p>
 
                 <div class="mb-10">
                   <strong>Expected Score:</strong><br>
@@ -62,46 +71,54 @@
               <h5 class="mb-10">Example Calculation</h5>
               <div class="p-3 bg-light rounded">
                 <p class="mb-10 small">
-                  Player A (ELO 1200) vs Player B (ELO 1500):
+                  Player A (GWR 1200) vs Player B (GWR 1500):
                 </p>
                 <ol class="ms-3 mb-0 small">
                   <li class="mb-2">Expected score for A: E<sub>A</sub> = 1 / (1 + 10<sup>(1500-1200)/400</sup>) = <strong>0.24</strong></li>
                   <li class="mb-2">Expected score for B: E<sub>B</sub> = 1 / (1 + 10<sup>(1200-1500)/400</sup>) = <strong>0.76</strong></li>
                   <li class="mb-2">If Player A wins (Actual = 1, K=32):<br>
-                    <span class="text-success">New ELO = 1200 + 32 × (1 - 0.24) = <strong>1224 (+24)</strong></span></li>
+                    <span class="text-success">New GWR = 1200 + 32 × (1 - 0.24) = <strong>1224 (+24)</strong></span></li>
                   <li>If Player B wins (Actual = 0, K=32):<br>
-                    <span class="text-danger">New ELO = 1500 + 32 × (0 - 0.76) = <strong>1475 (-25)</strong></span></li>
+                    <span class="text-danger">New GWR = 1500 + 32 × (0 - 0.76) = <strong>1475 (-25)</strong></span></li>
                 </ol>
               </div>
             </div>
             <div class="col-lg-4">
-              <h5 class="mb-15">Key Points</h5>
+              <h5 class="mb-15">Important Notes</h5>
+              <div class="alert alert-brand mb-15">
+                <strong class="small">Observer Limitation</strong><br>
+                <p class="mb-0 small">
+                  Only matches with opponents in the <strong>Top 100</strong> are automatically observed.
+                  Guilds missing from rankings must use <strong>GWToolbox Observer Tool</strong> to import their matches.
+                </p>
+              </div>
+              <div class="alert alert-warning mb-15">
+                <strong class="small">Ranking Requirement</strong><br>
+                <p class="mb-0 small">Players need at least 5 matches to appear in rankings.</p>
+              </div>
               <div class="p-3 bg-light rounded">
+                <h6 class="mb-10">Key Points</h6>
                 <ul class="mb-0 small">
                   <li class="mb-3"><strong class="text-success">Upset Wins</strong><br>
                     <small>Winning against higher-rated players yields more points</small></li>
                   <li class="mb-3"><strong class="text-danger">Expected Losses</strong><br>
                     <small>Losing to lower-rated players results in more point loss</small></li>
                   <li class="mb-3"><strong class="text-primary">Fair Matches</strong><br>
-                    <small>Matches between evenly matched players result in smaller ELO changes</small></li>
-                  <li class="mb-3"><strong class="text-success">Peak ELO</strong><br>
-                    <small>Player ELO is the <strong>maximum</strong> achieved across all characters</small></li>
-                  <li><strong class="text-primary">Guild ELO</strong><br>
-                    <small>Is the <strong>average</strong> of all guild members' ELO ratings</small></li>
+                    <small>Matches between evenly matched players result in smaller GWR changes</small></li>
+                  <li class="mb-3"><strong class="text-success">Peak GWR</strong><br>
+                    <small>Player GWR is the <strong>maximum</strong> achieved across all characters</small></li>
+                  <li><strong class="text-primary">Guild GWR</strong><br>
+                    <small>Is the <strong>average</strong> of all guild members' GWR ratings</small></li>
                 </ul>
-              </div>
-              <div class="alert alert-warning alert-sm mt-20">
-                <strong class="small">Soon:</strong><br>
-                <p class="mb-0 small">Players will need at least 5 matches to qualify for rankings.</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <h2>ELO Rankings - Top 10 Players</h2>
+      <h2>GWR Rankings - Top 10 players</h2>
       <div class="alert alert-brand mb-30" role="alert">
-        <strong>New Feature!</strong> Our ELO-based ranking system is now live. This system tracks player performance
+        <strong>New Feature!</strong> Our GWR-based ranking system is now live. This system tracks player performance
         across all matches and updates ratings after each game.
         <a href="https://discord.gg/Gjefv7GJ9g" target="_blank" class="btn btn-brand btn-sm float-end">Join Discord</a>
       </div>
@@ -112,7 +129,7 @@
               <tr>
                 <th style="width: 50px;">Rank</th>
                 <th>Player</th>
-                <th>ELO Rating</th>
+                <th>GWR Rating</th>
                 <th style="width: 100px;">Matches</th>
               </tr>
             </thead>
@@ -132,37 +149,18 @@
         <div class="alert alert-warning">No player statistics available yet. Play matches to see your rank!</div>
       <% end %>
 
-      <!-- ELO by Profession Section -->
-      <section class="mb-50">
-        <h2 class="h4 mb-20">ELO by Profession</h2>
-        <% if @elo_by_profession.any? %>
-          <div class="row vgap-20">
-            <% @elo_by_profession.sort_by { |_, stats| stats[:avg_elo] }.reverse.each_with_index do |(profession, stats), index| %>
-              <div class="col-md-6 col-sm-12">
-                <div class="mpl-counter-box h-100 justify-content-between">
-                  <div class="d-grid grid-cols-2 justify-content-between align-items-center mb-15">
-                    <h3 class="h5 mb-0 text-primary">
-                      <a href="#<%= profession.downcase %>" class="text-decoration-none text-primary"><%= profession %></a>
-                    </h3>
-                    <span class="badge badge-brand badge-lg"><%= stats[:avg_elo].round %></span>
-                  </div>
-                  <div class="progress mb-10" style="height: 10px;">
-                    <div class="progress-bar bg-success" role="progressbar" style="width: <%= [stats[:avg_elo].to_f / 2000.0 * 100, 100].min %>%;" aria-valuenow="<%= stats[:avg_elo] %>" aria-valuemin="0" aria-valuemax="2000"></div>
-                  </div>
-                  <div class="d-grid grid-cols-2 justify-content-between small">
-                    <span><%= stats[:player_count] %> players</span>
-                    <span>Avg ELO</span>
-                  </div>
-                </div>
-              </div>
-            <% end %>
+      <h2>Top guilds by GWR</h2>
+      <% @top_guilds_by_elo.each_with_index do |guild, index| %>
+        <div class="mpl-counter-box mb-30">
+          <div class="mpl-counter-box-number h4"><%= index + 1 %>. <%= link_to guild.name_with_tag, guild_path(guild) %></div>
+          <div class="mpl-counter-box-content">
+            <span class="badge badge-warning">Avg GWR: <%= guild.avg_elo.round %></span>
+            <small>(<%= guild.match_count %> player-matches)</small>
           </div>
-        <% else %>
-          <div class="alert alert-warning">No profession statistics available yet.</div>
-        <% end %>
-      </section>
+        </div>
+      <% end %>
 
-      <h2 class="mb-20">Top 10 Players by ELO for Each Profession</h2>
+      <h2 class="mb-20">Top 10 players by GWR for each profession</h2>
       <% if @top_players_by_profession.any? %>
         <% @top_players_by_profession.each_with_index do |(profession_name, players), index| %>
           <% if players.any? %>
@@ -177,7 +175,7 @@
                     <tr>
                       <th style="width: 50px;">Rank</th>
                       <th>Player</th>
-                      <th style="width: 120px;">ELO Rating</th>
+                      <th style="width: 120px;">GWR Rating</th>
                       <th style="width: 100px;">Matches</th>
                     </tr>
                   </thead>
