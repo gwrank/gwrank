@@ -24,6 +24,27 @@
     <div class="container mpl-box-md">
       <%= render "searches/form", search_query: '' %>
 
+      <div class="alert alert-brand" role="alert">
+        <strong>How ELO Works</strong>
+        <p class="mb-2">
+          The ELO rating system is a method for calculating the relative skill levels of players.
+          After each match, players gain or lose points based on the outcome and the skill level of their opponents.
+        </p>
+        <div class="mb-2">
+          <strong>Key Points:</strong>
+          <ul class="mb-0 ml-3">
+            <li>Winning against higher-rated players yields more points</li>
+            <li> Losing to lower-rated players results in more point loss</li>
+            <li>Matches between evenly matched players result in smaller ELO changes</li>
+            <li>Player ELO is the <strong>maximum ELO</strong> achieved across all characters</li>
+            <li>Guild ELO is the <strong>sum</strong> of all guild members' ELO ratings</li>
+          </ul>
+        </div>
+        <p class="mb-0">
+          <em>Soon: Players need at least 5 matches to qualify for rankings.</em>
+        </p>
+      </div>
+
       <h2>ELO Rankings - Top 10 Players</h2>
       <div class="alert alert-brand" role="alert">
         <strong>New Feature!</strong> Our ELO-based ranking system is now live. This system tracks player performance
