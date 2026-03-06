@@ -24,54 +24,85 @@
     <div class="container mpl-box-md">
       <%= render "searches/form", search_query: '' %>
 
-      <div class="alert alert-brand" role="alert">
-        <strong>How ELO Works</strong>
-        <p class="mb-2">
-        The ELO rating system is a method for calculating the relative skill levels of players.
-        After each match, players gain or lose points based on the outcome and the skill level of their opponents.
-        </p>
+      <!-- How ELO Works Section -->
+      <section class="mb-50">
+        <h2 class="h4 mb-20"><strong>How ELO Works</strong></h2>
+        <div class="mpl-counter-box">
+          <div class="row vgap-20">
+            <div class="col-lg-8">
+              <p class="mb-15">
+                The ELO rating system is a method for calculating the relative skill levels of players.
+                After each match, players gain or lose points based on the outcome and the skill level of their opponents.
+              </p>
 
-        <h5 class="mt-3">The ELO Formula</h5>
-        <div class="mt-2 p-3 rounded" style="font-family: monospace; font-size: 0.9em;">
-          <p class="mb-2"><strong>New ELO = Old ELO + K × (Actual Score - Expected Score)</strong></p>
+              <h5 class="mb-15">The ELO Formula</h5>
+              <div class="p-3 bg-light rounded mb-15" style="font-family: monospace; font-size: 0.9em; overflow-x: auto;">
+                <p class="mb-10 fw-bold">New ELO = Old ELO + K × (Actual Score - Expected Score)</p>
 
-          <div class="mb-2">
-            <strong>Expected Score:</strong><br>
-            <code>E<sub>A</sub> = 1 / (1 + 10<sup>(R<sub>B</sub> - R<sub>A</sub>) / 400</sup>)</code><br>
-            <small>Probability of Player A winning against Player B</small>
-          </div>
+                <div class="mb-10">
+                  <strong>Expected Score:</strong><br>
+                  <code style="display: block; margin: 10px 0; padding: 10px; border-radius: 4px;">
+                    E<sub>A</sub> = 1 / (1 + 10<sup>(R<sub>B</sub> - R<sub>A</sub>) / 400</sup>)
+                  </code>
+                  <small>Probability of Player A winning against Player B</small>
+                </div>
 
-          <div>
-            <strong>Variables:</strong>
-            <ul class="mb-0 ml-3">
-              <li><strong>R<sub>A</sub></strong> = Rating of Player A before the match</li>
-              <li><strong>R<sub>B</sub></strong> = Rating of Player B before the match</li>
-              <li><strong>E<sub>A</sub></strong> = Expected score for Player A (0 to 1)</li>
-              <li><strong>K</strong> = K-factor (typically 32, 20, or 40)</li>
-              <li><strong>Actual Score</strong> = 1 (win), 0.5 (draw), or 0 (loss)</li>
-            </ul>
+                <div>
+                  <strong>Variables:</strong>
+                  <ul class="mb-0 ms-3">
+                    <li><strong>R<sub>A</sub></strong> = Rating of Player A before the match</li>
+                    <li><strong>R<sub>B</sub></strong> = Rating of Player B before the match</li>
+                    <li><strong>E<sub>A</sub></strong> = Expected score for Player A (0 to 1)</li>
+                    <li><strong>K</strong> = K-factor (typically 32, 20, or 40)</li>
+                    <li><strong>Actual Score</strong> = 1 (win), 0.5 (draw), or 0 (loss)</li>
+                  </ul>
+                </div>
+              </div>
+
+              <h5 class="mb-10">Example Calculation</h5>
+              <div class="p-3 bg-light rounded">
+                <p class="mb-10 small">
+                  Player A (ELO 1200) vs Player B (ELO 1500):
+                </p>
+                <ol class="ms-3 mb-0 small">
+                  <li class="mb-2">Expected score for A: E<sub>A</sub> = 1 / (1 + 10<sup>(1500-1200)/400</sup>) = <strong>0.24</strong></li>
+                  <li class="mb-2">Expected score for B: E<sub>B</sub> = 1 / (1 + 10<sup>(1200-1500)/400</sup>) = <strong>0.76</strong></li>
+                  <li class="mb-2">If Player A wins (Actual = 1, K=32):<br>
+                    <span class="text-success">New ELO = 1200 + 32 × (1 - 0.24) = <strong>1224 (+24)</strong></span></li>
+                  <li>If Player B wins (Actual = 0, K=32):<br>
+                    <span class="text-danger">New ELO = 1500 + 32 × (0 - 0.76) = <strong>1475 (-25)</strong></span></li>
+                </ol>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <h5 class="mb-15">Key Points</h5>
+              <div class="p-3 bg-light rounded">
+                <ul class="mb-0 small">
+                  <li class="mb-3"><strong class="text-success">Upset Wins</strong><br>
+                    <small>Winning against higher-rated players yields more points</small></li>
+                  <li class="mb-3"><strong class="text-danger">Expected Losses</strong><br>
+                    <small>Losing to lower-rated players results in more point loss</small></li>
+                  <li class="mb-3"><strong class="text-primary">Fair Matches</strong><br>
+                    <small>Matches between evenly matched players result in smaller ELO changes</small></li>
+                  <li class="mb-3"><strong class="text-success">Peak ELO</strong><br>
+                    <small>Player ELO is the <strong>maximum</strong> achieved across all characters</small></li>
+                  <li><strong class="text-primary">Guild ELO</strong><br>
+                    <small>Is the <strong>average</strong> of all guild members' ELO ratings</small></li>
+                </ul>
+              </div>
+              <div class="alert alert-warning alert-sm mt-20">
+                <strong class="small">Soon:</strong><br>
+                <p class="mb-0 small">Players will need at least 5 matches to qualify for rankings.</p>
+              </div>
+            </div>
           </div>
         </div>
-
-        <div class="mt-3">
-          <strong>Key Points:</strong>
-          <ul class="mb-0 ml-3">
-            <li>Winning against higher-rated players yields more points</li>
-            <li>Losing to lower-rated players results in more point loss</li>
-            <li>Matches between evenly matched players result in smaller ELO changes</li>
-            <li>Player ELO is the <strong>maximum ELO</strong> achieved across all characters</li>
-            <li>Guild ELO is the <strong>average</strong> of all guild members' ELO ratings</li>
-          </ul>
-        </div>
-        <p class="mb-0 mt-3">
-        <em>Soon: Players need at least 5 matches to qualify for rankings.</em>
-        </p>
-      </div>
+      </section>
 
       <h2>ELO Rankings - Top 10 Players</h2>
       <div class="alert alert-brand mb-30" role="alert">
         <strong>New Feature!</strong> Our ELO-based ranking system is now live. This system tracks player performance
-        across all matches and updates ratings after each game. Players need at least 5 matches to qualify.
+        across all matches and updates ratings after each game.
         <a href="https://discord.gg/Gjefv7GJ9g" target="_blank" class="btn btn-brand btn-sm float-end">Join Discord</a>
       </div>
       <% if @top_elo_players.any? %>
