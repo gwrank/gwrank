@@ -1,6 +1,6 @@
 class PlayersController < ApplicationController
   def index
-    @pagy, @players = pagy(Player.with_igname.order(updated_at: :desc, created_at: :desc), limit: 18)
+    @pagy, @players = pagy(Player.with_igname.order(elo_rating: :desc, elo_matches: :desc), limit: 18)
   end
 
   def show
