@@ -366,12 +366,21 @@
       return new bootstrap.Tooltip(tooltipTriggerEl);
     });
   }
-  
-  document.addEventListener('DOMContentLoaded', initTooltips);
-  document.addEventListener('turbo:load', initTooltips);
-  
+
+  // Wait for Bootstrap to be available before initializing
+  function initTooltipsWithBootstrap() {
+    if (typeof bootstrap !== 'undefined') {
+      initTooltips();
+    } else {
+      setTimeout(initTooltipsWithBootstrap, 50);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', initTooltipsWithBootstrap);
+  document.addEventListener('turbo:load', initTooltipsWithBootstrap);
+
   if (document.readyState !== 'loading') {
-    initTooltips();
+    initTooltipsWithBootstrap();
   }
   
   // NPC Damage Toggle functionality
