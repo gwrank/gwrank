@@ -13,5 +13,8 @@ application.register("match-builds", MatchBuildsController)
 import PopoverController from "./popover_controller"
 application.register("popover", PopoverController)
 
+import ProfessionNavController from "./profession_nav_controller"
+application.register("profession-nav", ProfessionNavController)
+
 import TooltipController from "./tooltip_controller"
 application.register("tooltip", TooltipController)
