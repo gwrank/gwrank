@@ -1,7 +1,7 @@
 <%= form_with url: search_path, method: :get, class: "mb-50" do |form| %>
   <div class="row hgap-xs">
     <div class="col">
-      <%= form.text_field :q, placeholder: "Search", value: search_query, class: "form-control" %>
+      <%= form.text_field :q, placeholder: "Search in players, guilds and matches", value: search_query, class: "form-control" %>
       <span class="form-control-bg"></span>
     </div>
     <div class="col-auto">
