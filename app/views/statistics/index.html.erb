@@ -46,7 +46,7 @@
                 <tr>
                   <td><strong>#<%= index + 1 %></strong></td>
                   <td><%= link_to player.igname, player_path(player), class: 'text-link' %></td>
-                  <td><span class="badge badge-success badge-lg"><%= player.elo_rating %></span></td>
+                  <td><span class="badge badge-primary badge-lg"><%= player.elo_rating %></span></td>
                   <td><small><%= player.elo_matches || 0 %> matches</small></td>
                 </tr>
               <% end %>
@@ -74,7 +74,7 @@
                 <tr>
                   <td><strong>#<%= index + 1 %></strong></td>
                   <td><%= link_to guild.name_with_tag, guild_path(guild), class: 'text-link' %></td>
-                  <td><span class="badge badge-success"><%= guild.avg_elo.round %></span></td>
+                  <td><span class="badge badge-primary"><%= guild.avg_elo.round %></span></td>
                   <td><small><%= guild.players.count %> players</small></td>
                 </tr>
               <% end %>
@@ -141,7 +141,7 @@
                              <tr>
                                <td><strong>#<%= index + 1 %></strong></td>
                                <td><%= link_to player.igname, player_path(player), class: 'text-link' %></td>
-                               <td><span class="badge badge-success badge-lg"><%= player.elo_rating %></span></td>
+                               <td><span class="badge badge-primary badge-lg"><%= player.elo_rating %></span></td>
                                <td><small><%= player.elo_matches || 0 %> matches</small></td>
                              </tr>
                            <% end %>
