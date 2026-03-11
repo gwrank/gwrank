@@ -3,7 +3,7 @@
     <%= team_player.character.player.present? ? link_to(team_player.igname, player_path(team_player.character.player)) : team_player.igname %>
     <span class="float-right">
       <%= team_player.profession.html_image %>
-      <%= team_player.secondary_profession.html_image %>
+      <%= team_player.secondary_profession&.html_image %>
       <% unless team_player.team_player_skills.count > 8 %>
         <span data-container="body" data-controller="popover" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<%= team_player.template_code %>" title="">
           <svg width="25px" class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
