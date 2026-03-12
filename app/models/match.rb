@@ -54,6 +54,9 @@ class Match < ApplicationRecord
   def prepare_stats!
     return unless json.present?
 
+    match_duration_mins = json.dig("match_duration_mins")
+    match_duration_mins = nil if match_duration_mins == 0
+
     json.dig("parties", "by_id").each do |_id, party|
       agent_ids = party.dig("agent_ids")
       agent_ids.each do |agent_id|
@@ -61,21 +64,36 @@ class Match < ApplicationRecord
         igname = agent.dig("sanitized_name") # e.g.: Divin Arkalon
 
         team_player = team_players.find_by(igname: igname)
+        puts team_player.inspect
         next unless team_player
 
-        next unless match_duration_mins = json.dig("match_duration_mins")
-        next if match_duration_mins == 0
+        stats = agent.dig("stats") || {}
+
+        # DPM calculation
+        if match_duration_mins && match_duration_mins > 0
+          damage_dealt = stats.dig("total_damage_dealt") || 0
+          average_dpm = damage_dealt.to_f / match_duration_mins.to_f
+          team_player.team_player_stats.where(stat_key: "average_dpm").first_or_create!(stat_value: average_dpm)
+        end
+
+        # Total kills and deaths for per-game averages
+        total_kills = stats.dig("kills") || 0
+        team_player.team_player_stats.where(stat_key: "total_kills").first_or_create!(stat_value: total_kills)
+
+        total_deaths = stats.dig("deaths") || 0
+        team_player.team_player_stats.where(stat_key: "total_deaths").first_or_create!(stat_value: total_deaths)
+
+        total_damage_dealt = stats.dig("total_damage_dealt") || 0
+        team_player.team_player_stats.where(stat_key: "total_damage_dealt").first_or_create!(stat_value: total_damage_dealt)
 
         primary = agent.dig("primary")
         profession = Profession.find_by(profession_id: primary)
 
         case profession.name&.downcase
         when 'warrior'
-          total_crits_dealt = agent.dig("stats", "total_crits_dealt")
-          average_cpm = total_crits_dealt.to_f / match_duration_mins.to_f
+          total_crits_dealt = stats.dig("total_crits_dealt") || 0
+          average_cpm = total_crits_dealt.to_f / match_duration_mins.to_f if match_duration_mins && match_duration_mins > 0
           team_player.team_player_stats.where(stat_key: "average_warrior_cpm").first_or_create!(stat_value: average_cpm)
-        when 'monk'
-          total_healing_dealt = agent.dig("stats", "total_healing_dealt")
         end
       end
     end
@@ -244,6 +262,7 @@ class Match < ApplicationRecord
     end
 
     match.calculate_elo! if match.winner_team && match.loser_team
+    match.prepare_stats!
     match.save!
     match
   end
@@ -277,6 +296,9 @@ class Match < ApplicationRecord
       # Win = 1 point
       new_elo = (player_elo + k_factor * (1 - expected_score)).round
 
+      # Store opponent ELO at match time (average ELO of opposing team)
+      team_player.team_player_stats.where(stat_key: "opponent_elo_at_match").first_or_create!(stat_value: loser_avg)
+
       player.update(elo_rating: new_elo, elo_matches: player_elo_matches + 1)
     end
 
@@ -292,6 +314,9 @@ class Match < ApplicationRecord
 
       # Loss = 0 point
       new_elo = (player_elo + k_factor * (0 - expected_score)).round
+
+      # Store team ELO at match time (average ELO of teammates)
+      team_player.team_player_stats.where(stat_key: "team_elo_at_match").first_or_create!(stat_value: winner_avg)
 
       player.update(elo_rating: new_elo, elo_matches: player_elo_matches + 1)
     end

@@ -2,52 +2,57 @@
 #
 # Table name: players
 #
-#  id                     :bigint           not null, primary key
-#  api_token              :string
-#  average_dpm            :integer          default(0)
-#  average_warrior_cpm    :float
-#  confirmation_sent_at   :datetime
-#  confirmation_token     :string
-#  confirmed_at           :datetime
-#  current_sign_in_at     :datetime
-#  current_sign_in_ip     :string
-#  elo_matches            :integer
-#  elo_rating             :integer
-#  email                  :string           default("")
-#  encrypted_password     :string           default(""), not null
-#  failed_attempts        :integer          default(0), not null
-#  igname                 :string
-#  image_url              :string
-#  is_admin               :boolean          default(FALSE)
-#  is_assassin            :boolean          default(FALSE)
-#  is_dervish             :boolean          default(FALSE)
-#  is_elementalist        :boolean          default(FALSE)
-#  is_mesmer              :boolean          default(FALSE)
-#  is_moderator           :boolean          default(FALSE)
-#  is_monk                :boolean          default(FALSE)
-#  is_necromancer         :boolean          default(FALSE)
-#  is_paragon             :boolean          default(FALSE)
-#  is_ranger              :boolean          default(FALSE)
-#  is_ritualist           :boolean          default(FALSE)
-#  is_verified            :boolean          default(FALSE)
-#  is_warrior             :boolean          default(FALSE)
-#  last_sign_in_at        :datetime
-#  last_sign_in_ip        :string
-#  locked_at              :datetime
-#  provider               :string
-#  remember_created_at    :datetime
-#  reset_password_sent_at :datetime
-#  reset_password_token   :string
-#  sign_in_count          :integer          default(0), not null
-#  slug                   :string
-#  twitch_username        :string
-#  uid                    :string
-#  unconfirmed_email      :string
-#  unlock_token           :string
-#  username               :string
-#  created_at             :datetime         not null
-#  updated_at             :datetime         not null
-#  guild_id               :bigint
+#  id                      :bigint           not null, primary key
+#  api_token               :string
+#  average_deaths_per_game :float
+#  average_dmg_per_game    :float
+#  average_dpm             :float            default(0.0)
+#  average_opponent_elo    :integer
+#  average_team_elo        :integer
+#  average_warrior_cpm     :float
+#  confirmation_sent_at    :datetime
+#  confirmation_token      :string
+#  confirmed_at            :datetime
+#  current_sign_in_at      :datetime
+#  current_sign_in_ip      :string
+#  elo_matches             :integer
+#  elo_rating              :integer
+#  email                   :string           default("")
+#  encrypted_password      :string           default(""), not null
+#  failed_attempts         :integer          default(0), not null
+#  igname                  :string
+#  image_url               :string
+#  is_admin                :boolean          default(FALSE)
+#  is_assassin             :boolean          default(FALSE)
+#  is_dervish              :boolean          default(FALSE)
+#  is_elementalist         :boolean          default(FALSE)
+#  is_mesmer               :boolean          default(FALSE)
+#  is_moderator            :boolean          default(FALSE)
+#  is_monk                 :boolean          default(FALSE)
+#  is_necromancer          :boolean          default(FALSE)
+#  is_paragon              :boolean          default(FALSE)
+#  is_ranger               :boolean          default(FALSE)
+#  is_ritualist            :boolean          default(FALSE)
+#  is_verified             :boolean          default(FALSE)
+#  is_warrior              :boolean          default(FALSE)
+#  kd_ratio                :float
+#  last_sign_in_at         :datetime
+#  last_sign_in_ip         :string
+#  locked_at               :datetime
+#  provider                :string
+#  remember_created_at     :datetime
+#  reset_password_sent_at  :datetime
+#  reset_password_token    :string
+#  sign_in_count           :integer          default(0), not null
+#  slug                    :string
+#  twitch_username         :string
+#  uid                     :string
+#  unconfirmed_email       :string
+#  unlock_token            :string
+#  username                :string
+#  created_at              :datetime         not null
+#  updated_at              :datetime         not null
+#  guild_id                :bigint
 #
 # Indexes
 #
@@ -191,6 +196,12 @@ class Player < ApplicationRecord
   def prepare_stats!
     set_professions_from_team_players
     set_average_warrior_cpm_from_team_player_stats
+    set_average_dpm_from_team_player_stats
+    set_average_dmg_per_game
+    set_average_deaths_per_game
+    set_kd_ratio
+    set_average_team_elo
+    set_average_opponent_elo
     save!
   end
 
@@ -200,6 +211,70 @@ class Player < ApplicationRecord
     return if average_warrior_cpms.count < 2
 
     self.average_warrior_cpm = average_warrior_cpms.sum(:stat_value).to_f / average_warrior_cpms.count.to_f
+    self
+  end
+
+  def set_average_dpm_from_team_player_stats
+    average_dpms = team_player_stats.where(stat_key: 'average_dpm')
+    return unless average_dpms && average_dpms.any?
+
+    self.average_dpm = average_dpms.sum(:stat_value).to_f / average_dpms.count.to_f
+    self
+  end
+
+  def set_average_dmg_per_game
+    match_count = teams.count
+    return if match_count == 0
+
+    total_damage = 0
+    team_players.each do |tp|
+      total_damage += tp.team_player_stats.where(stat_key: 'total_damage_dealt').sum(:stat_value).to_i
+    end
+
+    self.average_dmg_per_game = total_damage.to_f / match_count.to_f
+    self
+  end
+
+  def set_average_deaths_per_game
+    match_count = teams.count
+    return if match_count == 0
+
+    total_deaths = 0
+    team_players.each do |tp|
+      total_deaths += tp.team_player_stats.where(stat_key: 'total_deaths').sum(:stat_value).to_i
+    end
+
+    self.average_deaths_per_game = total_deaths.to_f / match_count.to_f
+    self
+  end
+
+  def set_kd_ratio
+    total_kills = 0
+    total_deaths = 0
+
+    team_players.each do |tp|
+      total_kills += tp.team_player_stats.where(stat_key: 'total_kills').sum(:stat_value).to_f
+      total_deaths += tp.team_player_stats.where(stat_key: 'total_deaths').sum(:stat_value).to_f
+    end
+
+    # Avoid divide by zero
+    self.kd_ratio = total_deaths > 0 ? (total_kills / total_deaths) : total_kills.to_f
+    self
+  end
+
+  def set_average_team_elo
+    team_elos = team_player_stats.where(stat_key: 'team_elo_at_match')
+    return unless team_elos && team_elos.any?
+
+    self.average_team_elo = (team_elos.sum(:stat_value) / team_elos.count).round
+    self
+  end
+
+  def set_average_opponent_elo
+    opponent_elos = team_player_stats.where(stat_key: 'opponent_elo_at_match')
+    return unless opponent_elos && opponent_elos.any?
+
+    self.average_opponent_elo = (opponent_elos.sum(:stat_value) / opponent_elos.count).round
     self
   end
 

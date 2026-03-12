@@ -44,6 +44,24 @@ class TeamPlayer < ApplicationRecord
     average_dpm.stat_value
   end
 
+  def total_kills
+    total_kills = team_player_stats.find_by(stat_key: "total_kills")
+    return unless total_kills
+    total_kills.stat_value
+  end
+
+  def total_deaths
+    total_deaths = team_player_stats.find_by(stat_key: "total_deaths")
+    return unless total_deaths
+    total_deaths.stat_value
+  end
+
+  def total_damage_dealt
+    total_damage = team_player_stats.find_by(stat_key: "total_damage_dealt")
+    return unless total_damage
+    total_damage.stat_value
+  end
+
   def html_skills
     skills = []
     secondary_profession_skills = []

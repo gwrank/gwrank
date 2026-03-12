@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_06_131053) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_12_131338) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -179,7 +179,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131053) do
 
   create_table "players", force: :cascade do |t|
     t.string "api_token"
-    t.integer "average_dpm", default: 0
+    t.float "average_deaths_per_game"
+    t.float "average_dmg_per_game"
+    t.float "average_dpm", default: 0.0
+    t.integer "average_opponent_elo"
+    t.integer "average_team_elo"
     t.float "average_warrior_cpm"
     t.datetime "confirmation_sent_at", precision: nil
     t.string "confirmation_token"
@@ -208,6 +212,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_131053) do
     t.boolean "is_ritualist", default: false
     t.boolean "is_verified", default: false
     t.boolean "is_warrior", default: false
+    t.float "kd_ratio"
     t.datetime "last_sign_in_at", precision: nil
     t.string "last_sign_in_ip"
     t.datetime "locked_at", precision: nil

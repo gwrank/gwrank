@@ -58,9 +58,45 @@
                       <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" />
                       </svg>
-                      Average crits / minute: <%= @player.average_warrior_cpm.round(2) %>
+                      Average crits / minute: <%= @player.average_warrior_cpm&.round(2) || 'N/A' %>
                     </li>
                   <% end %>
+                  <li>
+                    <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" />
+                    </svg>
+                    Average DPM: <%= @player.average_dpm&.round(2) || 'N/A' %>
+                  </li>
+                  <li>
+                    <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M16.5 3C15.3954 3 14.5 3.89543 14.5 5V19H10V5C10 3.89543 9.10457 3 8 3C6.89543 3 6 3.89543 6 5V19C6 20.1046 6.89543 21 8 21H18C19.1046 21 20 20.1046 20 19V5C20 3.89543 19.1046 3 18 3H16.5Z" />
+                    </svg>
+                    Avg Dmg/Game: <%= @player.average_dmg_per_game&.round(0) || 'N/A' %>
+                  </li>
+                  <li>
+                    <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M16.5 3C15.3954 3 14.5 3.89543 14.5 5V19H10V5C10 3.89543 9.10457 3 8 3C6.89543 3 6 3.89543 6 5V19C6 20.1046 6.89543 21 8 21H18C19.1046 21 20 20.1046 20 19V5C20 3.89543 19.1046 3 18 3H16.5Z" />
+                    </svg>
+                    Avg Deaths/Game: <%= @player.average_deaths_per_game&.round(2) || 'N/A' %>
+                  </li>
+                  <li>
+                    <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M16.5 3C15.3954 3 14.5 3.89543 14.5 5V19H10V5C10 3.89543 9.10457 3 8 3C6.89543 3 6 3.89543 6 5V19C6 20.1046 6.89543 21 8 21H18C19.1046 21 20 20.1046 20 19V5C20 3.89543 19.1046 3 18 3H16.5Z" />
+                    </svg>
+                    K/D Ratio: <%= @player.kd_ratio&.round(2) || 'N/A' %>
+                  </li>
+                  <li>
+                    <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" />
+                    </svg>
+                    Avg Team ELO: <%= @player.average_team_elo || 'N/A' %>
+                  </li>
+                  <li>
+                    <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" />
+                    </svg>
+                    Avg Opponent ELO: <%= @player.average_opponent_elo || 'N/A' %>
+                  </li>
                   <% if @player.is_verified? %>
                     <li>
                       <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
