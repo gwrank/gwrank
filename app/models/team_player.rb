@@ -128,7 +128,7 @@ class TeamPlayer < ApplicationRecord
     version_number = 0
     profession_code = 0 # bits_per_profession_id = code * 2 + 4
     primary_profession = profession.profession_id
-    secondary_profession = self.secondary_profession.profession_id
+    secondary_profession = self.secondary_profession&.profession_id || 0
     attributes_count = 0
     attributes_code = 0 # bits_per_attribute_id = code + 4
     skills_code = 4 # bits_per_skill_id = code + 8
