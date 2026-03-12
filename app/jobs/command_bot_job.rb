@@ -356,7 +356,7 @@ class CommandBotJob < ApplicationJob
         if registration.player.professions_text.present?
           message << "\n##{index + 1} <@#{registration.player.uid}> (#{registration.player.igname})"
         else
-          message << "\n##{index + 1} <@#{registration.player.uid}> (#{registration.player.igname}) [#{registration.player.professions_text}}"
+          message << "\n##{index + 1} <@#{registration.player.uid}> (#{registration.player.igname}) [#{registration.player.professions_short_text}}"
         end
       else
         message << "\n##{index + 1} <@#{registration.player.uid}>"

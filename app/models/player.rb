@@ -185,8 +185,20 @@ class Player < ApplicationRecord
     professions
   end
 
+  def professions_short_text
+    p = []
+    professions.each do |profession_sym|
+      p << Profession.find_by(name: profession_sym.to_s.capitalize)&.name
+    end
+    p.join(', ')
+  end
+
   def professions_text
-    professions.join(', ')
+    p = []
+    professions.each do |profession_sym|
+      p << Profession.find_by(name: profession_sym.to_s.capitalize)&.short_name
+    end
+    p.join(', ')
   end
 
   def verification_status
