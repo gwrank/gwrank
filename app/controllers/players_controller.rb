@@ -9,6 +9,21 @@ class PlayersController < ApplicationController
   end
 
   def show
-    @player = Player.friendly.find(params[:id])
+    @player = Player.friendly.includes(
+      characters: :profession,
+      guild: {},
+      teams: [
+        match: [:tournament],
+        team_players: [:character, :player, :profession, :secondary_profession]
+      ]
+    ).find(params[:id])
+
+    # Paginate player's matches with preloaded data
+    @matches_pagy, @matches = pagy(
+      @player.teams.includes(
+        match: [:tournament, { team_players: [:profession, :secondary_profession] }]
+      ).order('matches.played_at DESC'),
+      limit: 10
+    )
   end
 end

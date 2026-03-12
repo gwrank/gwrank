@@ -1,0 +1,9 @@
+<h2>Matches</h2>
+<div class="cyberpress-matches">
+  <ul class="cyberpress-matchs-archive" data-sr="matches" data-sr-duration="1000">
+    <% teams.each do |team| %>
+      <%= render "matches/match", match: team.match %>
+    <% end %>
+  </ul>
+  <%== pagy.series_nav(:bootstrap) %>
+</div>
