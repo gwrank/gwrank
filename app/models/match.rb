@@ -45,6 +45,8 @@ class Match < ApplicationRecord
   has_many :players, through: :teams
   has_many :team_players, through: :teams
 
+  scope :with_stats, -> { where.not(stats: {}) }
+
   extend FriendlyId
   friendly_id :slug_candidates, use: :slugged
   def should_generate_new_friendly_id?

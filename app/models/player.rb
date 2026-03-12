@@ -75,6 +75,7 @@ class Player < ApplicationRecord
   has_many :team_players, dependent: :nullify
   has_many :team_player_stats, through: :team_players
   has_many :teams, through: :team_players
+  has_many :matches, through: :teams
 
   extend FriendlyId
   friendly_id :username, use: :slugged
@@ -165,6 +166,10 @@ class Player < ApplicationRecord
        .order(name: :asc)
   end
 
+  def matches_with_stats_count
+    matches.with_stats.count
+  end
+
   def name
     igname.present? ? igname : username
   end
@@ -242,28 +247,26 @@ class Player < ApplicationRecord
   end
 
   def set_average_dmg_per_game
-    match_count = teams.count
-    return if match_count == 0
+    return if matches_with_stats_count == 0
 
     total_damage = 0
     team_players.each do |tp|
       total_damage += tp.team_player_stats.where(stat_key: 'total_damage_dealt').sum(:stat_value).to_i
     end
 
-    self.average_dmg_per_game = total_damage.to_f / match_count.to_f
+    self.average_dmg_per_game = total_damage.to_f / matches_with_stats_count.to_f
     self
   end
 
   def set_average_deaths_per_game
-    match_count = teams.count
-    return if match_count == 0
+    return if matches_with_stats_count == 0
 
     total_deaths = 0
     team_players.each do |tp|
       total_deaths += tp.team_player_stats.where(stat_key: 'total_deaths').sum(:stat_value).to_i
     end
 
-    self.average_deaths_per_game = total_deaths.to_f / match_count.to_f
+    self.average_deaths_per_game = total_deaths.to_f / matches_with_stats_count.to_f
     self
   end
 
