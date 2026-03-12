@@ -13,6 +13,7 @@ class PlayersController < ApplicationController
       characters: :profession,
       guild: {},
       teams: [
+        :guild,
         match: [:tournament],
         team_players: [:character, :player, :profession, :secondary_profession]
       ]
@@ -25,5 +26,7 @@ class PlayersController < ApplicationController
       ).order('matches.played_at DESC'),
       limit: 10
     )
+
+    @guilds = @player.historic_guilds_distinct
   end
 end

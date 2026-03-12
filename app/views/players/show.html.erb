@@ -137,24 +137,15 @@
                 </div>
               <% end %>
             </article>
-            <% if @player.historic_guilds.any? %>
+            <% if @guilds.any? %>
               <h2>Played with</h2>
-              <table class="table mpl-table-responsive-sm cyberpress-table cyberpress-team-players">
-                <thead>
-                  <tr>
-                    <th>Guild</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% @player.historic_guilds.each do |guild| %>
-                    <tr>
-                      <td class="cyberpress-table-item-nickname">
-                        <%= link_to guild.name_with_tag, guild_path(guild) %>
-                      </td>
-                    </tr>
+              <div class="col-lg mpl-content">
+                <div class="row hgap-md vgap-md" data-sr="teams" data-sr-interval="100" data-sr-duration="1000" data-sr-distance="20">
+                  <% @guilds.each do |guild| %>
+                    <%= render "guilds/guild", guild: guild %>
                   <% end %>
-                </tbody>
-              </table>
+                </div>
+              </div>
             <% end %>
             <% if @player.teams.any? %>
               <%= render "matches", teams: @matches, pagy: @matches_pagy %>

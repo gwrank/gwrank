@@ -151,11 +151,18 @@ class Player < ApplicationRecord
   end
 
   def historic_guilds
-    historic_guilds = []
-    teams.each do |team|
-      historic_guilds << team.guild
-    end
-    historic_guilds = historic_guilds.uniq
+    historic_guilds_distinct.to_a
+  end
+
+  def historic_guilds_distinct
+    # Guilds the player has played with based on their team_players
+    # Player -> team_players -> team -> guild
+    # Get guild IDs from teams that have team_players for this player
+    Guild.where(id: Team.joins(:team_players)
+                      .where(team_players: { player_id: id })
+                      .distinct(:guild_id)
+                      .pluck(:guild_id))
+       .order(name: :asc)
   end
 
   def name
