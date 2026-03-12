@@ -95,6 +95,7 @@ class Match < ApplicationRecord
   def title
     title = []
     teams.includes(:guild).each do |team|
+      next unless team.guild
       title << team.guild.name_with_tag
     end
     title.join(' vs. ')
