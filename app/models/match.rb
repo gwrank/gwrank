@@ -64,7 +64,6 @@ class Match < ApplicationRecord
         igname = agent.dig("sanitized_name") # e.g.: Divin Arkalon
 
         team_player = team_players.find_by(igname: igname)
-        puts team_player.inspect
         next unless team_player
 
         stats = agent.dig("stats") || {}
