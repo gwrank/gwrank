@@ -69,6 +69,7 @@ group :development do
   # GWRank dependencies
   gem 'annotaterb'
   gem 'bundler-audit'
+  gem 'claude-on-rails'
   gem 'rails-erd'
 end
 
