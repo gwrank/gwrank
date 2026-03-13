@@ -35,5 +35,7 @@ Rails.application.routes.draw do
     omniauth_callbacks: 'players/omniauth_callbacks'
   }
 
-  root to: "home#index"
+  get 'privacy', to: 'static_pages#privacy'
+  get 'terms', to: 'static_pages#terms'
+  root to: 'home#index'
 end
