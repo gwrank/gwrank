@@ -16,7 +16,6 @@ class ProfilesController < ApplicationController
       character_igname = player_params[:igname].strip.titleize
       character = Character.where(igname: character_igname).first_or_create
       character.update(player: @player) unless character.player.present?
-      @player.team_players.update_all(player_id: Player.find_by(email: 'default@gwrank.com').id)
       TeamPlayer.where(igname: character_igname).update_all(player_id: @player.id)
     end
 
