@@ -31,7 +31,7 @@
                   <%= link_to player.username, player_path(player) %>
                 </th>
                 <td>
-                  <%= player.igname %>
+                  <%= display_player_name(player, current_player) %>
                 </td>
                 <td>
                   <% player.professions.each do |profession| %>
@@ -44,7 +44,7 @@
                 <td>
                   <% if player.is_verified? %>
                     <%= link_to 'Remove verified badge', administration_player_unchecks_path(player), method: :post, class: 'btn btn-sm' %>
-                  <% elsif player.igname.present? %>
+                  <% elsif player.igname.present? && current_player&.is_admin? %>
                     <%= link_to 'Add verified badge', administration_player_checks_path(player), method: :post, class: 'btn btn-sm btn-success' %>
                   <% else %>
                     <button type="button" class="btn btn-sm btn-danger disabled" data-bs-toggle="tooltip" data-bs-placement="top" title="The player need an in-game name to be verified">Add verified badge</button>

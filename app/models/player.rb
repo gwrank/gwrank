@@ -3,6 +3,7 @@
 # Table name: players
 #
 #  id                      :bigint           not null, primary key
+#  anonymization_seed      :string
 #  api_token               :string
 #  average_deaths_per_game :float
 #  average_dmg_per_game    :float
@@ -77,8 +78,12 @@ class Player < ApplicationRecord
   has_many :teams, through: :team_players
   has_many :matches, through: :teams
 
+  # Callbacks for anonymization seed
+  before_validation :ensure_anonymization_seed
+  before_save :generate_anonymization_seed
+
   extend FriendlyId
-  friendly_id :username, use: :slugged
+  friendly_id :id, use: :slugged
   def should_generate_new_friendly_id?
     slug.blank? || username_changed?
   end
@@ -331,5 +336,17 @@ class Player < ApplicationRecord
     end
 
     self
+  end
+
+  private
+
+  # Ensure anonymization_seed exists for consistent name swapping
+  def ensure_anonymization_seed
+    self.anonymization_seed = SecureRandom.hex(16) if anonymization_seed.blank?
+  end
+
+  # Generate anonymization_seed if not present
+  def generate_anonymization_seed
+    self.anonymization_seed = SecureRandom.hex(16) if anonymization_seed.blank?
   end
 end

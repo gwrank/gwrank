@@ -1,6 +1,6 @@
 <tr>
   <td>
-    <%= team_player.character.player.present? ? link_to(team_player.igname, player_path(team_player.character.player)) : team_player.igname %>
+    <%= link_to(display_team_player_name(team_player, current_player), player_path(team_player.player)) %>
     <span class="float-right">
       <%= team_player.profession.html_image %>
       <%= team_player.secondary_profession&.html_image %>

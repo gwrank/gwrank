@@ -49,7 +49,7 @@
               <% @top_elo_players.each_with_index do |player, index| %>
                 <tr>
                   <td><strong>#<%= index + 1 %></strong></td>
-                  <td><%= link_to player.igname, player_path(player), class: 'text-link' %></td>
+                  <td><%= link_to display_player_name(player, current_player), player_path(player), class: 'text-link' %></td>
                   <td><span class="badge badge-primary badge-lg"><%= player.elo_rating %></span></td>
                   <td><small><%= player.elo_matches || 0 %> matches</small></td>
                 </tr>
@@ -144,7 +144,7 @@
                            <% players.each_with_index do |player, index| %>
                              <tr>
                                <td><strong>#<%= index + 1 %></strong></td>
-                               <td><%= link_to player.igname, player_path(player), class: 'text-link' %></td>
+                               <td><%= link_to display_player_name(player, current_player), player_path(player), class: 'text-link' %></td>
                                <td><span class="badge badge-primary badge-lg"><%= player.elo_rating %></span></td>
                                <td><small><%= player.elo_matches || 0 %> matches</small></td>
                              </tr>

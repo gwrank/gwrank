@@ -46,7 +46,7 @@
                     </span>
                   </span>
                   <span class="mpl-product-content">
-                    <span class="mpl-product-title h4"><%= player.igname %></span>
+                    <span class="mpl-product-title h4"><%= display_player_name(player, current_player) %></span>
                     <% if player.guild.present? %>
                       <span><%= player.guild.name_with_tag %></span>
                     <% end %>
@@ -66,7 +66,7 @@
                   </span>
                   <span class="mpl-product-content">
                     <span class="mpl-product-title h4"><%= team_player.team.match.title %></span>
-                    <span><%= character.igname %></span>
+                    <span><%= display_character_name(character, current_player) %></span>
                   </span>
                 <% end %>
               <% end %>

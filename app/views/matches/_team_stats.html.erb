@@ -52,7 +52,8 @@
         %>
         <tr class="player-row" data-agent-id="<%= player_stat[:agent_id] %>" style="cursor: pointer;">
           <td class="text-center expand-icon">▶</td>
-          <td><strong><%= player_stat[:name] %></strong></td>
+          <% team_player = @match.team_players.find_by(igname: player_stat[:name]) %>
+          <td><strong><%= display_team_player_name(team_player, current_player) %></strong></td>
           <td><span class="badge bg-primary"><%= player_stat[:profession] %></span></td>
           <td class="text-center">
             <% kills = stats["kills"] || 0 %>
@@ -105,7 +106,7 @@
                           opponent_team = team_index == 1 ? @match.teams.second : @match.teams.first
                           agent_position_map = {}
                           opponent_team.team_players.each do |tp|
-                            agent = @match.json.dig("agents", "by_id")&.find { |_id, a| a["sanitized_name"] == tp.igname }
+                            agent = @match.json.dig("agents", "by_id")&.find { |_id, a| a["sanitized_name"] == tp.igname_for_matching }
                             agent_position_map[agent[0]] = tp.position if agent
                           end
                           # Sort agent IDs by opponent team position
@@ -116,8 +117,9 @@
                         %>
                         <% sorted_agent_ids.each do |agent_id| %>
                           <% agent = @match.agent_by_id(agent_id) %>
+                          <% team_player = @match.team_players.find_by(igname: agent["sanitized_name"]) %>
                           <tr>
-                            <td><%= agent["sanitized_name"] %></td>
+                            <td><%= display_team_player_name(team_player, current_player) %></td>
                             <td class="text-end text-danger"><%= damage_to_agents[agent_id] || 0 %></td>
                             <td class="text-end text-warning"><%= damage_from_agents[agent_id] || 0 %></td>
                           </tr>
@@ -152,7 +154,7 @@
                           # Create position map for current team
                           agent_position_map = {}
                           team.team_players.each do |tp|
-                            agent = @match.json.dig("agents", "by_id")&.find { |_id, a| a["sanitized_name"] == tp.igname }
+                            agent = @match.json.dig("agents", "by_id")&.find { |_id, a| a["sanitized_name"] == tp.igname_for_matching }
                             agent_position_map[agent[0]] = tp.position if agent
                           end
                           # Sort agent IDs by current team position
@@ -160,9 +162,10 @@
                         %>
                         <% sorted_healing_ids.each do |agent_id| %>
                           <% agent = @match.agent_by_id(agent_id) %>
+                          <% team_player = @match.team_players.find_by(igname: agent["sanitized_name"]) %>
                           <% if agent %>
                             <tr>
-                              <td><%= agent["sanitized_name"] %></td>
+                              <td><%= display_team_player_name(team_player, current_player) %></td>
                               <td class="text-end text-success"><%= healing_to_agents[agent_id] || 0 %></td>
                               <td class="text-end text-info"><%= healing_from_agents[agent_id] || 0 %></td>
                             </tr>

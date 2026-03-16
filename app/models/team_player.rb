@@ -171,4 +171,20 @@ class TeamPlayer < ApplicationRecord
     base64map = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
     binary.scan(/.{1,6}/).map { |character| base64map[character.reverse.to_i(2)] }.join
   end
+
+  # Get the display name for this team player (from character)
+  def igname
+    character&.igname
+  end
+
+  # Get anonymized name for this team player
+  def anonymized_name_for(user)
+    character&.anonymized_name_for(user) || igname
+  end
+
+  # Get original igname for internal matching (e.g., matching with agent data)
+  # This always returns the original name, not anonymized
+  def igname_for_matching
+    character&.igname
+  end
 end

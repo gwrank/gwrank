@@ -10,7 +10,8 @@ class Profiles::CharactersController < ApplicationController
 
   def create
     character_igname = character_params[:igname].strip.titleize
-    @character = Character.find_by(igname: character_igname)
+    # Use find_by_igname for hashed lookups
+    @character = Character.find_by_igname(character_igname)
     if @player.is_verified?
       @player.update(is_verified: false)
     end
@@ -20,7 +21,7 @@ class Profiles::CharactersController < ApplicationController
         render :new
       else
         @character.update(player_id: @player.id)
-        TeamPlayer.where(igname: @character.igname).update_all(
+        TeamPlayer.where(igname: character_igname).update_all(
           character_id: @character.id,
           player_id: @player.id
         )
@@ -31,7 +32,7 @@ class Profiles::CharactersController < ApplicationController
       @character.igname = character_igname
       @character.player = @player
       if @character.save
-        TeamPlayer.where(igname: @character.igname).update_all(
+        TeamPlayer.where(igname: character_igname).update_all(
           character_id: @character.id,
           player_id: @player.id
         )

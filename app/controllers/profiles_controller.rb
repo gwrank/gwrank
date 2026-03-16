@@ -14,7 +14,12 @@ class ProfilesController < ApplicationController
         @player.update(is_verified: false)
       end
       character_igname = player_params[:igname].strip.titleize
-      character = Character.where(igname: character_igname).first_or_create
+      # Use find_by_igname for hashed lookups, or create if not exists
+      character = Character.find_by_igname(character_igname)
+      if character.nil?
+        character = Character.new(igname: character_igname)
+        character.save
+      end
       character.update(player: @player) unless character.player.present?
       TeamPlayer.where(igname: character_igname).update_all(player_id: @player.id)
     end

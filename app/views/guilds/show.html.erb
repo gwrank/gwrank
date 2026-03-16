@@ -57,7 +57,7 @@
                         </td>
                         <td>
                           <% player.characters.each do |character| %>
-                            <%= character.igname %><br>
+                            <%= character.anonymized_name_for(current_player) %><br>
                           <% end %>
                         </td>
                         <td>

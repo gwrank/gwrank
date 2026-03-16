@@ -61,7 +61,7 @@
                   <div class="match-builds-player-header">
                     <%= team_player.profession.html_image_simple.html_safe %>
                     <%= team_player.secondary_profession.html_image_simple.html_safe if team_player.secondary_profession %>
-                    <span class="match-builds-player-name"><%= team_player.igname %></span>
+                    <span class="match-builds-player-name"><%= display_team_player_name(team_player, current_player) %></span>
                   </div>
                   <div class="match-builds-player-skills">
                     <%= team_player.html_skills_simple.html_safe %>

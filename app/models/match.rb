@@ -22,8 +22,10 @@
 #
 # Indexes
 #
-#  index_matches_on_imported_by_id  (imported_by_id)
-#  index_matches_on_tournament_id   (tournament_id)
+#  index_matches_on_imported_by_id    (imported_by_id)
+#  index_matches_on_played_at         (played_at)
+#  index_matches_on_played_at_and_id  (played_at,id)
+#  index_matches_on_tournament_id     (tournament_id)
 #
 # Foreign Keys
 #
@@ -235,8 +237,11 @@ class Match < ApplicationRecord
         position = agent.dig("display_name").split(")").first.split("(").second
         position ||= team.team_players.count + 1
 
-        character = Character.where(igname: igname).first_or_create! do |c|
-          c.profession = profession
+        character = Character.find_by_igname(igname)
+        if character.nil?
+          character = Character.create!(igname: igname, profession: profession)
+        elsif character.profession.blank?
+          character.update(profession: profession)
         end
 
         player = character.player

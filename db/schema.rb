@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_12_131338) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_15_185159) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -51,14 +51,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_131338) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "character_claims", force: :cascade do |t|
+    t.bigint "character_id", null: false
+    t.bigint "claimed_by_id"
+    t.datetime "created_at", null: false
+    t.bigint "player_id", null: false
+    t.string "status", default: "pending"
+    t.datetime "updated_at", null: false
+    t.index ["character_id", "player_id"], name: "index_character_claims_on_character_id_and_player_id", unique: true, where: "((status)::text = 'pending'::text)"
+    t.index ["character_id"], name: "index_character_claims_on_character_id"
+    t.index ["claimed_by_id"], name: "index_character_claims_on_claimed_by_id"
+    t.index ["player_id"], name: "index_character_claims_on_player_id"
+  end
+
   create_table "characters", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "igname"
+    t.string "igname_hash"
     t.boolean "is_archived", default: false
     t.bigint "player_id"
     t.bigint "profession_id"
     t.datetime "updated_at", null: false
     t.index ["igname"], name: "index_characters_on_igname", unique: true
+    t.index ["igname_hash"], name: "index_characters_on_igname_hash", unique: true
     t.index ["player_id"], name: "index_characters_on_player_id"
     t.index ["profession_id"], name: "index_characters_on_profession_id"
   end
@@ -178,6 +193,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_131338) do
   end
 
   create_table "players", force: :cascade do |t|
+    t.string "anonymization_seed"
     t.string "api_token"
     t.float "average_deaths_per_game"
     t.float "average_dmg_per_game"
