@@ -18,7 +18,7 @@ module ApplicationHelper
   # @return [String] The display name
   def display_character_name(character, user = nil)
     # Registered users see their igname
-    if character&.player&.uid&.present?
+    if character&.player&.uid.present?
       character.igname.presence || character.player.username
     # Users see their own igname
     elsif user.present? && player.id == user.id
@@ -37,7 +37,7 @@ module ApplicationHelper
   # @return [String] The display name
   def display_player_name(player, user = nil)
     # Registered users see their own igname
-    if player&.uid&.present?
+    if player&.uid.present?
       player.igname.presence || player.username
     # Users see their own igname
     elsif user.present? && player.id == user.id
@@ -52,8 +52,8 @@ module ApplicationHelper
 
   def display_team_player_name(team_player, user = nil)
     # Registered users see their own igname
-    if team_player&.player&.uid&.present?
-      player.igname.presence || player.username
+    if team_player&.player&.uid.present?
+      team_player.igname.presence || team_player&.player&.username
     # Users see their own igname
     elsif user.present? && team_player&.character&.player&.id == user.id
       team_player.igname || team_player.character.player.username
