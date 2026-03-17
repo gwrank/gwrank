@@ -16,15 +16,32 @@ class Profiles::CharactersController < ApplicationController
       @player.update(is_verified: false)
     end
     if @character.present?
-      if @character.player_id.present?
-        @professions = Profession.all
-        render :new
-      else
+      if @character.claimable_by?(@player)
+        # Character is unowned or owned by this player - claim it directly
         @character.update(player_id: @player.id)
         TeamPlayer.where(igname: character_igname).update_all(
           character_id: @character.id,
           player_id: @player.id
         )
+        @player.set_professions_from_team_players
+        @player.save
+        flash[:notice] = "Character '#{@character.igname}' has been added to your profile."
+        redirect_to edit_profile_path
+      else
+        # Character is owned by another player - create a claim for verification
+        existing_claim = CharacterClaim.find_by(character: @character, player: @player, status: 'pending')
+        if existing_claim
+          flash[:alert] = "You already have a pending claim for character '#{@character.igname}'. A moderator will review it shortly."
+        else
+          CharacterClaim.create!(
+            character: @character,
+            player: @player,
+            claimed_by: @player,
+            status: 'pending'
+          )
+          flash[:notice] = "Your claim for character '#{@character.igname}' has been submitted for moderator verification. " \
+                           "Once approved, the character will be linked to your profile."
+        end
         redirect_to edit_profile_path
       end
     else
@@ -36,6 +53,9 @@ class Profiles::CharactersController < ApplicationController
           character_id: @character.id,
           player_id: @player.id
         )
+        @player.set_professions_from_team_players
+        @player.save
+        flash[:notice] = "Character '#{@character.igname}' has been added to your profile."
         redirect_to edit_profile_path
       else
         @professions = Profession.all
@@ -45,7 +65,7 @@ class Profiles::CharactersController < ApplicationController
   end
 
   def destroy
-    @character.destroy
+    @character.unlink!
     redirect_to edit_profile_path
   end
 

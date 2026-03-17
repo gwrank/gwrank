@@ -51,6 +51,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_15_185159) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "automated_tournament_registrations", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "discord_server_id", null: false
+    t.bigint "player_id", null: false
+    t.datetime "registered_at"
+    t.datetime "unregistered_at"
+    t.datetime "updated_at", null: false
+    t.index ["discord_server_id", "registered_at"], name: "idx_on_discord_server_id_registered_at_deded07a53"
+    t.index ["discord_server_id"], name: "index_automated_tournament_registrations_on_discord_server_id"
+    t.index ["player_id"], name: "index_automated_tournament_registrations_on_player_id"
+  end
+
   create_table "character_claims", force: :cascade do |t|
     t.bigint "character_id", null: false
     t.bigint "claimed_by_id"
@@ -169,6 +181,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_15_185159) do
     t.datetime "updated_at", null: false
     t.integer "winner_team_id"
     t.index ["imported_by_id"], name: "index_matches_on_imported_by_id"
+    t.index ["played_at", "id"], name: "index_matches_on_played_at_and_id"
+    t.index ["played_at"], name: "index_matches_on_played_at"
     t.index ["tournament_id"], name: "index_matches_on_tournament_id"
   end
 
@@ -323,8 +337,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_15_185159) do
     t.bigint "team_id", null: false
     t.datetime "updated_at", null: false
     t.index ["character_id"], name: "index_team_players_on_character_id"
+    t.index ["player_id", "team_id"], name: "index_team_players_on_player_id_and_team_id"
     t.index ["player_id"], name: "index_team_players_on_player_id"
     t.index ["profession_id"], name: "index_team_players_on_profession_id"
+    t.index ["team_id", "player_id"], name: "index_team_players_on_team_id_and_player_id"
     t.index ["team_id"], name: "index_team_players_on_team_id"
   end
 
@@ -336,6 +352,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_15_185159) do
     t.integer "rating"
     t.datetime "updated_at", null: false
     t.index ["guild_id"], name: "index_teams_on_guild_id"
+    t.index ["match_id", "guild_id"], name: "index_teams_on_match_id_and_guild_id"
     t.index ["match_id"], name: "index_teams_on_match_id"
   end
 
@@ -369,6 +386,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_15_185159) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "character_claims", "characters"
+  add_foreign_key "character_claims", "players"
+  add_foreign_key "character_claims", "players", column: "claimed_by_id"
   add_foreign_key "characters", "players"
   add_foreign_key "characters", "professions"
   add_foreign_key "comments", "players"

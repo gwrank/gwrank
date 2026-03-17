@@ -23,6 +23,12 @@ Rails.application.routes.draw do
   resources :tournaments, only: [:index, :show]
 
   namespace :administration do
+    resources :character_claims, only: [:index, :show] do
+      member do
+        post :approve
+        post :reject
+      end
+    end
     resources :players, only: [:index] do
       resources :checks, only: [:create], controller: 'players/checks'
       resources :invitations, only: [:create], controller: 'players/invitations'

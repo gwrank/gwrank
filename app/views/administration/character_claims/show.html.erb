@@ -1,0 +1,115 @@
+<div class="content-wrap">
+  <div class="mpl-banner-mobile-overlay"></div>
+  <div>
+    <section class="mpl-banner mpl-banner-top mpl-banner-parallax mpl-banner-small">
+      <div class="mpl-image" data-speed="0.8">
+        <%= image_tag 'background.jpg', class: 'jarallax-img' %>
+      </div>
+      <div class="mpl-banner-content mpl-box-sm">
+        <div class="container">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="/">Home</a></li>
+              <li class="breadcrumb-item"><a href="#">Administration</a></li>
+              <li class="breadcrumb-item"><a href="<%= administration_character_claims_path %>">Character Claims</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Details</li>
+            </ol>
+          </nav>
+          <h1 class="lg:display-1 mb-0">Character Claim Details</h1>
+        </div>
+      </div>
+    </section>
+    <div class="mpl-box-md">
+      <div class="container">
+        <div class="row hgap-lg vgap-lg">
+          <div id="character-claim" class="col-lg-8 mpl-content">
+            <div class="cyberpress-player">
+              <% if @claim.approved? %>
+                <div class="alert alert-success">
+                  <span class="badge bg-success me-2">APPROVED</span>
+                  This claim has been approved.
+                </div>
+              <% elsif @claim.rejected? %>
+                <div class="alert alert-danger">
+                  <span class="badge bg-danger me-2">REJECTED</span>
+                  This claim has been rejected.
+                </div>
+              <% else %>
+                <div class="alert alert-warning">
+                  <span class="badge bg-warning text-dark me-2">PENDING</span>
+                  This claim is pending review.
+                </div>
+              <% end %>
+
+              <h2 class="cyberpress-player-title h5 mb-4">
+                <%= @claim.character.igname %>
+                <% if @claim.pending? %>
+                  <span class="badge bg-warning text-dark ms-2">PENDING</span>
+                <% elsif @claim.approved? %>
+                  <span class="badge bg-success ms-2">APPROVED</span>
+                <% else %>
+                  <span class="badge bg-danger ms-2">REJECTED</span>
+                <% end %>
+              </h2>
+
+              <ul class="cyberpress-player-info">
+                <li>
+                  <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" />
+                  </svg>
+                  <strong>Character Profession:</strong> <%= @claim.character.profession&.name || 'Unknown' %>
+                </li>
+                <li>
+                  <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21M17 11L19 13L23 9M12.5 7C12.5 9.20914 10.7091 11 8.5 11C6.29086 11 4.5 9.20914 4.5 7C4.5 4.79086 6.29086 3 8.5 3C10.7091 3 12.5 4.79086 12.5 7Z" />
+                  </svg>
+                  <strong>Claimed by:</strong>
+                  <%= link_to @claim.player.username, edit_profile_path(@claim.player), class: 'text-decoration-none' %>
+                </li>
+                <li>
+                  <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 8L7.52031 12.5219C7.92088 12.9224 8.46516 13.1482 9.03183 13.1482C9.5985 13.1482 10.1428 12.9224 10.5433 12.5219L19 4M7.52031 12.5219C7.92088 12.9224 8.46516 13.1482 9.03183 13.1482C9.5985 13.1482 10.1428 12.9224 10.5433 12.5219L19 4M19 4L21 6M19 4L17 2M7.52031 12.5219L5 15M10.5433 12.5219L13 15M21 18V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V18" />
+                  </svg>
+                  <strong>Email:</strong> <%= @claim.player.email %>
+                </li>
+                <li>
+                  <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 8V4L20 12L12 20V16C8.13401 16 5 12.866 5 9C5 7.067 5.78 5.34 7.09 4.07C5.816 5.35251 5.04722 7.07639 5.04722 9.0575C5.04722 11.0386 5.816 12.7625 7.09 14.045C5.78 12.77 5 11.04 5 9.07C5 5.2 8.13 2.08 12 2.08V8ZM17.75 2.015C18.86 2.95 19.7 4.15 20.22 5.53L19.11 6.64C18.69 5.59 18.05 4.69 17.21 3.96L17.75 2.015ZM2.07 9.985L4.015 9.445C4.455 10.685 5.155 11.805 6.07 12.72L4.96 13.83C3.77 12.64 2.94 11.23 2.07 9.985ZM12 2.075V4.02C13.93 4.02 15.79 4.8 17.16 6.17C18.53 7.54 19.31 9.4 19.31 11.33V13.28L17.36 15.22V12.64C17.36 10.44 16.48 8.58 15 7.1C13.52 5.62 11.66 4.74 9.46 4.74H6.88L9.79 1.83L12 2.075ZM10.22 13.78L12.16 11.83C12.16 12.48 12.48 13.03 13 13.55C13.52 14.07 14.07 14.39 14.72 14.39L12.78 16.33C11.59 16.33 10.4 15.79 9.73 15.12C9.06 14.45 8.52 13.26 8.52 12.07L10.22 13.78Z" />
+                  </svg>
+                  <strong>Submitted on:</strong> <%= @claim.created_at.strftime('%B %d, %Y at %I:%M %p') %>
+                </li>
+                <li>
+                  <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 20C9 20.5304 9.21071 21.0391 9.58579 21.4142C9.96086 21.7893 10.4696 22 11 22H17C17.5304 22 18.0391 21.7893 18.4142 21.4142C18.7893 21.0391 19 20.5304 19 20V18C19 17.4696 18.7893 16.9609 18.4142 16.5858C18.0391 16.2107 17.5304 16 17 16H11C10.4696 16 9.96086 16.2107 9.58579 16.5858C9.21071 16.9609 9 17.4696 9 18V20ZM10 5C10 4.46957 10.2107 3.96086 10.5858 3.58579C10.9609 3.21071 11.4696 3 12 3C12.5304 3 13.0391 3.21071 13.4142 3.58579C13.7893 3.96086 14 4.46957 14 5V10C14 10.5304 13.7893 11.0391 13.4142 11.4142C13.0391 11.7893 12.5304 12 12 12C11.4696 12 10.9609 11.7893 10.5858 11.4142C10.2107 11.0391 10 10.5304 10 10V5Z" />
+                  </svg>
+                  <strong>Status:</strong>
+                  <span class="badge bg-<%= @claim.approved? ? 'success' : (@claim.rejected? ? 'danger' : 'warning') %>">
+                    <%= @claim.status.humanize %>
+                  </span>
+                </li>
+              </ul>
+
+              <div class="mt-4">
+                <% if @claim.pending? %>
+                  <div class="d-flex gap-2">
+                    <%= link_to 'Approve Claim', approve_administration_character_claim_path(@claim), data: { turbo_method: :post }, class: 'btn btn-success' %>
+                    <%= link_to 'Reject Claim', reject_administration_character_claim_path(@claim), data: { turbo_method: :post, turbo_confirm: 'Are you sure you want to reject this claim?' }, class: 'btn btn-danger' %>
+                  </div>
+                <% else %>
+                  <%= link_to 'Back to Claims List', administration_character_claims_path, class: 'btn btn-secondary' %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+          <div class="col-auto-lg mpl-sidebar" data-sr="widget" data-sr-duration="1200" data-sr-distance="20">
+            <iframe src="https://discord.com/widget?id=788820055029973045&theme=dark" width="350" height="1000" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+            <a href="https://discord.gg/jqshPZBkcj" target="_blank" class="btn btn-md">
+              Join us on Discord
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <%= render 'footer' %>
+  </div>
+</div>

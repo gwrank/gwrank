@@ -5,6 +5,14 @@
         <div class="col-12 col-md-8 col-lg-6 col-xl-5">
           <div class="mpl-content">
             <h1 data-sr-item="sign" style="visibility: visible;">Edit Profile</h1>
+
+            <% if flash[:notice] %>
+              <div class="alert alert-success mb-3"><%= flash[:notice] %></div>
+            <% end %>
+            <% if flash[:alert] %>
+              <div class="alert alert-danger mb-3"><%= flash[:alert] %></div>
+            <% end %>
+
             <div class="row">
               <%= link_to 'My API token', api_token_path, class: 'btn btn-md btn-success' %>
             </div>
@@ -20,8 +28,8 @@
                   <div class="col-12">
                     <% @player.characters.each do |character| %>
                       <p>
-                      <%= character.igname_with_profession %>
-                      <%= link_to 'Delete', profile_character_path(character), data: { turbo_method: :delete }, class: 'float-right btn btn-sm btn-danger' %>
+                      <%= character.igname %>
+                      <%= link_to 'Unlink', profile_character_path(character), data: { turbo_method: :delete }, class: 'float-right btn btn-sm btn-danger' %>
                       </p>
                     <% end %>
                   </div>

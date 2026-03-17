@@ -245,9 +245,7 @@ class Match < ApplicationRecord
         end
 
         player = character.player
-        player ||= Player.where(igname: igname).first_or_create! do |p|
-          p.username = igname
-          p.email = igname.split.join("-").downcase + "@gwrank.com"
+        player ||= Player.where(email: igname.split.join("-").downcase + "@gwrank.com").first_or_create! do |p|
           p.password = Devise.friendly_token[0, 20]
         end
 

@@ -12,8 +12,9 @@
 #
 # Indexes
 #
-#  index_teams_on_guild_id  (guild_id)
-#  index_teams_on_match_id  (match_id)
+#  index_teams_on_guild_id               (guild_id)
+#  index_teams_on_match_id               (match_id)
+#  index_teams_on_match_id_and_guild_id  (match_id,guild_id)
 #
 # Foreign Keys
 #

@@ -1,0 +1,96 @@
+<div class="content-wrap">
+  <div class="mpl-banner-mobile-overlay"></div>
+  <div>
+    <section class="mpl-banner mpl-banner-top mpl-banner-parallax mpl-banner-small">
+      <div class="mpl-image" data-speed="0.8">
+        <%= image_tag 'background.jpg', class: 'jarallax-img' %>
+      </div>
+      <div class="mpl-banner-content mpl-box-sm">
+        <div class="container">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="/">Home</a></li>
+              <li class="breadcrumb-item"><a href="#">Administration</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Character Claims</li>
+            </ol>
+          </nav>
+          <h1 class="lg:display-1 mb-0">Character Claims</h1>
+        </div>
+      </div>
+    </section>
+    <div class="mpl-box-md">
+      <div class="container">
+        <div class="row vgap" data-sr="claims" data-sr-interval="100" data-sr-duration="1000" data-sr-distance="20">
+          <div id="character-claims" class="col-lg mpl-content">
+            <% if @claims.empty? %>
+              <div class="row vgap">
+                <div class="col-12" data-sr-item="claims" style="visibility: visible;">
+                  <div class="cyberpress-player">
+                    <div class="alert alert-info">
+                      No pending character claims.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% else %>
+              <div class="row hgap-lg vgap-lg" data-sr-item="claims" style="visibility: visible;">
+                <% @claims.each do |claim| %>
+                  <div class="col-12">
+                    <div class="cyberpress-player">
+                      <div class="row align-items-center">
+                        <div class="col-md-8">
+                          <h2 class="cyberpress-player-title h5">
+                            <%= link_to claim.character.igname, administration_character_claim_path(claim), class: 'text-decoration-none' %>
+                            <% if claim.pending? %>
+                              <span class="badge bg-warning text-dark ms-2">PENDING</span>
+                            <% elsif claim.approved? %>
+                              <span class="badge bg-success ms-2">APPROVED</span>
+                            <% else %>
+                              <span class="badge bg-danger ms-2">REJECTED</span>
+                            <% end %>
+                          </h2>
+                          <ul class="cyberpress-player-info">
+                            <li>
+                              <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" />
+                              </svg>
+                              <strong>Profession:</strong> <%= claim.character.profession&.name || 'Unknown' %>
+                            </li>
+                            <li>
+                              <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21M17 11L19 13L23 9M12.5 7C12.5 9.20914 10.7091 11 8.5 11C6.29086 11 4.5 9.20914 4.5 7C4.5 4.79086 6.29086 3 8.5 3C10.7091 3 12.5 4.79086 12.5 7Z" />
+                              </svg>
+                              <strong>Claimed by:</strong>
+                              <%= link_to claim.player.username, edit_profile_path(claim.player), class: 'text-decoration-none' %>
+                            </li>
+                            <li>
+                              <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 8V4L20 12L12 20V16C8.13401 16 5 12.866 5 9C5 7.067 5.78 5.34 7.09 4.07C5.816 5.35251 5.04722 7.07639 5.04722 9.0575C5.04722 11.0386 5.816 12.7625 7.09 14.045C5.78 12.77 5 11.04 5 9.07C5 5.2 8.13 2.08 12 2.08V8ZM17.75 2.015C18.86 2.95 19.7 4.15 20.22 5.53L19.11 6.64C18.69 5.59 18.05 4.69 17.21 3.96L17.75 2.015ZM2.07 9.985L4.015 9.445C4.455 10.685 5.155 11.805 6.07 12.72L4.96 13.83C3.77 12.64 2.94 11.23 2.07 9.985ZM12 2.075V4.02C13.93 4.02 15.79 4.8 17.16 6.17C18.53 7.54 19.31 9.4 19.31 11.33V13.28L17.36 15.22V12.64C17.36 10.44 16.48 8.58 15 7.1C13.52 5.62 11.66 4.74 9.46 4.74H6.88L9.79 1.83L12 2.075ZM10.22 13.78L12.16 11.83C12.16 12.48 12.48 13.03 13 13.55C13.52 14.07 14.07 14.39 14.72 14.39L12.78 16.33C11.59 16.33 10.4 15.79 9.73 15.12C9.06 14.45 8.52 13.26 8.52 12.07L10.22 13.78Z" />
+                              </svg>
+                              <strong>Submitted:</strong> <%= claim.created_at.strftime('%B %d, %Y at %I:%M %p') %>
+                            </li>
+                          </ul>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                          <% if claim.pending? %>
+                            <div class="d-flex flex-column gap-2">
+                              <%= link_to 'Approve Claim', approve_administration_character_claim_path(claim), data: { turbo_method: :post }, class: 'btn btn-success' %>
+                              <%= link_to 'Reject Claim', reject_administration_character_claim_path(claim), data: { turbo_method: :post, turbo_confirm: 'Are you sure you want to reject this claim?' }, class: 'btn btn-danger' %>
+                            </div>
+                          <% else %>
+                            <%= link_to 'Back to Claims List', administration_character_claims_path, class: 'btn btn-secondary' %>
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <%= render 'footer' %>
+  </div>
+</div>

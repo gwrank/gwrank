@@ -25,7 +25,7 @@ module ApplicationHelper
       character.igname.presence || character.player.username
     # Other users see anonymized names
     elsif user.present?
-      AnonymizedNameService.anonymize_player_name(character.igname, user)
+      AnonymizedNameService.anonymize_player_name(character&.igname, user)
     else
       "Character #{character&.id || '??'}"
     end
@@ -44,7 +44,7 @@ module ApplicationHelper
       player.igname.presence || player.username
     # Other users see anonymized names
     elsif user.present?
-      AnonymizedNameService.anonymize_player_name(player.igname, user)
+      AnonymizedNameService.anonymize_player_name(player&.igname, user)
     else
       "Player #{player&.id || '??'}"
     end
@@ -59,7 +59,7 @@ module ApplicationHelper
       team_player.igname || team_player.character.player.username
     # Other users see anonymized names
     elsif user.present?
-      AnonymizedNameService.anonymize_player_name(team_player.igname, user)
+      AnonymizedNameService.anonymize_player_name(team_player&.igname, user)
     else
       "Team Player #{team_player&.id || '??'}"
     end

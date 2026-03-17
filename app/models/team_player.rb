@@ -16,10 +16,12 @@
 #
 # Indexes
 #
-#  index_team_players_on_character_id   (character_id)
-#  index_team_players_on_player_id      (player_id)
-#  index_team_players_on_profession_id  (profession_id)
-#  index_team_players_on_team_id        (team_id)
+#  index_team_players_on_character_id           (character_id)
+#  index_team_players_on_player_id              (player_id)
+#  index_team_players_on_player_id_and_team_id  (player_id,team_id)
+#  index_team_players_on_profession_id          (profession_id)
+#  index_team_players_on_team_id                (team_id)
+#  index_team_players_on_team_id_and_player_id  (team_id,player_id)
 #
 # Foreign Keys
 #

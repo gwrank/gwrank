@@ -73,6 +73,7 @@ class Player < ApplicationRecord
   has_secure_token :api_token
   has_many :characters, dependent: :nullify
   has_many :registrations, dependent: :destroy
+  has_many :automated_tournament_registrations, dependent: :destroy
   has_many :team_players, dependent: :nullify
   has_many :team_player_stats, through: :team_players
   has_many :teams, through: :team_players
@@ -101,6 +102,12 @@ class Player < ApplicationRecord
                           .where('registrations.registered_at > ?', DateTime.now - 8.hours)
                           .where('registrations.unregistered_at IS NULL')
                           .order('registrations.registered_at ASC')
+                      }
+  scope :in_at_queue, ->(server_id) { joins(:automated_tournament_registrations)
+                          .where('automated_tournament_registrations.discord_server_id = ?', server_id)
+                          .where('automated_tournament_registrations.registered_at > ?', DateTime.now - 8.hours)
+                          .where('automated_tournament_registrations.unregistered_at IS NULL')
+                          .order('automated_tournament_registrations.registered_at ASC')
                       }
 
   scope :streamers, -> { where.not(twitch_username: '') }
@@ -154,6 +161,15 @@ class Player < ApplicationRecord
 
   def has_current_registration?
     current_registrations.any?
+  end
+
+  # AT (Automated Tournament) registration helpers
+  def current_at_registration(server_id)
+    automated_tournament_registrations.current_for_server(server_id).order(registered_at: :desc).first
+  end
+
+  def has_current_at_registration?(server_id)
+    current_at_registration(server_id).present?
   end
 
   def historic_guilds

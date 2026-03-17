@@ -118,6 +118,31 @@ class CommandBotJob < ApplicationJob
     bot.command :professions, description: 'to set your professions' do |event|
       handle_professions_command(event)
     end
+
+    # Claim command
+    bot.command :claim, description: 'to claim your in-game character name' do |event, *igname|
+      handle_claim_command(event, igname)
+    end
+
+    # AT command
+    bot.command :at, description: 'to join the Automated Tournament queue for this server' do |event|
+      handle_at_command(event)
+    end
+
+    # AT players command
+    bot.command :atplayers, description: 'to see players in the current AT queue for this server' do |event|
+      handle_atplayers_command(event)
+    end
+
+    # AT register button
+    bot.button(custom_id: 'at_register') do |event|
+      handle_at_register_button(event)
+    end
+
+    # AT unregister button
+    bot.button(custom_id: 'at_unregister') do |event|
+      handle_at_unregister_button(event)
+    end
   end
 
   def handle_register_button(event)
@@ -178,6 +203,62 @@ class CommandBotJob < ApplicationJob
 
     event.send_message!(has_components: true) do |_, view|
       professions_container(view, player)
+    end
+  end
+
+  def handle_claim_command(event, igname)
+    if igname.blank? || igname.empty?
+      event.respond "<@#{event.user.id}>, please provide a character name to claim. Usage: *!claim Your Character Name*"
+      return
+    end
+
+    player = Player.where(provider: 'discord', uid: event.user.id).first_or_create do |p|
+      p.email = "#{event.user.id}@gwrank.com"
+      p.password = Devise.friendly_token[0, 20]
+      p.username = event.user.name
+    end
+
+    character_igname = igname.join(' ').strip.titleize
+    character = Character.find_by_igname(character_igname)
+
+    if character.present?
+      if character.claimable_by?(player)
+        # Character is unowned or owned by this player - claim it directly
+        character.update(player: player)
+        TeamPlayer.where(igname: character_igname).update_all(
+          character_id: character.id,
+          player_id: player.id
+        )
+        player.set_professions_from_team_players
+        player.save
+
+        event.respond "<@#{event.user.id}>, you have successfully claimed the character **#{character.igname}**!"
+      else
+        # Character is owned by another player - create a claim for verification
+        existing_claim = CharacterClaim.find_by(character: character, player: player, status: 'pending')
+        if existing_claim
+          event.respond "<@#{event.user.id}>, you already have a pending claim for **#{character.igname}**. A moderator will review it shortly."
+        else
+          CharacterClaim.create!(
+            character: character,
+            player: player,
+            claimed_by: player,
+            status: 'pending'
+          )
+          event.respond "<@#{event.user.id}>, your claim for **#{character.igname}** has been submitted for moderator verification. Once approved, the character will be linked to your profile."
+        end
+      end
+    else
+      # Character doesn't exist - create it and assign to player
+      character = Character.create!(igname: character_igname, player: player)
+      TeamPlayer.where(igname: character_igname).update_all(
+        character_id: character.id,
+        player_id: player.id
+      )
+      player.set_professions_from_team_players
+      player.save
+
+      event.respond "<@#{event.user.id}>, you have successfully created and claimed the character **#{character.igname}**!"
     end
   end
 
@@ -581,10 +662,7 @@ class CommandBotJob < ApplicationJob
 
   def message_container(view)
     view.container do |container|
-      container.section do |section|
-        section.text_display(content: scrim_registration_panel_content)
-        section.thumbnail(url: 'https://gwrank.com/assets/background-a4004a29.jpg')
-      end
+      container.text_display(content: scrim_registration_panel_content)
       container.row do |row|
         row.button(label: 'Register', style: :success, custom_id: 'register')
         row.button(label: 'Unregister', style: :danger, custom_id: 'unregister')
@@ -631,5 +709,137 @@ class CommandBotJob < ApplicationJob
       players << player.join(" ")
     end
     "### Scrim Registration Panel\nCurrent registered users:\n#{players.join("\n")}"
+  end
+
+  def handle_at_command(event)
+    discord_server_id = event.server.id
+
+    player = Player.where(provider: 'discord', uid: event.user.id).first_or_create do |p|
+      p.email = "#{event.user.id}@gwrank.com"
+      p.password = Devise.friendly_token[0, 20]
+      p.username = event.user.name
+    end
+
+    event.send_message!(has_components: true) do |_, view|
+      at_container(view, player, discord_server_id: discord_server_id)
+    end
+  end
+
+  def handle_atplayers_command(event)
+    discord_server_id = event.server.id
+    message = "<@#{event.user.id}>, the current AT queue players for this server are:"
+
+    at_registrations = AutomatedTournamentRegistration.current_for_server(discord_server_id).order(registered_at: :asc)
+
+    if at_registrations.empty?
+      message << "\nNo players in the queue yet."
+    else
+      at_registrations.each_with_index do |registration, index|
+        if registration.player.igname.present?
+          if registration.player.professions_text.present?
+            message << "\n##{index + 1} <@#{registration.player.uid}> (**#{registration.player.igname}**)"
+          else
+            message << "\n##{index + 1} <@#{registration.player.uid}> (**#{registration.player.igname}**)"
+          end
+        else
+          message << "\n##{index + 1} <@#{registration.player.uid}>"
+        end
+      end
+    end
+
+    at_count = at_registrations.count
+    if at_count < 8
+      message << "\nWe need #{8 - at_count} more players."
+    elsif at_count >= 8
+      message << "\nTeam is full! (8 players)"
+    end
+
+    event.respond message
+  end
+
+  def handle_at_register_button(event)
+    discord_server_id = event.server_id
+
+    player = Player.where(provider: 'discord', uid: event.user.id).first_or_create do |player|
+      player.email = "#{event.user.id}@gwrank.com"
+      player.password = Devise.friendly_token[0, 20]
+      player.username = event.user.name
+    end
+
+    if player.has_current_at_registration?(discord_server_id)
+      event.respond(content: "You are already registered in the AT queue for this server, #{event.user.username}!", ephemeral: true)
+    else
+      AutomatedTournamentRegistration.create!(
+        player: player,
+        discord_server_id: discord_server_id,
+        registered_at: DateTime.now
+      )
+
+      at_count = AutomatedTournamentRegistration.current_for_server(discord_server_id).count
+
+      event.interaction.update_message(has_components: true) do |_, view|
+        at_container(view, player, discord_server_id: discord_server_id)
+      end
+
+      event.respond(content: "You have been registered in the AT queue for this server, #{event.user.username}!", ephemeral: true)
+
+      if at_count == 8
+        event.channel.send_message "Team is full! 8 players registered for the Automated Tournament."
+      elsif at_count > 8
+        event.channel.send_message "AT queue now has #{at_count} players for this server."
+      end
+    end
+  end
+
+  def handle_at_unregister_button(event)
+    discord_server_id = event.server_id
+
+    player = Player.find_by(uid: event.user.id)
+
+    if player&.has_current_at_registration?(discord_server_id)
+      player.current_at_registration(discord_server_id).update(unregistered_at: DateTime.now)
+      event.interaction.update_message(has_components: true) do |_, view|
+        at_container(view, player, discord_server_id: discord_server_id)
+      end
+      event.respond(content: "You have been unregistered from the AT queue for this server, #{event.user.username}!", ephemeral: true)
+    else
+      event.respond(content: "You are not registered in the AT queue for this server, #{event.user.username}!", ephemeral: true)
+    end
+  end
+
+  def at_container(view, player, discord_server_id: nil)
+    view.container do |container|
+      container.text_display(content: at_registration_panel_content(player, discord_server_id: discord_server_id))
+      container.row do |row|
+        row.button(label: 'Register', style: :success, custom_id: 'at_register')
+        row.button(label: 'Unregister', style: :danger, custom_id: 'at_unregister')
+      end
+    end
+  end
+
+  def at_registration_panel_content(player, discord_server_id: nil)
+    at_registrations = AutomatedTournamentRegistration.current_for_server(discord_server_id).order(registered_at: :asc)
+
+    players = []
+    at_registrations.each_with_index do |registration, index|
+      player_entry = []
+      player_entry << "\n##{index + 1} <@#{registration.player.uid}>"
+      player_entry << "(**#{registration.player.igname}**)" if registration.player.igname.present?
+      players << player_entry.join(" ")
+    end
+
+    message = "### Automated Tournament Registration Panel\n"
+    message << "Current registered players for this server:\n"
+    message << (players.empty? ? "No players registered yet.\n" : players.join("\n"))
+    message << "\n"
+
+    at_count = at_registrations.count
+    if at_count < 8
+      message << "We need #{8 - at_count} more players."
+    elsif at_count >= 8
+      message << "Team is full! (8 players)"
+    end
+
+    message
   end
 end

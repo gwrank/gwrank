@@ -100,6 +100,21 @@ class Character < ApplicationRecord
     end
   end
 
+  def unlink!
+    new_player ||= Player.where(email: igname.split.join("-").downcase + "@gwrank.com").first_or_create! do |p|
+      p.password = Devise.friendly_token[0, 20]
+    end
+    team_players.update_all(player_id: new_player.id) if team_players.any?
+    update(player_id: new_player.id)
+  end
+
+  # Check if character can be claimed by a specific player
+  # @param player [Player, nil] The player attempting to claim
+  # @return [Boolean] true if character is unowned or owned by the same player
+  def claimable_by?(player)
+    player_id.nil? || player_id == player.id
+  end
+
   def anonymized_igname_with_profession(user = nil)
     anonymized_name = anonymized_name_for(user)
     if profession.present?
