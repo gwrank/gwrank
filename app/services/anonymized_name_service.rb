@@ -39,7 +39,6 @@ class AnonymizedNameService
     # @return [String] The anonymized name or original if admin
     def anonymize_character(character, user, all_characters: Character.active)
       return character.igname if character.igname.blank?
-      return character.igname if user&.is_admin?
 
       user_seed = user&.anonymization_seed || 'guest'
       scramble_name(character.igname, user_seed)
@@ -52,7 +51,6 @@ class AnonymizedNameService
     # @return [String] The anonymized name or original if admin
     def anonymize_player_name(igname, user, all_characters: Character.active)
       return igname if igname.blank?
-      return igname if user&.is_admin?
 
       user_seed = user&.anonymization_seed || 'guest'
       scramble_name(igname, user_seed)

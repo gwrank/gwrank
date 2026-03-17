@@ -21,8 +21,8 @@ module ApplicationHelper
     if character&.player&.uid.present?
       character.igname.presence || character.player.username
     # Users see their own igname
-    elsif user.present? && player.id == user.id
-      player.igname.presence || player.username
+    elsif user.present? && character&.player&.id == user.id
+      character.igname.presence || character.player.username
     # Other users see anonymized names
     elsif user.present?
       AnonymizedNameService.anonymize_player_name(character.igname, user)
