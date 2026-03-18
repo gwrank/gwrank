@@ -22,9 +22,8 @@ class SearchesController < ApplicationController
       @guilds = Guild.whose_tag_is(@search_query)
       @guilds += Guild.whose_name_starts_with(@search_query)
       @guilds = @guilds.uniq
-      # Character name search disabled for privacy - users must claim characters
-      @characters = Character.none
-      @players = Player.none
+      @characters = Character.whose_igname_starts_with(@search_query)
+      @players = Player.whose_igname_starts_with(@search_query)
     end
   end
 
