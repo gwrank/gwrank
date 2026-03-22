@@ -34,6 +34,8 @@
 #
 
 class Match < ApplicationRecord
+  include Rails.application.routes.url_helpers
+
   belongs_to :imported_by, class_name: 'Player', optional: true
   belongs_to :loser_team, class_name: 'Team', optional: true
   belongs_to :tournament, optional: true
