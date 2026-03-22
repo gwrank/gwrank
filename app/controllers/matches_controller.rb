@@ -33,11 +33,6 @@ class MatchesController < ApplicationController
 
   def create
     @match = Match.import!(match_params)
-
-    message = "New match! #{@match.title} : #{match_url(@match)}"
-    bot = Discordrb::Bot.new token: ENV['DISCORD_BOT_TOKEN']
-    bot.channel(ENV['DISCORD_COMMAND_CHANNEL_ID']).send_message(message)
-
     redirect_to match_path(@match)
   end
 

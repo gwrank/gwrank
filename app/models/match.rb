@@ -268,6 +268,11 @@ class Match < ApplicationRecord
     match.calculate_elo! if match.winner_team && match.loser_team
     match.prepare_stats!
     match.save!
+
+    message = "New match! #{match.title} : #{match_url(match)}"
+    bot = Discordrb::Bot.new token: ENV['DISCORD_BOT_TOKEN']
+    bot.channel(ENV['DISCORD_COMMAND_CHANNEL_ID']).send_message(message)
+
     match
   end
 
