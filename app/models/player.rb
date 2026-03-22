@@ -155,6 +155,10 @@ class Player < ApplicationRecord
     registrations.afk_registrations
   end
 
+  def anonymized_igname
+    "Player ##{id || '??'}"
+  end
+
   def current_registration
     current_registrations.order(registered_at: :desc).first
   end

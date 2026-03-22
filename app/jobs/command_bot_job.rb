@@ -218,8 +218,9 @@ class CommandBotJob < ApplicationJob
       p.username = event.user.name
     end
 
-    character_igname = igname.join(' ').strip.titleize
-    character = Character.find_by_igname(character_igname)
+    original_igname = igname.join(' ').strip
+    character_igname = original_igname.titleize
+    character = Character.find_by_igname(original_igname)
 
     if character.present?
       if character.claimable_by?(player)

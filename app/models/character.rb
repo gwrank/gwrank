@@ -61,35 +61,27 @@ class Character < ApplicationRecord
     find_by(igname_hash: hash)
   end
 
-  # Check if given name matches this character
-  # @param original_name [String] The original in-game name to check
-  # @return [Boolean]
-  def matches_igname?(original_name)
-    return false if original_name.blank?
-    igname_hash == hash_name_static(original_name)
+  def anonymized_igname_with_profession(user = nil)
+    anonymized_name = anonymized_name_for(user)
+    if profession.present?
+      "#{anonymized_name} (#{profession.name})"
+    else
+      anonymized_name
+    end
+  end
+
+  # Check if character can be claimed by a specific player
+  # @param player [Player, nil] The player attempting to claim
+  # @return [Boolean] true if character is unowned or owned by the same player
+  def claimable_by?(player)
+    player_id.nil? || player_id == player.id
   end
 
   # Get anonymized display name for a specific user
   # @param user [Player, nil] The user viewing the character
   # @return [String] The anonymized name or original for admins
   def anonymized_name_for(user)
-    return igname if user&.is_admin?
-    return anonymized_name_for_user(user) if user.present?
     public_anonymous_label
-  end
-
-  # Get the anonymized name based on user's seed
-  # @param user [Player] The user viewing the character
-  # @return [String]
-  def anonymized_name_for_user(user)
-    return igname if igname.blank?
-    AnonymizedNameService.anonymize_character(self, user)
-  end
-
-  # Placeholder for unauthenticated users
-  # @return [String]
-  def public_anonymous_label
-    "Character ##{id}"
   end
 
   def igname_with_profession
@@ -100,6 +92,20 @@ class Character < ApplicationRecord
     end
   end
 
+  # Check if given name matches this character
+  # @param original_name [String] The original in-game name to check
+  # @return [Boolean]
+  def matches_igname?(original_name)
+    return false if original_name.blank?
+    igname_hash == hash_name_static(original_name)
+  end
+
+  # Placeholder for unauthenticated users
+  # @return [String]
+  def public_anonymous_label
+    "Character ##{id}"
+  end
+
   def unlink!
     new_player ||= Player.where(email: igname.split.join("-").downcase + "@gwrank.com").first_or_create! do |p|
       p.password = Devise.friendly_token[0, 20]
@@ -107,23 +113,6 @@ class Character < ApplicationRecord
     team_players.update_all(player_id: new_player.id) if team_players.any?
     update(player_id: new_player.id)
   end
-
-  # Check if character can be claimed by a specific player
-  # @param player [Player, nil] The player attempting to claim
-  # @return [Boolean] true if character is unowned or owned by the same player
-  def claimable_by?(player)
-    player_id.nil? || player_id == player.id
-  end
-
-  def anonymized_igname_with_profession(user = nil)
-    anonymized_name = anonymized_name_for(user)
-    if profession.present?
-      "#{anonymized_name} (#{profession.name})"
-    else
-      anonymized_name
-    end
-  end
-
 
   private
 

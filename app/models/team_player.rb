@@ -40,10 +40,36 @@ class TeamPlayer < ApplicationRecord
   has_many :team_player_skills, dependent: :destroy
   has_many :team_player_stats, dependent: :destroy
 
+  def anonymized_igname
+    "Team Player ##{id || '??'}"
+  end
+
+  def anonymized_igname_with_profession(user = nil)
+    anonymized_name = anonymized_name_for(user)
+    if profession.present?
+      "#{anonymized_name} (#{profession.name})"
+    else
+      anonymized_name
+    end
+  end
+
+  # Get anonymized display name for a specific user
+  # @param user [Player, nil] The user viewing the character
+  # @return [String] The anonymized name or original for admins
+  def anonymized_name_for(user)
+    public_anonymous_label
+  end
+
   def average_dpm
     average_dpm = team_player_stats.find_by(stat_key: "average_dpm")
     return unless average_dpm
     average_dpm.stat_value
+  end
+
+  # Placeholder for unauthenticated users
+  # @return [String]
+  def public_anonymous_label
+    "Team Player ##{id}"
   end
 
   def total_kills

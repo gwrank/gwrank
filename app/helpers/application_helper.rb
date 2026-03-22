@@ -24,10 +24,8 @@ module ApplicationHelper
     elsif user.present? && character&.player&.id == user.id
       character.igname.presence || character.player.username
     # Other users see anonymized names
-    elsif user.present?
-      AnonymizedNameService.anonymize_player_name(character&.igname, user)
     else
-      "Character #{character&.id || '??'}"
+      character&.anonymized_igname_with_profession
     end
   end
 
@@ -43,10 +41,8 @@ module ApplicationHelper
     elsif user.present? && player.id == user.id
       player.igname.presence || player.username
     # Other users see anonymized names
-    elsif user.present?
-      AnonymizedNameService.anonymize_player_name(player&.igname, user)
     else
-      "Player #{player&.id || '??'}"
+      player&.anonymized_igname
     end
   end
 
@@ -58,10 +54,8 @@ module ApplicationHelper
     elsif user.present? && team_player&.character&.player&.id == user.id
       team_player.igname || team_player.character.player.username
     # Other users see anonymized names
-    elsif user.present?
-      AnonymizedNameService.anonymize_player_name(team_player&.igname, user)
     else
-      "Team Player #{team_player&.id || '??'}"
+      team_player&.anonymized_igname_with_profession
     end
   end
 
