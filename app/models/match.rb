@@ -34,8 +34,6 @@
 #
 
 class Match < ApplicationRecord
-  include Rails.application.routes.url_helpers
-
   belongs_to :imported_by, class_name: 'Player', optional: true
   belongs_to :loser_team, class_name: 'Team', optional: true
   belongs_to :tournament, optional: true
@@ -271,7 +269,7 @@ class Match < ApplicationRecord
     match.prepare_stats!
     match.save!
 
-    message = "New match! #{match.title} : #{match_url(match)}"
+    message = "New match! #{match.title} : #{Rails.application.routes.url_helpers.match_url(match)}"
     bot = Discordrb::Bot.new token: ENV['DISCORD_BOT_TOKEN']
     bot.channel(ENV['DISCORD_COMMAND_CHANNEL_ID']).send_message(message)
 
