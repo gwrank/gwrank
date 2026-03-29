@@ -21,6 +21,38 @@
       <%= form.select :tournament_region, options_for_select([['All', ''], ['A', 'a'], ['B', 'b'], ['C', 'c']], params[:tournament_region]), {}, class: "form-select", disabled: params[:tournament_type] != 'at' %>
     </div>
     <div class="col-md-2">
+      <%= form.label :flux_year, "Year", class: "form-label" %>
+      <%= form.select :flux_year, 
+        options_for_select(
+          (Match.oldest_year..Date.current.year).to_a.reverse.map { |year| [year, year] },
+          params[:flux_year] || Date.current.year
+        ), 
+        {}, 
+        class: "form-select" %>
+    </div>
+    <div class="col-md-2">
+      <%= form.label :flux_month, "Month/Flux", class: "form-label" %>
+      <%= form.select :flux_month, 
+        options_for_select(
+          [['Select Month', '']] + 
+          [['January - Odran\'s Razor', '1'],
+           ['February - Amateur Hour', '2'],
+           ['March - Hidden Talent', '3'],
+           ['April - There Can Be Only One', '4'],
+           ['May - Meek Shall Inherit', '5'],
+           ['June - Jack of All Trades', '6'],
+           ['July - Chain Combo', '7'],
+           ['August - Xinrae\'s Revenge', '8'],
+           ['September - Like a Boss (and The Boss)', '9'],
+           ['October - Minion Apocalypse', '10'],
+           ['November - All In', '11'],
+           ['December - Parting Gift (and Gift of Battle)', '12']],
+          params[:flux_month]
+        ), 
+        { prompt: 'Select Month' }, 
+        class: "form-select" %>
+    </div>
+    <div class="col-md-2">
       <%= form.label :map_id, "Map/Guild Hall", class: "form-label" %>
       <%= form.select :map_id, options_for_select([['All Maps', '']] + @unique_maps.map { |map_id, data|
         guild_hall_text = data[:is_guild_hall] ? ' (Guild Hall)' : ''
@@ -49,4 +81,3 @@
     }
   });
 </script>
-

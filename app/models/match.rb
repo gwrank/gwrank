@@ -48,6 +48,10 @@ class Match < ApplicationRecord
   has_many :team_players, through: :teams
 
   scope :with_stats, -> { where.not(stats: {}) }
+  
+  def self.oldest_year
+    minimum(:played_at)&.year || Date.current.year
+  end
 
   extend FriendlyId
   friendly_id :slug_candidates, use: :slugged

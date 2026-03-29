@@ -13,6 +13,35 @@ class MatchesController < ApplicationController
     @matches = @matches.where("played_at >= ?", params[:date_from].to_date.beginning_of_day) if params[:date_from].present?
     @matches = @matches.where("played_at <= ?", params[:date_to].to_date.end_of_day) if params[:date_to].present?
     
+    # Flux filter (month-based)
+    if params[:flux_year].present? && params[:flux_month].present?
+      # Handle separate year and month parameters
+      year = params[:flux_year].to_i
+      month = params[:flux_month].to_i
+      flux_date = Date.new(year, month, 1)
+      @matches = @matches.where("played_at >= ? AND played_at <= ?", 
+                               flux_date.beginning_of_month.beginning_of_day,
+                               flux_date.end_of_month.end_of_day)
+    elsif params[:flux].present?
+      # Backward compatibility for old flux parameter format
+      if params[:flux].match?(/^\d{1,2}$/) && params[:flux].to_i.between?(1, 12)
+        # Month number format (1-12) - use current year
+        month = params[:flux].to_i
+        year = Date.current.year
+        flux_date = Date.new(year, month, 1)
+      elsif params[:flux].match?(/^\d{4}-\d{2}$/)
+        # YYYY-MM format
+        year, month = params[:flux].split('-').map(&:to_i)
+        flux_date = Date.new(year, month, 1)
+      else
+        # Other date formats
+        flux_date = Date.parse(params[:flux])
+      end
+      @matches = @matches.where("played_at >= ? AND played_at <= ?", 
+                               flux_date.beginning_of_month.beginning_of_day,
+                               flux_date.end_of_month.end_of_day)
+    end
+    
     # Tournament filter
     if params[:tournament_type].present?
       tournament_type = params[:tournament_type].downcase
