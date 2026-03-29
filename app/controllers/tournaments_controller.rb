@@ -1,6 +1,21 @@
 class TournamentsController < ApplicationController
   def index
-    @pagy, @tournaments = pagy(Tournament.order(date: :desc, year: :desc, month: :desc))
+    @tournaments = Tournament.order(date: :desc, year: :desc, month: :desc)
+    
+    # Apply filters
+    @tournaments = @tournaments.where("date >= ?", params[:date_from].to_date.beginning_of_day) if params[:date_from].present?
+    @tournaments = @tournaments.where("date <= ?", params[:date_to].to_date.end_of_day) if params[:date_to].present?
+    
+    # Tournament type filter
+    if params[:tournament_type].present?
+      @tournaments = @tournaments.where(tournament_type: params[:tournament_type])
+      # Region filter only applies to AT tournaments
+      if params[:tournament_type] == 'at' && params[:tournament_region].present?
+        @tournaments = @tournaments.where(region: params[:tournament_region])
+      end
+    end
+    
+    @pagy, @tournaments = pagy(@tournaments)
   end
 
   def show
