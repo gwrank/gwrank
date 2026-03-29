@@ -24,7 +24,9 @@
           <div class="col-lg mpl-content">
             <div class="row hgap-md vgap-md" data-sr="teams" data-sr-interval="100" data-sr-duration="1000" data-sr-distance="20">
               <% @guilds.each do |guild| %>
-                <%= render "guild", guild: guild %>
+                <% cache guild do %>
+                  <%= render "guild", guild: guild %>
+                <% end %>
               <% end %>
               <%== @pagy.series_nav(:bootstrap) %>
             </div>
