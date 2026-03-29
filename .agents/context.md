@@ -9,13 +9,6 @@ This project uses ClaudeOnRails with a swarm of specialized agents for Rails dev
 - **Test Framework**: Minitest
 - **Turbo/Stimulus**: Enabled
 
-## Swarm Configuration
-
-The claude-swarm.yml file defines specialized agents for different aspects of Rails development:
-- Each agent has specific expertise and works in designated directories
-- Agents collaborate to implement features across all layers
-- The architect agent coordinates the team
-
 ## Development Guidelines
 
 When working on this project:
