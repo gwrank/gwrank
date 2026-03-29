@@ -49,6 +49,7 @@ gem 'pg_search'
 gem 'pundit'
 gem 'seed_dump'
 gem 'sidekiq'
+gem 'solid_cache'
 gem 'turbo-rails'
 
 group :development, :test do
