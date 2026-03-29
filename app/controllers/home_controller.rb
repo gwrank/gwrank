@@ -7,5 +7,16 @@ class HomeController < ApplicationController
       .group('players.id', 'players.igname')
       .order('players.elo_rating DESC')
       .first(3)
+      
+    # Get the latest mAT final match for homepage display
+    @last_match = Match.includes(teams: [:guild, { team_players: [:profession, :secondary_profession, { team_player_skills: :skill }] }])
+                      .joins(:tournament)
+                      .where(tournaments: { tournament_type: 'mat' })
+                      .where(round: 4)
+                      .order(played_at: :desc)
+                      .first
+    
+    # Get unique maps for the filter dropdown (same as matches controller)
+    @unique_maps = Match.unique_maps
   end
 end
