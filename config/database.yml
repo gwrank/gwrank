@@ -92,7 +92,12 @@ test:
 # for a full overview on how database connection configuration can be specified.
 #
 production:
-  <<: *default
-  database: gwrank_production
-  username: gwrank
-  password: <%= ENV['GWRANK_DATABASE_PASSWORD'] %>
+  primary: &primary_production
+    <<: *default
+    database: gwrank_production
+    username: gwrank
+    password: <%= ENV["GWRANK_DATABASE_PASSWORD"] %>
+  cache:
+    <<: *primary_production
+    database: gwrank_production_cache
+    migrations_paths: db/cache_migrate
