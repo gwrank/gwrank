@@ -10,7 +10,7 @@
     </div>
     <div class="col-md-2">
       <%= form.label :tournament_type, "Tournament Type", class: "form-label" %>
-      <%= form.select :tournament_type, options_for_select([['All', ''], ['mAT', 'mat'], ['AT', 'at']], params[:tournament_type]), {}, class: "form-select" %>
+      <%= form.select :tournament_type, options_for_select([['All', ''], ['mAT', 'mat'], ['AT', 'at']], params[:tournament_type]), {}, class: "form-control" %>
     </div>
     <div class="col-md-2">
       <%= form.label :flux_year, "Year", class: "form-label" %>
@@ -20,7 +20,7 @@
           params[:flux_year] || Date.current.year
         ), 
         {}, 
-        class: "form-select" %>
+        class: "form-control" %>
     </div>
     <div class="col-md-2">
       <%= form.label :flux_month, "Month/Flux", class: "form-label" %>
@@ -41,7 +41,7 @@
           params[:flux_month]
         ), 
         { prompt: 'Select Month' }, 
-        class: "form-select" %>
+        class: "form-control" %>
     </div>
     <div class="col-md-1 d-flex align-items-end">
       <%= form.button "Filter", class: "btn btn-md" %>

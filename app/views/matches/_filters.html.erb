@@ -14,11 +14,11 @@
     </div>
     <div class="col-md-2">
       <%= form.label :tournament_type, "Tournament Type", class: "form-label" %>
-      <%= form.select :tournament_type, options_for_select([['All', ''], ['mAT', 'mat'], ['AT', 'at']], params[:tournament_type]), {}, class: "form-select" %>
+      <%= form.select :tournament_type, options_for_select([['All', ''], ['mAT', 'mat'], ['AT', 'at']], params[:tournament_type]), {}, class: "form-control" %>
     </div>
     <div class="col-md-2">
       <%= form.label :tournament_region, "AT Region", class: "form-label" %>
-      <%= form.select :tournament_region, options_for_select([['All', ''], ['A', 'a'], ['B', 'b'], ['C', 'c']], params[:tournament_region]), {}, class: "form-select", disabled: params[:tournament_type] != 'at' %>
+      <%= form.select :tournament_region, options_for_select([['All', ''], ['A', 'a'], ['B', 'b'], ['C', 'c']], params[:tournament_region]), {}, class: "form-control", disabled: params[:tournament_type] != 'at' %>
     </div>
     <div class="col-md-2">
       <%= form.label :flux_year, "Year", class: "form-label" %>
@@ -28,7 +28,7 @@
           params[:flux_year] || Date.current.year
         ), 
         {}, 
-        class: "form-select" %>
+        class: "form-control" %>
     </div>
     <div class="col-md-2">
       <%= form.label :flux_month, "Month/Flux", class: "form-label" %>
@@ -49,14 +49,14 @@
           params[:flux_month]
         ), 
         { prompt: 'Select Month' }, 
-        class: "form-select" %>
+        class: "form-control" %>
     </div>
     <div class="col-md-2">
       <%= form.label :map_id, "Map/Guild Hall", class: "form-label" %>
       <%= form.select :map_id, options_for_select([['All Maps', '']] + @unique_maps.map { |map_id, data|
         guild_hall_text = data[:is_guild_hall] ? ' (Guild Hall)' : ''
         ["#{data[:name]}#{guild_hall_text}", map_id]
-      }, params[:map_id]), {}, class: "form-select" %>
+      }, params[:map_id]), {}, class: "form-control" %>
     </div>
     <div class="col-md-1 d-flex align-items-end">
       <%= form.button "Filter", class: "btn btn-md" %>
