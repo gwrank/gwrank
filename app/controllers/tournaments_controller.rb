@@ -15,6 +15,16 @@ class TournamentsController < ApplicationController
       end
     end
     
+    # Flux filter (month-based)
+    if params[:flux_year].present? && params[:flux_month].present?
+      year = params[:flux_year].to_i
+      month = params[:flux_month].to_i
+      flux_date = Date.new(year, month, 1)
+      @tournaments = @tournaments.where("date >= ? AND date <= ?", 
+                                       flux_date.beginning_of_month.beginning_of_day,
+                                       flux_date.end_of_month.end_of_day)
+    end
+    
     @pagy, @tournaments = pagy(@tournaments)
   end
 
