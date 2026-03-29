@@ -391,6 +391,29 @@ class Match < ApplicationRecord
     ordered_stats + remaining
   end
 
+  # Get all unique maps from matches
+  def self.unique_maps
+    # Get matches with map data and extract unique maps
+    matches_with_maps = where.not(json: {}).where("json ? 'map'")
+    
+    maps = {}
+    matches_with_maps.find_each do |match|
+      map_data = match.json['map']
+      next unless map_data && map_data['map_id'] && map_data['name']
+      
+      map_id = map_data['map_id'].to_s
+      map_name = map_data['name']
+      is_guild_hall = map_data['is_guild_hall']
+      
+      maps[map_id] = {
+        name: map_name,
+        is_guild_hall: is_guild_hall
+      }
+    end
+    
+    maps.sort_by { |map_id, data| data[:name] }
+  end
+  
   # Memoize agent lookups
   def agent_by_id(agent_id)
     @agents_cache ||= {}

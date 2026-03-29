@@ -4,7 +4,32 @@ class MatchesController < ApplicationController
   before_action :ensure_player_is_moderator_and_importer, only: [:destroy]
 
   def index
-    @pagy, @matches = pagy(Match.includes(teams: [:guild, { team_players: [:profession, :secondary_profession, { team_player_skills: :skill }] }]).order(played_at: :desc), limit: 4)
+    @matches = Match.includes(teams: [:guild, { team_players: [:profession, :secondary_profession, { team_player_skills: :skill }] }]).order(played_at: :desc)
+    
+    # Get unique maps for the filter dropdown
+    @unique_maps = Match.unique_maps
+    
+    # Apply filters
+    @matches = @matches.where("played_at >= ?", params[:date_from].to_date.beginning_of_day) if params[:date_from].present?
+    @matches = @matches.where("played_at <= ?", params[:date_to].to_date.end_of_day) if params[:date_to].present?
+    
+    # Tournament filter
+    if params[:tournament_type].present?
+      tournament_type = params[:tournament_type].downcase
+      if tournament_type == 'mat'
+        @matches = @matches.joins(:tournament).where(tournaments: { tournament_type: 'mat' })
+      elsif tournament_type == 'at'
+        @matches = @matches.joins(:tournament).where(tournaments: { tournament_type: 'at' })
+        @matches = @matches.where(tournaments: { region: params[:tournament_region] }) if params[:tournament_region].present?
+      end
+    end
+    
+    # Map/Guild Hall filter
+    if params[:map_id].present?
+      @matches = @matches.where("json#>>'{map,map_id}' = ?", params[:map_id])
+    end
+    
+    @pagy, @matches = pagy(@matches, limit: 4)
   end
 
   def show
