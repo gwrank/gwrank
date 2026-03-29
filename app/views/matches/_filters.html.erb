@@ -1,5 +1,9 @@
 <div class="match-filters mb-50">
   <%= form_with url: matches_path, method: :get, class: "row g-3" do |form| %>
+    <div class="col-md-3">
+      <%= form.label :opponent, "Search Opponent", class: "form-label" %>
+      <%= form.text_field :opponent, value: params[:opponent], placeholder: "Guild or player name", class: "form-control" %>
+    </div>
     <div class="col-md-2">
       <%= form.label :date_from, "From", class: "form-label" %>
       <%= form.date_field :date_from, value: params[:date_from], class: "form-control" %>
@@ -23,7 +27,7 @@
         ["#{data[:name]}#{guild_hall_text}", map_id]
       }, params[:map_id]), {}, class: "form-select" %>
     </div>
-    <div class="col-md-2 d-flex align-items-end">
+    <div class="col-md-1 d-flex align-items-end">
       <%= form.button "Filter", class: "btn btn-md" %>
     </div>
   <% end %>

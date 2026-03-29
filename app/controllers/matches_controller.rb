@@ -29,6 +29,18 @@ class MatchesController < ApplicationController
       @matches = @matches.where("json#>>'{map,map_id}' = ?", params[:map_id])
     end
     
+    # Opponent filter (guild or player name)
+    if params[:opponent].present?
+      opponent_query = "%#{params[:opponent]}%"
+      # Search by guild name or tag
+      guild_matches = Match.joins(teams: :guild).where("guilds.name ILIKE ? OR guilds.tag ILIKE ?", opponent_query, opponent_query)
+      # Search by player name
+      player_matches = Match.joins(teams: :team_players).where("team_players.igname ILIKE ?", opponent_query)
+      # Combine results and remove duplicates
+      match_ids = (guild_matches.pluck(:id) + player_matches.pluck(:id)).uniq
+      @matches = @matches.where(id: match_ids) if match_ids.any?
+    end
+    
     @pagy, @matches = pagy(@matches, limit: 4)
   end
 
