@@ -23,8 +23,10 @@
         <div class="row hgap-lg vgap-lg">
           <div class="col-lg mpl-content">
             <ul class="cyberpress-matchs-archive" data-sr="matches" data-sr-duration="1000">
-              <% @matches.each do |match| %>
-                <%= render "match", match: match %>
+              <% cache @matches do %>
+                <% @matches.each do |match| %>
+                  <%= render "match", match: match %>
+                <% end %>
               <% end %>
               <%== @pagy.series_nav(:bootstrap) %>
             </ul>

@@ -4,10 +4,14 @@ class MatchesController < ApplicationController
   before_action :ensure_player_is_moderator_and_importer, only: [:destroy]
 
   def index
-    @matches = Match.includes(teams: [:guild, { team_players: [:profession, :secondary_profession, { team_player_skills: :skill }] }]).order(played_at: :desc)
+    @matches = Rails.cache.fetch("matches_index_all", expires_in: 1.hour) do
+      Match.includes(teams: [:guild, { team_players: [:profession, :secondary_profession, { team_player_skills: :skill }] }]).order(played_at: :desc)
+    end
     
     # Get unique maps for the filter dropdown
-    @unique_maps = Match.unique_maps
+    @unique_maps = Rails.cache.fetch("unique_maps", expires_in: 1.day) do
+      Match.unique_maps
+    end
     
     # Apply filters
     @matches = @matches.where("played_at >= ?", params[:date_from].to_date.beginning_of_day) if params[:date_from].present?
@@ -74,16 +78,20 @@ class MatchesController < ApplicationController
   end
 
   def show
-    @match = Match.includes(
-      comments: [:player],
-      teams: [
-        :guild,
-        { team_players: [:character, :player, :profession, :secondary_profession, :team_player_skills] }
-      ]
-    ).friendly.find(params[:id])
+    @match = Rails.cache.fetch("match_#{params[:id]}", expires_in: 1.hour) do
+      Match.includes(
+        comments: [:player],
+        teams: [
+          :guild,
+          { team_players: [:character, :player, :profession, :secondary_profession, :team_player_skills] }
+        ]
+      ).friendly.find(params[:id])
+    end
     
     # Preload all skills that might be used in stats
-    @skills_cache = preload_skills_for_match if @match.json.present?
+    @skills_cache = Rails.cache.fetch("match_#{params[:id]}_skills", expires_in: 1.hour) do
+      preload_skills_for_match if @match.json.present?
+    end
     
     @comment = Comment.new
     @movie = Movie.new

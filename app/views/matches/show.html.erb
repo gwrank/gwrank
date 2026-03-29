@@ -71,51 +71,53 @@
                 <% end %>
               </div>
             <% end %>
-            <ul class="cyberpress-matchs-archive" data-sr="matches" data-sr-duration="1000">
-              <li class="cyberpress-match" data-sr-item="matches">
-                <div class="cyberpress-match-participants">
-                  <div class="cyberpress-match-participant col-lg-5">
-                    <h2 class="cyberpress-match-participant-title h4">
-                      <%= link_to match_path(@match) do %>
-                        <% if @match.teams.first.rank.present? %>
-                          <span class="guild-rank">#<%= @match.teams.first.rank %></span>
+            <% cache @match do %>
+              <ul class="cyberpress-matchs-archive" data-sr="matches" data-sr-duration="1000">
+                <li class="cyberpress-match" data-sr-item="matches">
+                  <div class="cyberpress-match-participants">
+                    <div class="cyberpress-match-participant col-lg-5">
+                      <h2 class="cyberpress-match-participant-title h4">
+                        <%= link_to match_path(@match) do %>
+                          <% if @match.teams.first.rank.present? %>
+                            <span class="guild-rank">#<%= @match.teams.first.rank %></span>
+                          <% end %>
+                          <%= @match.teams.first.guild.name_with_tag %>
                         <% end %>
-                        <%= @match.teams.first.guild.name_with_tag %>
-                      <% end %>
-                      <% if @match.winner_team == @match.teams.first %>
-                        <span style="color: #ffc107; font-size: 1.2rem;">🏆</span>
-                      <% end %>
-                    </h2>
-                    <ul class="cyberpress-match-info">
-                      <li><%= link_to 'Guild details', guild_path(@match.teams.first.guild) %></li>
-                    </ul>
-                  </div>
-                  <div class="cyberpress-match-participant-vs col-lg-2">
-                    <%= link_to match_path(@match) do %>
-                      <span><%= @match.round_text %></span>
-                      <span class="cyberpress-match-participant-time-start"><%= @match.tournament.date %></span>
-                      <span class="cyberpress-match-points h3">VS</span>
-                    <% end %>
-                  </div>
-                  <div class="cyberpress-match-participant col-lg-5">
-                    <h2 class="cyberpress-match-participant-title h4 text-right">
-                      <% if @match.winner_team == @match.teams.second %>
-                        <span style="color: #ffc107; font-size: 1.2rem;">🏆</span>
-                      <% end %>
-                      <%= link_to match_path(@match) do %>
-                        <% if @match.teams.second.rank.present? %>
-                          <span class="guild-rank">#<%= @match.teams.second.rank %></span>
+                        <% if @match.winner_team == @match.teams.first %>
+                          <span style="color: #ffc107; font-size: 1.2rem;">🏆</span>
                         <% end %>
-                        <%= @match.teams.second.guild.name_with_tag %>
+                      </h2>
+                      <ul class="cyberpress-match-info">
+                        <li><%= link_to 'Guild details', guild_path(@match.teams.first.guild) %></li>
+                      </ul>
+                    </div>
+                    <div class="cyberpress-match-participant-vs col-lg-2">
+                      <%= link_to match_path(@match) do %>
+                        <span><%= @match.round_text %></span>
+                        <span class="cyberpress-match-participant-time-start"><%= @match.tournament.date %></span>
+                        <span class="cyberpress-match-points h3">VS</span>
                       <% end %>
-                    </h2>
-                    <ul class="cyberpress-match-info">
-                      <li><%= link_to 'Guild details', guild_path(@match.teams.second.guild) %></li>
-                    </ul>
+                    </div>
+                    <div class="cyberpress-match-participant col-lg-5">
+                      <h2 class="cyberpress-match-participant-title h4 text-right">
+                        <% if @match.winner_team == @match.teams.second %>
+                          <span style="color: #ffc107; font-size: 1.2rem;">🏆</span>
+                        <% end %>
+                        <%= link_to match_path(@match) do %>
+                          <% if @match.teams.second.rank.present? %>
+                            <span class="guild-rank">#<%= @match.teams.second.rank %></span>
+                          <% end %>
+                          <%= @match.teams.second.guild.name_with_tag %>
+                        <% end %>
+                      </h2>
+                      <ul class="cyberpress-match-info">
+                        <li><%= link_to 'Guild details', guild_path(@match.teams.second.guild) %></li>
+                      </ul>
+                    </div>
                   </div>
-                </div>
-              </li>
-            </ul>
+                </li>
+              </ul>
+            <% end %>
 
             <% if @match.movies.any? %>
               <% @match.movies.each do |movie| %>

@@ -17,7 +17,9 @@
               <% if @last_match.present? %>
                 <div class="col-lg-12 mb-50">
                   <ul class="cyberpress-matchs-archive" data-sr="matches" data-sr-duration="1000">
-                    <%= render "matches/match", match: @last_match %>
+                    <% cache @last_match do %>
+                      <%= render "matches/match", match: @last_match %>
+                    <% end %>
                   </ul>
                 </div>
               <% end %>
