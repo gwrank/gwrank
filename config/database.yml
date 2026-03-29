@@ -99,5 +99,5 @@ production:
     password: <%= ENV["GWRANK_DATABASE_PASSWORD"] %>
   cache:
     <<: *primary_production
-    database: gwrank_production_cache
+    database: gwrank_production
     migrations_paths: db/cache_migrate
