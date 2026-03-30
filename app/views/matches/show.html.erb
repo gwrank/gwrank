@@ -152,7 +152,7 @@
             <% if @match.json.present? %>
               <h2 data-sr data-sr-duration="1200" data-sr-distance="10" class="mt-60 mb-30">Match Statistics</h2>
 
-              <% cache @match, expires_in: 1.hour do %>
+              <% cache [@match, "stats"], expires_in: 1.hour do %>
                 <% health_data = @match.health_percentage_data %>
                 <% guild_lord_data = @match.guild_lord_damage_data %>
                 <% if health_data %>
