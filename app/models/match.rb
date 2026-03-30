@@ -273,7 +273,13 @@ class Match < ApplicationRecord
     match.prepare_stats!
     match.save!
 
-    message = "New match! #{match.title} : #{Rails.application.routes.url_helpers.match_url(match)}"
+    begin
+      match_url = Rails.application.routes.url_helpers.match_url(match, host: ENV.fetch('APP_HOST', 'gwrank.com'))
+      message = "New match! #{match.title} : #{match_url}"
+    rescue => e
+      Rails.logger.error "Failed to generate match URL: #{e.message}"
+      message = "New match! #{match.title} : Match ID #{match.id}"
+    end
     bot = Discordrb::Bot.new token: ENV['DISCORD_BOT_TOKEN']
     bot.channel(ENV['DISCORD_COMMAND_CHANNEL_ID']).send_message(message)
 
