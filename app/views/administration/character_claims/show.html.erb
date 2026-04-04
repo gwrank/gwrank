@@ -42,7 +42,7 @@
               <% end %>
 
               <h2 class="cyberpress-player-title h5 mb-4">
-                <%= @claim.character.igname %>
+                <%= @claim.claimed_igname %>
                 <% if @claim.pending? %>
                   <span class="badge bg-warning text-dark ms-2">PENDING</span>
                 <% elsif @claim.approved? %>

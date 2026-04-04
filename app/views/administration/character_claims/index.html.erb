@@ -40,7 +40,7 @@
                       <div class="row align-items-center">
                         <div class="col-md-8">
                           <h2 class="cyberpress-player-title h5">
-                            <%= link_to claim.character.igname, administration_character_claim_path(claim), class: 'text-decoration-none' %>
+                            <%= link_to claim.claimed_igname, administration_character_claim_path(claim), class: 'text-decoration-none' %>
                             <% if claim.pending? %>
                               <span class="badge bg-warning text-dark ms-2">PENDING</span>
                             <% elsif claim.approved? %>
