@@ -66,6 +66,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_29_223521) do
   create_table "character_claims", force: :cascade do |t|
     t.bigint "character_id", null: false
     t.bigint "claimed_by_id"
+    t.string "claimed_igname"
     t.datetime "created_at", null: false
     t.bigint "player_id", null: false
     t.string "status", default: "pending"
@@ -73,6 +74,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_29_223521) do
     t.index ["character_id", "player_id"], name: "index_character_claims_on_character_id_and_player_id", unique: true, where: "((status)::text = 'pending'::text)"
     t.index ["character_id"], name: "index_character_claims_on_character_id"
     t.index ["claimed_by_id"], name: "index_character_claims_on_claimed_by_id"
+    t.index ["claimed_igname"], name: "index_character_claims_on_claimed_igname"
     t.index ["player_id"], name: "index_character_claims_on_player_id"
   end
 

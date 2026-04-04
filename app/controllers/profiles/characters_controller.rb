@@ -18,7 +18,7 @@ class Profiles::CharactersController < ApplicationController
     if @character.present?
       if @character.claimable_by?(@player)
         # Character is unowned or owned by this player - claim it directly
-        @character.update(player_id: @player.id)
+        @character.update(igname: character_igname, player_id: @player.id)
         TeamPlayer.where(igname: character_igname).update_all(
           character_id: @character.id,
           player_id: @player.id
@@ -37,6 +37,7 @@ class Profiles::CharactersController < ApplicationController
             character: @character,
             player: @player,
             claimed_by: @player,
+            claimed_igname: character_igname,
             status: 'pending'
           )
           flash[:notice] = "Your claim for character '#{@character.igname}' has been submitted for moderator verification. " \

@@ -2,19 +2,21 @@
 #
 # Table name: character_claims
 #
-#  id            :bigint           not null, primary key
-#  status        :string           default("pending")
-#  created_at    :datetime         not null
-#  updated_at    :datetime         not null
-#  character_id  :bigint           not null
-#  claimed_by_id :bigint
-#  player_id     :bigint           not null
+#  id             :bigint           not null, primary key
+#  claimed_igname :string
+#  status         :string           default("pending")
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#  character_id   :bigint           not null
+#  claimed_by_id  :bigint
+#  player_id      :bigint           not null
 #
 # Indexes
 #
 #  index_character_claims_on_character_id                (character_id)
 #  index_character_claims_on_character_id_and_player_id  (character_id,player_id) UNIQUE WHERE ((status)::text = 'pending'::text)
 #  index_character_claims_on_claimed_by_id               (claimed_by_id)
+#  index_character_claims_on_claimed_igname              (claimed_igname)
 #  index_character_claims_on_player_id                   (player_id)
 #
 # Foreign Keys
@@ -32,6 +34,7 @@ class CharacterClaim < ApplicationRecord
   enum :status, { pending: 'pending', approved: 'approved', rejected: 'rejected' }
 
   validate :cannot_have_multiple_pending_claims
+  validates :claimed_igname, presence: true, if: -> { pending? }
 
   scope :pending, -> { where(status: 'pending') }
   scope :approved, -> { where(status: 'approved') }
@@ -47,6 +50,12 @@ class CharacterClaim < ApplicationRecord
   # - Character unowned: assign to claimant
   def approve!
     return unless pending?
+
+    # Set the character's igname from the stored claimed_igname if it's not already set
+    if character.igname.blank? && claimed_igname.present?
+      character.igname = claimed_igname
+      character.igname_hash = Character.hash_name_static(claimed_igname)
+    end
 
     # Assign the character to the player if not already assigned
     character.update(player: player)

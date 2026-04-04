@@ -225,28 +225,30 @@ class CommandBotJob < ApplicationJob
     if character.present?
       if character.claimable_by?(player)
         # Character is unowned or owned by this player - claim it directly
-        character.update(player: player)
+        character.update(igname: character_igname, player: player)
         TeamPlayer.where(igname: character_igname).update_all(
           character_id: character.id,
+          igname: character_igname,
           player_id: player.id
         )
         player.set_professions_from_team_players
         player.save
 
-        event.respond "<@#{event.user.id}>, you have successfully claimed the character **#{character.igname}**!"
+        event.respond "<@#{event.user.id}>, you have successfully claimed the character **#{character_igname}**!"
       else
         # Character is owned by another player - create a claim for verification
         existing_claim = CharacterClaim.find_by(character: character, player: player, status: 'pending')
         if existing_claim
-          event.respond "<@#{event.user.id}>, you already have a pending claim for **#{character.igname}**. A moderator will review it shortly."
+          event.respond "<@#{event.user.id}>, you already have a pending claim for **#{character_igname}**. A moderator will review it shortly."
         else
           CharacterClaim.create!(
             character: character,
             player: player,
             claimed_by: player,
+            claimed_igname: character_igname,
             status: 'pending'
           )
-          event.respond "<@#{event.user.id}>, your claim for **#{character.igname}** has been submitted for moderator verification. Once approved, the character will be linked to your profile."
+          event.respond "<@#{event.user.id}>, your claim for **#{character_igname}** has been submitted for moderator verification. Once approved, the character will be linked to your profile."
         end
       end
     else
