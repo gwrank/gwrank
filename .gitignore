@@ -43,3 +43,6 @@ yarn-debug.log*
 
 /app/assets/builds/*
 !/app/assets/builds/.keep
+
+# Ignore local design docs / specs.
+/docs
