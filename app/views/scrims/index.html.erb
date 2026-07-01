@@ -107,45 +107,33 @@
               <% else %>
                 <%= link_to 'Log in with Discord to register myself', omniauth_authorize_path(:player, :discord), class: 'btn btn-md btn-brand' %>
               <% end %>
-              <% if @current_scrims.any? %>
-                <h2>Captains</h2>
-                <ul class="cyberpress-matchs-archive">
-                  <% @current_scrims.each do |current_scrim| %>
-                    <li class="cyberpress-match">
-                      <div class="cyberpress-match-participants">
-                        <div class="cyberpress-match-participant">
-                          <div class="cyberpress-match-participant-thumbnail">
-                            <a href="#">
-                              <span class="mpl-image">
-                              </span>
-                            </a>
-                          </div>
-                          <h2 class="cyberpress-match-participant-title h4">
-                            <%= link_to current_scrim.captain_a.name, player_path(current_scrim.captain_a) %>
-                          </h2>
-                        </div>
-                        <div class="cyberpress-match-participant-vs">
-                          <a href="#">
-                            <span class="cyberpress-match-participant-time-start"><%= l current_scrim.created_at %></span>
-                            <span class="cyberpress-match-points h3">VS</span>
-                          </a>
-                        </div>
-                        <div class="cyberpress-match-participant">
-                          <div class="cyberpress-match-participant-thumbnail">
-                            <a href="#">
-                              <span class="mpl-image">
-                                <img src="assets/images/esports/military-skull_300x300.png" alt="">
-                              </span>
-                            </a>
-                          </div>
-                          <h2 class="cyberpress-match-participant-title h4">
-                            <%= link_to current_scrim.captain_b.name, player_path(current_scrim.captain_b) %>
-                          </h2>
-                        </div>
-                      </div>
-                    </li>
-                  <% end %>
-                </ul>
+              <% if @active_scrim %>
+                <h2>Active scrim &middot; <%= @active_scrim.team_a_wins %>-<%= @active_scrim.team_b_wins %></h2>
+                <p><%= link_to 'View scrim details', scrim_path(@active_scrim) %></p>
+                <div class="row hgap-lg vgap-lg">
+                  <div class="col-6">
+                    <h3>Team A</h3>
+                    <ul>
+                      <% @active_scrim.team_a.team_players.includes(:player, :profession).each do |team_player| %>
+                        <li>
+                          <%= link_to team_player.player.name, player_path(team_player.player) %>
+                          (<%= team_player.profession.name %>)<%= ' - captain' if team_player.is_captain? %>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                  <div class="col-6">
+                    <h3>Team B</h3>
+                    <ul>
+                      <% @active_scrim.team_b.team_players.includes(:player, :profession).each do |team_player| %>
+                        <li>
+                          <%= link_to team_player.player.name, player_path(team_player.player) %>
+                          (<%= team_player.profession.name %>)<%= ' - captain' if team_player.is_captain? %>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                </div>
               <% end %>
             </article>
           </div>

@@ -27,4 +27,18 @@ class ScrimsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select 'body', text: /In progress/
   end
+
+  test "index shows the active scrim's rosters and live tally when one is in progress" do
+    team_a = Team.create!
+    team_a.team_players.create!(player: create_player(elo_rating: 1200, username: 'ActiveCaptainA'), profession: professions(:warrior), is_captain: true)
+    team_b = Team.create!
+    team_b.team_players.create!(player: create_player(elo_rating: 1200, username: 'ActiveCaptainB'), profession: professions(:monk), is_captain: true)
+    Scrim.create!(team_a: team_a, team_b: team_b, team_a_wins: 1, team_b_wins: 0)
+
+    get scrims_path
+
+    assert_response :success
+    assert_select 'body', text: /ActiveCaptainA/
+    assert_select 'body', text: /1-0/
+  end
 end
