@@ -22,4 +22,19 @@ class Scrim < ApplicationRecord
   belongs_to :winner_team, class_name: 'Team', optional: true
 
   scope :current_scrims, -> { where('created_at > ?', DateTime.now - 8.hours) }
+  scope :decided, -> { where.not(winner_team_id: nil) }
+  scope :in_progress, -> { where(winner_team_id: nil).where.not(team_a_id: nil) }
+
+  def loser_team
+    return nil unless winner_team_id
+
+    winner_team_id == team_a_id ? team_b : team_a
+  end
+
+  def calculate_elo!
+    return unless winner_team && loser_team
+
+    EloCalculator.new(winner_team: winner_team, loser_team: loser_team).call!
+    self
+  end
 end
