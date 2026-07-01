@@ -3,6 +3,8 @@
 # Table name: scrims
 #
 #  id             :bigint           not null, primary key
+#  team_a_wins    :integer          default(0), not null
+#  team_b_wins    :integer          default(0), not null
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null
 #  captain_a_id   :integer
