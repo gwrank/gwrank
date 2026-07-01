@@ -46,3 +46,6 @@ yarn-debug.log*
 
 # Ignore local design docs / specs.
 /docs
+
+# Ignore local git worktrees.
+/.worktrees
