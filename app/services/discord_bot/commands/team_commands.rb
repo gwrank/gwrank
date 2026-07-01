@@ -51,6 +51,11 @@ module DiscordBot
       end
 
       def handle_newteams_command(event)
+        if Scrim.in_progress.exists?
+          event.respond "<@#{event.user.id}>, a scrim is already in progress. Finish it with *!win* first, or this will abandon it."
+          return
+        end
+
         scrim = Scrims::FormTeams.call!
 
         event.channel.send_message(team_roster_message(scrim, :team_a))
@@ -68,25 +73,36 @@ module DiscordBot
       end
 
       def handle_win_command(event, team)
-        scrim = Scrim.in_progress.order(created_at: :desc).first
-        unless scrim
-          event.respond "<@#{event.user.id}>, there is no scrim in progress right now."
-          return
-        end
-
         winner = { 'a' => :a, 'b' => :b }[team.to_s.downcase]
         unless winner
           event.respond "<@#{event.user.id}>, usage: *!win a* or *!win b*"
           return
         end
 
-        scrim = Scrims::RecordGameResult.call!(scrim: scrim, winner: winner)
+        scrim = record_win!(winner)
+
+        unless scrim
+          event.respond "<@#{event.user.id}>, there is no scrim in progress right now."
+          return
+        end
 
         if scrim.winner_team_id.present?
           winning_label = scrim.winner_team_id == scrim.team_a_id ? 'Team A' : 'Team B'
           event.channel.send_message "#{winning_label} wins the series #{scrim.team_a_wins}-#{scrim.team_b_wins}! Elo has been updated."
         else
           event.channel.send_message "Game recorded. Series score: #{scrim.team_a_wins}-#{scrim.team_b_wins}."
+        end
+      rescue StandardError => e
+        Rails.logger.error("Failed to record win: #{e.class}: #{e.message}")
+        event.respond "<@#{event.user.id}>, something went wrong recording that result."
+      end
+
+      def record_win!(winner)
+        Scrim.transaction do
+          scrim = Scrim.in_progress.order(created_at: :desc).lock.first
+          return nil unless scrim
+
+          Scrims::RecordGameResult.call!(scrim: scrim, winner: winner)
         end
       end
 
