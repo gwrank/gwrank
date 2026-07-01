@@ -10,4 +10,18 @@ class ActiveSupport::TestCase
   fixtures :all
 
   # Add more helper methods to be used by all tests here...
+
+  def create_player(elo_rating: nil, professions: [], **attrs)
+    defaults = {
+      email: "player-#{SecureRandom.hex(6)}@example.com",
+      username: "player-#{SecureRandom.hex(4)}",
+      password: 'password123',
+      password_confirmation: 'password123',
+      elo_rating: elo_rating
+    }
+    player = Player.new(defaults.merge(attrs))
+    professions.each { |flag| player.public_send("#{flag}=", true) }
+    player.save!
+    player
+  end
 end

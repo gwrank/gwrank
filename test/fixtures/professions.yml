@@ -1,0 +1,54 @@
+none:
+  profession_id: 0
+  name: None
+  short_name: X
+
+warrior:
+  profession_id: 1
+  name: Warrior
+  short_name: W
+
+ranger:
+  profession_id: 2
+  name: Ranger
+  short_name: R
+
+monk:
+  profession_id: 3
+  name: Monk
+  short_name: Mo
+
+necromancer:
+  profession_id: 4
+  name: Necromancer
+  short_name: N
+
+mesmer:
+  profession_id: 5
+  name: Mesmer
+  short_name: Me
+
+elementalist:
+  profession_id: 6
+  name: Elementalist
+  short_name: E
+
+assassin:
+  profession_id: 7
+  name: Assassin
+  short_name: A
+
+ritualist:
+  profession_id: 8
+  name: Ritualist
+  short_name: Rt
+
+paragon:
+  profession_id: 9
+  name: Paragon
+  short_name: P
+
+dervish:
+  profession_id: 10
+  name: Dervish
+  short_name: D
