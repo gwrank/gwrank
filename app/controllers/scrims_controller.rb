@@ -6,6 +6,6 @@ class ScrimsController < ApplicationController
   end
 
   def show
-    @scrim = Scrim.find(params[:id])
+    @scrim = Scrim.where.not(team_a_id: nil).find(params[:id])
   end
 end
