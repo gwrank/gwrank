@@ -11,6 +11,9 @@ module Scrims
       @winner = winner
     end
 
+    # NOTE: Not safe for concurrent calls on the same scrim - the caller must
+    # serialize !win invocations per scrim (e.g. moderator-only gating in the
+    # Discord bot) to avoid double-finalizing and double-running calculate_elo!.
     def call!
       raise ArgumentError, 'series is already decided' if @scrim.winner_team_id.present?
 
