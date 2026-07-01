@@ -290,56 +290,7 @@ class Match < ApplicationRecord
   def calculate_elo!
     return unless winner_team && loser_team
 
-    winner_elo_sum = winner_team.players.where.not(elo_rating: nil).sum(:elo_rating)
-    loser_elo_sum = loser_team.players.where.not(elo_rating: nil).sum(:elo_rating)
-
-    winner_avg = winner_team.players.where.not(elo_rating: nil).count > 0 ?
-      winner_elo_sum / winner_team.players.where.not(elo_rating: nil).count : 1200
-    loser_avg = loser_team.players.where.not(elo_rating: nil).count > 0 ?
-      loser_elo_sum / loser_team.players.where.not(elo_rating: nil).count : 1200
-
-    # K-factor: higher for new players, max 32
-    k_factor = 32
-
-    winner_team.team_players.each do |team_player|
-      player = team_player.player
-      next unless player
-
-      player_elo = player.elo_rating || 1200
-      player_elo_matches = player.elo_matches || 0
-
-      # Expected score based on ELO difference
-      expected_score = 1 / (1 + 10 ** ((loser_avg - player_elo) / 400.0))
-
-      # New ELO = Old ELO + K * (Actual Score - Expected Score)
-      # Win = 1 point
-      new_elo = (player_elo + k_factor * (1 - expected_score)).round
-
-      # Store opponent ELO at match time (average ELO of opposing team)
-      team_player.team_player_stats.where(stat_key: "opponent_elo_at_match").first_or_create!(stat_value: loser_avg)
-
-      player.update(elo_rating: new_elo, elo_matches: player_elo_matches + 1)
-    end
-
-    loser_team.team_players.each do |team_player|
-      player = team_player.player
-      next unless player
-
-      player_elo = player.elo_rating || 1200
-      player_elo_matches = player.elo_matches || 0
-
-      # Expected score based on ELO difference
-      expected_score = 1 / (1 + 10 ** ((winner_avg - player_elo) / 400.0))
-
-      # Loss = 0 point
-      new_elo = (player_elo + k_factor * (0 - expected_score)).round
-
-      # Store team ELO at match time (average ELO of teammates)
-      team_player.team_player_stats.where(stat_key: "team_elo_at_match").first_or_create!(stat_value: winner_avg)
-
-      player.update(elo_rating: new_elo, elo_matches: player_elo_matches + 1)
-    end
-
+    EloCalculator.new(winner_team: winner_team, loser_team: loser_team).call!
     self
   end
 
