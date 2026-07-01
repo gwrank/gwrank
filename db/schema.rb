@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_29_223521) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_01_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -268,12 +268,33 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_29_223521) do
     t.index ["unlock_token"], name: "index_players_on_unlock_token", unique: true
   end
 
+  create_table "posts", force: :cascade do |t|
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.bigint "player_id", null: false
+    t.string "twitch_url"
+    t.datetime "updated_at", null: false
+    t.string "youtube_url"
+    t.index ["player_id"], name: "index_posts_on_player_id"
+  end
+
   create_table "professions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name"
     t.integer "profession_id"
     t.string "short_name"
     t.datetime "updated_at", null: false
+  end
+
+  create_table "reactions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "emoji"
+    t.bigint "player_id", null: false
+    t.bigint "post_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id"], name: "index_reactions_on_player_id"
+    t.index ["post_id", "player_id"], name: "index_reactions_on_post_id_and_player_id", unique: true
+    t.index ["post_id"], name: "index_reactions_on_post_id"
   end
 
   create_table "registrations", force: :cascade do |t|
@@ -290,7 +311,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_29_223521) do
     t.integer "captain_b_id"
     t.datetime "created_at", null: false
     t.integer "team_a_id"
+    t.integer "team_a_wins", default: 0, null: false
     t.integer "team_b_id"
+    t.integer "team_b_wins", default: 0, null: false
     t.datetime "updated_at", null: false
     t.integer "winner_team_id"
   end
@@ -411,6 +434,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_29_223521) do
   add_foreign_key "matches", "tournaments"
   add_foreign_key "movies", "players"
   add_foreign_key "players", "guilds"
+  add_foreign_key "posts", "players"
+  add_foreign_key "reactions", "players"
+  add_foreign_key "reactions", "posts"
   add_foreign_key "registrations", "players"
   add_foreign_key "skills", "professions"
   add_foreign_key "team_player_skills", "skills"
