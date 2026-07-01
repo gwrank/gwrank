@@ -2,6 +2,7 @@ module DiscordBot
   module Commands
     class RegistrationCommands
       QUEUE_SIZE = 16
+      FORM_FIRST_SCRIM_LOCK_KEY = 'discord_bot.form_first_scrim'.hash & 0x7FFFFFFFFFFFFFFF
 
       def self.register(bot)
         new(bot).register
@@ -75,12 +76,39 @@ module DiscordBot
           # Only the very first scrim ever is auto-formed. Every scrim after
           # that (including reforming after a decided series) requires a
           # moderator to run !newteams - see spec's Scrim Flow section.
-          Scrims::FormTeams.call! if Player.in_queue.count == QUEUE_SIZE && !Scrim.exists?
+          form_first_scrim_if_ready!
           event.interaction.update_message(has_components: true) do |_, view|
             message_container(view)
           end
           event.respond(content: "You have been registered, #{event.user.username}!", ephemeral: true)
         end
+      end
+
+      # Discordrb dispatches each matched event handler (including button
+      # clicks) on its own thread, so two near-simultaneous registrations
+      # that both complete the queue could otherwise both pass the
+      # count/exists? check and double-form teams. A non-blocking Postgres
+      # advisory lock makes the check-and-form atomic: whichever thread
+      # doesn't get the lock just skips forming, since the thread holding
+      # it is already handling it. Failures are caught and logged so a
+      # FormTeams error never strands the player's Discord confirmation.
+      def form_first_scrim_if_ready!
+        return unless Player.in_queue.count == QUEUE_SIZE
+
+        with_form_first_scrim_lock do
+          Scrims::FormTeams.call! if Player.in_queue.count == QUEUE_SIZE && !Scrim.exists?
+        end
+      rescue StandardError => e
+        Rails.logger.error("Failed to auto-form first scrim: #{e.class}: #{e.message}")
+      end
+
+      def with_form_first_scrim_lock
+        acquired = ActiveRecord::Base.connection.select_value("SELECT pg_try_advisory_lock(#{FORM_FIRST_SCRIM_LOCK_KEY})")
+        return unless acquired
+
+        yield
+      ensure
+        ActiveRecord::Base.connection.execute("SELECT pg_advisory_unlock(#{FORM_FIRST_SCRIM_LOCK_KEY})") if acquired
       end
 
       def handle_unregister_button(event)
