@@ -16,7 +16,7 @@ Rails.application.routes.draw do
     resources :characters, only: [:new, :create, :destroy], controller: 'profiles/characters'
   end
   resources :registrations, only: [:create, :destroy]
-  resources :scrims, only: [:index]
+  resources :scrims, only: [:index, :show]
   resource :search, only: [:show]
   resources :statistics, only: [:index]
   resources :streamers, only: [:index]
