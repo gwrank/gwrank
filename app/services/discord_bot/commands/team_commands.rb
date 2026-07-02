@@ -56,6 +56,12 @@ module DiscordBot
           return
         end
 
+        queue_count = Player.in_queue.count
+        if queue_count != Scrims::FormTeams::QUEUE_SIZE
+          event.respond "<@#{event.user.id}>, need exactly #{Scrims::FormTeams::QUEUE_SIZE} players in queue to form teams (currently #{queue_count})."
+          return
+        end
+
         scrim = Scrims::FormTeams.call!
 
         event.channel.send_message(team_roster_message(scrim, :team_a))
@@ -70,6 +76,9 @@ module DiscordBot
           message << ", in-game name **#{player.igname}**" if player.igname.present?
         end
         event.channel.send_message(message)
+      rescue StandardError => e
+        Rails.logger.error("Failed to form new teams: #{e.class}: #{e.message}")
+        event.respond "<@#{event.user.id}>, something went wrong forming new teams."
       end
 
       def handle_win_command(event, team)
