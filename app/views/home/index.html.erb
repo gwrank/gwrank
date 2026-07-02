@@ -11,38 +11,42 @@
             <div class="col-lg-12 mb-6" data-sr="banner" data-sr-interval="200" data-sr-duration="1200" data-sr-distance="20">
               <h1 class="display-1" data-sr-item="banner">GWRank</h1>
               <p class="lead" data-sr-item="banner">
-              Guild Wars GvG ranking system. Track your matches, climb the leaderboards, and showcase your guild's skills.
+              Organize competitive Guild Wars scrims. Register in Discord, get auto-balanced into teams, climb the leaderboard.
               </p>
 
-              <% if @last_match.present? %>
+              <div class="col-lg-12 mb-50">
+                <p data-sr-item="banner">Current queue: <strong><%= @queue_count %>/16 registered</strong></p>
+                <%= link_to 'Join us on Discord', 'https://discord.gg/jqShPZBkcj', target: '_blank', class: 'btn btn-md btn-brand me-2' %>
+                <%= link_to 'View scrims', scrims_path, class: 'btn btn-md btn-outline-brand' %>
+              </div>
+
+              <% if @recent_scrims.any? %>
                 <div class="col-lg-12 mb-50">
-                  <ul class="cyberpress-matchs-archive" data-sr="matches" data-sr-duration="1000">
-                    <% cache @last_match do %>
-                      <%= render "matches/match", match: @last_match %>
+                  <h2>Recent scrims</h2>
+                  <ul class="cyberpress-matchs-archive">
+                    <% @recent_scrims.each do |scrim| %>
+                      <% winner_label, loser_label = scrim.winner_team_id == scrim.team_a_id ? ['A', 'B'] : ['B', 'A'] %>
+                      <li>
+                        <%= link_to scrim_path(scrim) do %>
+                          Team <%= winner_label %> def. Team <%= loser_label %>
+                          (<%= [scrim.team_a_wins, scrim.team_b_wins].max %>-<%= [scrim.team_a_wins, scrim.team_b_wins].min %>)
+                          - <%= time_ago_in_words(scrim.created_at) %> ago
+                        <% end %>
+                      </li>
                     <% end %>
                   </ul>
                 </div>
               <% end %>
-              <div class="col-lg-12 mb-50">
-                <%= render "matches/filters" %>
-              </div>
+
               <% if current_player %>
-                <div class="mt-3">
-                  <%= link_to 'Add a match from GWToolbox', new_match_path, class: 'btn btn-md btn-brand me-2' %>
-                  <%= link_to 'Edit your profile', player_path(current_player), class: 'btn btn-md btn-outline-brand' %>
-                </div>
                 <p class="small mt-2" data-sr-item="banner">
                 Logged in as: <strong><%= current_player.name %></strong> |
                 <a href="<%= destroy_player_session_path %>" data-turbo-method="delete">Log Out</a>
                 </p>
               <% else %>
                 <div class="mt-3">
-                  <%= link_to 'Login with Discord to Add Matches', new_player_session_path, class: 'btn btn-md btn-brand' %>
+                  <%= link_to 'Login with Discord', new_player_session_path, class: 'btn btn-md btn-brand' %>
                 </div>
-                <p class="small mt-2" data-sr-item="banner">
-                Open source on <a href="https://github.com/gwrank/gwrank" target="_blank" class="text-primary">GitHub</a>.
-                Your privacy matters - we never see your Discord email or password.
-                </p>
               <% end %>
             </div>
 
@@ -69,42 +73,14 @@
             <div class="row vgap">
               <div class="col-12 col-md-6 col-lg-6">
                 <div class="mpl-feature">
-                  <div class="mpl-feature-title h4">
-                    <%= pluralize Match.count, 'matches' %>
-                  </div>
-                  <div class="mpl-feature-text">
-                    <%= link_to 'See all matches', matches_path, class: 'btn btn-md' %>
-                  </div>
+                  <div class="mpl-feature-title h4"><%= pluralize Player.all.count, 'player' %></div>
+                  <div class="mpl-feature-text"><%= link_to 'See all players', players_path, class: 'btn btn-md' %></div>
                 </div>
               </div>
               <div class="col-12 col-md-6 col-lg-6">
                 <div class="mpl-feature">
-                  <div class="mpl-feature-title h4">
-                    <%= pluralize Tournament.count, 'tournaments' %>
-                  </div>
-                  <div class="mpl-feature-text">
-                    <%= link_to 'See all tournaments', tournaments_path, class: 'btn btn-md' %>
-                  </div>
-                </div>
-              </div>
-              <div class="col-12 col-md-6 col-lg-6">
-                <div class="mpl-feature">
-                  <div class="mpl-feature-title h4">
-                    <%= pluralize Player.all.count, 'player' %>
-                  </div>
-                  <div class="mpl-feature-text">
-                    <%= link_to 'See all players', players_path, class: 'btn btn-md' %>
-                  </div>
-                </div>
-              </div>
-              <div class="col-12 col-md-6 col-lg-6">
-                <div class="mpl-feature">
-                  <div class="mpl-feature-title h4">
-                    <%= pluralize Guild.active.count, 'active guilds' %>
-                  </div>
-                  <div class="mpl-feature-text">
-                    <%= link_to 'See all guilds', guilds_path, class: 'btn btn-md' %>
-                  </div>
+                  <div class="mpl-feature-title h4"><%= pluralize @scrims_count, 'scrims played' %></div>
+                  <div class="mpl-feature-text"><%= link_to 'See all scrims', scrims_path, class: 'btn btn-md' %></div>
                 </div>
               </div>
             </div>
@@ -113,5 +89,5 @@
       </div>
     </div>
     <%= render 'footer' %>
-      </div>
   </div>
+</div>
