@@ -149,7 +149,7 @@
                 </div>
               </div>
             <% end %>
-            <% if @player.teams.any? %>
+            <% if @matches.any? %>
               <%= render "matches", teams: @matches, pagy: @matches_pagy %>
             <% end %>
           </div>

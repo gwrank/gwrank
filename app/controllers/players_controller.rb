@@ -20,8 +20,10 @@ class PlayersController < ApplicationController
     ).find(params[:id])
 
     # Paginate player's matches with preloaded data
+    # Excludes scrim rosters (Team rows with no match_id) - this section is for real
+    # tournament matches only.
     @matches_pagy, @matches = pagy(
-      @player.teams.includes(
+      @player.teams.where.not(match_id: nil).includes(
         match: [:tournament, { team_players: [:profession, :secondary_profession] }]
       ).order('matches.played_at DESC'),
       limit: 10
