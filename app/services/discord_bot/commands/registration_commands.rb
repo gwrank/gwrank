@@ -80,7 +80,7 @@ module DiscordBot
           event.interaction.update_message(has_components: true) do |_, view|
             message_container(view)
           end
-          event.respond(content: "You have been registered, #{event.user.username}!", ephemeral: true)
+          event.send_message(content: "You have been registered, #{event.user.username}!", ephemeral: true)
         end
       end
 
@@ -119,7 +119,7 @@ module DiscordBot
           event.interaction.update_message(has_components: true) do |_, view|
             message_container(view)
           end
-          event.respond(content: "You have been unregistered, #{event.user.username}!", ephemeral: true)
+          event.send_message(content: "You have been unregistered, #{event.user.username}!", ephemeral: true)
         else
           event.respond(content: "You are not registered, #{event.user.username}!", ephemeral: true)
         end

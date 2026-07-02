@@ -76,7 +76,7 @@ module DiscordBot
         event.interaction.update_message(has_components: true) do |_, view|
           at_container(view, player, discord_server_id: discord_server_id)
         end
-        event.respond(content: "You have been registered in the AT queue for this server, #{event.user.username}!", ephemeral: true)
+        event.send_message(content: "You have been registered in the AT queue for this server, #{event.user.username}!", ephemeral: true)
 
         if at_count == QUEUE_SIZE
           event.channel.send_message "Team is full! #{QUEUE_SIZE} players registered for the Automated Tournament."
@@ -94,7 +94,7 @@ module DiscordBot
           event.interaction.update_message(has_components: true) do |_, view|
             at_container(view, player, discord_server_id: discord_server_id)
           end
-          event.respond(content: "You have been unregistered from the AT queue for this server, #{event.user.username}!", ephemeral: true)
+          event.send_message(content: "You have been unregistered from the AT queue for this server, #{event.user.username}!", ephemeral: true)
         else
           event.respond(content: "You are not registered in the AT queue for this server, #{event.user.username}!", ephemeral: true)
         end
