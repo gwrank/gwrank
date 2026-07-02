@@ -9,34 +9,16 @@
         <div class="container">
           <div class="row">
             <div class="col-lg-12 mb-6" data-sr="banner" data-sr-interval="200" data-sr-duration="1200" data-sr-distance="20">
-              <h1 class="display-1" data-sr-item="banner">GWRank</h1>
+              <h1 class="display-1" data-sr-item="banner">GWRank Scrims</h1>
               <p class="lead" data-sr-item="banner">
-              Organize competitive Guild Wars scrims. Register in Discord, get auto-balanced into teams, climb the leaderboard.
+              Organize Guild Wars scrims. Register in Discord, get auto-balanced into teams.
               </p>
 
               <div class="col-lg-12 mb-50">
                 <p data-sr-item="banner">Current queue: <strong><%= @queue_count %>/16 registered</strong></p>
-                <%= link_to 'Join us on Discord', 'https://discord.gg/jqShPZBkcj', target: '_blank', class: 'btn btn-md btn-brand me-2' %>
+                <%= link_to 'Join us on Discord', 'https://discord.gg/Gjefv7GJ9g', target: '_blank', class: 'btn btn-md btn-brand me-2' %>
                 <%= link_to 'View scrims', scrims_path, class: 'btn btn-md btn-outline-brand' %>
               </div>
-
-              <% if @recent_scrims.any? %>
-                <div class="col-lg-12 mb-50">
-                  <h2>Recent scrims</h2>
-                  <ul class="cyberpress-matchs-archive">
-                    <% @recent_scrims.each do |scrim| %>
-                      <% winner_label, loser_label = scrim.winner_team_id == scrim.team_a_id ? ['A', 'B'] : ['B', 'A'] %>
-                      <li>
-                        <%= link_to scrim_path(scrim) do %>
-                          Team <%= winner_label %> def. Team <%= loser_label %>
-                          (<%= [scrim.team_a_wins, scrim.team_b_wins].max %>-<%= [scrim.team_a_wins, scrim.team_b_wins].min %>)
-                          - <%= time_ago_in_words(scrim.created_at) %> ago
-                        <% end %>
-                      </li>
-                    <% end %>
-                  </ul>
-                </div>
-              <% end %>
 
               <% if current_player %>
                 <p class="small mt-2" data-sr-item="banner">

@@ -1,4 +1,6 @@
 class ScrimsController < ApplicationController
+  before_action :authenticate_player!
+
   def index
     @current_registrations = Registration.current_registrations.order(registered_at: :asc)
     @active_scrim = Scrim.in_progress.order(created_at: :desc).first

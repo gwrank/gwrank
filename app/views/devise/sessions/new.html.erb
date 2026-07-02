@@ -9,10 +9,9 @@
         <div class="container">
           <div class="row">
             <div class="col-lg-10" data-sr="banner" data-sr-interval="200" data-sr-duration="1200" data-sr-distance="20">
-              <h1 class="display-1" data-sr-item="banner">GWRank Reforged</h1>
+              <h1 class="display-1" data-sr-item="banner">GWRank Scrims</h1>
               <p class="lead" data-sr-item="banner">
-                Log in with Discord to add matches from GWToolbox Observer Module.<br>
-                We never ask for your email or password - GWRank is open source on GitHub.
+              Organize Guild Wars scrims. Register in Discord, get auto-balanced into teams.
               </p>
               <%= form_tag(omniauth_authorize_path(:player, :discord), method: 'post', data: { turbo: false }) do %>
                 <button type="submit" class="btn btn-md btn-brand">Connect with Discord</button>
