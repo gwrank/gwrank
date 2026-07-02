@@ -27,7 +27,9 @@ if Rails.env.development?
     'Blood Moon Yara', 'Frost Bite Kael', 'Spirit Weaver Lina', 'War Drum Bok',
     'Night Howl Sera', 'Sun Ray Adan', 'Death Toll Nix', 'Thunder Claw Rix',
     'Ash Wraith Nym', 'Golden Spear Odo', 'Dark Verse Isla', 'Steel Song Gwen',
-    'Ember Fall Tork', 'Moon Sickle Faye', 'Crimson Vow Halden', 'Whisper Fang Ilse'
+    'Ember Fall Tork', 'Moon Sickle Faye', 'Crimson Vow Halden', 'Whisper Fang Ilse',
+    'Rune Caster Bram', 'Pale Rider Skai', 'Owl Eye Renn', 'Fury Blade Sten',
+    'Wolf Song Dara', 'Hex Weaver Tamsin', 'Sable Storm Ike', 'Quiet Reaper Dune'
   ].freeze
 
   PROFESSION_FLAGS = %i[
@@ -82,7 +84,7 @@ if Rails.env.development?
   puts "In-progress scrim ##{in_progress_scrim.id} created (1-0, no winner yet)."
 
   puts 'Registering a partial live queue...'
-  queued_players = (players - in_progress_roster).sample(7)
+  queued_players = (players - in_progress_roster).sample(15)
   queued_players.each { |player| Registration.create!(player: player, registered_at: Time.current) }
   puts "#{queued_players.count}/16 players registered in the live queue."
 
