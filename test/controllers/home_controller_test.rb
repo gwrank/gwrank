@@ -14,4 +14,12 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_select 'body', text: /1\/16 registered/
     assert_select 'body', text: /2-0/
   end
+
+  test "renders cleanly with an empty queue and no decided scrims" do
+    get root_path
+
+    assert_response :success
+    assert_select 'body', text: /0\/16 registered/
+    assert_select 'body', text: /0 scrims played/
+  end
 end

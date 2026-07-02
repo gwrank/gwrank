@@ -79,7 +79,7 @@
               </div>
               <div class="col-12 col-md-6 col-lg-6">
                 <div class="mpl-feature">
-                  <div class="mpl-feature-title h4"><%= pluralize @scrims_count, 'scrims played' %></div>
+                  <div class="mpl-feature-title h4"><%= pluralize(@scrims_count, 'scrim', 'scrims') %> played</div>
                   <div class="mpl-feature-text"><%= link_to 'See all scrims', scrims_path, class: 'btn btn-md' %></div>
                 </div>
               </div>
