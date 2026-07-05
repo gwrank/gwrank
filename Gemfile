@@ -80,6 +80,8 @@ group :test do
   gem 'selenium-webdriver'
   # Easy installation and use of web drivers to run system tests with browsers
   gem 'webdrivers'
+  # minitest/mock (Minitest::Mock, #stub) - split out of minitest core as of minitest 6
+  gem 'minitest-mock'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
