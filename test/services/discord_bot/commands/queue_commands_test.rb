@@ -96,6 +96,47 @@ module DiscordBot
 
         assert_match(/Nobody is not found/, event.responses.first[:content])
       end
+
+      test "afk with no member marks the invoking moderator AFK" do
+        mod = create_player(uid: "999", provider: "discord", is_moderator: true)
+        mod.registrations.create(registered_at: 1.minute.ago)
+
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: :afk, user: DiscordBot::Test::FakeDiscordUser.new(999, "Mod")
+        )
+        QueueCommands.new(nil).dispatch(event)
+
+        assert_not mod.reload.has_current_registration?
+        assert mod.has_afk_registration?
+        assert_match(/you are now in AFK mode/, event.responses.first[:content])
+      end
+
+      test "afk with a member marks that player AFK" do
+        target = create_player(uid: "1", provider: "discord", igname: "Alice")
+        target.registrations.create(registered_at: 1.minute.ago)
+        create_player(uid: "999", provider: "discord", is_moderator: true)
+
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: :afk, user: DiscordBot::Test::FakeDiscordUser.new(999, "Mod"), options: { "member" => "1" }
+        )
+        QueueCommands.new(nil).dispatch(event)
+
+        assert target.reload.has_afk_registration?
+        assert_match(/Alice is now in AFK mode/, event.responses.first[:content])
+      end
+
+      test "back with no member clears the invoking moderator's own AFK status" do
+        mod = create_player(uid: "999", provider: "discord", is_moderator: true)
+        mod.registrations.create(registered_at: 1.hour.ago, unregistered_at: 30.minutes.ago)
+
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: :back, user: DiscordBot::Test::FakeDiscordUser.new(999, "Mod")
+        )
+        QueueCommands.new(nil).dispatch(event)
+
+        assert mod.reload.has_current_registration?
+        assert_match(/welcome back/, event.responses.first[:content])
+      end
     end
   end
 end

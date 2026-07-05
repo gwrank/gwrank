@@ -32,6 +32,8 @@ module DiscordBot
         when :reset then with_moderator(event) { handle_reset(event) }
         when :add then with_moderator(event) { handle_add(event) }
         when :remove then with_moderator(event) { handle_remove(event) }
+        when :afk then with_moderator(event) { handle_afk(event) }
+        when :back then with_moderator(event) { handle_back(event) }
         end
       end
 
@@ -50,12 +52,20 @@ module DiscordBot
           cmd.subcommand(:remove, 'Remove a player from the queue (moderators only)') do |sub|
             sub.string(:igname, "The player's in-game name", required: true)
           end
+
+          cmd.subcommand(:afk, 'Mark a player AFK (moderators only)') do |sub|
+            sub.user(:member, 'The player to mark AFK (defaults to yourself)', required: false)
+          end
+
+          cmd.subcommand(:back, 'Bring a player back from AFK (moderators only)') do |sub|
+            sub.user(:member, 'The player to bring back (defaults to yourself)', required: false)
+          end
         end
       end
 
       def register_dispatch
         handler = @bot.application_command(:queue)
-        %i[open players reset add remove].each { |name| handler.subcommand(name) { |event| dispatch(event) } }
+        %i[open players reset add remove afk back].each { |name| handler.subcommand(name) { |event| dispatch(event) } }
       end
 
       def with_moderator(event)
@@ -132,6 +142,45 @@ module DiscordBot
             end
           else
             "<@#{event.user.id}>, #{igname} is not found and needs to use */player register* first."
+          end
+
+        event.respond(content: message)
+      end
+
+      def handle_afk(event)
+        self_target = event.options['member'].blank?
+        player = Player.find_by(uid: self_target ? event.user.id : event.options['member'])
+
+        message =
+          if player&.has_current_registration?
+            player.current_registration.update(unregistered_at: DateTime.now)
+            self_target ? "<@#{event.user.id}>, you are now in AFK mode." : "<@#{event.user.id}>, the player #{player.name} is now in AFK mode, he can use */queue back* to return."
+          elsif player
+            self_target ? "<@#{event.user.id}>, you were not in the current queue." : "<@#{event.user.id}>, the player #{player.name} is not in the current queue."
+          else
+            "<@#{event.user.id}>, the player is not found and needs to use */player register* first."
+          end
+
+        event.respond(content: message)
+      end
+
+      def handle_back(event)
+        self_target = event.options['member'].blank?
+        player = Player.find_by(uid: self_target ? event.user.id : event.options['member'])
+
+        message =
+          if player&.has_afk_registration?
+            # BUG (pre-existing, not fixed by this migration - see plan notes):
+            # the mod-targeting-another-player branch re-stamps unregistered_at
+            # instead of clearing it, so it does not actually return the player
+            # to the active queue. Only the self-target branch (unregistered_at: nil)
+            # behaves correctly. Preserved as-is; flag as a follow-up bug fix.
+            player.afk_registration.update(unregistered_at: self_target ? nil : DateTime.now)
+            self_target ? "<@#{event.user.id}>, welcome back!" : "<@#{event.user.id}>, the player #{player.name} is now back in the queue."
+          elsif player
+            self_target ? "<@#{event.user.id}>, you were not in the current queue." : "<@#{event.user.id}>, the player #{player.name} was not in AFK mode."
+          else
+            "<@#{event.user.id}>, the player is not found and needs to use */player register* first."
           end
 
         event.respond(content: message)
