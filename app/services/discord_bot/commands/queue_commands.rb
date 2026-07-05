@@ -30,6 +30,8 @@ module DiscordBot
         when :open then handle_open(event)
         when :players then handle_players(event)
         when :reset then with_moderator(event) { handle_reset(event) }
+        when :add then with_moderator(event) { handle_add(event) }
+        when :remove then with_moderator(event) { handle_remove(event) }
         end
       end
 
@@ -40,12 +42,20 @@ module DiscordBot
           cmd.subcommand(:open, 'Post the scrim registration panel')
           cmd.subcommand(:players, 'List players in the current queue')
           cmd.subcommand(:reset, 'Reset the current queue (moderators only)')
+
+          cmd.subcommand(:add, 'Add a player to the queue (moderators only)') do |sub|
+            sub.string(:igname, "The player's in-game name", required: true)
+          end
+
+          cmd.subcommand(:remove, 'Remove a player from the queue (moderators only)') do |sub|
+            sub.string(:igname, "The player's in-game name", required: true)
+          end
         end
       end
 
       def register_dispatch
         handler = @bot.application_command(:queue)
-        %i[open players reset].each { |name| handler.subcommand(name) { |event| dispatch(event) } }
+        %i[open players reset add remove].each { |name| handler.subcommand(name) { |event| dispatch(event) } }
       end
 
       def with_moderator(event)
@@ -78,6 +88,53 @@ module DiscordBot
       def handle_reset(event)
         Registration.current_registrations.update_all(unregistered_at: DateTime.now)
         event.respond(content: "<@#{event.user.id}>, you successfully reset the current queue.\nPlayers can register again via the queue panel (*/queue open*).")
+      end
+
+      def handle_add(event)
+        igname = event.options['igname']
+        current_registrations = Registration.current_registrations
+        player = Player.find_by(igname: igname)
+
+        message =
+          if player.present?
+            if player.has_current_registration?
+              "<@#{event.user.id}>, the player #{player.name} is already ##{current_registrations.count} in the current queue."
+            else
+              player.registrations.create(registered_at: DateTime.now)
+              m = "<@#{event.user.id}>, the player #{player.name} is now ##{current_registrations.count} in the current queue for the next 8 hours."
+              m << "\nIf he's out, a moderator can use */queue remove*."
+              if current_registrations.count < QUEUE_SIZE
+                m << "\nWe need #{QUEUE_SIZE - current_registrations.count} more players."
+              elsif current_registrations.count.eql?(QUEUE_SIZE)
+                m << "\nWe have 16 players!"
+                m << "\nTo see the players list, you can use */queue players* or go on https://gwrank.com/scrims"
+              end
+              m
+            end
+          else
+            "<@#{event.user.id}>, the player is not found and needs to use */player register* first."
+          end
+
+        event.respond(content: message)
+      end
+
+      def handle_remove(event)
+        igname = event.options['igname']
+        player = Player.find_by(igname: igname)
+
+        message =
+          if player.present?
+            if player.has_current_registration?
+              player.current_registration.update(unregistered_at: DateTime.now)
+              "<@#{event.user.id}>, the player #{player.name} is not anymore in the current queue."
+            else
+              "<@#{event.user.id}>, the player #{player.name} was not in the current queue."
+            end
+          else
+            "<@#{event.user.id}>, #{igname} is not found and needs to use */player register* first."
+          end
+
+        event.respond(content: message)
       end
 
       def handle_register_button(event)

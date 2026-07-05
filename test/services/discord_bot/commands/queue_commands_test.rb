@@ -47,6 +47,55 @@ module DiscordBot
         assert_not player.reload.has_current_registration?
         assert_match(/successfully reset/, event.responses.first[:content])
       end
+
+      test "add puts a known player in the queue" do
+        create_player(uid: "1", provider: "discord", igname: "Alice")
+        create_player(uid: "999", provider: "discord", is_moderator: true)
+
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: :add, user: DiscordBot::Test::FakeDiscordUser.new(999, "Mod"), options: { "igname" => "Alice" }
+        )
+        QueueCommands.new(nil).dispatch(event)
+
+        assert Player.find_by(igname: "Alice").has_current_registration?
+      end
+
+      test "add rejects non-moderators" do
+        create_player(uid: "1", provider: "discord", igname: "Alice")
+        create_player(uid: "999", provider: "discord", is_moderator: false)
+
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: :add, user: DiscordBot::Test::FakeDiscordUser.new(999, "NotAMod"), options: { "igname" => "Alice" }
+        )
+        QueueCommands.new(nil).dispatch(event)
+
+        assert_not Player.find_by(igname: "Alice").has_current_registration?
+        assert_match(/need to be a moderator/, event.responses.first[:content])
+      end
+
+      test "remove takes a player out of the queue" do
+        player = create_player(uid: "1", provider: "discord", igname: "Alice")
+        player.registrations.create(registered_at: 1.minute.ago)
+        create_player(uid: "999", provider: "discord", is_moderator: true)
+
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: :remove, user: DiscordBot::Test::FakeDiscordUser.new(999, "Mod"), options: { "igname" => "Alice" }
+        )
+        QueueCommands.new(nil).dispatch(event)
+
+        assert_not player.reload.has_current_registration?
+      end
+
+      test "remove reports an unknown igname" do
+        create_player(uid: "999", provider: "discord", is_moderator: true)
+
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: :remove, user: DiscordBot::Test::FakeDiscordUser.new(999, "Mod"), options: { "igname" => "Nobody" }
+        )
+        QueueCommands.new(nil).dispatch(event)
+
+        assert_match(/Nobody is not found/, event.responses.first[:content])
+      end
     end
   end
 end
