@@ -105,6 +105,17 @@ module DiscordBot
         assert_equal 1, event.responses.size
         assert_match(/Game recorded/, event.responses.first[:content])
       end
+
+      test "move rejects non-moderators" do
+        create_player(uid: "999", provider: "discord", is_moderator: false)
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: :move, user: DiscordBot::Test::FakeDiscordUser.new(999, "NotAMod")
+        )
+
+        TeamCommands.new(nil).dispatch(event)
+
+        assert_match(/need to be a moderator/, event.responses.first[:content])
+      end
     end
   end
 end

@@ -21,6 +21,7 @@ module DiscordBot
         when :roll then handle_roll(event)
         when :new then with_moderator(event) { handle_new(event) }
         when :win then with_moderator(event) { handle_win(event) }
+        when :move then with_moderator(event) { handle_move(event) }
         end
       end
 
@@ -34,12 +35,13 @@ module DiscordBot
           cmd.subcommand(:win, 'Record a game win for a team (moderators only)') do |sub|
             sub.string(:side, 'Which team won', required: true, choices: { 'Team A' => 'a', 'Team B' => 'b' })
           end
+          cmd.subcommand(:move, 'Move the current queue to the Scrimers voice channel (moderators only)')
         end
       end
 
       def register_dispatch
         handler = @bot.application_command(:team)
-        %i[captains roll new win].each { |name| handler.subcommand(name) { |event| dispatch(event) } }
+        %i[captains roll new win move].each { |name| handler.subcommand(name) { |event| dispatch(event) } }
       end
 
       def with_moderator(event)
@@ -122,6 +124,17 @@ module DiscordBot
         else
           event.respond(content: "Game recorded. Series score: #{scrim.team_a_wins}-#{scrim.team_b_wins}.")
         end
+      end
+
+      def handle_move(event)
+        server = event.bot.server(ENV['DISCORD_SERVER_ID'])
+        channel = event.bot.channel(ENV['DISCORD_SCRIMERS_VOICE_CHANNEL_ID'])
+
+        Registration.current_registrations.order(registered_at: :asc).first(16).each do |registration|
+          server.move(event.bot.user(registration.player.uid), channel)
+        end
+
+        event.respond(content: "<@#{event.user.id}>, the current first 16 players were moved to the Scrimers voice channel.")
       end
 
       def record_win!(winner)
