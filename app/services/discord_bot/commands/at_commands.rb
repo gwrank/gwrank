@@ -13,13 +13,8 @@ module DiscordBot
       end
 
       def register
-        @bot.command(:at, description: 'to join the Automated Tournament queue for this server') do |event|
-          handle_at_command(event)
-        end
-
-        @bot.command(:atplayers, description: 'to see players in the current AT queue for this server') do |event|
-          handle_atplayers_command(event)
-        end
+        register_schema
+        register_dispatch
 
         @bot.button(custom_id: 'at_register') do |event|
           handle_at_register_button(event)
@@ -30,18 +25,37 @@ module DiscordBot
         end
       end
 
+      def dispatch(event)
+        case event.subcommand
+        when :join then handle_join(event)
+        when :players then handle_players(event)
+        end
+      end
+
       private
 
-      def handle_at_command(event)
+      def register_schema
+        @bot.register_application_command(:at, 'Manage the Automated Tournament queue', server_id: ENV['DISCORD_SERVER_ID']) do |cmd|
+          cmd.subcommand(:join, 'Post the Automated Tournament registration panel')
+          cmd.subcommand(:players, 'List players in the current AT queue')
+        end
+      end
+
+      def register_dispatch
+        handler = @bot.application_command(:at)
+        %i[join players].each { |name| handler.subcommand(name) { |event| dispatch(event) } }
+      end
+
+      def handle_join(event)
         discord_server_id = event.server.id
         player = DiscordBot::FindOrCreatePlayer.call(event)
 
-        event.send_message!(has_components: true) do |_, view|
+        event.respond(has_components: true) do |_, view|
           at_container(view, player, discord_server_id: discord_server_id)
         end
       end
 
-      def handle_atplayers_command(event)
+      def handle_players(event)
         discord_server_id = event.server.id
         at_registrations = AutomatedTournamentRegistration.current_for_server(discord_server_id).order(registered_at: :asc)
 
@@ -58,7 +72,7 @@ module DiscordBot
         at_count = at_registrations.count
         message << (at_count < QUEUE_SIZE ? "\nWe need #{QUEUE_SIZE - at_count} more players." : "\nTeam is full! (#{QUEUE_SIZE} players)")
 
-        event.respond message
+        event.respond(content: message)
       end
 
       def handle_at_register_button(event)
