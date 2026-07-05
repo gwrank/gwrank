@@ -20,6 +20,7 @@ module DiscordBot
         when :captains then handle_captains(event)
         when :roll then handle_roll(event)
         when :new then with_moderator(event) { handle_new(event) }
+        when :win then with_moderator(event) { handle_win(event) }
         end
       end
 
@@ -30,12 +31,15 @@ module DiscordBot
           cmd.subcommand(:captains, 'See the current captains')
           cmd.subcommand(:roll, 'Roll 0-100')
           cmd.subcommand(:new, 'Form new teams for the next series (moderators only)')
+          cmd.subcommand(:win, 'Record a game win for a team (moderators only)') do |sub|
+            sub.string(:side, 'Which team won', required: true, choices: { 'Team A' => 'a', 'Team B' => 'b' })
+          end
         end
       end
 
       def register_dispatch
         handler = @bot.application_command(:team)
-        %i[captains roll new].each { |name| handler.subcommand(name) { |event| dispatch(event) } }
+        %i[captains roll new win].each { |name| handler.subcommand(name) { |event| dispatch(event) } }
       end
 
       def with_moderator(event)
@@ -94,6 +98,39 @@ module DiscordBot
           message << ", in-game name **#{player.igname}**" if player.igname.present?
         end
         event.channel.send_message(message)
+      end
+
+      def handle_win(event)
+        winner = event.options['side'].to_sym
+
+        scrim = begin
+          record_win!(winner)
+        rescue StandardError => e
+          Rails.logger.error("Failed to record win: #{e.class}: #{e.message}")
+          event.respond(content: "<@#{event.user.id}>, something went wrong recording that result.")
+          return
+        end
+
+        unless scrim
+          event.respond(content: "<@#{event.user.id}>, there is no scrim in progress right now.")
+          return
+        end
+
+        if scrim.winner_team_id.present?
+          winning_label = scrim.winner_team_id == scrim.team_a_id ? 'Team A' : 'Team B'
+          event.respond(content: "#{winning_label} wins the series #{scrim.team_a_wins}-#{scrim.team_b_wins}! Elo has been updated.")
+        else
+          event.respond(content: "Game recorded. Series score: #{scrim.team_a_wins}-#{scrim.team_b_wins}.")
+        end
+      end
+
+      def record_win!(winner)
+        Scrim.transaction do
+          scrim = Scrim.in_progress.order(created_at: :desc).lock.first
+          return nil unless scrim
+
+          Scrims::RecordGameResult.call!(scrim: scrim, winner: winner)
+        end
       end
 
       def team_roster_message(scrim, side)

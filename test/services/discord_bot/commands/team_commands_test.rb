@@ -67,6 +67,44 @@ module DiscordBot
         assert_equal 1, event.responses.size
         assert_match(/Team A/, event.responses.first[:content])
       end
+
+      test "win rejects non-moderators" do
+        create_player(uid: "999", provider: "discord", is_moderator: false)
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: :win, user: DiscordBot::Test::FakeDiscordUser.new(999, "NotAMod"), options: { "side" => "a" }
+        )
+
+        TeamCommands.new(nil).dispatch(event)
+
+        assert_match(/need to be a moderator/, event.responses.first[:content])
+      end
+
+      test "win reports no scrim in progress" do
+        create_player(uid: "999", provider: "discord", is_moderator: true)
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: :win, user: DiscordBot::Test::FakeDiscordUser.new(999, "Mod"), options: { "side" => "a" }
+        )
+
+        TeamCommands.new(nil).dispatch(event)
+
+        assert_match(/no scrim in progress/, event.responses.first[:content])
+      end
+
+      test "win responds via event.respond (not only channel.send_message) when a result is recorded" do
+        create_player(uid: "999", provider: "discord", is_moderator: true)
+        fake_scrim = Struct.new(:winner_team_id, :team_a_id, :team_b_id, :team_a_wins, :team_b_wins).new(nil, 1, 2, 1, 0)
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: :win, user: DiscordBot::Test::FakeDiscordUser.new(999, "Mod"), options: { "side" => "a" }
+        )
+        team_commands = TeamCommands.new(nil)
+
+        team_commands.stub(:record_win!, fake_scrim) do
+          team_commands.dispatch(event)
+        end
+
+        assert_equal 1, event.responses.size
+        assert_match(/Game recorded/, event.responses.first[:content])
+      end
     end
   end
 end
