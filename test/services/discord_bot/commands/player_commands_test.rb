@@ -65,6 +65,42 @@ module DiscordBot
         assert_equal Player.find_by(provider: "discord", uid: "111"), character.reload.player
         assert_match(/successfully claimed/, event.responses.first[:content])
       end
+
+      test "professions with no argument shows current professions as text" do
+        create_player(uid: "111", provider: "discord", professions: [:is_monk])
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(subcommand: :professions, user: discord_user)
+
+        PlayerCommands.new(nil).dispatch(event)
+
+        assert_match(/your current professions: Mo/, event.responses.first[:content])
+      end
+
+      test "professions with an argument toggles that profession on" do
+        create_player(uid: "111", provider: "discord")
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: :professions, user: discord_user, options: { "profession" => "warrior" }
+        )
+
+        PlayerCommands.new(nil).dispatch(event)
+
+        assert Player.find_by(uid: "111").is_warrior?
+        assert_match(/your current professions: W/, event.responses.first[:content])
+      end
+
+      test "professions with an argument toggles an already-set profession off" do
+        create_player(uid: "111", provider: "discord", professions: [:is_warrior])
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: :professions, user: discord_user, options: { "profession" => "warrior" }
+        )
+
+        PlayerCommands.new(nil).dispatch(event)
+
+        assert_not Player.find_by(uid: "111").is_warrior?
+        refute_match(/W/, event.responses.first[:content])
+      end
     end
   end
 end

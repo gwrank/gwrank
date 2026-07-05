@@ -1,6 +1,9 @@
 module DiscordBot
   module Commands
     class PlayerCommands
+      PROFESSIONS = %w[warrior ranger monk necromancer mesmer elementalist assassin ritualist paragon dervish].freeze
+      PROFESSION_CHOICES = PROFESSIONS.to_h { |profession| [profession.capitalize, profession] }.freeze
+
       def self.register(bot)
         new(bot).register
       end
@@ -19,6 +22,7 @@ module DiscordBot
         when :register then handle_register(event)
         when :igname then handle_igname(event)
         when :claim then handle_claim(event)
+        when :professions then handle_professions(event)
         end
       end
 
@@ -37,12 +41,16 @@ module DiscordBot
           cmd.subcommand(:claim, 'Claim a character name') do |sub|
             sub.string(:igname, 'The character name to claim', required: true)
           end
+
+          cmd.subcommand(:professions, 'View or toggle your professions') do |sub|
+            sub.string(:profession, 'Profession to toggle on/off', required: false, choices: PROFESSION_CHOICES)
+          end
         end
       end
 
       def register_dispatch
         handler = @bot.application_command(:player)
-        %i[register igname claim].each { |name| handler.subcommand(name) { |event| dispatch(event) } }
+        %i[register igname claim professions].each { |name| handler.subcommand(name) { |event| dispatch(event) } }
       end
 
       def handle_register(event)
@@ -104,6 +112,15 @@ module DiscordBot
         player.save
 
         event.respond(content: "<@#{event.user.id}>, you have successfully created and claimed the character **#{character.igname}**!")
+      end
+
+      def handle_professions(event)
+        player = DiscordBot::FindOrCreatePlayer.call(event)
+        profession = event.options['profession']
+
+        player.update("is_#{profession}" => !player.public_send("is_#{profession}")) if profession.present?
+
+        event.respond(content: "<@#{event.user.id}>, your current professions: #{player.professions_text.presence || 'No professions set'}")
       end
     end
   end
