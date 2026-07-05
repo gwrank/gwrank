@@ -137,6 +137,24 @@ module DiscordBot
         assert mod.reload.has_current_registration?
         assert_match(/welcome back/, event.responses.first[:content])
       end
+
+      test "back with a member does not actually clear that player's AFK status (pre-existing bug, preserved intentionally)" do
+        target = create_player(uid: "1", provider: "discord", igname: "Alice")
+        target.registrations.create(registered_at: 1.hour.ago, unregistered_at: 30.minutes.ago)
+        create_player(uid: "999", provider: "discord", is_moderator: true)
+
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: :back, user: DiscordBot::Test::FakeDiscordUser.new(999, "Mod"), options: { "member" => "1" }
+        )
+        QueueCommands.new(nil).dispatch(event)
+
+        # BUG (pre-existing, intentionally not fixed by this migration - see handle_back):
+        # bringing back someone else re-stamps unregistered_at instead of clearing it,
+        # so the player is still AFK, not actually returned to the active queue.
+        assert target.reload.has_afk_registration?
+        assert_not target.has_current_registration?
+        assert_match(/now back in the queue/, event.responses.first[:content])
+      end
     end
   end
 end
