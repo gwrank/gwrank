@@ -18,6 +18,7 @@ module DiscordBot
         case event.subcommand
         when :register then handle_register(event)
         when :igname then handle_igname(event)
+        when :claim then handle_claim(event)
         end
       end
 
@@ -32,12 +33,16 @@ module DiscordBot
           cmd.subcommand(:igname, "Look up a player's in-game name") do |sub|
             sub.user(:member, 'The player to look up', required: true)
           end
+
+          cmd.subcommand(:claim, 'Claim a character name') do |sub|
+            sub.string(:igname, 'The character name to claim', required: true)
+          end
         end
       end
 
       def register_dispatch
         handler = @bot.application_command(:player)
-        %i[register igname].each { |name| handler.subcommand(name) { |event| dispatch(event) } }
+        %i[register igname claim].each { |name| handler.subcommand(name) { |event| dispatch(event) } }
       end
 
       def handle_register(event)
@@ -56,6 +61,49 @@ module DiscordBot
         else
           event.respond(content: "<@#{event.user.id}> (in-game name not found)")
         end
+      end
+
+      def handle_claim(event)
+        player = DiscordBot::FindOrCreatePlayer.call(event)
+
+        original_igname = event.options['igname'].strip
+        character_igname = original_igname.titleize
+        character = Character.find_by_igname(original_igname)
+
+        if character.present?
+          claim_existing_character(event, character, character_igname, player)
+        else
+          create_and_claim_character(event, character_igname, player)
+        end
+      end
+
+      def claim_existing_character(event, character, character_igname, player)
+        if character.claimable_by?(player)
+          character.update(igname: character_igname, player: player)
+          TeamPlayer.where(igname: character_igname).update_all(character_id: character.id, igname: character_igname, player_id: player.id)
+          player.set_professions_from_team_players
+          player.save
+
+          event.respond(content: "<@#{event.user.id}>, you have successfully claimed the character **#{character_igname}**!")
+          return
+        end
+
+        existing_claim = CharacterClaim.find_by(character: character, player: player, status: 'pending')
+        if existing_claim
+          event.respond(content: "<@#{event.user.id}>, you already have a pending claim for **#{character_igname}**. A moderator will review it shortly.")
+        else
+          CharacterClaim.create!(character: character, player: player, claimed_by: player, claimed_igname: character_igname, status: 'pending')
+          event.respond(content: "<@#{event.user.id}>, your claim for **#{character_igname}** has been submitted for moderator verification. Once approved, the character will be linked to your profile.")
+        end
+      end
+
+      def create_and_claim_character(event, character_igname, player)
+        character = Character.create!(igname: character_igname, player: player)
+        TeamPlayer.where(igname: character_igname).update_all(character_id: character.id, player_id: player.id)
+        player.set_professions_from_team_players
+        player.save
+
+        event.respond(content: "<@#{event.user.id}>, you have successfully created and claimed the character **#{character.igname}**!")
       end
     end
   end

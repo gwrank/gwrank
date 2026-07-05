@@ -38,6 +38,33 @@ module DiscordBot
 
         assert_match(/in-game name not found/, event.responses.first[:content])
       end
+
+      test "claim creates and claims a brand new character" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: :claim, user: discord_user, options: { "igname" => "brand new hero" }
+        )
+
+        PlayerCommands.new(nil).dispatch(event)
+
+        player = Player.find_by(provider: "discord", uid: "111")
+        character = Character.find_by(igname: "Brand New Hero")
+        assert_equal player, character.player
+        assert_match(/successfully created and claimed/, event.responses.first[:content])
+      end
+
+      test "claim on an existing unclaimed character links it to the player" do
+        character = Character.create!(igname: "Existing Hero")
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: :claim, user: discord_user, options: { "igname" => "existing hero" }
+        )
+
+        PlayerCommands.new(nil).dispatch(event)
+
+        assert_equal Player.find_by(provider: "discord", uid: "111"), character.reload.player
+        assert_match(/successfully claimed/, event.responses.first[:content])
+      end
     end
   end
 end
