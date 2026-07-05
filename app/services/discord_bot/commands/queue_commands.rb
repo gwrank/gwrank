@@ -1,6 +1,8 @@
 module DiscordBot
   module Commands
     class QueueCommands
+      include ModeratorGate
+
       QUEUE_SIZE = 16
       FORM_FIRST_SCRIM_LOCK_KEY = 'discord_bot.form_first_scrim'.hash & 0x7FFFFFFFFFFFFFFF
 
@@ -66,16 +68,6 @@ module DiscordBot
       def register_dispatch
         handler = @bot.application_command(:queue)
         %i[open players reset add remove afk back].each { |name| handler.subcommand(name) { |event| dispatch(event) } }
-      end
-
-      def with_moderator(event)
-        player = Player.find_by(uid: event.user.id)
-        unless player&.is_moderator?
-          event.respond(content: "<@#{event.user.id}>, you need to be a moderator to use this.", ephemeral: true)
-          return
-        end
-
-        yield
       end
 
       def handle_open(event)
