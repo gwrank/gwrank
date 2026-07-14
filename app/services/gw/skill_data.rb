@@ -26,10 +26,16 @@ module GW
 
         desc.each_with_object({}) do |(id, entry), hash|
           meta = data[id] || {}
+          description = entry["description"]
+          if meta["pvp_split"]
+            pvp_entry = desc[meta["split_id"].to_s]
+            description = pvp_entry["description"] if pvp_entry
+          end
+
           hash[id] = Skill.new(
             id: id.to_i,
             name: entry["name"],
-            description: entry["description"],
+            description: description,
             is_elite: meta["is_elite"] || false,
             profession: meta["profession"]
           )

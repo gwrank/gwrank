@@ -25,5 +25,19 @@ module GW
     test "find returns nil for an unknown skill id" do
       assert_nil SkillData.find(999_999)
     end
+
+    test "find returns the PvP-balanced description for a skill with a PvP split" do
+      skill = SkillData.find(17) # Mantra of Resolve
+
+      assert_equal "Mantra of Resolve", skill.name
+      assert_match(/5 seconds/, skill.description)
+      refute_match(/30\.\.\.90 seconds/, skill.description)
+    end
+
+    test "find returns the plain description for a skill with no PvP split" do
+      skill = SkillData.find(332) # Bull's Strike, no PvP split
+
+      assert_match(/knocked down/, skill.description)
+    end
   end
 end
