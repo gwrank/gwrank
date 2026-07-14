@@ -22,28 +22,32 @@ class AutomatedTournamentRegistration < ApplicationRecord
 
   scope :for_server, ->(server_id) { where(discord_server_id: server_id) }
   scope :current_for_server, ->(server_id) {
-    schedule = AutomatedTournamentSchedule.find_by(discord_server_id: server_id)
-    next none unless schedule
-
-    now = Time.now.utc
-    lower_bound = schedule.previous_occurrence(from: now) + 2.hours
-    upper_bound = schedule.window_boundary(from: now)
+    bounds = window_bounds(server_id)
+    next none unless bounds
 
     for_server(server_id)
       .where(unregistered_at: nil)
-      .where('registered_at > ? AND registered_at <= ?', lower_bound, upper_bound)
+      .where('registered_at > ? AND registered_at <= ?', *bounds)
   }
 
   def in_at_queue?(server_id)
     return false unless discord_server_id == server_id && unregistered_at.nil? && registered_at.present?
 
+    bounds = self.class.window_bounds(server_id)
+    return false unless bounds
+
+    registered_at > bounds.first && registered_at <= bounds.last
+  end
+
+  # Internal helper shared by the scope and instance predicate above. Not
+  # marked private: private_class_method methods can't be reached through
+  # an explicit receiver (self.class.window_bounds) or through the
+  # public_send-based delegation a scope block uses to reach class methods.
+  def self.window_bounds(server_id)
     schedule = AutomatedTournamentSchedule.find_by(discord_server_id: server_id)
-    return false unless schedule
+    return nil unless schedule
 
     now = Time.now.utc
-    lower_bound = schedule.previous_occurrence(from: now) + 2.hours
-    upper_bound = schedule.window_boundary(from: now)
-
-    registered_at > lower_bound && registered_at <= upper_bound
+    [schedule.previous_occurrence(from: now) + 2.hours, schedule.window_boundary(from: now)]
   end
 end

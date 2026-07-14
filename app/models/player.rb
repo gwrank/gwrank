@@ -111,6 +111,7 @@ class Player < ApplicationRecord
                           .where('registrations.unregistered_at IS NULL')
                           .order('registrations.registered_at ASC')
                       }
+
   scope :streamers, -> { where.not(twitch_username: '') }
 
   scope :warriors, -> { where(is_warrior: true) }

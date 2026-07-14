@@ -33,6 +33,32 @@ class AutomatedTournamentRegistrationTest < ActiveSupport::TestCase
     end
   end
 
+  test "current_for_server excludes a registration registered exactly at the lower bound" do
+    schedule = AutomatedTournamentSchedule.create!(discord_server_id: "server-1", timezone: "b", channel_id: "chan-1")
+    next_occ = schedule.next_occurrence
+
+    travel_to(next_occ - 1.hour) do
+      lower_bound = schedule.previous_occurrence(from: Time.now.utc) + 2.hours
+      player = create_player(uid: "1", provider: "discord")
+      registration = AutomatedTournamentRegistration.create!(player: player, discord_server_id: "server-1", registered_at: lower_bound)
+
+      assert_not_includes AutomatedTournamentRegistration.current_for_server("server-1"), registration
+    end
+  end
+
+  test "current_for_server includes a registration registered exactly at the upper bound" do
+    schedule = AutomatedTournamentSchedule.create!(discord_server_id: "server-1", timezone: "b", channel_id: "chan-1")
+    next_occ = schedule.next_occurrence
+
+    travel_to(next_occ - 1.hour) do
+      upper_bound = schedule.window_boundary(from: Time.now.utc)
+      player = create_player(uid: "1", provider: "discord")
+      registration = AutomatedTournamentRegistration.create!(player: player, discord_server_id: "server-1", registered_at: upper_bound)
+
+      assert_includes AutomatedTournamentRegistration.current_for_server("server-1"), registration
+    end
+  end
+
   test "current_for_server excludes an unregistered player even inside the window" do
     schedule = AutomatedTournamentSchedule.create!(discord_server_id: "server-1", timezone: "b", channel_id: "chan-1")
     next_occ = schedule.next_occurrence
