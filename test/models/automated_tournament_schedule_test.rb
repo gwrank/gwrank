@@ -72,4 +72,16 @@ class AutomatedTournamentScheduleTest < ActiveSupport::TestCase
     assert_not dup.valid?
     assert_includes dup.errors[:discord_server_id], "has already been taken"
   end
+
+  test "timezone must be present" do
+    schedule = AutomatedTournamentSchedule.new(discord_server_id: "server-1", channel_id: "chan-1")
+    assert_not schedule.valid?
+    assert_includes schedule.errors[:timezone], "can't be blank"
+  end
+
+  test "next_occurrence excludes the exact moment the grace period ends" do
+    schedule = AutomatedTournamentSchedule.new(timezone: "b")
+    from = Time.utc(2026, 7, 15, 13, 0) # exactly Wed b (11:00) + 2.hours
+    assert_equal Time.utc(2026, 7, 16, 12, 0), schedule.next_occurrence(from: from) # already rolled to Thursday
+  end
 end

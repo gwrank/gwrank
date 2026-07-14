@@ -19,6 +19,7 @@ class AutomatedTournamentSchedule < ApplicationRecord
 
   validates :discord_server_id, presence: true, uniqueness: true
   validates :channel_id, presence: true
+  validates :timezone, presence: true
 
   # Day-of-week (Date#wday, Sunday=0..Saturday=6) -> the day's 3 UTC start
   # hours, earliest to latest, matching the real AT schedule.
