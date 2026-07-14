@@ -448,6 +448,9 @@ GEM
       event_stream_parser (>= 0.3.0, < 2.0.0)
       faraday (>= 1)
       faraday-multipart (>= 1)
+    ruby-vips (2.3.0)
+      ffi (~> 1.12)
+      logger
     rubyzip (2.4.1)
     securerandom (0.4.1)
     seed_dump (3.4.2)
@@ -551,6 +554,7 @@ DEPENDENCIES
   rails (~> 8)
   rails-erd
   redis (~> 4.0)
+  ruby-vips
   seed_dump
   selenium-webdriver
   sidekiq
