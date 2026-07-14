@@ -49,6 +49,39 @@ module GW
       assert_raises(PwndTemplate::InvalidCode) { PwndTemplate.decode!("pwnd0001?download >OQ<") }
     end
 
+    # Discord's slash-command string option is a single-line input: pasting
+    # this export's 80-char-wrapped multi-line text into it collapses each
+    # embedded newline into a literal space before our code ever sees it.
+    # This is the exact text a real user reported failing (with newlines
+    # replaced by single spaces, reproducing what Discord actually sends).
+    test "decode! parses a team export whose line-wrap newlines arrived as spaces" do
+      mangled = <<~PWND.tr("\n", " ").strip.freeze
+        pwnd0001?download pawned2 @ memorial.redeemer.biz | Copyright 2008-2018 Redeemer
+        >aOQYTEZJjGSqoScvipQr4n4cQAAAAAABSAAQVyBldmkgc2hvY2sKcOQSlcmonpVyHzYvdwBZLsHmD7u
+        /EAAAACAJAAWUCBwb3dlciBjcmFja2VkCgaOgQUg17m1TM6WVzjZ2Uc+1+mGBAAAACCJAAOUiBCQSByZ
+        W5kCgbOQhkIwhygBszJIGgBuAkuiARI5CAAAACIQAATTWUgc3VyZ2UgcGFjdAobOwok4wQ1TqiTa06XP
+        mJ0Xzt3XAAAAAACCJAAQTW8gV29DIHdpbmQKVOwEAQKEbaCErEPgBEaRqMAAAAAAALTW8gcHJvdAoVOw
+        cAQaEkE3ETfCENg3NNQAAAAAAALTW8gZnVzZQoVOwcAQaE3ETfCENgaRTQCMAAAAAAAKTW8gc3VwCg<
+      PWND
+
+      entries = PwndTemplate.decode!(mangled)
+
+      assert_equal 8, entries.size
+
+      professions = entries.map do |entry|
+        reader = GW::TemplateReader.decode!(entry.skills_code)
+        primary = GW::TemplateReader::Profession[reader.primary]
+        secondary = GW::TemplateReader::Profession[reader.secondary]
+        "#{primary}/#{secondary}"
+      end
+      assert_equal(
+        %w[Warrior/Elementalist Paragon/Necromancer Ranger/Necromancer Mesmer/Ritualist
+           Monk/Dervish Monk/Warrior Monk/Assassin Monk/Assassin],
+        professions
+      )
+      assert_equal "W evi shock", entries.first.slot_name
+    end
+
     private
 
     # Builds a minimal synthetic pawned2 export with one build that has a

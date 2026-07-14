@@ -35,9 +35,17 @@ module GW
       finish = flat.index("<", start)
       raise InvalidCode, "missing '<' marker" unless finish && finish > start + 1
 
-      # some clients mangle '+' into a literal space on copy/paste, same
-      # normalization the reference pawned2 decoder applies
-      flat[(start + 1)...finish].tr(" ", "+")
+      # Discord's slash-command string option is a single-line input, so
+      # pasting this export's 80-char-wrapped multi-line text into it
+      # collapses each embedded newline into a literal space before this
+      # code ever runs — the '\r\n' strip above can't catch it, since by
+      # then it's already a space indistinguishable from one that was
+      # always there. The base64 alphabet never contains a real space, so
+      # every space in the payload is such an artifact; delete them all
+      # rather than reinterpreting them as '+' (a normalization borrowed
+      # from the reference decoder for a different transport's corruption,
+      # which doesn't apply here and previously mis-corrupted this case).
+      flat[(start + 1)...finish].delete(" ")
     end
 
     def read_entry
