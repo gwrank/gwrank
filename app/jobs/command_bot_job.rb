@@ -7,7 +7,8 @@ class CommandBotJob < ApplicationJob
     DiscordBot::Commands::QueueCommands,
     DiscordBot::Commands::TeamCommands,
     DiscordBot::Commands::AtCommands,
-    DiscordBot::Commands::BuildCommands
+    DiscordBot::Commands::BuildCommands,
+    DiscordBot::Commands::TeamBuildCommands
   ].freeze
 
   def perform(*args)
