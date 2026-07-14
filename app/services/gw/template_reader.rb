@@ -8,6 +8,18 @@ module GW
 
     attr_reader(:code, :template, :version, :primary, :secondary, :attributes, :skills)
 
+    class InvalidCode < StandardError; end
+
+    def self.decode!(code)
+      reader = new(code)
+      raise InvalidCode, "not a valid base64 template string" unless reader.code == code
+      raise InvalidCode, "not a skill template" unless reader.template == 14 && reader.version.zero?
+      raise InvalidCode, "unknown primary profession" unless (1..10).cover?(reader.primary)
+      raise InvalidCode, "unknown skill id" unless reader.skills.all? { |id| id.zero? || GW::SkillData.find(id) }
+
+      reader
+    end
+
     def initialize(code)
       if template_valid?(code)
         @code = code.dup.freeze
