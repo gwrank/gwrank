@@ -40,10 +40,15 @@ module DiscordBot
         event.respond(content: 'Something went wrong rendering that team build.', ephemeral: true)
       end
 
+      # Discord embeds allow at most 25 fields; a pawned2 export is capped
+      # at 8 players in practice, but a crafted/corrupted one could carry
+      # more, so cap it explicitly rather than let the API reject the post.
+      MAX_ENTRIES = 8
+
       def build_embed(entries)
         {
           title: 'Team Build',
-          fields: entries.each_with_index.map { |entry, index| player_field(entry, index) }
+          fields: entries.first(MAX_ENTRIES).each_with_index.map { |entry, index| player_field(entry, index) }
         }
       end
 
@@ -60,10 +65,17 @@ module DiscordBot
         nil
       end
 
+      # player/slot_name come from the pawned2 description field, which can
+      # decode to an arbitrarily large blob (up to ~3000 bytes) if the
+      # export has no newline separator in that field. Truncate defensively
+      # so one oddly-formed record can't blow Discord's 256-char field-name
+      # limit and fail the whole team's response.
+      NAME_PART_LIMIT = 50
+
       def field_name(entry, index, reader)
         label = reader ? profession_label(reader) : ''
-        label += "#{label.empty? ? '' : ' — '}#{entry.player}" if entry.player
-        label += "#{label.empty? ? '' : ' '}(#{entry.slot_name})" if entry.slot_name
+        label += "#{label.empty? ? '' : ' — '}#{entry.player.truncate(NAME_PART_LIMIT)}" if entry.player
+        label += "#{label.empty? ? '' : ' '}(#{entry.slot_name.truncate(NAME_PART_LIMIT)})" if entry.slot_name
         label = '(unknown)' if label.empty?
         "#{index + 1}. #{label}"
       end

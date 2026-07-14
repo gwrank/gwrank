@@ -70,6 +70,32 @@ module DiscordBot
         assert_equal "1. (Sub)", embed[:fields][0][:name]
       end
 
+      test "a pawned2 export with more than 8 records only renders 8 fields" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user, options: { "code" => ten_blank_entries_pwnd_text }
+        )
+
+        TeamBuildCommands.new(nil).dispatch(event)
+
+        embed = event.responses.first[:embeds].first
+        assert_equal 8, embed[:fields].size
+      end
+
+      test "a slot name longer than the truncation limit gets truncated in the field name" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user, options: { "code" => long_slot_name_pwnd_text }
+        )
+
+        TeamBuildCommands.new(nil).dispatch(event)
+
+        embed = event.responses.first[:embeds].first
+        name = embed[:fields][0][:name]
+        refute_match(/A{51,}/, name)
+        assert_operator name.length, :<, 100
+      end
+
       private
 
       # Build 1 has a blank skills field (unfilled roster slot). Build 2
@@ -100,6 +126,45 @@ module DiscordBot
       def slot_name_only_pwnd_text
         base64_chr = ->(n) { GW::TemplateReader::Base64Map[n] }
         encoded_slot_name = Base64.strict_encode64("Sub")
+
+        payload = +""
+        payload << base64_chr.call(0) # skills, 0-length
+        payload << base64_chr.call(0) # equipment
+        3.times { payload << base64_chr.call(0) } # weaponsets
+        payload << base64_chr.call(0) # flags
+        payload << base64_chr.call(0) # player, 0-length
+        payload << base64_chr.call(encoded_slot_name.length / 64)
+        payload << base64_chr.call(encoded_slot_name.length % 64)
+        payload << encoded_slot_name
+
+        "pwnd0001?download pawned2 @ memorial.redeemer.biz\n>#{payload}<"
+      end
+
+      # 10 minimal blank-skill entries, to prove the embed caps at 8 fields
+      # even when a (possibly crafted/corrupted) export carries more.
+      def ten_blank_entries_pwnd_text
+        base64_chr = ->(n) { GW::TemplateReader::Base64Map[n] }
+        blank_entry = lambda do
+          payload = +""
+          payload << base64_chr.call(0) # skills, 0-length
+          payload << base64_chr.call(0) # equipment
+          3.times { payload << base64_chr.call(0) } # weaponsets
+          payload << base64_chr.call(0) # flags
+          payload << base64_chr.call(0) # player, 0-length
+          payload << base64_chr.call(0) << base64_chr.call(0) # description, 0-length
+          payload
+        end
+
+        payload = 10.times.map { blank_entry.call }.join
+        "pwnd0001?download pawned2 @ memorial.redeemer.biz\n>#{payload}<"
+      end
+
+      # A single entry whose slot name decodes to 80 characters (comfortably
+      # past TeamBuildCommands::NAME_PART_LIMIT), to prove the field name
+      # gets truncated rather than carrying the full text into the embed.
+      def long_slot_name_pwnd_text
+        base64_chr = ->(n) { GW::TemplateReader::Base64Map[n] }
+        encoded_slot_name = Base64.strict_encode64("A" * 80)
 
         payload = +""
         payload << base64_chr.call(0) # skills, 0-length
