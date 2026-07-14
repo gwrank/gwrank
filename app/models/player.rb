@@ -111,13 +111,6 @@ class Player < ApplicationRecord
                           .where('registrations.unregistered_at IS NULL')
                           .order('registrations.registered_at ASC')
                       }
-  scope :in_at_queue, ->(server_id) { joins(:automated_tournament_registrations)
-                          .where('automated_tournament_registrations.discord_server_id = ?', server_id)
-                          .where('automated_tournament_registrations.registered_at > ?', DateTime.now - 8.hours)
-                          .where('automated_tournament_registrations.unregistered_at IS NULL')
-                          .order('automated_tournament_registrations.registered_at ASC')
-                      }
-
   scope :streamers, -> { where.not(twitch_username: '') }
 
   scope :warriors, -> { where(is_warrior: true) }
