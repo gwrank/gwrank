@@ -3,7 +3,6 @@ module DiscordBot
   module Commands
     class AtCommands
       QUEUE_SIZE = 8
-      REMINDER_LEAD_TIME = 6.hours
 
       def self.register(bot)
         new(bot).register
