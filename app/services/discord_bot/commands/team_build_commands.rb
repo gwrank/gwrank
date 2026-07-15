@@ -84,9 +84,8 @@ module DiscordBot
       def code_lines(entries, readers)
         entries.each_with_index.map do |entry, index|
           reader = readers[index]
-          label = title_for(entry, index, reader)
           code = reader ? "`#{reader.code}`" : (entry.skills_code.blank? ? '_(empty slot)_' : "_(couldn't decode)_")
-          "#{label}: #{code}"
+          "#{index + 1}. #{code}"
         end.join("\n")
       end
 

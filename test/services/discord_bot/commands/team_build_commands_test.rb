@@ -30,7 +30,7 @@ module DiscordBot
         assert_match(%r{\Aattachment://}, embed[:image][:url])
         lines = embed[:description].split("\n")
         assert_equal 8, lines.size
-        assert_equal "1. Paragon / Mesmer: `OQWjUyoogOXgiQPYBzgdwubBA`", lines[0]
+        assert_equal "1. `OQWjUyoogOXgiQPYBzgdwubBA`", lines[0]
       end
 
       test "verbose:true posts one embed per player, each with its own image, attributes, and skill names" do
