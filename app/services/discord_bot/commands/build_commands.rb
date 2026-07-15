@@ -60,7 +60,7 @@ module DiscordBot
 
         {
           title: title,
-          description: attributes_text(reader.attributes),
+          description: verbose ? attributes_text(reader.attributes) : nil,
           thumbnail: { url: "attachment://#{File.basename(profession_icon.path)}" },
           image: { url: "attachment://#{File.basename(strip_image.path)}" },
           fields: verbose ? skill_fields(reader.skills) : [],

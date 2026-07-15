@@ -89,7 +89,7 @@ module DiscordBot
         strip_image = GW::SkillStripImage.build(reader.skills)
         embed = {
           title: title_for(entry, index, reader),
-          description: attributes_text(reader.attributes),
+          description: verbose ? attributes_text(reader.attributes) : nil,
           image: { url: "attachment://#{File.basename(strip_image.path)}" },
           fields: verbose ? [{ name: 'Skills', value: skill_names(reader.skills) }] : [],
           footer: { text: reader.code }

@@ -27,13 +27,13 @@ module DiscordBot
 
         embed = response[:embeds][0]
         assert_equal "1. Paragon / Mesmer", embed[:title]
-        assert_match(/\*\*.+\*\*/, embed[:description])
+        assert_nil embed[:description]
         assert_match(%r{\Aattachment://}, embed[:image][:url])
         assert_predicate embed[:fields], :blank?
         assert_equal "OQWjUyoogOXgiQPYBzgdwubBA", embed[:footer][:text]
       end
 
-      test "verbose:true includes a Skills field with skill names" do
+      test "verbose:true includes attribute ranks and a Skills field with skill names" do
         discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
         event = DiscordBot::Test::FakeApplicationCommandEvent.new(
           subcommand: nil, user: discord_user, options: { "code" => VALID_TEAM_CODE, "verbose" => true }
@@ -42,6 +42,7 @@ module DiscordBot
         TeamBuildCommands.new(nil).dispatch(event)
 
         embed = event.responses.first[:embeds][0]
+        assert_match(/\*\*.+\*\*/, embed[:description])
         assert_equal "Skills", embed[:fields][0][:name]
         assert_match(/Resurrection Signet/, embed[:fields][0][:value])
       end
