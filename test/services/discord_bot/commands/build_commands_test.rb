@@ -35,8 +35,8 @@ module DiscordBot
 
         embed = event.responses.first[:embeds].first
         assert_equal 8, embed[:fields].size
-        assert_equal "1. Bull's Strike", embed[:fields][0][:name]
-        assert_equal "2. Resurrection Signet", embed[:fields][1][:name]
+        assert_equal "1. Bull's Strike ⚡5 🔄10", embed[:fields][0][:name]
+        assert_match(/\A2\. Resurrection Signet/, embed[:fields][1][:name])
         refute_nil embed[:fields][0][:value]
       end
 

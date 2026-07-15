@@ -81,6 +81,7 @@ module DiscordBot
 
           skill = GW::SkillData.find(id)
           label = skill.is_elite ? "#{skill.name} (Elite)" : skill.name
+          label += " #{skill.cost_badge}" unless skill.cost_badge.empty?
           { name: "#{index + 1}. #{label}", value: skill.description }
         end
       end

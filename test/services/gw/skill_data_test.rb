@@ -39,5 +39,23 @@ module GW
 
       assert_match(/knocked down/, skill.description)
     end
+
+    test "cost_badge shows energy and recharge for an energy skill" do
+      skill = SkillData.find(332) # Bull's Strike: 5 energy, 10 recharge, no cast time
+
+      assert_equal "⚡5 🔄10", skill.cost_badge
+    end
+
+    test "cost_badge shows adrenaline for an adrenaline skill" do
+      skill = SkillData.find(338) # Eviscerate: 8 adrenaline, no energy/cast/recharge
+
+      assert_equal "🔺8", skill.cost_badge
+    end
+
+    test "cost_badge renders a fractional cast time as a unicode fraction" do
+      skill = SkillData.find(5) # Power Block: 15 energy, 1/4 cast, 20 recharge
+
+      assert_equal "⚡15 ⏱¼ 🔄20", skill.cost_badge
+    end
   end
 end

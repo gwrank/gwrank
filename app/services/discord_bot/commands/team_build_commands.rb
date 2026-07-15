@@ -130,7 +130,8 @@ module DiscordBot
           next if id.zero?
 
           skill = GW::SkillData.find(id)
-          skill.is_elite ? "#{skill.name} (Elite)" : skill.name
+          label = skill.is_elite ? "#{skill.name} (Elite)" : skill.name
+          skill.cost_badge.empty? ? label : "#{label} #{skill.cost_badge}"
         end.join(', ')
       end
     end
