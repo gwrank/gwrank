@@ -84,9 +84,18 @@ module DiscordBot
       def code_lines(entries, readers)
         entries.each_with_index.map do |entry, index|
           reader = readers[index]
-          code = reader ? "`#{reader.code}`" : (entry.skills_code.blank? ? '_(empty slot)_' : "_(couldn't decode)_")
-          "#{index + 1}. #{code}"
+          next "#{index + 1}. _(empty slot)_" if reader.nil? && entry.skills_code.blank?
+          next "#{index + 1}. _(couldn't decode)_" unless reader
+
+          "#{index + 1}. #{profession_abbr(reader)}: `#{reader.code}`"
         end.join("\n")
+      end
+
+      def profession_abbr(reader)
+        primary = GW::TemplateReader::ProfessionAbbr[reader.primary]
+        return primary if reader.secondary.zero?
+
+        "#{primary}/#{GW::TemplateReader::ProfessionAbbr[reader.secondary]}"
       end
 
       def render_verbose_team(event, entries)

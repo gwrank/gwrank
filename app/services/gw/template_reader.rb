@@ -2,6 +2,7 @@ module GW
   class TemplateReader
     Template = {14 => 'Skills'}
     Profession = %w[None Warrior Ranger Monk Necromancer Mesmer Elementalist Assassin Ritualist Paragon Dervish]
+    ProfessionAbbr = %w[None W R Mo N Me E A Rt P D]
     # Attributes = File.read(File.join(File.dirname(__FILE__), 'code_attributes.txt')).split("\n")
     # Skills     = File.read(File.join(File.dirname(__FILE__), 'code_skills.txt'    )).split("\n")
     Base64Map  = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
