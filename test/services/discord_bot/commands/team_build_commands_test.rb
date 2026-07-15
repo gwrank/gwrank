@@ -11,7 +11,7 @@ module DiscordBot
         wcAQEENgaRCErETfVETQAAAAAAACCg<
       PWND
 
-      test "a valid pawned2 export posts one embed per player, each with its own image and code" do
+      test "a valid pawned2 export with no verbose option posts embeds without a Skills field" do
         discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
         event = DiscordBot::Test::FakeApplicationCommandEvent.new(
           subcommand: nil, user: discord_user, options: { "code" => VALID_TEAM_CODE }
@@ -29,9 +29,21 @@ module DiscordBot
         assert_equal "1. Paragon / Mesmer", embed[:title]
         assert_match(/\*\*.+\*\*/, embed[:description])
         assert_match(%r{\Aattachment://}, embed[:image][:url])
+        assert_predicate embed[:fields], :blank?
+        assert_equal "OQWjUyoogOXgiQPYBzgdwubBA", embed[:footer][:text]
+      end
+
+      test "verbose:true includes a Skills field with skill names" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user, options: { "code" => VALID_TEAM_CODE, "verbose" => true }
+        )
+
+        TeamBuildCommands.new(nil).dispatch(event)
+
+        embed = event.responses.first[:embeds][0]
         assert_equal "Skills", embed[:fields][0][:name]
         assert_match(/Resurrection Signet/, embed[:fields][0][:value])
-        assert_equal "OQWjUyoogOXgiQPYBzgdwubBA", embed[:footer][:text]
       end
 
       test "an invalid pawned2 export responds ephemerally with a single error, no embed" do

@@ -23,6 +23,7 @@ module DiscordBot
       def register_schema
         @bot.register_application_command(:build, 'Show a build from a GW1 template code', server_id: ENV['DISCORD_SERVER_ID']) do |cmd|
           cmd.string(:code, 'The template code, e.g. from the in-game Templates panel', required: true)
+          cmd.boolean(:verbose, 'Show skill names and descriptions (default: off)', required: false)
         end
       end
 
@@ -32,8 +33,9 @@ module DiscordBot
 
       def handle_build(event)
         code = event.options['code'].to_s.strip
+        verbose = event.options['verbose'] == true
         reader = GW::TemplateReader.decode!(code)
-        render_build(event, reader)
+        render_build(event, reader, verbose)
       rescue GW::TemplateReader::InvalidCode
         event.respond(content: "That doesn't look like a valid Guild Wars build code.", ephemeral: true)
       rescue StandardError => e
@@ -41,17 +43,17 @@ module DiscordBot
         event.respond(content: 'Something went wrong rendering that build.', ephemeral: true)
       end
 
-      def render_build(event, reader)
+      def render_build(event, reader, verbose)
         profession_icon = File.open(profession_icon_path(reader.primary))
         strip_image = GW::SkillStripImage.build(reader.skills)
 
-        event.respond(embeds: [build_embed(reader, profession_icon, strip_image)], attachments: [profession_icon, strip_image])
+        event.respond(embeds: [build_embed(reader, profession_icon, strip_image, verbose)], attachments: [profession_icon, strip_image])
       ensure
         profession_icon&.close
         strip_image&.close!
       end
 
-      def build_embed(reader, profession_icon, strip_image)
+      def build_embed(reader, profession_icon, strip_image, verbose)
         primary_name = GW::TemplateReader::Profession[reader.primary]
         secondary_name = GW::TemplateReader::Profession[reader.secondary]
         title = secondary_name == 'None' ? primary_name : "#{primary_name} / #{secondary_name}"
@@ -61,7 +63,7 @@ module DiscordBot
           description: attributes_text(reader.attributes),
           thumbnail: { url: "attachment://#{File.basename(profession_icon.path)}" },
           image: { url: "attachment://#{File.basename(strip_image.path)}" },
-          fields: skill_fields(reader.skills),
+          fields: verbose ? skill_fields(reader.skills) : [],
           footer: { text: reader.code }
         }
       end

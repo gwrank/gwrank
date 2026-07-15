@@ -5,7 +5,7 @@ module DiscordBot
     class BuildCommandsTest < ActiveSupport::TestCase
       VALID_CODE = "OQYTgmILZipQA4cQr4nQqoScvCA".freeze
 
-      test "a valid code posts a public embed with the build details" do
+      test "a valid code with no verbose option posts a build without skill name/description fields" do
         discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
         event = DiscordBot::Test::FakeApplicationCommandEvent.new(
           subcommand: nil, user: discord_user, options: { "code" => VALID_CODE }
@@ -20,11 +20,24 @@ module DiscordBot
         embed = response[:embeds].first
         assert_equal "Warrior / Elementalist", embed[:title]
         assert_match(/\*\*Strength\*\* 12/, embed[:description])
+        assert_predicate embed[:fields], :blank?
+        assert_equal VALID_CODE, embed[:footer][:text]
+        assert_equal 2, response[:attachments].size
+      end
+
+      test "verbose:true includes skill name and description fields" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user, options: { "code" => VALID_CODE, "verbose" => true }
+        )
+
+        BuildCommands.new(nil).dispatch(event)
+
+        embed = event.responses.first[:embeds].first
         assert_equal 8, embed[:fields].size
         assert_equal "1. Bull's Strike", embed[:fields][0][:name]
         assert_equal "2. Resurrection Signet", embed[:fields][1][:name]
-        assert_equal VALID_CODE, embed[:footer][:text]
-        assert_equal 2, response[:attachments].size
+        refute_nil embed[:fields][0][:value]
       end
 
       test "an invalid code responds ephemerally with a single error, no embed" do

@@ -23,6 +23,7 @@ module DiscordBot
       def register_schema
         @bot.register_application_command(:teambuild, 'Show a team build from a pawned2 export', server_id: ENV['DISCORD_SERVER_ID']) do |cmd|
           cmd.string(:code, 'The pawned2 team build text, copied from paw.ned2', required: true)
+          cmd.boolean(:verbose, 'Show skill names for each player (default: off)', required: false)
         end
       end
 
@@ -32,7 +33,8 @@ module DiscordBot
 
       def handle_teambuild(event)
         entries = GW::PwndTemplate.decode!(event.options['code'].to_s.strip)
-        render_team(event, entries)
+        verbose = event.options['verbose'] == true
+        render_team(event, entries, verbose)
       rescue GW::PwndTemplate::InvalidCode
         event.respond(content: "That doesn't look like a valid pawned2 team build.", ephemeral: true)
       rescue StandardError => e
@@ -48,10 +50,10 @@ module DiscordBot
       # comfortably within both caps.
       MAX_ENTRIES = 8
 
-      def render_team(event, entries)
+      def render_team(event, entries, verbose)
         strip_images = []
         embeds = entries.first(MAX_ENTRIES).each_with_index.map do |entry, index|
-          embed, strip_image = player_embed(entry, index)
+          embed, strip_image = player_embed(entry, index, verbose)
           strip_images << strip_image if strip_image
           embed
         end
@@ -61,11 +63,11 @@ module DiscordBot
         strip_images&.each(&:close!)
       end
 
-      def player_embed(entry, index)
+      def player_embed(entry, index, verbose)
         reader = decode_reader(entry)
         return [placeholder_embed(entry, index), nil] unless reader
 
-        full_embed(entry, index, reader)
+        full_embed(entry, index, reader, verbose)
       end
 
       def decode_reader(entry)
@@ -83,13 +85,13 @@ module DiscordBot
         }
       end
 
-      def full_embed(entry, index, reader)
+      def full_embed(entry, index, reader, verbose)
         strip_image = GW::SkillStripImage.build(reader.skills)
         embed = {
           title: title_for(entry, index, reader),
           description: attributes_text(reader.attributes),
           image: { url: "attachment://#{File.basename(strip_image.path)}" },
-          fields: [{ name: 'Skills', value: skill_names(reader.skills) }],
+          fields: verbose ? [{ name: 'Skills', value: skill_names(reader.skills) }] : [],
           footer: { text: reader.code }
         }
         [embed, strip_image]
