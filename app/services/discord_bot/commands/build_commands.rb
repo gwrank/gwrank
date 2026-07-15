@@ -44,16 +44,16 @@ module DiscordBot
       end
 
       def render_build(event, reader, verbose)
-        profession_icon = File.open(profession_icon_path(reader.primary))
-        strip_image = GW::SkillStripImage.build(reader.skills)
+        strip_image = GW::SkillStripImage.build_grid(
+          [{ primary: reader.primary, secondary: reader.secondary, skills: reader.skills }]
+        )
 
-        event.respond(embeds: [build_embed(reader, profession_icon, strip_image, verbose)], attachments: [profession_icon, strip_image])
+        event.respond(embeds: [build_embed(reader, strip_image, verbose)], attachments: [strip_image])
       ensure
-        profession_icon&.close
         strip_image&.close!
       end
 
-      def build_embed(reader, profession_icon, strip_image, verbose)
+      def build_embed(reader, strip_image, verbose)
         primary_name = GW::TemplateReader::Profession[reader.primary]
         secondary_name = GW::TemplateReader::Profession[reader.secondary]
         title = secondary_name == 'None' ? primary_name : "#{primary_name} / #{secondary_name}"
@@ -61,7 +61,6 @@ module DiscordBot
         {
           title: title,
           description: verbose ? attributes_text(reader.attributes) : nil,
-          thumbnail: { url: "attachment://#{File.basename(profession_icon.path)}" },
           image: { url: "attachment://#{File.basename(strip_image.path)}" },
           fields: verbose ? skill_fields(reader.skills) : [],
           footer: { text: reader.code }
@@ -84,11 +83,6 @@ module DiscordBot
           label += " #{skill.cost_badge}" unless skill.cost_badge.empty?
           { name: "#{index + 1}. #{label}", value: skill.description }
         end
-      end
-
-      def profession_icon_path(profession_id)
-        name = GW::TemplateReader::Profession[profession_id]
-        Rails.root.join('app', 'assets', 'images', 'professions', "#{name}.png")
       end
     end
   end

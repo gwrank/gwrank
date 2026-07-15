@@ -22,7 +22,7 @@ module DiscordBot
         assert_nil embed[:description]
         assert_predicate embed[:fields], :blank?
         assert_equal VALID_CODE, embed[:footer][:text]
-        assert_equal 2, response[:attachments].size
+        assert_equal 1, response[:attachments].size
       end
 
       test "verbose:true includes attribute ranks and skill name/description fields" do
@@ -61,7 +61,7 @@ module DiscordBot
           subcommand: nil, user: discord_user, options: { "code" => VALID_CODE }
         )
 
-        GW::SkillStripImage.stub(:build, ->(*) { raise "boom" }) do
+        GW::SkillStripImage.stub(:build_grid, ->(*) { raise "boom" }) do
           BuildCommands.new(nil).dispatch(event)
         end
 
