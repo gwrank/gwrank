@@ -62,7 +62,7 @@ module DiscordBot
       # instead of the 8 separate image-carrying embeds verbose:true posts.
       def render_compact_team(event, entries)
         readers = entries.map { |entry| decode_reader(entry) }
-        strip_image = GW::SkillStripImage.build_grid(readers.map { |reader| grid_row(reader) })
+        strip_image = GW::SkillStripImage.build_grid(readers.map { |reader| grid_row(reader) }, numbered: true)
 
         embed = {
           title: "Team Build (#{entries.size} #{entries.size == 1 ? 'player' : 'players'})",

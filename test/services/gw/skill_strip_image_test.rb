@@ -76,5 +76,26 @@ module GW
       assert_equal 64, image.height
       assert_equal 3, image.bands
     end
+
+    test "build_grid with numbered: true adds a leading row-number column" do
+      row = { primary: 1, secondary: 6, skills: [332, 2, 231, 346, 319, 338, 2197, 1403] }
+      rows = [row, row, row]
+
+      file = SkillStripImage.build_grid(rows, numbered: true)
+      image = Vips::Image.new_from_file(file.path)
+
+      assert_equal 64 * 11, image.width
+      assert_equal 64 * 3, image.height
+    ensure
+      file&.close!
+    end
+
+    test "number_icon returns a same-sized, 3-band image" do
+      image = SkillStripImage.number_icon(8)
+
+      assert_equal 64, image.width
+      assert_equal 64, image.height
+      assert_equal 3, image.bands
+    end
   end
 end
