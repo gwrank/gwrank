@@ -134,7 +134,7 @@ module DiscordBot
       end
 
       def full_embed(entry, index, reader)
-        strip_image = GW::SkillStripImage.build(reader.skills)
+        strip_image = GW::SkillStripImage.build_grid([grid_row(reader)])
         embed = {
           title: title_for(entry, index, reader),
           description: attributes_text(reader.attributes),
