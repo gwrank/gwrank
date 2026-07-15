@@ -11,10 +11,32 @@ module DiscordBot
         wcAQEENgaRCErETfVETQAAAAAAACCg<
       PWND
 
-      test "a valid pawned2 export with no verbose option posts embeds without a Skills field" do
+      test "a valid pawned2 export with no verbose option posts one compact embed with a grid image and codes" do
         discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
         event = DiscordBot::Test::FakeApplicationCommandEvent.new(
           subcommand: nil, user: discord_user, options: { "code" => VALID_TEAM_CODE }
+        )
+
+        TeamBuildCommands.new(nil).dispatch(event)
+
+        assert_equal 1, event.responses.size
+        response = event.responses.first
+        assert_nil response[:ephemeral]
+        assert_equal 1, response[:embeds].size
+        assert_equal 1, response[:attachments].size
+
+        embed = response[:embeds][0]
+        assert_equal "Team Build (8 players)", embed[:title]
+        assert_match(%r{\Aattachment://}, embed[:image][:url])
+        lines = embed[:description].split("\n")
+        assert_equal 8, lines.size
+        assert_equal "1. Paragon / Mesmer: `OQWjUyoogOXgiQPYBzgdwubBA`", lines[0]
+      end
+
+      test "verbose:true posts one embed per player, each with its own image, attributes, and skill names" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user, options: { "code" => VALID_TEAM_CODE, "verbose" => true }
         )
 
         TeamBuildCommands.new(nil).dispatch(event)
@@ -27,24 +49,11 @@ module DiscordBot
 
         embed = response[:embeds][0]
         assert_equal "1. Paragon / Mesmer", embed[:title]
-        assert_nil embed[:description]
-        assert_match(%r{\Aattachment://}, embed[:image][:url])
-        assert_predicate embed[:fields], :blank?
-        assert_equal "OQWjUyoogOXgiQPYBzgdwubBA", embed[:footer][:text]
-      end
-
-      test "verbose:true includes attribute ranks and a Skills field with skill names" do
-        discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
-        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
-          subcommand: nil, user: discord_user, options: { "code" => VALID_TEAM_CODE, "verbose" => true }
-        )
-
-        TeamBuildCommands.new(nil).dispatch(event)
-
-        embed = event.responses.first[:embeds][0]
         assert_match(/\*\*.+\*\*/, embed[:description])
+        assert_match(%r{\Aattachment://}, embed[:image][:url])
         assert_equal "Skills", embed[:fields][0][:name]
         assert_match(/Resurrection Signet/, embed[:fields][0][:value])
+        assert_equal "OQWjUyoogOXgiQPYBzgdwubBA", embed[:footer][:text]
       end
 
       test "an invalid pawned2 export responds ephemerally with a single error, no embed" do
@@ -61,10 +70,25 @@ module DiscordBot
         assert_match(/doesn't look like a valid pawned2/, response[:content])
       end
 
-      test "an empty or malformed skill slot shows a placeholder embed with no image" do
+      test "an empty or malformed skill slot shows as a placeholder line in the compact view" do
         discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
         event = DiscordBot::Test::FakeApplicationCommandEvent.new(
           subcommand: nil, user: discord_user, options: { "code" => two_slot_pwnd_text }
+        )
+
+        TeamBuildCommands.new(nil).dispatch(event)
+
+        embed = event.responses.first[:embeds][0]
+        lines = embed[:description].split("\n")
+        assert_equal 2, lines.size
+        assert_match(/_\(empty slot\)_/, lines[0])
+        assert_match(/_\(couldn't decode\)_/, lines[1])
+      end
+
+      test "an empty or malformed skill slot shows a placeholder embed with no image in verbose mode" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user, options: { "code" => two_slot_pwnd_text, "verbose" => true }
         )
 
         TeamBuildCommands.new(nil).dispatch(event)
@@ -81,7 +105,7 @@ module DiscordBot
       test "a slot with no profession and no player but a slot name has no leading space" do
         discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
         event = DiscordBot::Test::FakeApplicationCommandEvent.new(
-          subcommand: nil, user: discord_user, options: { "code" => slot_name_only_pwnd_text }
+          subcommand: nil, user: discord_user, options: { "code" => slot_name_only_pwnd_text, "verbose" => true }
         )
 
         TeamBuildCommands.new(nil).dispatch(event)
@@ -90,10 +114,23 @@ module DiscordBot
         assert_equal "1. (Sub)", embed[:title]
       end
 
-      test "a pawned2 export with more than 8 records only renders 8 embeds" do
+      test "a pawned2 export with more than 8 records only renders 8 rows in the compact view" do
         discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
         event = DiscordBot::Test::FakeApplicationCommandEvent.new(
           subcommand: nil, user: discord_user, options: { "code" => ten_blank_entries_pwnd_text }
+        )
+
+        TeamBuildCommands.new(nil).dispatch(event)
+
+        response = event.responses.first
+        assert_equal 1, response[:embeds].size
+        assert_equal 8, response[:embeds][0][:description].split("\n").size
+      end
+
+      test "a pawned2 export with more than 8 records only renders 8 embeds in verbose mode" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user, options: { "code" => ten_blank_entries_pwnd_text, "verbose" => true }
         )
 
         TeamBuildCommands.new(nil).dispatch(event)
@@ -105,7 +142,7 @@ module DiscordBot
       test "a slot name longer than the truncation limit gets truncated in the embed title" do
         discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
         event = DiscordBot::Test::FakeApplicationCommandEvent.new(
-          subcommand: nil, user: discord_user, options: { "code" => long_slot_name_pwnd_text }
+          subcommand: nil, user: discord_user, options: { "code" => long_slot_name_pwnd_text, "verbose" => true }
         )
 
         TeamBuildCommands.new(nil).dispatch(event)

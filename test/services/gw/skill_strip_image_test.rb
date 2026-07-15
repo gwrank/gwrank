@@ -35,5 +35,18 @@ module GW
       assert_equal "Signet of Capture", skill.name
       assert_equal SkillStripImage::PLACEHOLDER_PATH, SkillStripImage.icon_path(3)
     end
+
+    test "build_grid stacks each row of 8 skill icons into one grid image" do
+      row = [332, 2, 231, 346, 319, 338, 2197, 1403]
+      rows = [row, row, row]
+
+      file = SkillStripImage.build_grid(rows)
+      image = Vips::Image.new_from_file(file.path)
+
+      assert_equal 64 * 8, image.width
+      assert_equal 64 * 3, image.height
+    ensure
+      file&.close!
+    end
   end
 end

@@ -45,15 +45,49 @@ module DiscordBot
       # Discord allows at most 10 embeds and 10 file attachments per
       # message; a pawned2 export is capped at 8 players in practice, but a
       # crafted/corrupted one could carry more, so cap it explicitly rather
-      # than let the API reject the post. Each decodable player contributes
-      # one embed and one attachment (its skill-strip image), so 8 stays
-      # comfortably within both caps.
+      # than let the API reject the post. In verbose mode each decodable
+      # player contributes one embed and one attachment (its skill-strip
+      # image), so 8 stays comfortably within both caps.
       MAX_ENTRIES = 8
 
       def render_team(event, entries, verbose)
+        return render_compact_team(event, entries.first(MAX_ENTRIES)) unless verbose
+
+        render_verbose_team(event, entries.first(MAX_ENTRIES))
+      end
+
+      # verbose:false's whole point is to compress a full team into one
+      # screen: one embed, one grid image (one row of 8 skill icons per
+      # player), and each player's template code as plain text underneath -
+      # instead of the 8 separate image-carrying embeds verbose:true posts.
+      def render_compact_team(event, entries)
+        readers = entries.map { |entry| decode_reader(entry) }
+        strip_image = GW::SkillStripImage.build_grid(readers.map { |reader| reader&.skills || Array.new(8, 0) })
+
+        embed = {
+          title: "Team Build (#{entries.size} #{entries.size == 1 ? 'player' : 'players'})",
+          description: code_lines(entries, readers),
+          image: { url: "attachment://#{File.basename(strip_image.path)}" }
+        }
+
+        event.respond(embeds: [embed], attachments: [strip_image])
+      ensure
+        strip_image&.close!
+      end
+
+      def code_lines(entries, readers)
+        entries.each_with_index.map do |entry, index|
+          reader = readers[index]
+          label = title_for(entry, index, reader)
+          code = reader ? "`#{reader.code}`" : (entry.skills_code.blank? ? '_(empty slot)_' : "_(couldn't decode)_")
+          "#{label}: #{code}"
+        end.join("\n")
+      end
+
+      def render_verbose_team(event, entries)
         strip_images = []
-        embeds = entries.first(MAX_ENTRIES).each_with_index.map do |entry, index|
-          embed, strip_image = player_embed(entry, index, verbose)
+        embeds = entries.each_with_index.map do |entry, index|
+          embed, strip_image = player_embed(entry, index)
           strip_images << strip_image if strip_image
           embed
         end
@@ -63,11 +97,11 @@ module DiscordBot
         strip_images&.each(&:close!)
       end
 
-      def player_embed(entry, index, verbose)
+      def player_embed(entry, index)
         reader = decode_reader(entry)
         return [placeholder_embed(entry, index), nil] unless reader
 
-        full_embed(entry, index, reader, verbose)
+        full_embed(entry, index, reader)
       end
 
       def decode_reader(entry)
@@ -85,13 +119,13 @@ module DiscordBot
         }
       end
 
-      def full_embed(entry, index, reader, verbose)
+      def full_embed(entry, index, reader)
         strip_image = GW::SkillStripImage.build(reader.skills)
         embed = {
           title: title_for(entry, index, reader),
-          description: verbose ? attributes_text(reader.attributes) : nil,
+          description: attributes_text(reader.attributes),
           image: { url: "attachment://#{File.basename(strip_image.path)}" },
-          fields: verbose ? [{ name: 'Skills', value: skill_names(reader.skills) }] : [],
+          fields: [{ name: 'Skills', value: skill_names(reader.skills) }],
           footer: { text: reader.code }
         }
         [embed, strip_image]
