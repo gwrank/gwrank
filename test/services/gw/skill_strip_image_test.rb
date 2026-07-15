@@ -43,7 +43,7 @@ module GW
       file = SkillStripImage.build_grid(rows)
       image = Vips::Image.new_from_file(file.path)
 
-      assert_equal 64 * 10, image.width
+      assert_equal (SkillStripImage::PROFESSION_ICON_SIZE * 2) + (64 * 8), image.width
       assert_equal 64 * 3, image.height
     ensure
       file&.close!
@@ -55,25 +55,25 @@ module GW
       file = SkillStripImage.build_grid([row])
       image = Vips::Image.new_from_file(file.path)
 
-      assert_equal 64 * 10, image.width
+      assert_equal (SkillStripImage::PROFESSION_ICON_SIZE * 2) + (64 * 8), image.width
       assert_equal 64, image.height
     ensure
       file&.close!
     end
 
-    test "profession_icon returns a same-sized, 3-band image for a known profession" do
+    test "profession_icon returns a narrower-than-skill, full-row-height, 3-band image for a known profession" do
       image = SkillStripImage.profession_icon(1) # Warrior
 
-      assert_equal 64, image.width
-      assert_equal 64, image.height
+      assert_equal SkillStripImage::PROFESSION_ICON_SIZE, image.width
+      assert_equal SkillStripImage::ICON_SIZE, image.height
       assert_equal 3, image.bands
     end
 
     test "profession_icon returns a blank placeholder for None" do
       image = SkillStripImage.profession_icon(0)
 
-      assert_equal 64, image.width
-      assert_equal 64, image.height
+      assert_equal SkillStripImage::PROFESSION_ICON_SIZE, image.width
+      assert_equal SkillStripImage::ICON_SIZE, image.height
       assert_equal 3, image.bands
     end
 
@@ -84,17 +84,18 @@ module GW
       file = SkillStripImage.build_grid(rows, numbered: true)
       image = Vips::Image.new_from_file(file.path)
 
-      assert_equal 64 * 11, image.width
+      expected_width = SkillStripImage::NUMBER_CELL_WIDTH + (SkillStripImage::PROFESSION_ICON_SIZE * 2) + (64 * 8)
+      assert_equal expected_width, image.width
       assert_equal 64 * 3, image.height
     ensure
       file&.close!
     end
 
-    test "number_icon returns a same-sized, 3-band image" do
+    test "number_icon returns a narrow, full-row-height, 3-band image" do
       image = SkillStripImage.number_icon(8)
 
-      assert_equal 64, image.width
-      assert_equal 64, image.height
+      assert_equal SkillStripImage::NUMBER_CELL_WIDTH, image.width
+      assert_equal SkillStripImage::ICON_SIZE, image.height
       assert_equal 3, image.bands
     end
   end

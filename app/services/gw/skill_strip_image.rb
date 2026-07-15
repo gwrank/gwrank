@@ -4,6 +4,8 @@ module GW
     PROFESSIONS_DIR = Rails.root.join("app", "assets", "images", "professions")
     PLACEHOLDER_PATH = SKILLS_DIR.join("Unknown_Junundu_Ability.jpg")
     ICON_SIZE = 64
+    NUMBER_CELL_WIDTH = 16
+    PROFESSION_ICON_SIZE = 24
 
     def self.build(skill_ids)
       images = skill_ids.map { |id| Vips::Image.new_from_file(icon_path(id).to_s) }
@@ -21,14 +23,19 @@ module GW
     # to one embed/one attachment. With numbered: true, each row also gets a
     # leading cell with its 1-based row number, to match it up with the
     # numbered template-code list rendered as text underneath.
+    #
+    # Built with #join, not .arrayjoin: arrayjoin pads every cell in the grid
+    # to one uniform size (the largest image supplied), which would blow the
+    # narrower number/profession cells back up to full skill-icon width.
+    # #join concatenates each image at its own native size instead.
     def self.build_grid(rows, numbered: false)
-      columns = rows.first[:skills].size + 2 + (numbered ? 1 : 0)
-      images = rows.each_with_index.flat_map do |row, index|
-        row_images = [profession_icon(row[:primary]), profession_icon(row[:secondary])] +
+      row_images = rows.each_with_index.map do |row, index|
+        cells = [profession_icon(row[:primary]), profession_icon(row[:secondary])] +
           row[:skills].map { |id| Vips::Image.new_from_file(icon_path(id).to_s) }
-        numbered ? [number_icon(index + 1)] + row_images : row_images
+        cells = [number_icon(index + 1)] + cells if numbered
+        cells.reduce { |acc, cell| acc.join(cell, :horizontal) }
       end
-      grid = Vips::Image.arrayjoin(images, across: columns)
+      grid = row_images.reduce { |acc, row_image| acc.join(row_image, :vertical) }
 
       file = Tempfile.new(["teambuild", ".png"])
       file.binmode
@@ -50,23 +57,27 @@ module GW
     # Skill icons are opaque JPGs; profession icons are RGBA PNGs at a
     # different size, so arrayjoin would refuse to mix them (band-count
     # mismatch) without flattening the alpha and resizing to match first.
+    # Rendered smaller than the skill icons (PROFESSION_ICON_SIZE < ICON_SIZE)
+    # and gravity-centered into an ICON_SIZE-tall cell so the row still lines
+    # up with the skill icons beside it.
     def self.profession_icon(profession_id)
       name = GW::TemplateReader::Profession[profession_id.to_i]
-      return Vips::Image.black(ICON_SIZE, ICON_SIZE, bands: 3) if name.nil? || name == "None"
+      return Vips::Image.black(PROFESSION_ICON_SIZE, ICON_SIZE, bands: 3) if name.nil? || name == "None"
 
       path = PROFESSIONS_DIR.join("#{name}.png")
-      return Vips::Image.black(ICON_SIZE, ICON_SIZE, bands: 3) unless File.exist?(path)
+      return Vips::Image.black(PROFESSION_ICON_SIZE, ICON_SIZE, bands: 3) unless File.exist?(path)
 
-      Vips::Image.new_from_file(path.to_s).flatten.thumbnail_image(ICON_SIZE, height: ICON_SIZE, size: :force)
+      icon = Vips::Image.new_from_file(path.to_s).flatten.thumbnail_image(PROFESSION_ICON_SIZE, height: PROFESSION_ICON_SIZE, size: :force)
+      icon.gravity("centre", PROFESSION_ICON_SIZE, ICON_SIZE, background: [0, 0, 0])
     end
 
     NUMBER_COLOR = [255, 215, 0].freeze
     NUMBER_BACKGROUND = [20, 20, 20].freeze
 
     def self.number_icon(n)
-      text = Vips::Image.text(n.to_s, font: "sans bold 32", dpi: 150)
+      text = Vips::Image.text(n.to_s, font: "sans bold 14", dpi: 150)
       colored = text.ifthenelse(NUMBER_COLOR, NUMBER_BACKGROUND, blend: true)
-      colored.gravity("centre", ICON_SIZE, ICON_SIZE, background: NUMBER_BACKGROUND)
+      colored.gravity("centre", NUMBER_CELL_WIDTH, ICON_SIZE, background: NUMBER_BACKGROUND)
     end
   end
 end
