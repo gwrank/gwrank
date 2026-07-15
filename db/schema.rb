@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_01_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_14_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -61,6 +61,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_01_120000) do
     t.index ["discord_server_id", "registered_at"], name: "idx_on_discord_server_id_registered_at_deded07a53"
     t.index ["discord_server_id"], name: "index_automated_tournament_registrations_on_discord_server_id"
     t.index ["player_id"], name: "index_automated_tournament_registrations_on_player_id"
+  end
+
+  create_table "automated_tournament_schedules", force: :cascade do |t|
+    t.string "channel_id", null: false
+    t.datetime "created_at", null: false
+    t.string "discord_server_id", null: false
+    t.date "last_reminded_on"
+    t.string "timezone", null: false
+    t.datetime "updated_at", null: false
+    t.index ["discord_server_id"], name: "index_automated_tournament_schedules_on_discord_server_id", unique: true
   end
 
   create_table "character_claims", force: :cascade do |t|
