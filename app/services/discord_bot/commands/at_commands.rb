@@ -3,6 +3,7 @@ module DiscordBot
   module Commands
     class AtCommands
       QUEUE_SIZE = 8
+      REMINDER_LEAD_TIME = 6.hours
 
       def self.register(bot)
         new(bot).register
@@ -27,6 +28,8 @@ module DiscordBot
 
       def dispatch(event)
         case event.subcommand
+        when :schedule then handle_schedule(event)
+        when :next then handle_next(event)
         when :join then handle_join(event)
         when :players then handle_players(event)
         end
@@ -36,6 +39,11 @@ module DiscordBot
 
       def register_schema
         @bot.register_application_command(:at, 'Manage the Automated Tournament queue', server_id: ENV['DISCORD_SERVER_ID']) do |cmd|
+          cmd.subcommand(:schedule, 'Set which daily AT slot (a/b/c) this server tracks') do |sub|
+            sub.string(:timezone, 'Which of the 3 daily AT occurrences to track', required: true,
+                       choices: { 'A (earliest)' => 'a', 'B (middle)' => 'b', 'C (latest)' => 'c' })
+          end
+          cmd.subcommand(:next, 'Show time until the next scheduled AT and registration window status')
           cmd.subcommand(:join, 'Post the Automated Tournament registration panel')
           cmd.subcommand(:players, 'List players in the current AT queue')
         end
@@ -43,11 +51,47 @@ module DiscordBot
 
       def register_dispatch
         handler = @bot.application_command(:at)
-        %i[join players].each { |name| handler.subcommand(name) { |event| dispatch(event) } }
+        %i[schedule next join players].each { |name| handler.subcommand(name) { |event| dispatch(event) } }
+      end
+
+      def handle_schedule(event)
+        discord_server_id = event.server.id
+        new_timezone = event.options['timezone']
+
+        schedule = AutomatedTournamentSchedule.find_or_initialize_by(discord_server_id: discord_server_id)
+        timezone_changed = schedule.timezone.present? && schedule.timezone != new_timezone
+        schedule.timezone = new_timezone
+        schedule.channel_id = event.channel.id
+        schedule.last_reminded_on = nil if timezone_changed
+        schedule.save!
+
+        next_occ = schedule.next_occurrence
+        event.respond(content: "<@#{event.user.id}>, this server now tracks AT slot **#{new_timezone}**; reminders will post in this channel. Next AT: #{next_occ.strftime('%Y-%m-%d %H:%M UTC')}.")
+      end
+
+      def handle_next(event)
+        discord_server_id = event.server.id
+        schedule = AutomatedTournamentSchedule.find_by(discord_server_id: discord_server_id)
+        return schedule_required_message(event) unless schedule
+
+        now = Time.now.utc
+        next_occ = schedule.next_occurrence(from: now)
+
+        message =
+          if next_occ > now
+            "<@#{event.user.id}>, the next AT (slot #{schedule.timezone.upcase}) starts in #{format_duration(next_occ - now)} (#{next_occ.strftime('%Y-%m-%d %H:%M UTC')})."
+          else
+            boundary = schedule.window_boundary(from: now)
+            "<@#{event.user.id}>, the AT (slot #{schedule.timezone.upcase}) started #{format_duration(now - next_occ)} ago. Registration window closes in #{format_duration(boundary - now)}."
+          end
+
+        event.respond(content: message)
       end
 
       def handle_join(event)
         discord_server_id = event.server.id
+        return unless require_schedule!(event, discord_server_id)
+
         player = DiscordBot::FindOrCreatePlayer.call(event)
 
         event.respond(has_components: true) do |_, view|
@@ -57,6 +101,8 @@ module DiscordBot
 
       def handle_players(event)
         discord_server_id = event.server.id
+        return unless require_schedule!(event, discord_server_id)
+
         at_registrations = AutomatedTournamentRegistration.current_for_server(discord_server_id).order(registered_at: :asc)
 
         message = "<@#{event.user.id}>, the current AT queue players for this server are:"
@@ -77,6 +123,8 @@ module DiscordBot
 
       def handle_at_register_button(event)
         discord_server_id = event.server_id
+        return unless require_schedule!(event, discord_server_id, ephemeral: true)
+
         player = DiscordBot::FindOrCreatePlayer.call(event)
 
         if player.has_current_at_registration?(discord_server_id)
@@ -101,6 +149,8 @@ module DiscordBot
 
       def handle_at_unregister_button(event)
         discord_server_id = event.server_id
+        return unless require_schedule!(event, discord_server_id, ephemeral: true)
+
         player = Player.find_by(uid: event.user.id)
 
         if player&.has_current_at_registration?(discord_server_id)
@@ -112,6 +162,23 @@ module DiscordBot
         else
           event.respond(content: "You are not registered in the AT queue for this server, #{event.user.username}!", ephemeral: true)
         end
+      end
+
+      def require_schedule!(event, discord_server_id, ephemeral: false)
+        return true if AutomatedTournamentSchedule.exists?(discord_server_id: discord_server_id)
+
+        event.respond(content: "<@#{event.user.id}>, this server hasn't set an AT schedule yet. Run */at schedule* first.", ephemeral: ephemeral)
+        false
+      end
+
+      def schedule_required_message(event)
+        event.respond(content: "<@#{event.user.id}>, this server hasn't set an AT schedule yet. Run */at schedule* first.")
+      end
+
+      def format_duration(seconds)
+        total_minutes = (seconds / 60).round
+        hours, minutes = total_minutes.divmod(60)
+        hours.positive? ? "#{hours}h #{minutes}m" : "#{minutes}m"
       end
 
       def at_container(view, player, discord_server_id: nil)
