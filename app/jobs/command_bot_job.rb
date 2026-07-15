@@ -11,8 +11,6 @@ class CommandBotJob < ApplicationJob
     DiscordBot::Commands::TeamBuildCommands
   ].freeze
 
-  REMINDER_POLL_INTERVAL = 15.minutes
-
   def perform(*args)
     bot = Discordrb::Commands::CommandBot.new(
       token: ENV['DISCORD_BOT_TOKEN'],
@@ -33,9 +31,10 @@ class CommandBotJob < ApplicationJob
     Thread.new do
       loop do
         DiscordBot::AtReminderCheck.call(bot: bot)
-        sleep(REMINDER_POLL_INTERVAL)
       rescue StandardError => e
         Rails.logger.error("AT reminder poll loop error: #{e.class}: #{e.message}")
+      ensure
+        sleep(DiscordBot::AtReminderCheck::POLL_INTERVAL)
       end
     end
   end
