@@ -76,11 +76,11 @@ module GW
       icon.gravity("centre", PROFESSION_ICON_SIZE, ICON_SIZE, background: [0, 0, 0])
     end
 
-    NUMBER_COLOR = [255, 215, 0].freeze
-    NUMBER_BACKGROUND = [20, 20, 20].freeze
+    NUMBER_COLOR = [255, 255, 255].freeze
+    NUMBER_BACKGROUND = [0, 0, 0].freeze
 
     def self.number_icon(n)
-      text = Vips::Image.text(n.to_s, font: "sans bold 14", dpi: 150)
+      text = Vips::Image.text(n.to_s, font: "sans 12", dpi: 150)
       colored = text.ifthenelse(NUMBER_COLOR, NUMBER_BACKGROUND, blend: true)
       colored.gravity("centre", NUMBER_CELL_WIDTH, ICON_SIZE, background: NUMBER_BACKGROUND)
     end
