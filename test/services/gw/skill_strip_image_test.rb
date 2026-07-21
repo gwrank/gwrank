@@ -14,7 +14,7 @@ module GW
       file&.close!
     end
 
-    test "build renders empty (id 0) slots using the placeholder icon" do
+    test "build renders empty (id 0) slots as black space" do
       skill_ids = [332, 0, 0, 0, 0, 0, 0, 0]
 
       file = SkillStripImage.build(skill_ids)
@@ -25,15 +25,15 @@ module GW
       file&.close!
     end
 
-    test "icon_path falls back to the placeholder for an unknown skill id" do
-      assert_equal SkillStripImage::PLACEHOLDER_PATH, SkillStripImage.icon_path(999_999_999)
+    test "icon_path returns nil for an unknown skill id" do
+      assert_nil SkillStripImage.icon_path(999_999_999)
     end
 
-    test "icon_path falls back to the placeholder when the icon file is missing on disk" do
+    test "icon_path returns nil when the icon file is missing on disk" do
       # "Signet of Capture" (id 3) resolves in SkillData but has no matching jpg on disk.
       skill = GW::SkillData.find(3)
       assert_equal "Signet of Capture", skill.name
-      assert_equal SkillStripImage::PLACEHOLDER_PATH, SkillStripImage.icon_path(3)
+      assert_nil SkillStripImage.icon_path(3)
     end
 
     test "build_grid stacks each row's profession icons and 8 skill icons into one grid image" do

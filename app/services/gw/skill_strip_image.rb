@@ -2,13 +2,15 @@ module GW
   class SkillStripImage
     SKILLS_DIR = Rails.root.join("app", "assets", "images", "skills")
     PROFESSIONS_DIR = Rails.root.join("app", "assets", "images", "professions")
-    PLACEHOLDER_PATH = SKILLS_DIR.join("Unknown_Junundu_Ability.jpg")
     ICON_SIZE = 64
     NUMBER_CELL_WIDTH = 16
     PROFESSION_ICON_SIZE = 24
 
     def self.build(skill_ids)
-      images = skill_ids.map { |id| Vips::Image.new_from_file(icon_path(id).to_s) }
+      images = skill_ids.map do |id|
+        path = icon_path(id)
+        path ? Vips::Image.new_from_file(path.to_s) : Vips::Image.black(ICON_SIZE, ICON_SIZE, bands: 3)
+      end
       strip = Vips::Image.arrayjoin(images, across: images.size)
 
       file = Tempfile.new(["build", ".png"])
@@ -31,7 +33,10 @@ module GW
     def self.build_grid(rows, numbered: false)
       row_images = rows.each_with_index.map do |row, index|
         cells = [profession_icon(row[:primary]), profession_icon(row[:secondary])] +
-          row[:skills].map { |id| Vips::Image.new_from_file(icon_path(id).to_s) }
+          row[:skills].map do |id|
+            path = icon_path(id)
+            path ? Vips::Image.new_from_file(path.to_s) : Vips::Image.black(ICON_SIZE, ICON_SIZE, bands: 3)
+          end
         cells = [number_icon(index + 1)] + cells if numbered
         cells.reduce { |acc, cell| acc.join(cell, :horizontal) }
       end
@@ -44,14 +49,14 @@ module GW
     end
 
     def self.icon_path(id)
-      return PLACEHOLDER_PATH if id.zero?
+      return nil if id.zero?
 
       skill = GW::SkillData.find(id)
-      return PLACEHOLDER_PATH unless skill
+      return nil unless skill
 
       filename = skill.name.gsub(" ", "_").gsub(/['"()!,]/, "") + ".jpg"
       path = SKILLS_DIR.join(filename)
-      File.exist?(path) ? path : PLACEHOLDER_PATH
+      File.exist?(path) ? path : nil
     end
 
     # Skill icons are opaque JPGs; profession icons are RGBA PNGs at a
