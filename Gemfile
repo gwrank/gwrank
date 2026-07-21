@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.4.9'
+ruby file: '.ruby-version'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 8'
@@ -36,6 +36,7 @@ gem 'discordrb', github: 'shardlab/discordrb'
 gem 'friendly_id'
 gem 'hotwire-rails'
 gem 'httparty'
+gem 'image_processing', '~> 1.2'
 gem 'ip_anonymizer'
 gem 'jquery-rails'
 gem 'net-imap', require: false
