@@ -10,7 +10,7 @@
           <% end %>
         </li>
         <li class="mpl-dropdown">
-          <a href="#" class="mpl-nav-link" role="button">
+          <a href="#" class: 'mpl-nav-link' role="button">
             <span class="mpl-nav-link-name"> Documentation </span>
           </a>
           <div class="mpl-dropdown-menu">
@@ -35,17 +35,39 @@
                   <span class="mpl-nav-link-name"> Monthly AT Commands </span>
                 <% end %>
               </li>
+            </ul>
+          </div>
+        </li>
+        <li class="mpl-dropdown">
+          <a href="#" class: 'mpl-nav-link' role="button">
+            <span class="mpl-nav-link-name"> Archives </span>
+          </a>
+          <div class="mpl-dropdown-menu">
+            <ul class="mpl-navbar-nav">
               <li>
-                <%= link_to player_doc_path, class: 'mpl-nav-link' do %>
-                  <span class="mpl-nav-link-name"> Player Commands </span>
+                <%= link_to tournaments_path, class: 'mpl-nav-link' do %>
+                  <span class="mpl-nav-link-name"> Tournaments </span>
                 <% end %>
               </li>
               <li>
-                <%= link_to scrim_doc_path, class: 'mpl-nav-link' do %>
-                  <span class="mpl-nav-link-name"> Scrim Commands </span>
+                <%= link_to matches_path, class: 'mpl-nav-link' do %>
+                  <span class="mpl-nav-link-name"> Matches </span>
+                <% end %>
+              </li>
+              <li>
+                <%= link_to players_path, class: 'mpl-nav-link' do %>
+                  <span class="mpl-nav-link-name"> Players </span>
+                <% end %>
+              </li>
+              <li>
+                <%= link_to scrims_path, class: 'mpl-nav-link' do %>
+                  <span class="mpl-nav-link-name"> Scrims </span>
                 <% end %>
               </li>
             </ul>
+          </div>
+        </li>
+      </ul>
           </div>
         </li>
       </ul>
