@@ -16,8 +16,13 @@
           <div class="mpl-dropdown-menu">
             <ul class="mpl-navbar-nav">
               <li>
-                <%= link_to player_doc_path, class: 'mpl-nav-link' do %>
-                  <span class="mpl-nav-link-name"> Player Commands </span>
+                <%= link_to build_doc_path, class: 'mpl-nav-link' do %>
+                  <span class="mpl-nav-link-name"> Build Commands </span>
+                <% end %>
+              </li>
+              <li>
+                <%= link_to teambuild_doc_path, class: 'mpl-nav-link' do %>
+                  <span class="mpl-nav-link-name"> Team Build Commands </span>
                 <% end %>
               </li>
               <li>
@@ -31,18 +36,13 @@
                 <% end %>
               </li>
               <li>
+                <%= link_to player_doc_path, class: 'mpl-nav-link' do %>
+                  <span class="mpl-nav-link-name"> Player Commands </span>
+                <% end %>
+              </li>
+              <li>
                 <%= link_to scrim_doc_path, class: 'mpl-nav-link' do %>
                   <span class="mpl-nav-link-name"> Scrim Commands </span>
-                <% end %>
-              </li>
-              <li>
-                <%= link_to build_doc_path, class: 'mpl-nav-link' do %>
-                  <span class="mpl-nav-link-name"> Build Commands </span>
-                <% end %>
-              </li>
-              <li>
-                <%= link_to teambuild_doc_path, class: 'mpl-nav-link' do %>
-                  <span class="mpl-nav-link-name"> Team Build Commands </span>
                 <% end %>
               </li>
             </ul>

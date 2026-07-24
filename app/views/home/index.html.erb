@@ -30,19 +30,6 @@
                 </div>
               <% end %>
             </div>
-
-            <div class="col-lg-12">
-              <% if ENV['TWITCH_LIVE_CHANNEL'].present? %>
-                <div class="col-lg-6" data-sr="banner" data-sr-interval="200" data-sr-duration="1200" data-sr-distance="20">
-                  <h2>Twitch live</h2>
-                  <div class="cyberpress-twitch">
-                    <div class="cyberpress-twitch-player">
-                      <iframe src="https://player.twitch.tv/?channel=<%= ENV['TWITCH_LIVE_CHANNEL'] %>&parent=<%= request.host %>" frameborder="0" allowfullscreen scrolling="no"></iframe>
-                    </div>
-                  </div>
-                </div>
-              <% end %>
-            </div>
           </div>
         </div>
       </div>
@@ -98,21 +85,6 @@
                 <li>Use <code>/at</code> and <code>/mat</code> commands to organize tournaments</li>
                 <li>Explore all commands using the documentation links above</li>
               </ol>
-            </div>
-            
-            <div class="row vgap-lg mt-5">
-              <div class="col-12 col-md-6 col-lg-6">
-                <div class="mpl-feature">
-                  <div class="mpl-feature-title h4"><%= pluralize Player.all.count, 'player' %></div>
-                  <div class="mpl-feature-text"><%= link_to 'See all players', players_path, class: 'btn btn-md' %></div>
-                </div>
-              </div>
-              <div class="col-12 col-md-6 col-lg-6">
-                <div class="mpl-feature">
-                  <div class="mpl-feature-title h4"><%= pluralize(@scrims_count, 'scrim', 'scrims') %> played</div>
-                  <div class="mpl-feature-text"><%= link_to 'See all scrims', scrims_path, class: 'btn btn-md' %></div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
