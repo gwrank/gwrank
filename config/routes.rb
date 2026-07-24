@@ -43,5 +43,14 @@ Rails.application.routes.draw do
 
   get 'privacy', to: 'static_pages#privacy'
   get 'terms', to: 'static_pages#terms'
+
+  # Documentation routes
+  get '/player', to: 'documentation#player', as: :player_doc
+  get '/at', to: 'documentation#at', as: :at_doc
+  get '/mat', to: 'documentation#mat', as: :mat_doc
+  get '/scrim', to: 'documentation#scrim', as: :scrim_doc
+  get '/build', to: 'documentation#build', as: :build_doc
+  get '/teambuild', to: 'documentation#teambuild', as: :teambuild_doc
+
   root to: 'home#index'
 end
