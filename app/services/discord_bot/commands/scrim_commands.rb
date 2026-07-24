@@ -61,8 +61,9 @@ module DiscordBot
         handler = @bot.application_command(:scrim)
         %i[register unregister queue reset add remove afk back].each { |name| handler.subcommand(name) { |event| dispatch(event) } }
 
-        team_handler = handler.subcommand_group(:team)
-        %i[captains roll new win move].each { |name| team_handler.subcommand(name) { |event| dispatch(event) } }
+        handler.group(:team) do |team_builder|
+          %i[captains roll new win move].each { |name| team_builder.subcommand(name) { |event| dispatch(event) } }
+        end
       end
 
       def register_buttons
