@@ -4,9 +4,9 @@ class CommandBotJob < ApplicationJob
 
   COMMAND_CLASSES = [
     DiscordBot::Commands::PlayerCommands,
-    DiscordBot::Commands::QueueCommands,
-    DiscordBot::Commands::TeamCommands,
+    DiscordBot::Commands::ScrimCommands,
     DiscordBot::Commands::AtCommands,
+    DiscordBot::Commands::MatCommands,
     DiscordBot::Commands::BuildCommands,
     DiscordBot::Commands::TeamBuildCommands
   ].freeze
@@ -20,6 +20,7 @@ class CommandBotJob < ApplicationJob
     COMMAND_CLASSES.each { |command_class| command_class.register(bot) }
 
     start_at_reminder_thread(bot)
+    start_mat_reminder_thread(bot)
 
     at_exit { bot.stop }
     bot.run
@@ -35,6 +36,18 @@ class CommandBotJob < ApplicationJob
         Rails.logger.error("AT reminder poll loop error: #{e.class}: #{e.message}")
       ensure
         sleep(DiscordBot::AtReminderCheck::POLL_INTERVAL)
+      end
+    end
+  end
+
+  def start_mat_reminder_thread(bot)
+    Thread.new do
+      loop do
+        DiscordBot::MatReminderCheck.call(bot: bot)
+      rescue StandardError => e
+        Rails.logger.error("MAT reminder poll loop error: #{e.class}: #{e.message}")
+      ensure
+        sleep(DiscordBot::MatReminderCheck::POLL_INTERVAL)
       end
     end
   end
