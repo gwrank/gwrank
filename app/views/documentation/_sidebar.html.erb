@@ -1,0 +1,36 @@
+<div class="mpl-sidebar-content">
+  <h3>Documentation</h3>
+  <ul class="nav flex-column">
+    <li class="nav-item">
+      <%= link_to 'Player Commands', player_doc_path, class: "nav-link #{'active' if current_page?(player_doc_path)}" %>
+    </li>
+    <li class="nav-item">
+      <%= link_to 'AT Commands', at_doc_path, class: "nav-link #{'active' if current_page?(at_doc_path)}" %>
+    </li>
+    <li class="nav-item">
+      <%= link_to 'Monthly AT Commands', mat_doc_path, class: "nav-link #{'active' if current_page?(mat_doc_path)}" %>
+    </li>
+    <li class="nav-item">
+      <%= link_to 'Scrim Commands', scrim_doc_path, class: "nav-link #{'active' if current_page?(scrim_doc_path)}" %>
+    </li>
+    <li class="nav-item">
+      <%= link_to 'Build Commands', build_doc_path, class: "nav-link #{'active' if current_page?(build_doc_path)}" %>
+    </li>
+    <li class="nav-item">
+      <%= link_to 'Team Build Commands', teambuild_doc_path, class: "nav-link #{'active' if current_page?(teambuild_doc_path)}" %>
+    </li>
+  </ul>
+  
+  <h3 class="mt-4">Live Data</h3>
+  <ul class="nav flex-column">
+    <li class="nav-item">
+      <%= link_to 'Players', players_path, class: "nav-link" %>
+    </li>
+    <li class="nav-item">
+      <%= link_to 'Scrims', scrims_path, class: "nav-link" %>
+    </li>
+    <li class="nav-item">
+      <%= link_to 'Tournaments', tournaments_path, class: "nav-link" %>
+    </li>
+  </ul>
+</div>

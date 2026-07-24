@@ -1,0 +1,174 @@
+<div class="content-wrap">
+  <div class="mpl-navbar-mobile-overlay"></div>
+  <div>
+    <%= render 'documentation/breadcrumb', page: 'Scrim Commands' %>
+    
+    <section class="mpl-banner mpl-banner-top mpl-banner-small">
+      <div class="mpl-image" data-speed="0.8">
+        <%= image_tag 'background.jpg', class: 'jarallax-img' %>
+      </div>
+      <div class="mpl-banner-content mpl-box-sm">
+        <div class="container">
+          <h1 class="display-1 mb-0">Scrim Commands</h1>
+          <p class="lead">Manage scrim registration and teams</p>
+        </div>
+      </div>
+    </section>
+    
+    <div class="mpl-box-md">
+      <div class="container">
+        <div class="row hgap-lg vgap-lg">
+          <div class="col-lg mpl-content">
+            <article class="mpl-post">
+              <h2>Queue Management</h2>
+              
+              <div class="mb-4">
+                <h3>/scrim register</h3>
+                <p><strong>Description:</strong> Register for the scrim queue</p>
+                <p><strong>Usage:</strong> Click the "Register" button in the scrim panel or use the command</p>
+                <p><strong>Response:</strong> <code>You have been registered, &lt;username&gt;!</code></p>
+                <button class="btn btn-sm btn-success" onclick="toggleExample('register')">Show Example</button>
+                <div id="example-register" class="example-output mt-2" style="display: none;">
+                  <div class="card">
+                    <div class="card-body">
+                      <p><strong>Example Output:</strong></p>
+                      <p>You have been registered, Arka!</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mb-4">
+                <h3>/scrim unregister</h3>
+                <p><strong>Description:</strong> Unregister from the scrim queue</p>
+                <p><strong>Usage:</strong> Click the "Unregister" button or use the command</p>
+                <p><strong>Response:</strong> <code>You have been unregistered, &lt;username&gt;!</code></p>
+              </div>
+              
+              <div class="mb-4">
+                <h3>/scrim queue</h3>
+                <p><strong>Description:</strong> Show the current scrim queue</p>
+                <p><strong>Usage:</strong> <code>/scrim queue</code></p>
+                <p><strong>Response:</strong></p>
+                <pre>&lt;@user&gt;, the current players ordered by registration time are:
+#1 &lt;@player1&gt; (**IGN1**)
+#2 &lt;@player2&gt; (**IGN2**)
+...
+We need X more players.</pre>
+              </div>
+              
+              <h2 class="mt-5">Team Management</h2>
+              
+              <div class="mb-4">
+                <h3>/scrim team new</h3>
+                <p><strong>Description:</strong> Form new teams for the next series (moderators only)</p>
+                <p><strong>Usage:</strong> <code>/scrim team new</code></p>
+                <p><strong>Requires:</strong> Exactly 16 players in queue</p>
+              </div>
+              
+              <div class="mb-4">
+                <h3>/scrim team win</h3>
+                <p><strong>Description:</strong> Record a game win for a team (moderators only)</p>
+                <p><strong>Usage:</strong> <code>/scrim team win &lt;a|b&gt;</code></p>
+                <p><strong>Example:</strong> <code>/scrim team win a</code></p>
+              </div>
+              
+              <div class="mb-4">
+                <h3>/scrim team captains</h3>
+                <p><strong>Description:</strong> See the current captains</p>
+                <p><strong>Usage:</strong> <code>/scrim team captains</code></p>
+              </div>
+              
+              <div class="mb-4">
+                <h3>/scrim team roll</h3>
+                <p><strong>Description:</strong> Roll a random number between 0-100</p>
+                <p><strong>Usage:</strong> <code>/scrim team roll</code></p>
+                <p><strong>Response:</strong> <code>&lt;@user&gt;, you rolled: &lt;number&gt;</code></p>
+                <button class="btn btn-sm btn-primary" onclick="rollExample()">Roll Example</button>
+                <div id="example-roll" class="example-output mt-2" style="display: none;">
+                </div>
+              </div>
+              
+              <div class="mb-4">
+                <h3>/scrim team move</h3>
+                <p><strong>Description:</strong> Move the current queue to the Scrimers voice channel (moderators only)</p>
+                <p><strong>Usage:</strong> <code>/scrim team move</code></p>
+              </div>
+              
+              <h2 class="mt-5">Moderator Commands</h2>
+              
+              <div class="mb-4">
+                <h3>/scrim reset</h3>
+                <p><strong>Description:</strong> Reset the current scrim queue (moderators only)</p>
+                <p><strong>Usage:</strong> <code>/scrim reset</code></p>
+              </div>
+              
+              <div class="mb-4">
+                <h3>/scrim add</h3>
+                <p><strong>Description:</strong> Add a player to the queue by in-game name (moderators only)</p>
+                <p><strong>Usage:</strong> <code>/scrim add &lt;igname&gt;</code></p>
+              </div>
+              
+              <div class="mb-4">
+                <h3>/scrim remove</h3>
+                <p><strong>Description:</strong> Remove a player from the queue by in-game name (moderators only)</p>
+                <p><strong>Usage:</strong> <code>/scrim remove &lt;igname&gt;</code></p>
+              </div>
+              
+              <div class="mb-4">
+                <h3>/scrim afk</h3>
+                <p><strong>Description:</strong> Mark a player as AFK (moderators only)</p>
+                <p><strong>Usage:</strong> <code>/scrim afk [@user]</code></p>
+              </div>
+              
+              <div class="mb-4">
+                <h3>/scrim back</h3>
+                <p><strong>Description:</strong> Bring a player back from AFK (moderators only)</p>
+                <p><strong>Usage:</strong> <code>/scrim back [@user]</code></p>
+              </div>
+              
+              <div class="mt-5">
+                <h2>Related Pages</h2>
+                <ul>
+                  <li><%= link_to 'View current scrim queue', scrims_path %></li>
+                  <li><%= link_to 'See all scrims', scrims_path %></li>
+                </ul>
+              </div>
+            </article>
+          </div>
+          
+          <div class="col-auto-lg mpl-sidebar">
+            <%= render 'documentation/sidebar' %>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <%= render 'footer' %>
+  </div>
+</div>
+
+<script>
+function toggleExample(type) {
+  const element = document.getElementById(`example-${type}`);
+  if (element.style.display === 'none') {
+    element.style.display = 'block';
+  } else {
+    element.style.display = 'none';
+  }
+}
+
+function rollExample() {
+  const element = document.getElementById('example-roll');
+  const roll = Math.floor(Math.random() * 101);
+  element.innerHTML = `
+    <div class="card">
+      <div class="card-body">
+        <p><strong>Example Output:</strong></p>
+        <p>&lt;@user&gt;, you rolled: ${roll}</p>
+      </div>
+    </div>
+  `;
+  element.style.display = 'block';
+}
+</script>

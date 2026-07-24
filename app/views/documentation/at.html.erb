@@ -1,0 +1,77 @@
+<div class="content-wrap">
+  <div class="mpl-navbar-mobile-overlay"></div>
+  <div>
+    <%= render 'documentation/breadcrumb', page: 'Automated Tournament Commands' %>
+    
+    <section class="mpl-banner mpl-banner-top mpl-banner-small">
+      <div class="mpl-image" data-speed="0.8">
+        <%= image_tag 'background.jpg', class: 'jarallax-img' %>
+      </div>
+      <div class="mpl-banner-content mpl-box-sm">
+        <div class="container">
+          <h1 class="display-1 mb-0">Automated Tournament Commands</h1>
+          <p class="lead">Manage daily Automated Tournament registration</p>
+        </div>
+      </div>
+    </section>
+    
+    <div class="mpl-box-md">
+      <div class="container">
+        <div class="row hgap-lg vgap-lg">
+          <div class="col-lg mpl-content">
+            <article class="mpl-post">
+              <h2>Command Reference</h2>
+              
+              <div class="mb-4">
+                <h3>/at schedule</h3>
+                <p><strong>Description:</strong> Set which daily AT slot (a/b/c) this server tracks</p>
+                <p><strong>Usage:</strong> <code>/at schedule &lt;a|b|c&gt;</code></p>
+                <p><strong>Example:</strong> <code>/at schedule a</code></p>
+                <p><strong>Response:</strong> <code>&lt;@user&gt;, this server now tracks AT slot **a**; reminders will post in this channel. Next AT: &lt;date&gt;.</code></p>
+              </div>
+              
+              <div class="mb-4">
+                <h3>/at next</h3>
+                <p><strong>Description:</strong> Show time until the next scheduled AT and registration window status</p>
+                <p><strong>Usage:</strong> <code>/at next</code></p>
+                <p><strong>Response:</strong> <code>&lt;@user&gt;, the next AT (slot A) starts in 2h 30m (&lt;date&gt;).</code></p>
+              </div>
+              
+              <div class="mb-4">
+                <h3>/at join</h3>
+                <p><strong>Description:</strong> Post the Automated Tournament registration panel</p>
+                <p><strong>Usage:</strong> <code>/at join</code></p>
+                <p><strong>Response:</strong> Posts an interactive panel with Register/Unregister buttons</p>
+              </div>
+              
+              <div class="mb-4">
+                <h3>/at players</h3>
+                <p><strong>Description:</strong> List players in the current AT queue</p>
+                <p><strong>Usage:</strong> <code>/at players</code></p>
+                <p><strong>Response:</strong></p>
+                <pre>&lt;@user&gt;, the current AT queue players for this server are:
+#1 &lt;@player1&gt; (**IGN1**)
+#2 &lt;@player2&gt; (**IGN2**)
+...
+Team is full! (8 players)</pre>
+              </div>
+              
+              <div class="mt-5">
+                <h2>Related Pages</h2>
+                <ul>
+                  <li><%= link_to 'View all tournaments', tournaments_path %></li>
+                </ul>
+              </div>
+            </article>
+          </div>
+          
+          <div class="col-auto-lg mpl-sidebar">
+            <%= render 'documentation/sidebar' %>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <%= render 'footer' %>
+  </div>
+</div>

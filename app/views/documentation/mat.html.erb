@@ -1,0 +1,98 @@
+<div class="content-wrap">
+  <div class="mpl-navbar-mobile-overlay"></div>
+  <div>
+    <%= render 'documentation/breadcrumb', page: 'Monthly AT Commands' %>
+    
+    <section class="mpl-banner mpl-banner-top mpl-banner-small">
+      <div class="mpl-image" data-speed="0.8">
+        <%= image_tag 'background.jpg', class: 'jarallax-img' %>
+      </div>
+      <div class="mpl-banner-content mpl-box-sm">
+        <div class="container">
+          <h1 class="display-1 mb-0">Monthly Automated Tournament Commands</h1>
+          <p class="lead">Manage monthly AT registration (every 3rd Saturday)</p>
+        </div>
+      </div>
+    </section>
+    
+    <div class="mpl-box-md">
+      <div class="container">
+        <div class="row hgap-lg vgap-lg">
+          <div class="col-lg mpl-content">
+            <article class="mpl-post">
+              <h2>Command Reference</h2>
+              
+              <div class="alert alert-info">
+                <strong>Note:</strong> Monthly ATs occur on the 3rd Saturday of every month. 
+                Registration opens 4 weeks (28 days) before the event.
+              </div>
+              
+              <div class="mb-4">
+                <h3>/mat schedule</h3>
+                <p><strong>Description:</strong> Set the monthly AT schedule pattern</p>
+                <p><strong>Usage:</strong> <code>/mat schedule every_3rd_saturday</code></p>
+                <p><strong>Response:</strong> <code>&lt;@user&gt;, this server now tracks monthly AT with pattern **every_3rd_saturday**; reminders will post in this channel. Next monthly AT: &lt;date&gt;.</code></p>
+              </div>
+              
+              <div class="mb-4">
+                <h3>/mat next</h3>
+                <p><strong>Description:</strong> Show time until the next monthly AT</p>
+                <p><strong>Usage:</strong> <code>/mat next</code></p>
+                <p><strong>Response (before registration opens):</strong> <code>&lt;@user&gt;, the next monthly AT starts in 25d 12h (&lt;date&gt;). Registration opens in 3d 6h.</code></p>
+                <p><strong>Response (during registration):</strong> <code>&lt;@user&gt;, the next monthly AT starts in 25d 12h (&lt;date&gt;). Registration is OPEN!</code></p>
+              </div>
+              
+              <div class="mb-4">
+                <h3>/mat join</h3>
+                <p><strong>Description:</strong> Post the Monthly AT registration panel</p>
+                <p><strong>Usage:</strong> <code>/mat join</code></p>
+                <p><strong>Response:</strong> Posts an interactive panel with Register/Unregister buttons</p>
+              </div>
+              
+              <div class="mb-4">
+                <h3>/mat players</h3>
+                <p><strong>Description:</strong> List players registered for the monthly AT</p>
+                <p><strong>Usage:</strong> <code>/mat players</code></p>
+                <p><strong>Response:</strong></p>
+                <pre>&lt;@user&gt;, the current monthly AT queue players for this server are:
+#1 &lt;@player1&gt; (**IGN1**)
+#2 &lt;@player2&gt; (**IGN2**)
+...
+We need X more players.</pre>
+              </div>
+              
+              <% if @next_monthly_at %>
+                <div class="mt-5">
+                  <h2>Schedule Information</h2>
+                  <div class="card">
+                    <div class="card-body">
+                      <h5 class="card-title">Next Monthly AT</h5>
+                      <p class="card-text">
+                        <strong><%= @next_monthly_at.strftime('%B %d, %Y') %></strong> (3rd Saturday)<br>
+                        Registration opens: <strong><%= (@next_monthly_at - 28.days).strftime('%B %d, %Y') %></strong>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+              
+              <div class="mt-5">
+                <h2>Related Pages</h2>
+                <ul>
+                  <li><%= link_to 'View all tournaments', tournaments_path %></li>
+                  <li><%= link_to 'Daily AT commands', at_doc_path %></li>
+                </ul>
+              </div>
+            </article>
+          </div>
+          
+          <div class="col-auto-lg mpl-sidebar">
+            <%= render 'documentation/sidebar' %>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <%= render 'footer' %>
+  </div>
+</div>
