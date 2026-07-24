@@ -19,6 +19,45 @@
             <span class="mpl-nav-link-name"> Scrims </span>
           <% end %>
         </li>
+        <li class="mpl-dropdown">
+          <a href="#" class="mpl-nav-link" role="button">
+            <span class="mpl-nav-link-name"> Documentation </span>
+          </a>
+          <div class="mpl-dropdown-menu">
+            <ul class="mpl-navbar-nav">
+              <li>
+                <%= link_to player_doc_path, class: 'mpl-nav-link' do %>
+                  <span class="mpl-nav-link-name"> Player Commands </span>
+                <% end %>
+              </li>
+              <li>
+                <%= link_to at_doc_path, class: 'mpl-nav-link' do %>
+                  <span class="mpl-nav-link-name"> AT Commands </span>
+                <% end %>
+              </li>
+              <li>
+                <%= link_to mat_doc_path, class: 'mpl-nav-link' do %>
+                  <span class="mpl-nav-link-name"> Monthly AT Commands </span>
+                <% end %>
+              </li>
+              <li>
+                <%= link_to scrim_doc_path, class: 'mpl-nav-link' do %>
+                  <span class="mpl-nav-link-name"> Scrim Commands </span>
+                <% end %>
+              </li>
+              <li>
+                <%= link_to build_doc_path, class: 'mpl-nav-link' do %>
+                  <span class="mpl-nav-link-name"> Build Commands </span>
+                <% end %>
+              </li>
+              <li>
+                <%= link_to teambuild_doc_path, class: 'mpl-nav-link' do %>
+                  <span class="mpl-nav-link-name"> Team Build Commands </span>
+                <% end %>
+              </li>
+            </ul>
+          </div>
+        </li>
       </ul>
       <ul class="mpl-navbar-nav mpl-navbar-right">
         <li>
