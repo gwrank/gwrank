@@ -9,16 +9,13 @@
         <div class="container">
           <div class="row">
             <div class="col-lg-10" data-sr="banner" data-sr-interval="200" data-sr-duration="1200" data-sr-distance="20">
-              <h1 class="display-1" data-sr-item="banner">GWRank Scrims</h1>
+              <h1 class="display-1" data-sr-item="banner">GWRank Discord Bot</h1>
               <p class="lead" data-sr-item="banner">
-              Organize Guild Wars scrims. Register in Discord, get auto-balanced into teams.
+                Share builds, teambuilds and organize automated tournaments.
               </p>
               <%= form_tag(omniauth_authorize_path(:player, :discord), method: 'post', data: { turbo: false }) do %>
-                <button type="submit" class="btn btn-md btn-brand">Connect with Discord</button>
+                <button type="submit" class="btn btn-md btn-brand">Login with Discord</button>
               <% end %>
-              <p class="mt-3 small" data-sr-item="banner">
-                Don't have Discord? Ask "Ko Arkalon" in-game for an invite.
-              </p>
             </div>
           </div>
         </div>
