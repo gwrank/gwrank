@@ -178,6 +178,19 @@ class Player < ApplicationRecord
     current_at_registration(server_id).present?
   end
 
+  # MAT (Monthly Automated Tournament) registration helpers
+  def has_current_mat_registration?(discord_server_id)
+    current_mat_registration(discord_server_id).present?
+  end
+
+  def current_mat_registration(discord_server_id)
+    automated_tournament_registrations.find_by(
+      discord_server_id: discord_server_id,
+      unregistered_at: nil,
+      is_monthly: true
+    )
+  end
+
   def historic_guilds
     historic_guilds_distinct.to_a
   end
