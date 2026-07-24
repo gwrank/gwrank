@@ -25,7 +25,12 @@ class AutomatedTournamentRegistration < ApplicationRecord
   scope :monthly, -> { where(is_monthly: true) }
   scope :daily, -> { where(is_monthly: false) }
   scope :current_for_server, ->(server_id) {
-    for_server(server_id).where(unregistered_at: nil)
+    bounds = window_bounds(server_id)
+    next none unless bounds
+
+    for_server(server_id)
+      .where(unregistered_at: nil)
+      .where('registered_at > ? AND registered_at <= ?', *bounds)
   }
 
   def in_at_queue?(server_id)
