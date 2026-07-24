@@ -1,5 +1,20 @@
 require "test_helper"
 
+# == Schema Information
+#
+# Table name: scrims
+#
+#  id             :bigint           not null, primary key
+#  team_a_wins    :integer          default(0), not null
+#  team_b_wins    :integer          default(0), not null
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#  captain_a_id   :integer
+#  captain_b_id   :integer
+#  team_a_id      :integer
+#  team_b_id      :integer
+#  winner_team_id :integer
+#
 class ScrimTest < ActiveSupport::TestCase
   test "loser_team returns whichever of team_a/team_b did not win" do
     team_a = Team.create!

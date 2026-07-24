@@ -4,13 +4,16 @@ require "test_helper"
 #
 # Table name: automated_tournament_schedules
 #
-#  id                :bigint           not null, primary key
-#  last_reminded_on  :date
-#  timezone          :string           not null
-#  created_at        :datetime         not null
-#  updated_at        :datetime         not null
-#  channel_id        :string           not null
-#  discord_server_id :string           not null
+#  id                             :bigint           not null, primary key
+#  is_monthly                     :boolean          default(FALSE)
+#  last_reminded_on               :date
+#  recurrence_pattern             :string
+#  registration_opens_days_before :integer          default(28)
+#  timezone                       :string           not null
+#  created_at                     :datetime         not null
+#  updated_at                     :datetime         not null
+#  channel_id                     :string           not null
+#  discord_server_id              :string           not null
 #
 # Indexes
 #

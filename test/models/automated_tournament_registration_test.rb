@@ -1,5 +1,24 @@
 require "test_helper"
 
+# == Schema Information
+#
+# Table name: automated_tournament_registrations
+#
+#  id                :bigint           not null, primary key
+#  is_monthly        :boolean          default(FALSE)
+#  registered_at     :datetime
+#  unregistered_at   :datetime
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  discord_server_id :string           not null
+#  player_id         :bigint           not null
+#
+# Indexes
+#
+#  idx_on_discord_server_id_registered_at_deded07a53              (discord_server_id,registered_at)
+#  index_automated_tournament_registrations_on_discord_server_id  (discord_server_id)
+#  index_automated_tournament_registrations_on_player_id          (player_id)
+#
 class AutomatedTournamentRegistrationTest < ActiveSupport::TestCase
   test "current_for_server is empty when the server has no schedule" do
     player = create_player(uid: "1", provider: "discord")

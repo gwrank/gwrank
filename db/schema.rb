@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_14_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_24_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -54,6 +54,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_14_120000) do
   create_table "automated_tournament_registrations", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "discord_server_id", null: false
+    t.boolean "is_monthly", default: false
     t.bigint "player_id", null: false
     t.datetime "registered_at"
     t.datetime "unregistered_at"
@@ -67,7 +68,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_14_120000) do
     t.string "channel_id", null: false
     t.datetime "created_at", null: false
     t.string "discord_server_id", null: false
+    t.boolean "is_monthly", default: false
     t.date "last_reminded_on"
+    t.string "recurrence_pattern"
+    t.integer "registration_opens_days_before", default: 28
     t.string "timezone", null: false
     t.datetime "updated_at", null: false
     t.index ["discord_server_id"], name: "index_automated_tournament_schedules_on_discord_server_id", unique: true
