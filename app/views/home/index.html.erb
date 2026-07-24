@@ -9,32 +9,29 @@
         <div class="container">
           <div class="row">
             <div class="col-lg-12 mb-6" data-sr="banner" data-sr-interval="200" data-sr-duration="1200" data-sr-distance="20">
-              <h1 class="display-1" data-sr-item="banner">GWRank Scrims</h1>
+              <h1 class="display-1" data-sr-item="banner">GWRank Discord Bot</h1>
               <p class="lead" data-sr-item="banner">
-              Organize Guild Wars scrims. Register in Discord, get auto-balanced into teams.
+                Organize Guild Wars scrims and tournaments. Add our bot to your Discord server and start using slash commands.
               </p>
 
-               <div class="col-lg-12 mb-50">
-                 <p data-sr-item="banner">Current queue: <strong><%= @queue_count %>/16 registered</strong></p>
-                 <%= link_to 'Join us on Discord', 'https://discord.gg/Gjefv7GJ9g', target: '_blank', class: 'btn btn-md btn-brand me-2' %>
-                 <%= link_to 'View scrims', scrims_path, class: 'btn btn-md btn-outline-brand' %>
-               </div>
-               
-               <div class="col-lg-12 mb-30">
-                 <p data-sr-item="banner" class="small">
-                   <%= link_to 'Player Commands', player_doc_path, class: 'me-2' %> |
-                   <%= link_to 'AT Commands', at_doc_path, class: 'me-2' %> |
-                   <%= link_to 'Monthly AT Commands', mat_doc_path, class: 'me-2' %> |
-                   <%= link_to 'Scrim Commands', scrim_doc_path, class: 'me-2' %> |
-                   <%= link_to 'Build Commands', build_doc_path, class: 'me-2' %> |
-                   <%= link_to 'Team Build Commands', teambuild_doc_path %>
-                 </p>
-               </div>
+              <div class="col-lg-12 mb-40">
+                <%= link_to 'Add Bot to Discord', 'https://discord.com/oauth2/authorize?client_id=788778440877801504', target: '_blank', class: 'btn btn-lg btn-brand me-2' %>
+                <%= link_to 'Join our Discord', 'https://discord.gg/Gjefv7GJ9g', target: '_blank', class: 'btn btn-lg btn-outline-brand' %>
+              </div>
+
+              <div class="col-lg-12 mb-30">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title">Current queue: <strong><%= @queue_count %>/16 registered</strong></h4>
+                    <%= link_to 'View scrims', scrims_path, class: 'btn btn-sm btn-outline-brand' %>
+                  </div>
+                </div>
+              </div>
 
               <% if current_player %>
                 <p class="small mt-2" data-sr-item="banner">
                 Logged in as: <strong><%= current_player.name %></strong> |
-                <a href="<%= destroy_player_session_path %>" data-turbo-method="delete">Log Out</a>
+                <a href="<%= destroy_player_session_path %>", data-turbo-method="delete">Log Out</a>
                 </p>
               <% else %>
                 <div class="mt-3">
@@ -57,37 +54,89 @@
             </div>
           </div>
         </div>
+      </div>
     </section>
 
     <div class="mpl-box-md">
       <div class="container">
         <div class="row hgap-lg vgap-lg">
           <div class="col-lg mpl-content">
-          <div class="row vgap">
-            <div class="col-12 col-md-6 col-lg-6">
-              <div class="mpl-feature">
-                <div class="mpl-feature-title h4"><%= pluralize Player.all.count, 'player' %></div>
-                <div class="mpl-feature-text"><%= link_to 'See all players', players_path, class: 'btn btn-md' %></div>
+            <h2 class="text-center mb-5">Discord Bot Documentation</h2>
+            
+            <div class="row vgap">
+              <div class="col-12 col-md-6 col-lg-4">
+                <div class="mpl-feature">
+                  <h4>Player Commands</h4>
+                  <p>Manage your player profile, in-game name, and professions.</p>
+                  <%= link_to 'View Player Commands', player_doc_path, class: 'btn btn-md btn-brand' %>
+                </div>
               </div>
-            </div>
-            <div class="col-12 col-md-6 col-lg-6">
-              <div class="mpl-feature">
-                <div class="mpl-feature-title h4"><%= pluralize(@scrims_count, 'scrim', 'scrims') %> played</div>
-                <div class="mpl-feature-text"><%= link_to 'See all scrims', scrims_path, class: 'btn btn-md' %></div>
+              
+              <div class="col-12 col-md-6 col-lg-4">
+                <div class="mpl-feature">
+                  <h4>Automated Tournament</h4>
+                  <p>Daily AT queue management and scheduling.</p>
+                  <%= link_to 'View AT Commands', at_doc_path, class: 'btn btn-md btn-brand' %>
+                </div>
               </div>
-            </div>
-          </div>
-          
-          <div class="row vgap mt-4">
-            <div class="col-12">
-              <div class="mpl-feature">
-                <div class="mpl-feature-title h4">Discord Bot Commands</div>
-                <div class="mpl-feature-text">
-                  <%= link_to 'View Documentation', player_doc_path, class: 'btn btn-md' %>
+              
+              <div class="col-12 col-md-6 col-lg-4">
+                <div class="mpl-feature">
+                  <h4>Monthly AT</h4>
+                  <p>Monthly Automated Tournament scheduling and registration.</p>
+                  <%= link_to 'View MAT Commands', mat_doc_path, class: 'btn btn-md btn-brand' %>
+                </div>
+              </div>
+              
+              <div class="col-12 col-md-6 col-lg-4">
+                <div class="mpl-feature">
+                  <h4>Scrim Commands</h4>
+                  <p>Scrim registration, queue management, and team formation.</p>
+                  <%= link_to 'View Scrim Commands', scrim_doc_path, class: 'btn btn-md btn-brand' %>
+                </div>
+              </div>
+              
+              <div class="col-12 col-md-6 col-lg-4">
+                <div class="mpl-feature">
+                  <h4>Build Commands</h4>
+                  <p>Display individual Guild Wars builds from template codes.</p>
+                  <%= link_to 'View Build Commands', build_doc_path, class: 'btn btn-md btn-brand' %>
+                </div>
+              </div>
+              
+              <div class="col-12 col-md-6 col-lg-4">
+                <div class="mpl-feature">
+                  <h4>Team Build Commands</h4>
+                  <p>Display team builds from pawned2 exports.</p>
+                  <%= link_to 'View Team Build Commands', teambuild_doc_path, class: 'btn btn-md btn-brand' %>
                 </div>
               </div>
             </div>
-          </div>
+            
+            <div class="text-center mt-5">
+              <h3>How to Use the Bot</h3>
+              <ol class="text-start">
+                <li>Click "Add Bot to Discord" above to add the bot to your server</li>
+                <li>Ensure the bot has the necessary permissions</li>
+                <li>Use <code>/player register &lt;your-igname&gt;</code> to set your in-game name</li>
+                <li>Explore other commands using the documentation links above</li>
+              </ol>
+            </div>
+            
+            <div class="row vgap-lg mt-5">
+              <div class="col-12 col-md-6 col-lg-6">
+                <div class="mpl-feature">
+                  <div class="mpl-feature-title h4"><%= pluralize Player.all.count, 'player' %></div>
+                  <div class="mpl-feature-text"><%= link_to 'See all players', players_path, class: 'btn btn-md' %></div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-lg-6">
+                <div class="mpl-feature">
+                  <div class="mpl-feature-title h4"><%= pluralize(@scrims_count, 'scrim', 'scrims') %> played</div>
+                  <div class="mpl-feature-text"><%= link_to 'See all scrims', scrims_path, class: 'btn btn-md' %></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
