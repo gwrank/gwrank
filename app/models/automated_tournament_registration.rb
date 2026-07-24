@@ -3,6 +3,7 @@
 # Table name: automated_tournament_registrations
 #
 #  id                :bigint           not null, primary key
+#  is_monthly        :boolean          default(FALSE)
 #  registered_at     :datetime
 #  unregistered_at   :datetime
 #  created_at        :datetime         not null
@@ -21,13 +22,10 @@ class AutomatedTournamentRegistration < ApplicationRecord
   belongs_to :player
 
   scope :for_server, ->(server_id) { where(discord_server_id: server_id) }
+  scope :monthly, -> { where(is_monthly: true) }
+  scope :daily, -> { where(is_monthly: false) }
   scope :current_for_server, ->(server_id) {
-    bounds = window_bounds(server_id)
-    next none unless bounds
-
-    for_server(server_id)
-      .where(unregistered_at: nil)
-      .where('registered_at > ? AND registered_at <= ?', *bounds)
+    for_server(server_id).where(unregistered_at: nil)
   }
 
   def in_at_queue?(server_id)
