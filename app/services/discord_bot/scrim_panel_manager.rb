@@ -97,13 +97,19 @@ module DiscordBot
     def update_panel_message(bot, server, channel, message_id)
       return unless channel
       
+      Rails.logger.debug("Fetching message #{message_id} from channel #{channel.id}")
       message = channel.message(message_id)
-      return unless message
+      if message.nil?
+        Rails.logger.warn("Message #{message_id} not found in channel #{channel.id}")
+        return
+      end
       
-       begin
+      Rails.logger.debug("Editing message #{message.id}")
+      begin
         # For messages with components, we need to use edit with components
         # The content is included in the components via text_display
-        message.edit("", components: panel_components.to_a)
+        result = message.edit("", components: panel_components.to_a)
+        Rails.logger.debug("Message edit result: #{result}")
       rescue => e
         Rails.logger.error("Failed to update scrim panel #{server.id}/#{channel.id}/#{message_id}: #{e.class}: #{e.message}")
       end
