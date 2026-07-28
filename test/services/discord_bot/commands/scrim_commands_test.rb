@@ -14,17 +14,28 @@ module DiscordBot
         # Setup expectations
         event.expect(:server, server)
         server.expect(:id, 'server1')
-        message.expect(:channel, channel)
-        channel.expect(:id, 'channel1')
-        message.expect(:id, 'message1')
         
-        event.expect(:send_message, message) do |**kwargs|
-          content = kwargs[:content]
-          components = kwargs[:components]
-          assert_includes content, 'Scrim Registration Panel'
-          assert components.is_a?(Array)
-          message
+        interaction = Minitest::Mock.new
+        event.expect(:interaction, interaction)
+        event.expect(:respond, true) do |content: nil, has_components: nil, &block|
+          assert_includes content, 'Scrim Registration Panel' if content
+          assert has_components == true
+          # Call the block with mock view
+          view = Minitest::Mock.new
+          view.expect(:add_component, true) do |component|
+            assert component.is_a?(Hash) || component.is_a?(Array)
+            true
+          end
+          block.call(nil, view) if block
+          true
         end
+        
+        message = Minitest::Mock.new
+        channel = Minitest::Mock.new
+        interaction.expect(:message, message)
+        message.expect(:channel, channel)
+        message.expect(:id, 'message1')
+        channel.expect(:id, 'channel1')
         
         # Mock ScrimPanelManager
         manager = Minitest::Mock.new
