@@ -18,9 +18,7 @@ module DiscordBot
         channel.expect(:id, 'channel1')
         message.expect(:id, 'message1')
         
-        interaction = Minitest::Mock.new
-        event.expect(:interaction, interaction)
-        interaction.expect(:send_message, message) do |**kwargs|
+        event.expect(:send_message, message) do |**kwargs|
           content = kwargs[:content]
           components = kwargs[:components]
           assert_includes content, 'Scrim Registration Panel'
