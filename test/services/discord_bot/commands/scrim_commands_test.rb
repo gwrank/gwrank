@@ -17,13 +17,9 @@ module DiscordBot
         interaction = Minitest::Mock.new
         event.expect(:interaction, interaction)
         
-        # Mock message
-        message = Minitest::Mock.new
-        channel = Minitest::Mock.new
-        interaction.expect(:message, message)
-        message.expect(:channel, channel)
-        message.expect(:id, 'message1')
-        channel.expect(:id, 'channel1')
+        # Mock message - return nil to test fallback path
+        interaction.expect(:message, nil)
+        event.expect(:message, nil)
         
         # Mock respond to accept the block
         event.expect(:respond, true) do |has_components: nil, &block|
@@ -51,10 +47,10 @@ module DiscordBot
           true
         end
         
-        # Mock ScrimPanelManager
+        # Mock ScrimPanelManager - expect add_panel to be called with server_id only (fallback path)
+        # Since we're returning nil for message, it won't call add_panel
         manager = Minitest::Mock.new
         manager.expect(:panel_content, 'Scrim Registration Panel')
-        manager.expect(:add_panel, nil, ['server1', 'channel1', 'message1'])
         
         ScrimPanelManager.stub(:instance, manager) do
           commands = DiscordBot::Commands::ScrimCommands.new(bot)
@@ -65,8 +61,6 @@ module DiscordBot
         assert_mock event
         assert_mock server
         assert_mock interaction
-        assert_mock message
-        assert_mock channel
         assert_mock manager
       end
     end

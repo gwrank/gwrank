@@ -183,14 +183,23 @@ module DiscordBot
         # Note: For application command responses, the message is available via event.interaction.message
         # We need to get the message after the respond completes
         
+        server_id = event.server.id
         # Try to get the message from the interaction
         message = event.interaction.message rescue nil
         if message
-          panel_manager.add_panel(event.server.id, message.channel.id, message.id)
+          Rails.logger.debug("Got message from interaction: server=#{server_id}, channel=#{message.channel.id}, message=#{message.id}")
+          panel_manager.add_panel(server_id, message.channel.id, message.id)
         else
-          # If we can't get the message, try to use the event's channel
-          # This won't allow cross-server updates, but it's a fallback
-          Rails.logger.debug("Could not get message from interaction for panel on server #{event.server.id}")
+          # Try event.message as a fallback
+          message = event.message rescue nil
+          if message
+            Rails.logger.debug("Got message from event: server=#{server_id}, channel=#{message.channel.id}, message=#{message.id}")
+            panel_manager.add_panel(server_id, message.channel.id, message.id)
+          else
+            # If we can't get the message, try to use the event's channel
+            # This won't allow cross-server updates, but it's a fallback
+            Rails.logger.warn("Could not get message from interaction or event for panel on server #{server_id}")
+          end
         end
       end
 
