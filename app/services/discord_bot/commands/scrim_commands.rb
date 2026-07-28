@@ -179,27 +179,27 @@ module DiscordBot
           end
         end
         
-        # Get the message from the interaction and track it
-        # Note: For application command responses, the message is available via event.interaction.message
-        # We need to get the message after the respond completes
+        # Get the message from the event and track it
+        # For application command responses, try to get the message from various sources
         
         server_id = event.server.id
-        # Try to get the message from the interaction
-        message = event.interaction.message rescue nil
+        message = nil
+        
+        # Try event.message first
+        message = event.message rescue nil
+        
+        # If not available, try event.interaction.message
+        if message.nil?
+          message = event.interaction.message rescue nil
+        end
+        
+        # If we have a message, track it
         if message
-          Rails.logger.debug("Got message from interaction: server=#{server_id}, channel=#{message.channel.id}, message=#{message.id}")
+          Rails.logger.info("Tracking panel: server=#{server_id}, channel=#{message.channel.id}, message=#{message.id}")
           panel_manager.add_panel(server_id, message.channel.id, message.id)
         else
-          # Try event.message as a fallback
-          message = event.message rescue nil
-          if message
-            Rails.logger.debug("Got message from event: server=#{server_id}, channel=#{message.channel.id}, message=#{message.id}")
-            panel_manager.add_panel(server_id, message.channel.id, message.id)
-          else
-            # If we can't get the message, try to use the event's channel
-            # This won't allow cross-server updates, but it's a fallback
-            Rails.logger.warn("Could not get message from interaction or event for panel on server #{server_id}")
-          end
+          # If we can't get the message, log it
+          Rails.logger.warn("Could not get message for panel on server #{server_id}. Panel will not be tracked for updates.")
         end
       end
 
