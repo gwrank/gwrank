@@ -153,10 +153,29 @@ module DiscordBot
         panel_manager = ScrimPanelManager.instance
         
         # Send the panel message with components and track it
-        event.respond(content: panel_manager.panel_content, has_components: true) do |_, view|
-          # Build the panel components
-          panel_manager.panel_components.to_a.each do |component|
-            view.add_component(component)
+        # Note: When using has_components: true, we cannot pass content: separately
+        # The content must be inside the components
+        event.respond(has_components: true) do |_, view|
+          # Build the panel components directly on the view
+          view.container do |container|
+            container.text_display(content: panel_manager.panel_content)
+            
+            # Row 1: Register/Unregister
+            container.row do |row|
+              row.button(label: 'Register', style: :success, custom_id: 'scrim_register')
+              row.button(label: 'Unregister', style: :danger, custom_id: 'scrim_unregister')
+            end
+            
+            # Row 2: AFK/Back
+            container.row do |row|
+              row.button(label: 'AFK', style: :secondary, custom_id: 'scrim_afk')
+              row.button(label: 'Back (from AFK)', style: :secondary, custom_id: 'scrim_back')
+            end
+            
+            # Row 3: Reset (moderators only)
+            container.row do |row|
+              row.button(label: 'Reset Queue', style: :danger, custom_id: 'scrim_reset')
+            end
           end
         end
         
