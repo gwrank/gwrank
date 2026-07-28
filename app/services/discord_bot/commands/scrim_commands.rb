@@ -152,8 +152,8 @@ module DiscordBot
       def handle_panel(event)
         panel_manager = ScrimPanelManager.instance
         
-        # Send the panel message and track it
-        message = event.channel.send_message(content: panel_manager.panel_content, components: panel_manager.panel_components.to_a)
+        # Send the panel message with components and track it
+        message = event.send_message(content: panel_manager.panel_content, components: panel_manager.panel_components.to_a)
         panel_manager.add_panel(event.server.id, message.channel.id, message.id)
       end
 

@@ -14,12 +14,11 @@ module DiscordBot
         # Setup expectations
         event.expect(:server, server)
         server.expect(:id, 'server1')
-        event.expect(:channel, channel)
+        message.expect(:channel, channel)
         channel.expect(:id, 'channel1')
         message.expect(:id, 'message1')
-        message.expect(:channel, channel)
         
-        channel.expect(:send_message, message) do |**kwargs|
+        event.expect(:send_message, message) do |**kwargs|
           content = kwargs[:content]
           components = kwargs[:components]
           assert_includes content, 'Scrim Registration Panel'
