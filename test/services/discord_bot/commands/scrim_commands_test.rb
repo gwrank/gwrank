@@ -13,13 +13,13 @@ module DiscordBot
         event.expect(:server, server)
         server.expect(:id, 'server1')
         
-        # Mock interaction
+        # Mock message - return nil to test fallback path
+        event.expect(:message, nil)
+        
+        # Mock interaction as fallback
         interaction = Minitest::Mock.new
         event.expect(:interaction, interaction)
-        
-        # Mock message - return nil to test fallback path
         interaction.expect(:message, nil)
-        event.expect(:message, nil)
         
         # Mock respond to accept the block
         event.expect(:respond, true) do |has_components: nil, &block|
