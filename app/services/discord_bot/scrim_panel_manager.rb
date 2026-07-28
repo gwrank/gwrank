@@ -100,10 +100,10 @@ module DiscordBot
       message = channel.message(message_id)
       return unless message
       
-      begin
+       begin
         # For messages with components, we need to use edit with components
         # The content is included in the components via text_display
-        message.edit("", components: panel_components)
+        message.edit("", components: panel_components.to_a)
       rescue => e
         Rails.logger.error("Failed to update scrim panel #{server.id}/#{channel.id}/#{message_id}: #{e.class}: #{e.message}")
       end
