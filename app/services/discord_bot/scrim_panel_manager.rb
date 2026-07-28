@@ -10,11 +10,9 @@ module DiscordBot
 
     def add_panel(server_id, channel_id, message_id)
       @mutex.synchronize do
-        Rails.logger.debug("Adding panel: server=#{server_id}, channel=#{channel_id}, message=#{message_id}")
         @active_panels[server_id.to_s] ||= {}
         @active_panels[server_id.to_s][channel_id.to_s] ||= Set.new
         @active_panels[server_id.to_s][channel_id.to_s] << message_id.to_s
-        Rails.logger.debug("Total panels: #{@active_panels.size}")
       end
     end
 
@@ -33,7 +31,6 @@ module DiscordBot
 
     def update_all_panels(bot)
       @mutex.synchronize do
-        Rails.logger.debug("Updating #{@active_panels.size} servers with panels")
         @active_panels.each do |server_id, channels|
           server = bot.server(server_id)
           next unless server
@@ -43,7 +40,6 @@ module DiscordBot
             next unless channel
 
             message_ids.each do |message_id|
-              Rails.logger.debug("Updating panel: server=#{server_id}, channel=#{channel_id}, message=#{message_id}")
               update_panel_message(bot, server, channel, message_id)
             end
           end
@@ -97,19 +93,13 @@ module DiscordBot
     def update_panel_message(bot, server, channel, message_id)
       return unless channel
       
-      Rails.logger.debug("Fetching message #{message_id} from channel #{channel.id}")
       message = channel.message(message_id)
-      if message.nil?
-        Rails.logger.warn("Message #{message_id} not found in channel #{channel.id}")
-        return
-      end
+      return unless message
       
-      Rails.logger.debug("Editing message #{message.id}")
       begin
         # For messages with components, we need to use edit with components
         # The content is included in the components via text_display
-        result = message.edit("", components: panel_components.to_a)
-        Rails.logger.debug("Message edit result: #{result}")
+        message.edit("", components: panel_components.to_a)
       rescue => e
         Rails.logger.error("Failed to update scrim panel #{server.id}/#{channel.id}/#{message_id}: #{e.class}: #{e.message}")
       end
