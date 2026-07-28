@@ -120,6 +120,7 @@ module DiscordBot
         else
           player.registrations.create(registered_at: DateTime.now)
           form_first_scrim_if_ready!
+          ScrimPanelManager.instance.update_all_panels(@bot)
 
           event.respond(content: "You have been registered, #{event.user.username}!", ephemeral: true)
         end
@@ -130,6 +131,7 @@ module DiscordBot
 
         if player&.has_current_registration?
           player.current_registration.update(unregistered_at: DateTime.now)
+          ScrimPanelManager.instance.update_all_panels(@bot)
           event.respond(content: "You have been unregistered, #{event.user.username}!", ephemeral: true)
         else
           event.respond(content: "You are not registered, #{event.user.username}!", ephemeral: true)
@@ -158,6 +160,7 @@ module DiscordBot
 
       def handle_reset(event)
         Registration.current_registrations.update_all(unregistered_at: DateTime.now)
+        ScrimPanelManager.instance.update_all_panels(@bot)
         event.respond(content: "<@#{event.user.id}>, you successfully reset the current queue.\nPlayers can register again via the queue panel (*/scrim register*).")
       end
 
@@ -172,6 +175,7 @@ module DiscordBot
               "<@#{event.user.id}>, the player #{player.name} is already ##{current_registrations.count} in the current queue."
             else
               player.registrations.create(registered_at: DateTime.now)
+              ScrimPanelManager.instance.update_all_panels(@bot)
               m = "<@#{event.user.id}>, the player #{player.name} is now ##{current_registrations.count} in the current queue for the next 8 hours."
               m << "\nIf he's out, a moderator can use */scrim remove*."
               if current_registrations.count < QUEUE_SIZE
@@ -197,6 +201,7 @@ module DiscordBot
           if player.present?
             if player.has_current_registration?
               player.current_registration.update(unregistered_at: DateTime.now)
+              ScrimPanelManager.instance.update_all_panels(@bot)
               "<@#{event.user.id}>, the player #{player.name} is not anymore in the current queue."
             else
               "<@#{event.user.id}>, the player #{player.name} was not in the current queue."
@@ -215,6 +220,7 @@ module DiscordBot
         message =
           if player&.has_current_registration?
             player.current_registration.update(unregistered_at: DateTime.now)
+            ScrimPanelManager.instance.update_all_panels(@bot)
             self_target ? "<@#{event.user.id}>, you are now in AFK mode." : "<@#{event.user.id}>, the player #{player.name} is now in AFK mode, he can use */scrim back* to return."
           elsif player
             self_target ? "<@#{event.user.id}>, you were not in the current queue." : "<@#{event.user.id}>, the player #{player.name} is not in the current queue."
@@ -232,6 +238,7 @@ module DiscordBot
         message =
           if player&.has_afk_registration?
             player.afk_registration.update(unregistered_at: self_target ? nil : DateTime.now)
+            ScrimPanelManager.instance.update_all_panels(@bot)
             self_target ? "<@#{event.user.id}>, welcome back!" : "<@#{event.user.id}>, the player #{player.name} is now back in the queue."
           elsif player
             self_target ? "<@#{event.user.id}>, you were not in the current queue." : "<@#{event.user.id}>, the player #{player.name} was not in AFK mode."
@@ -272,6 +279,7 @@ module DiscordBot
 
         scrim = begin
           Scrims::FormTeams.call!
+          ScrimPanelManager.instance.update_all_panels(@bot)
         rescue StandardError => e
           Rails.logger.error("Failed to form new teams: #{e.class}: #{e.message}")
           event.respond(content: "<@#{event.user.id}>, something went wrong forming new teams.")
@@ -297,6 +305,7 @@ module DiscordBot
 
         scrim = begin
           record_win!(winner)
+          ScrimPanelManager.instance.update_all_panels(@bot)
         rescue StandardError => e
           Rails.logger.error("Failed to record win: #{e.class}: #{e.message}")
           event.respond(content: "<@#{event.user.id}>, something went wrong recording that result.")
@@ -323,6 +332,7 @@ module DiscordBot
         Registration.current_registrations.order(registered_at: :asc).first(16).each do |registration|
           server.move(event.bot.user(registration.player.uid), channel)
         end
+        ScrimPanelManager.instance.update_all_panels(@bot)
 
         event.respond(content: "<@#{event.user.id}>, the current first 16 players were moved to the Scrimers voice channel.")
       end
@@ -446,25 +456,7 @@ module DiscordBot
         ActiveRecord::Base.connection.execute("SELECT pg_advisory_unlock(#{FORM_FIRST_SCRIM_LOCK_KEY})") if acquired
       end
 
-      def message_container(view)
-        view.container do |container|
-          container.text_display(content: scrim_registration_panel_content)
-          container.row do |row|
-            row.button(label: 'Register', style: :success, custom_id: 'register')
-            row.button(label: 'Unregister', style: :danger, custom_id: 'unregister')
-          end
-        end
-      end
 
-      def scrim_registration_panel_content
-        players = Registration.current_registrations.order(registered_at: :asc).map.with_index do |registration, index|
-          entry = ["\n##{index + 1} <@#{registration.player.uid}>"]
-          entry << "(**#{registration.player.igname}**)" if registration.player.igname.present?
-          entry << "[#{registration.player.professions_text}]" if registration.player.professions_text.present?
-          entry.join(' ')
-        end
-        "### Scrim Registration Panel\nCurrent registered users:\n#{players.join("\n")}"
-      end
     end
   end
 end
