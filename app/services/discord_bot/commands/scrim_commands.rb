@@ -26,6 +26,7 @@ module DiscordBot
           cmd.subcommand(:register, 'Register for the scrim queue')
           cmd.subcommand(:unregister, 'Unregister from the scrim queue')
           cmd.subcommand(:queue, 'Show current scrim queue')
+          cmd.subcommand(:panel, 'Show scrim registration panel')
           cmd.subcommand(:reset, 'Reset the current queue (moderators only)')
 
           cmd.subcommand(:add, 'Add a player to the queue (moderators only)') do |sub|
@@ -59,7 +60,7 @@ module DiscordBot
 
       def register_dispatch
         handler = @bot.application_command(:scrim)
-        %i[register unregister queue reset add remove afk back].each { |name| handler.subcommand(name) { |event| dispatch(event) } }
+        %i[register unregister queue panel reset add remove afk back].each { |name| handler.subcommand(name) { |event| dispatch(event) } }
 
         handler.group(:team) do |team_builder|
           %i[captains roll new win move].each { |name| team_builder.subcommand(name) { |event| dispatch(event) } }
@@ -81,6 +82,7 @@ module DiscordBot
         when :register then handle_register(event)
         when :unregister then handle_unregister(event)
         when :queue then handle_queue(event)
+        when :panel then handle_panel(event)
         when :reset then with_moderator(event) { handle_reset(event) }
         when :add then with_moderator(event) { handle_add(event) }
         when :remove then with_moderator(event) { handle_remove(event) }
@@ -131,6 +133,15 @@ module DiscordBot
           message << " [#{player.professions_short_text}]" if player.professions_short_text.present?
         end
         event.respond(content: message)
+      end
+
+      def handle_panel(event)
+        panel_manager = ScrimPanelManager.instance
+        
+        event.respond(content: panel_manager.panel_content, components: panel_manager.panel_components) do |message|
+          # Track this panel for future updates
+          panel_manager.add_panel(event.server.id, message.channel.id, message.id)
+        end
       end
 
       def handle_reset(event)
