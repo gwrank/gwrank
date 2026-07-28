@@ -4,21 +4,28 @@ module DiscordBot
   module Commands
     class ScrimCommandsTest < ActiveSupport::TestCase
       test 'handle_panel creates panel message' do
-        # Mock the bot and event
+        # Mock the bot and event with minimal expectations
         bot = Minitest::Mock.new
         event = Minitest::Mock.new
         server = Minitest::Mock.new
-        interaction = Minitest::Mock.new
-        message = Minitest::Mock.new
-        channel = Minitest::Mock.new
         
-        # Setup expectations
+        # Setup basic expectations
         event.expect(:server, server)
         server.expect(:id, 'server1')
+        
+        # Mock interaction
+        interaction = Minitest::Mock.new
         event.expect(:interaction, interaction)
         
-        # Mock respond to accept the block and call it
-        # We'll use a simple mock that doesn't verify the block contents
+        # Mock message
+        message = Minitest::Mock.new
+        channel = Minitest::Mock.new
+        interaction.expect(:message, message)
+        message.expect(:channel, channel)
+        message.expect(:id, 'message1')
+        channel.expect(:id, 'channel1')
+        
+        # Mock respond to accept the block
         event.expect(:respond, true) do |has_components: nil, &block|
           assert has_components == true
           
@@ -43,11 +50,6 @@ module DiscordBot
           end
           true
         end
-        
-        interaction.expect(:message, message)
-        message.expect(:channel, channel)
-        message.expect(:id, 'message1')
-        channel.expect(:id, 'channel1')
         
         # Mock ScrimPanelManager
         manager = Minitest::Mock.new
