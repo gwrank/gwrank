@@ -68,12 +68,24 @@ module DiscordBot
       end
 
       def register_buttons
-        @bot.button(custom_id: 'register') do |event|
+        @bot.button(custom_id: 'scrim_register') do |event|
           handle_register_button(event)
         end
 
-        @bot.button(custom_id: 'unregister') do |event|
+        @bot.button(custom_id: 'scrim_unregister') do |event|
           handle_unregister_button(event)
+        end
+
+        @bot.button(custom_id: 'scrim_afk') do |event|
+          handle_afk_button(event)
+        end
+
+        @bot.button(custom_id: 'scrim_back') do |event|
+          handle_back_button(event)
+        end
+
+        @bot.button(custom_id: 'scrim_reset') do |event|
+          with_moderator(event) { handle_reset_button(event) }
         end
       end
 
@@ -350,10 +362,11 @@ module DiscordBot
         else
           player.registrations.create(registered_at: DateTime.now)
           form_first_scrim_if_ready!
-          event.interaction.update_message(has_components: true) do |_, view|
-            message_container(view)
-          end
-          event.send_message(content: "You have been registered, #{event.user.username}!", ephemeral: true)
+          
+          # Update all panels across all servers
+          ScrimPanelManager.instance.update_all_panels(@bot)
+          
+          event.respond(content: "You have been registered, #{event.user.username}!", ephemeral: true)
         end
       end
 
@@ -362,13 +375,54 @@ module DiscordBot
 
         if player&.has_current_registration?
           player.current_registration.update(unregistered_at: DateTime.now)
-          event.interaction.update_message(has_components: true) do |_, view|
-            message_container(view)
-          end
-          event.send_message(content: "You have been unregistered, #{event.user.username}!", ephemeral: true)
+          
+          # Update all panels across all servers
+          ScrimPanelManager.instance.update_all_panels(@bot)
+          
+          event.respond(content: "You have been unregistered, #{event.user.username}!", ephemeral: true)
         else
           event.respond(content: "You are not registered, #{event.user.username}!", ephemeral: true)
         end
+      end
+
+      def handle_afk_button(event)
+        player = Player.find_by(uid: event.user.id)
+
+        message =
+          if player&.has_current_registration?
+            player.current_registration.update(unregistered_at: DateTime.now)
+            ScrimPanelManager.instance.update_all_panels(@bot)
+            "<@#{event.user.id}>, you are now in AFK mode."
+          elsif player
+            "<@#{event.user.id}>, you were not in the current queue."
+          else
+            "<@#{event.user.id}>, the player is not found and needs to use */player register* first."
+          end
+
+        event.respond(content: message, ephemeral: true)
+      end
+
+      def handle_back_button(event)
+        player = Player.find_by(uid: event.user.id)
+
+        message =
+          if player&.has_afk_registration?
+            player.afk_registration.update(unregistered_at: nil)
+            ScrimPanelManager.instance.update_all_panels(@bot)
+            "<@#{event.user.id}>, welcome back!"
+          elsif player
+            "<@#{event.user.id}>, you were not in AFK mode."
+          else
+            "<@#{event.user.id}>, the player is not found and needs to use */player register* first."
+          end
+
+        event.respond(content: message, ephemeral: true)
+      end
+
+      def handle_reset_button(event)
+        Registration.current_registrations.update_all(unregistered_at: DateTime.now)
+        ScrimPanelManager.instance.update_all_panels(@bot)
+        event.respond(content: "<@#{event.user.id}>, you successfully reset the current queue.")
       end
 
       # Helper methods (migrated from QueueCommands)
