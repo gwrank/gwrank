@@ -14,14 +14,14 @@ class RegistrationsController < ApplicationController
       current_player.registrations.create(registered_at: DateTime.now)
       current_registrations = Registration.current_registrations
       message << "\n<@#{current_player.uid}>, you are ##{current_registrations.count} in the current queue for the next 8 hours."
-      message << "\nIf you're out, please click Unregister on the queue panel (*/queue open*)"
+      message << "\nIf you're out, please click Unregister on the queue panel (*/scrim panel*)"
 
       if current_registrations.count < 16
         players_required = 16 - current_registrations.count
         message << "\nWe need #{players_required} more players."
       elsif current_registrations.count.eql?(16)
         message << "\nWe have 16 players!"
-        message << "\nTo see the players list, you can use */queue players* or go on https://gwrank.com/scrims"
+        message << "\nTo see the players list, you can use */scrim queue* or go on https://gwrank.com/scrims"
         message << "\nTo roll 100, captains can use */team roll*"
         message << "\nTo automatically designate captains, you can type *!newcaptains*"
       end
