@@ -97,7 +97,7 @@ module DiscordBot
       return unless message
       
       begin
-        message.edit("", components: panel_components)
+        message.edit("", components: panel_components.to_a)
       rescue => e
         Rails.logger.error("Failed to update scrim panel #{server.id}/#{channel.id}/#{message_id}: #{e.class}: #{e.message}")
       end
