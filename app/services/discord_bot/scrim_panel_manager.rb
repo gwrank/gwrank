@@ -64,8 +64,8 @@ module DiscordBot
     end
 
     def panel_components
-      Discordrb::Webhooks::Builder.new.tap do |builder|
-        builder.container do |container|
+      Discordrb::Webhooks::View.new.tap do |view|
+        view.container do |container|
           container.text_display(content: panel_content)
           
           # Row 1: Register/Unregister
