@@ -84,6 +84,10 @@ module DiscordBot
           handle_back_button(event)
         end
 
+        @bot.button(custom_id: 'scrim_refresh') do |event|
+          handle_refresh_button(event)
+        end
+
         @bot.button(custom_id: 'scrim_reset') do |event|
           with_moderator(event) { handle_reset_button(event) }
         end
@@ -155,7 +159,7 @@ module DiscordBot
         # Send the panel message with components and track it
         # Note: When using has_components: true, we cannot pass content: separately
         # The content must be inside the components
-        event.respond(has_components: true) do |_, view|
+        message = event.respond(has_components: true) do |_, view|
           # Build the panel components directly on the view
           view.container do |container|
             container.text_display(content: panel_manager.panel_content)
@@ -166,28 +170,27 @@ module DiscordBot
               row.button(label: 'Unregister', style: :danger, custom_id: 'scrim_unregister')
             end
             
-            # Row 2: AFK/Back
+             # Row 2: AFK/Back
             container.row do |row|
               row.button(label: 'AFK', style: :secondary, custom_id: 'scrim_afk')
               row.button(label: 'Back (from AFK)', style: :secondary, custom_id: 'scrim_back')
             end
             
-            # Row 3: Reset (moderators only)
+            # Row 3: Refresh
+            container.row do |row|
+              row.button(label: 'Refresh', style: :secondary, custom_id: 'scrim_refresh')
+            end
+            
+            # Row 4: Reset (moderators only)
             container.row do |row|
               row.button(label: 'Reset Queue', style: :danger, custom_id: 'scrim_reset')
             end
           end
         end
         
-        # Get the message from the event and track it
-        # For application command responses, try to get the message from various sources
-        
-        server_id = event.server.id
-        message = event.message || event.interaction.message rescue nil
-        
-        # If we have a message, track it
+        # Track the panel message
         if message
-          panel_manager.add_panel(server_id, message.channel.id, message.id)
+          panel_manager.add_panel(event.server.id, message.channel.id, message.id)
         end
       end
 
@@ -402,12 +405,12 @@ module DiscordBot
 
         if player.has_current_registration?
           event.respond(content: "You are already registered, #{event.user.username}!", ephemeral: true)
-        else
-          player.registrations.create(registered_at: DateTime.now)
-          form_first_scrim_if_ready!
-          
-          # Update the panel that the button is on
-          panel_manager = ScrimPanelManager.instance
+         else
+           player.registrations.create(registered_at: DateTime.now)
+           form_first_scrim_if_ready!
+           
+           # Update the panel that the button is on and acknowledge the interaction
+           panel_manager = ScrimPanelManager.instance
           event.interaction.update_message(has_components: true) do |_, view|
             view.container do |container|
               container.text_display(content: panel_manager.panel_content)
@@ -420,81 +423,96 @@ module DiscordBot
                 row.button(label: 'Back (from AFK)', style: :secondary, custom_id: 'scrim_back')
               end
               container.row do |row|
+                row.button(label: 'Refresh', style: :secondary, custom_id: 'scrim_refresh')
+              end
+              container.row do |row|
                 row.button(label: 'Reset Queue', style: :danger, custom_id: 'scrim_reset')
               end
             end
           end
-          
-          # Update all panels across all servers
-          panel_manager.update_all_panels(@bot)
-          
-          event.respond(content: "You have been registered, #{event.user.username}!", ephemeral: true)
-        end
+           
+           # Track the panel that the button is on (if not already tracked)
+           message = event.interaction.message
+           if message
+             panel_manager.add_panel(event.server.id, message.channel.id, message.id)
+           end
+           
+           # Update all panels across all servers except the current one (already updated above)
+           panel_manager.update_all_panels(@bot, exclude_message: message)
+         end
       end
 
-      def handle_unregister_button(event)
-        player = Player.find_by(uid: event.user.id)
+       def handle_unregister_button(event)
+         player = Player.find_by(uid: event.user.id)
 
-        if player&.has_current_registration?
-          player.current_registration.update(unregistered_at: DateTime.now)
-          
-          # Update the panel that the button is on
-          panel_manager = ScrimPanelManager.instance
-          event.interaction.update_message(has_components: true) do |_, view|
-            view.container do |container|
-              container.text_display(content: panel_manager.panel_content)
-              container.row do |row|
-                row.button(label: 'Register', style: :success, custom_id: 'scrim_register')
-                row.button(label: 'Unregister', style: :danger, custom_id: 'scrim_unregister')
-              end
-              container.row do |row|
-                row.button(label: 'AFK', style: :secondary, custom_id: 'scrim_afk')
-                row.button(label: 'Back (from AFK)', style: :secondary, custom_id: 'scrim_back')
-              end
-              container.row do |row|
-                row.button(label: 'Reset Queue', style: :danger, custom_id: 'scrim_reset')
+         if player&.has_current_registration?
+            player.current_registration.update(unregistered_at: DateTime.now)
+            
+            # Update the panel that the button is on and acknowledge the interaction
+            panel_manager = ScrimPanelManager.instance
+            event.interaction.update_message(has_components: true) do |_, view|
+              view.container do |container|
+                container.text_display(content: panel_manager.panel_content)
+                container.row do |row|
+                  row.button(label: 'Register', style: :success, custom_id: 'scrim_register')
+                  row.button(label: 'Unregister', style: :danger, custom_id: 'scrim_unregister')
+                end
+                container.row do |row|
+                  row.button(label: 'AFK', style: :secondary, custom_id: 'scrim_afk')
+                  row.button(label: 'Back (from AFK)', style: :secondary, custom_id: 'scrim_back')
+                end
+                container.row do |row|
+                  row.button(label: 'Reset Queue', style: :danger, custom_id: 'scrim_reset')
+                end
               end
             end
-          end
-          
-          # Update all panels across all servers
-          panel_manager.update_all_panels(@bot)
-          
-          event.respond(content: "You have been unregistered, #{event.user.username}!", ephemeral: true)
+            
+            # Track the panel that the button is on (if not already tracked)
+            message = event.interaction.message
+            if message
+              panel_manager.add_panel(event.server.id, message.channel.id, message.id)
+            end
+            
+            # Update all panels across all servers except the current one (already updated above)
+            panel_manager.update_all_panels(@bot, exclude_message: message)
         else
           event.respond(content: "You are not registered, #{event.user.username}!", ephemeral: true)
         end
       end
 
-      def handle_afk_button(event)
-        player = Player.find_by(uid: event.user.id)
+       def handle_afk_button(event)
+         player = Player.find_by(uid: event.user.id)
 
-        if player&.has_current_registration?
-          player.current_registration.update(unregistered_at: DateTime.now)
-          
-          # Update the panel that the button is on
-          panel_manager = ScrimPanelManager.instance
-          event.interaction.update_message(has_components: true) do |_, view|
-            view.container do |container|
-              container.text_display(content: panel_manager.panel_content)
-              container.row do |row|
-                row.button(label: 'Register', style: :success, custom_id: 'scrim_register')
-                row.button(label: 'Unregister', style: :danger, custom_id: 'scrim_unregister')
-              end
-              container.row do |row|
-                row.button(label: 'AFK', style: :secondary, custom_id: 'scrim_afk')
-                row.button(label: 'Back (from AFK)', style: :secondary, custom_id: 'scrim_back')
-              end
-              container.row do |row|
-                row.button(label: 'Reset Queue', style: :danger, custom_id: 'scrim_reset')
+         if player&.has_current_registration?
+            player.current_registration.update(unregistered_at: DateTime.now)
+            
+            # Update the panel that the button is on and acknowledge the interaction
+            panel_manager = ScrimPanelManager.instance
+            event.interaction.update_message(has_components: true) do |_, view|
+              view.container do |container|
+                container.text_display(content: panel_manager.panel_content)
+                container.row do |row|
+                  row.button(label: 'Register', style: :success, custom_id: 'scrim_register')
+                  row.button(label: 'Unregister', style: :danger, custom_id: 'scrim_unregister')
+                end
+                container.row do |row|
+                  row.button(label: 'AFK', style: :secondary, custom_id: 'scrim_afk')
+                  row.button(label: 'Back (from AFK)', style: :secondary, custom_id: 'scrim_back')
+                end
+                container.row do |row|
+                  row.button(label: 'Reset Queue', style: :danger, custom_id: 'scrim_reset')
+                end
               end
             end
-          end
-          
-          # Update all panels across all servers
-          panel_manager.update_all_panels(@bot)
-          
-          event.respond(content: "<@#{event.user.id}>, you are now in AFK mode.", ephemeral: true)
+            
+            # Track the panel that the button is on (if not already tracked)
+            message = event.interaction.message
+            if message
+              panel_manager.add_panel(event.server.id, message.channel.id, message.id)
+            end
+            
+            # Update all panels across all servers except the current one (already updated above)
+            panel_manager.update_all_panels(@bot, exclude_message: message)
         elsif player
           event.respond(content: "<@#{event.user.id}>, you were not in the current queue.", ephemeral: true)
         else
@@ -502,35 +520,42 @@ module DiscordBot
         end
       end
 
-      def handle_back_button(event)
-        player = Player.find_by(uid: event.user.id)
+       def handle_back_button(event)
+         player = Player.find_by(uid: event.user.id)
 
-        if player&.has_afk_registration?
-          player.afk_registration.update(unregistered_at: nil)
-          
-          # Update the panel that the button is on
-          panel_manager = ScrimPanelManager.instance
-          event.interaction.update_message(has_components: true) do |_, view|
-            view.container do |container|
-              container.text_display(content: panel_manager.panel_content)
-              container.row do |row|
-                row.button(label: 'Register', style: :success, custom_id: 'scrim_register')
-                row.button(label: 'Unregister', style: :danger, custom_id: 'scrim_unregister')
-              end
-              container.row do |row|
-                row.button(label: 'AFK', style: :secondary, custom_id: 'scrim_afk')
-                row.button(label: 'Back (from AFK)', style: :secondary, custom_id: 'scrim_back')
-              end
-              container.row do |row|
-                row.button(label: 'Reset Queue', style: :danger, custom_id: 'scrim_reset')
-              end
-            end
-          end
-          
-          # Update all panels across all servers
-          panel_manager.update_all_panels(@bot)
-          
-          event.respond(content: "<@#{event.user.id}>, welcome back!", ephemeral: true)
+           if player&.has_afk_registration?
+             player.afk_registration.update(unregistered_at: nil)
+             
+             # Update the panel that the button is on and acknowledge the interaction
+             panel_manager = ScrimPanelManager.instance
+             event.interaction.update_message(has_components: true) do |_, view|
+               view.container do |container|
+                 container.text_display(content: panel_manager.panel_content)
+                 container.row do |row|
+                   row.button(label: 'Register', style: :success, custom_id: 'scrim_register')
+                   row.button(label: 'Unregister', style: :danger, custom_id: 'scrim_unregister')
+                 end
+                 container.row do |row|
+                   row.button(label: 'AFK', style: :secondary, custom_id: 'scrim_afk')
+                   row.button(label: 'Back (from AFK)', style: :secondary, custom_id: 'scrim_back')
+                 end
+                 container.row do |row|
+                   row.button(label: 'Refresh', style: :secondary, custom_id: 'scrim_refresh')
+                 end
+                 container.row do |row|
+                   row.button(label: 'Reset Queue', style: :danger, custom_id: 'scrim_reset')
+                 end
+               end
+             end
+             
+             # Track the panel that the button is on (if not already tracked)
+             message = event.interaction.message
+             if message
+               panel_manager.add_panel(event.server.id, message.channel.id, message.id)
+             end
+             
+             # Update all panels across all servers except the current one (already updated above)
+             panel_manager.update_all_panels(@bot, exclude_message: message)
         elsif player
           event.respond(content: "<@#{event.user.id}>, you were not in AFK mode.", ephemeral: true)
         else
@@ -538,35 +563,75 @@ module DiscordBot
         end
       end
 
-      def handle_reset_button(event)
-        Registration.current_registrations.update_all(unregistered_at: DateTime.now)
-        
-        # Update the panel that the button is on
-        panel_manager = ScrimPanelManager.instance
-        event.interaction.update_message(has_components: true) do |_, view|
-          view.container do |container|
-            container.text_display(content: panel_manager.panel_content)
-            container.row do |row|
-              row.button(label: 'Register', style: :success, custom_id: 'scrim_register')
-              row.button(label: 'Unregister', style: :danger, custom_id: 'scrim_unregister')
-            end
-            container.row do |row|
-              row.button(label: 'AFK', style: :secondary, custom_id: 'scrim_afk')
-              row.button(label: 'Back (from AFK)', style: :secondary, custom_id: 'scrim_back')
-            end
-            container.row do |row|
-              row.button(label: 'Reset Queue', style: :danger, custom_id: 'scrim_reset')
-            end
-          end
+       def handle_reset_button(event)
+         Registration.current_registrations.update_all(unregistered_at: DateTime.now)
+         
+         # Update the panel that the button is on and acknowledge the interaction
+         panel_manager = ScrimPanelManager.instance
+         event.interaction.update_message(has_components: true) do |_, view|
+           view.container do |container|
+             container.text_display(content: panel_manager.panel_content)
+             container.row do |row|
+               row.button(label: 'Register', style: :success, custom_id: 'scrim_register')
+               row.button(label: 'Unregister', style: :danger, custom_id: 'scrim_unregister')
+             end
+                 container.row do |row|
+                   row.button(label: 'AFK', style: :secondary, custom_id: 'scrim_afk')
+                   row.button(label: 'Back (from AFK)', style: :secondary, custom_id: 'scrim_back')
+                 end
+                 container.row do |row|
+                   row.button(label: 'Refresh', style: :secondary, custom_id: 'scrim_refresh')
+                 end
+                 container.row do |row|
+                   row.button(label: 'Reset Queue', style: :danger, custom_id: 'scrim_reset')
+                 end
+               end
+             end
+         
+         # Track the panel that the button is on (if not already tracked)
+         message = event.interaction.message
+         if message
+           panel_manager.add_panel(event.server.id, message.channel.id, message.id)
+         end
+         
+          # Update all panels across all servers except the current one (already updated above)
+          panel_manager.update_all_panels(@bot, exclude_message: message)
         end
-        
-        # Update all panels across all servers
-        panel_manager.update_all_panels(@bot)
-        
-        event.respond(content: "<@#{event.user.id}>, you successfully reset the current queue.")
-      end
 
-      # Helper methods (migrated from QueueCommands)
+       def handle_refresh_button(event)
+         # Update the panel that the button is on and acknowledge the interaction
+         panel_manager = ScrimPanelManager.instance
+         event.interaction.update_message(has_components: true) do |_, view|
+           view.container do |container|
+             container.text_display(content: panel_manager.panel_content)
+             container.row do |row|
+               row.button(label: 'Register', style: :success, custom_id: 'scrim_register')
+               row.button(label: 'Unregister', style: :danger, custom_id: 'scrim_unregister')
+             end
+             container.row do |row|
+               row.button(label: 'AFK', style: :secondary, custom_id: 'scrim_afk')
+               row.button(label: 'Back (from AFK)', style: :secondary, custom_id: 'scrim_back')
+             end
+             container.row do |row|
+               row.button(label: 'Refresh', style: :secondary, custom_id: 'scrim_refresh')
+             end
+             container.row do |row|
+               row.button(label: 'Reset Queue', style: :danger, custom_id: 'scrim_reset')
+             end
+           end
+         end
+         
+         # Track the panel that the button is on (if not already tracked)
+         message = event.interaction.message
+         if message
+           panel_manager.add_panel(event.server.id, message.channel.id, message.id)
+         end
+         
+         # Update all panels across all servers except the current one (already updated above)
+         panel_manager.update_all_panels(@bot, exclude_message: message)
+       end
+
+       # Helper methods (migrated from QueueCommands)
 
       def form_first_scrim_if_ready!
         return unless Player.in_queue.count == QUEUE_SIZE

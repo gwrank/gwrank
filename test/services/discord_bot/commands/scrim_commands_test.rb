@@ -13,16 +13,14 @@ module DiscordBot
         event.expect(:server, server)
         server.expect(:id, 'server1')
         
-        # Mock message - return nil to test fallback path
-        event.expect(:message, nil)
+        # Mock respond to accept the block and return a message
+        message = Minitest::Mock.new
+        channel = Minitest::Mock.new
+        channel.expect(:id, 'channel1')
+        message.expect(:channel, channel)
+        message.expect(:id, 'message1')
         
-        # Mock interaction as fallback
-        interaction = Minitest::Mock.new
-        event.expect(:interaction, interaction)
-        interaction.expect(:message, nil)
-        
-        # Mock respond to accept the block
-        event.expect(:respond, true) do |has_components: nil, &block|
+        event.expect(:respond, message) do |has_components: nil, &block|
           assert has_components == true
           
           # Call the block with a simple mock view if provided
@@ -44,13 +42,18 @@ module DiscordBot
             end
             block.call(nil, view)
           end
-          true
+          message
         end
         
-        # Mock ScrimPanelManager - expect add_panel to be called with server_id only (fallback path)
-        # Since we're returning nil for message, it won't call add_panel
+        # Mock ScrimPanelManager - expect add_panel to be called
         manager = Minitest::Mock.new
         manager.expect(:panel_content, 'Scrim Registration Panel')
+        manager.expect(:add_panel, true) do |server_id, channel_id, message_id|
+          assert_equal 'server1', server_id
+          assert_equal 'channel1', channel_id
+          assert_equal 'message1', message_id
+          true
+        end
         
         ScrimPanelManager.stub(:instance, manager) do
           commands = DiscordBot::Commands::ScrimCommands.new(bot)
@@ -60,7 +63,8 @@ module DiscordBot
         # Verify all mocks
         assert_mock event
         assert_mock server
-        assert_mock interaction
+        assert_mock channel
+        assert_mock message
         assert_mock manager
       end
     end

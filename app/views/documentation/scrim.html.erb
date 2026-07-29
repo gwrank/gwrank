@@ -15,125 +15,163 @@
       </div>
     </section>
     
-    <div class="mpl-box-md">
-      <div class="container">
-        <div class="row hgap-lg vgap-lg">
-          <div class="col-lg mpl-content">
-            <article class="mpl-post">
-              <h2>Queue Management</h2>
-              
-              <div class="mb-4">
-                <h3>/scrim register</h3>
-                <p><strong>Description:</strong> Register for the scrim queue</p>
-                <p><strong>Usage:</strong> Click the "Register" button in the scrim panel or use the command</p>
-                <p><strong>Response:</strong> <code>You have been registered, &lt;username&gt;!</code></p>
-                <button class="btn btn-sm btn-success" onclick="toggleExample('register')">Show Example</button>
-                <div id="example-register" class="example-output mt-2" style="display: none;">
-                  <div class="card">
-                    <div class="card-body">
-                      <p><strong>Example Output:</strong></p>
-                      <p>You have been registered, Arka!</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="mb-4">
-                <h3>/scrim unregister</h3>
-                <p><strong>Description:</strong> Unregister from the scrim queue</p>
-                <p><strong>Usage:</strong> Click the "Unregister" button or use the command</p>
-                <p><strong>Response:</strong> <code>You have been unregistered, &lt;username&gt;!</code></p>
-              </div>
-              
-              <div class="mb-4">
-                <h3>/scrim queue</h3>
-                <p><strong>Description:</strong> Show the current scrim queue</p>
-                <p><strong>Usage:</strong> <code>/scrim queue</code></p>
-                <p><strong>Response:</strong></p>
-                <pre>&lt;@user&gt;, the current players ordered by registration time are:
+     <div class="mpl-box-md">
+       <div class="container">
+         <div class="row hgap-lg vgap-lg">
+           <div class="col-lg mpl-content">
+             <article class="mpl-post">
+               <h2>Queue Management</h2>
+               
+               <div class="mb-4">
+                 <h3>/scrim panel</h3>
+                 <p><strong>Description:</strong> Display the scrim registration panel with interactive buttons</p>
+                 <p><strong>Usage:</strong> <code>/scrim panel</code></p>
+                 <p><strong>Features:</strong></p>
+                 <ul>
+                   <li>Shows current global queue across all servers</li>
+                   <li>Interactive buttons for quick actions</li>
+                   <li>Auto-refreshes when any action occurs on any server</li>
+                 </ul>
+                 <p><strong>Panel Buttons:</strong></p>
+                 <ul>
+                   <li><strong>Register</strong> - Add yourself to the queue</li>
+                   <li><strong>Unregister</strong> - Remove yourself from the queue</li>
+                   <li><strong>AFK</strong> - Mark yourself as AFK</li>
+                   <li><strong>Back (from AFK)</strong> - Return from AFK status</li>
+                   <li><strong>Refresh</strong> - Refresh the panel display</li>
+                   <li><strong>Reset Queue</strong> - Clear entire queue (moderators only)</li>
+                 </ul>
+               </div>
+               
+               <div class="mb-4">
+                 <h3>/scrim register</h3>
+                 <p><strong>Description:</strong> Register for the scrim queue</p>
+                 <p><strong>Usage:</strong> Click the "Register" button in the scrim panel or use the command</p>
+                 <p><strong>Response:</strong> <code>You have been registered, &lt;username&gt;!</code></p>
+                 <button class="btn btn-sm btn-success" onclick="toggleExample('register')">Show Example</button>
+                 <div id="example-register" class="example-output mt-2" style="display: none;">
+                   <div class="card">
+                     <div class="card-body">
+                       <p><strong>Example Output:</strong></p>
+                       <p>You have been registered, Arka!</p>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+               
+               <div class="mb-4">
+                 <h3>/scrim unregister</h3>
+                 <p><strong>Description:</strong> Unregister from the scrim queue</p>
+                 <p><strong>Usage:</strong> Click the "Unregister" button or use the command</p>
+                 <p><strong>Response:</strong> <code>You have been unregistered, &lt;username&gt;!</code></p>
+               </div>
+               
+               <div class="mb-4">
+                 <h3>/scrim queue</h3>
+                 <p><strong>Description:</strong> Show the current scrim queue</p>
+                 <p><strong>Usage:</strong> <code>/scrim queue</code></p>
+                 <p><strong>Response:</strong></p>
+                 <pre>&lt;@user&gt;, the current players ordered by registration time are:
 #1 &lt;@player1&gt; (**IGN1**)
 #2 &lt;@player2&gt; (**IGN2**)
 ...
 We need X more players.</pre>
-              </div>
+               </div>
+               
+               <h2 class="mt-5">Team Management</h2>
+               
+               <div class="mb-4">
+                 <h3>/scrim team new</h3>
+                 <p><strong>Description:</strong> Form new teams for the next series (moderators only)</p>
+                 <p><strong>Usage:</strong> <code>/scrim team new</code></p>
+                 <p><strong>Requires:</strong> Exactly 16 players in queue</p>
+                 <p><strong>Note:</strong> Teams are automatically formed when the 16th player registers</p>
+               </div>
+               
+               <div class="mb-4">
+                 <h3>/scrim team win</h3>
+                 <p><strong>Description:</strong> Record a game win for a team (moderators only)</p>
+                 <p><strong>Usage:</strong> <code>/scrim team win &lt;a|b&gt;</code></p>
+                 <p><strong>Example:</strong> <code>/scrim team win a</code></p>
+                 <p><strong>Note:</strong> Best of 3 series. Elo is updated when a team reaches 2 wins.</p>
+               </div>
+               
+               <div class="mb-4">
+                 <h3>/scrim team captains</h3>
+                 <p><strong>Description:</strong> See the current captains</p>
+                 <p><strong>Usage:</strong> <code>/scrim team captains</code></p>
+               </div>
+               
+               <div class="mb-4">
+                 <h3>/scrim team roll</h3>
+                 <p><strong>Description:</strong> Roll a random number between 0-100</p>
+                 <p><strong>Usage:</strong> <code>/scrim team roll</code></p>
+                 <p><strong>Response:</strong> <code>&lt;@user&gt;, you rolled: &lt;number&gt;</code></p>
+                 <button class="btn btn-sm btn-primary" onclick="rollExample()">Roll Example</button>
+                 <div id="example-roll" class="example-output mt-2" style="display: none;">
+                 </div>
+               </div>
+               
+               <div class="mb-4">
+                 <h3>/scrim team move</h3>
+                 <p><strong>Description:</strong> Move the current queue to the Scrimers voice channel (moderators only)</p>
+                 <p><strong>Usage:</strong> <code>/scrim team move</code></p>
+               </div>
+               
+               <h2 class="mt-5">Moderator Commands</h2>
+               
+               <div class="mb-4">
+                 <h3>/scrim reset</h3>
+                 <p><strong>Description:</strong> Reset the current scrim queue (moderators only)</p>
+                 <p><strong>Usage:</strong> <code>/scrim reset</code> or click "Reset Queue" button in panel</p>
+                 <p><strong>Response:</strong> <code>&lt;@user&gt;, you successfully reset the current queue.</code></p>
+               </div>
+               
+               <div class="mb-4">
+                 <h3>/scrim add</h3>
+                 <p><strong>Description:</strong> Add a player to the queue by in-game name (moderators only)</p>
+                 <p><strong>Usage:</strong> <code>/scrim add &lt;igname&gt;</code></p>
+               </div>
+               
+               <div class="mb-4">
+                 <h3>/scrim remove</h3>
+                 <p><strong>Description:</strong> Remove a player from the queue by in-game name (moderators only)</p>
+                 <p><strong>Usage:</strong> <code>/scrim remove &lt;igname&gt;</code></p>
+               </div>
+               
+               <div class="mb-4">
+                 <h3>/scrim afk</h3>
+                 <p><strong>Description:</strong> Mark a player as AFK (moderators only)</p>
+                 <p><strong>Usage:</strong> <code>/scrim afk [@user]</code></p>
+                 <p><strong>Note:</strong> Users can also click the "AFK" button in the panel to mark themselves</p>
+               </div>
+               
+               <div class="mb-4">
+                 <h3>/scrim back</h3>
+                 <p><strong>Description:</strong> Bring a player back from AFK (moderators only)</p>
+                 <p><strong>Usage:</strong> <code>/scrim back [@user]</code></p>
+                 <p><strong>Note:</strong> Users can also click the "Back (from AFK)" button in the panel to return themselves</p>
+               </div>
               
-              <h2 class="mt-5">Team Management</h2>
-              
-              <div class="mb-4">
-                <h3>/scrim team new</h3>
-                <p><strong>Description:</strong> Form new teams for the next series (moderators only)</p>
-                <p><strong>Usage:</strong> <code>/scrim team new</code></p>
-                <p><strong>Requires:</strong> Exactly 16 players in queue</p>
-              </div>
-              
-              <div class="mb-4">
-                <h3>/scrim team win</h3>
-                <p><strong>Description:</strong> Record a game win for a team (moderators only)</p>
-                <p><strong>Usage:</strong> <code>/scrim team win &lt;a|b&gt;</code></p>
-                <p><strong>Example:</strong> <code>/scrim team win a</code></p>
-              </div>
-              
-              <div class="mb-4">
-                <h3>/scrim team captains</h3>
-                <p><strong>Description:</strong> See the current captains</p>
-                <p><strong>Usage:</strong> <code>/scrim team captains</code></p>
-              </div>
-              
-              <div class="mb-4">
-                <h3>/scrim team roll</h3>
-                <p><strong>Description:</strong> Roll a random number between 0-100</p>
-                <p><strong>Usage:</strong> <code>/scrim team roll</code></p>
-                <p><strong>Response:</strong> <code>&lt;@user&gt;, you rolled: &lt;number&gt;</code></p>
-                <button class="btn btn-sm btn-primary" onclick="rollExample()">Roll Example</button>
-                <div id="example-roll" class="example-output mt-2" style="display: none;">
-                </div>
-              </div>
-              
-              <div class="mb-4">
-                <h3>/scrim team move</h3>
-                <p><strong>Description:</strong> Move the current queue to the Scrimers voice channel (moderators only)</p>
-                <p><strong>Usage:</strong> <code>/scrim team move</code></p>
-              </div>
-              
-              <h2 class="mt-5">Moderator Commands</h2>
-              
-              <div class="mb-4">
-                <h3>/scrim reset</h3>
-                <p><strong>Description:</strong> Reset the current scrim queue (moderators only)</p>
-                <p><strong>Usage:</strong> <code>/scrim reset</code></p>
-              </div>
-              
-              <div class="mb-4">
-                <h3>/scrim add</h3>
-                <p><strong>Description:</strong> Add a player to the queue by in-game name (moderators only)</p>
-                <p><strong>Usage:</strong> <code>/scrim add &lt;igname&gt;</code></p>
-              </div>
-              
-              <div class="mb-4">
-                <h3>/scrim remove</h3>
-                <p><strong>Description:</strong> Remove a player from the queue by in-game name (moderators only)</p>
-                <p><strong>Usage:</strong> <code>/scrim remove &lt;igname&gt;</code></p>
-              </div>
-              
-              <div class="mb-4">
-                <h3>/scrim afk</h3>
-                <p><strong>Description:</strong> Mark a player as AFK (moderators only)</p>
-                <p><strong>Usage:</strong> <code>/scrim afk [@user]</code></p>
-              </div>
-              
-              <div class="mb-4">
-                <h3>/scrim back</h3>
-                <p><strong>Description:</strong> Bring a player back from AFK (moderators only)</p>
-                <p><strong>Usage:</strong> <code>/scrim back [@user]</code></p>
-              </div>
-              
-              <div class="mt-5">
-                <h2>Related Pages</h2>
-                <ul>
-                  <li><%= link_to 'View current scrim queue', scrims_path %></li>
-                  <li><%= link_to 'See all scrims', scrims_path %></li>
-                </ul>
-              </div>
+               <div class="mt-5">
+                 <h2>Related Pages</h2>
+                 <ul>
+                   <li><%= link_to 'View current scrim queue', scrims_path %></li>
+                   <li><%= link_to 'See all scrims', scrims_path %></li>
+                 </ul>
+               </div>
+               
+               <div class="mt-5">
+                 <h2>Cross-Server Features</h2>
+                 <p>The scrim system now supports <strong>cross-server synchronization</strong>:</p>
+                 <ul>
+                   <li>Use <code>/scrim panel</code> on any server to display the registration panel</li>
+                   <li>All panels across all servers show the same global queue</li>
+                   <li>Any action (register, unregister, afk, back, reset) on any server automatically refreshes all panels</li>
+                   <li>Button actions work from any server and update all panels globally</li>
+                 </ul>
+                 <p><strong>Note:</strong> Panels are tracked in memory and will be cleared on bot restart.</p>
+               </div>
             </article>
           </div>
           
