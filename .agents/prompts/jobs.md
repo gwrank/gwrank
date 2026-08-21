@@ -179,12 +179,14 @@ end
 ## Performance Optimization
 
 1. **Queue Priority**
-```ruby
-# config/sidekiq.yml
-:queues:
-  - [urgent, 6]
-  - [default, 3]
-  - [low, 1]
+```yaml
+# config/queue.yml
+production:
+  workers:
+    - queues: "urgent default low"
+      threads: 3
+      processes: 1
+      polling_interval: 0.1
 ```
 
 2. **Job Splitting**

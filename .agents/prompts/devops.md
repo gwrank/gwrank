@@ -59,10 +59,8 @@ services:
       - "3000:3000"
     depends_on:
       - db
-      - redis
     environment:
       DATABASE_URL: postgres://postgres:password@db:5432/myapp_development
-      REDIS_URL: redis://redis:6379/0
     
   db:
     image: postgres:15
@@ -71,18 +69,13 @@ services:
     environment:
       POSTGRES_PASSWORD: password
       
-  redis:
-    image: redis:7-alpine
-    
-  sidekiq:
+  worker:
     build: .
-    command: bundle exec sidekiq
+    command: bundle exec rails solid_queue:start
     depends_on:
       - db
-      - redis
     environment:
       DATABASE_URL: postgres://postgres:password@db:5432/myapp_development
-      REDIS_URL: redis://redis:6379/0
 
 volumes:
   postgres_data:
@@ -157,7 +150,6 @@ RAILS_LOG_TO_STDOUT=true
 RAILS_SERVE_STATIC_FILES=true
 SECRET_KEY_BASE=your-secret-key
 DATABASE_URL=postgres://user:pass@host:5432/dbname
-REDIS_URL=redis://redis:6379/0
 RAILS_MAX_THREADS=5
 WEB_CONCURRENCY=2
 ```
@@ -301,11 +293,7 @@ end
 ```ruby
 # config/environments/production.rb
 config.action_controller.asset_host = ENV['CDN_HOST']
-config.cache_store = :redis_cache_store, {
-  url: ENV['REDIS_URL'],
-  expires_in: 1.day,
-  namespace: 'cache'
-}
+config.cache_store = :solid_cache_store
 ```
 
 ### Database Optimization
