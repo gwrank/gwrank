@@ -1,0 +1,26 @@
+mist_form:
+  skill_id: 1064
+  template_skill_id: 1064
+  name: Mist Form
+  skill_type: Elite Enchantment Spell
+  is_elite: true
+  profession: elementalist
+  campaign: Core
+
+water_attunement:
+  skill_id: 1010
+  template_skill_id: 1010
+  name: Water Attunement Example
+  skill_type: Enchantment Spell
+  is_elite: false
+  profession: elementalist
+  campaign: Core
+
+trappers_focus:
+  skill_id: 946
+  template_skill_id: 946
+  name: Trapper's Focus Example
+  skill_type: Elite Stance
+  is_elite: true
+  profession: ranger
+  campaign: Nightfall

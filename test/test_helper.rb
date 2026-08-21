@@ -27,4 +27,12 @@ class ActiveSupport::TestCase
     player.save!
     player
   end
+
+  def auth_headers(player)
+    { "Authorization" => "Bearer #{player.api_token}", "Accept" => "application/json" }
+  end
+
+  def load_zcx(name = "gvg_split")
+    JSON.parse(File.read(Rails.root.join("test/fixtures/files/teambuilds/#{name}.json")))
+  end
 end

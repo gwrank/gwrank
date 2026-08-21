@@ -1,0 +1,71 @@
+{
+  "version": 18,
+  "id": "0f6a2f6c-9a1e-4b7d-9c3a-5f0e2b8c1d44",
+  "name": "GvG Split",
+  "tags": ["GvG", "meta"],
+  "notes": "",
+  "createdAt": "2026-08-21T09:30:00Z",
+  "updatedAt": "2026-08-21T17:05:12Z",
+  "characters": [
+    {
+      "id": "11111111-1111-1111-1111-111111111111",
+      "name": "Water Snare",
+      "primaryProfession": 6,
+      "secondaryProfession": 5,
+      "isFavorite": true,
+      "assignment": "Midline",
+      "gender": 1,
+      "skillIds": [1010, 1011, 0, 919, 2, 1064, 3, 1],
+      "attributes": [
+        { "id": 11, "points": 12 },
+        { "id": 12, "points": 10 },
+        { "id": 3, "points": 8 }
+      ],
+      "titleRanks": { "Lightbringer rank": 8 },
+      "equipment": {
+        "armor": [
+          { "slot": 2, "itemId": 76, "dye": 10, "modifierIds": [129, 205] }
+        ],
+        "weaponSets": [
+          {
+            "items": [
+              { "slot": 0, "itemId": 21, "dye": 0, "modifierIds": [47] },
+              { "slot": 1, "itemId": 34, "dye": 0, "modifierIds": [] }
+            ]
+          }
+        ],
+        "activeSet": 0
+      },
+      "notes": "Élémentaliste eau & dégén.",
+      "durationBoostersEnabled": false,
+      "activeAttributeBoosts": [],
+      "variants": []
+    }
+  ],
+  "locks": [
+    { "index": 1, "color": "#FFD700", "memberIds": ["11111111-1111-1111-1111-111111111111"] }
+  ],
+  "spike": [
+    {
+      "characterId": "11111111-1111-1111-1111-111111111111",
+      "skills": [
+        {
+          "slot": 0, "weaponDamageType": "lightning", "ticks": 1, "order": 1,
+          "weaponKind": null, "procs": 1, "conditional": true, "threshold": -1,
+          "casterCurrentHp": 480, "casterMaxHp": 480, "weaponMod": "sundering",
+          "sunderingProc": true, "hornbow": false
+        }
+      ],
+      "buffs": ["judges-insight"],
+      "slots": [],
+      "weaponDamageType": null
+    }
+  ],
+  "flux": 7,
+  "natureRituals": [1156],
+  "roaringWindsRank": 12,
+  "tranquilityRank": 12,
+  "gameMode": "PvP",
+  "vampiricHits3": 1,
+  "vampiricHits5": 1
+}
