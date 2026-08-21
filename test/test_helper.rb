@@ -33,6 +33,6 @@ class ActiveSupport::TestCase
   end
 
   def load_zcx(name = "gvg_split")
-    JSON.parse(File.read(Rails.root.join("test/fixtures/files/teambuilds/#{name}.json")))
+    JSON.parse(File.read(Rails.root.join("test/fixtures/files/teambuilds/#{name}.zcx.json")))
   end
 end
