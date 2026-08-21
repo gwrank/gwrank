@@ -78,6 +78,7 @@ class Player < ApplicationRecord
   has_many :team_player_stats, through: :team_players
   has_many :teams, through: :team_players
   has_many :matches, through: :teams
+  has_many :teambuilds, dependent: :destroy
 
   # Callbacks for anonymization seed
   before_validation :ensure_anonymization_seed
