@@ -1,5 +1,5 @@
 web: env RUBY_DEBUG_OPEN=true bin/rails server
-sidekiq: bundle exec sidekiq
+worker: bundle exec rails solid_queue:start
 discord_bot: bundle exec rails discord_bot:run
 css: yarn watch:css
 js: yarn build --watch
