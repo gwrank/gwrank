@@ -66,5 +66,11 @@ module Teambuilds
       codes = errors_for(@doc).map { |e| e["code"] }
       assert_includes codes, "wrong_case"
     end
+
+    test "tolerates an absent characters key while rejecting explicit null" do
+      assert_empty errors_for({ "version" => 18 })
+      @doc["characters"] = nil
+      assert_includes errors_for(@doc).map { |e| e["code"] }, "null_array"
+    end
   end
 end

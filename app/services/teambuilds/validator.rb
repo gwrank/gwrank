@@ -46,7 +46,7 @@ module Teambuilds
     def call
       check_keys("$", @document, ROOT_KEYS)
       reject_null_arrays("$", @document, %w[tags natureRituals locks spike])
-      validate_characters(@document["characters"])
+      validate_characters(@document["characters"]) if @document.key?("characters")
       validate_locks(@document["locks"])
       validate_spike(@document["spike"])
       errors
