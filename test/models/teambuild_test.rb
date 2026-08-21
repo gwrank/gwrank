@@ -40,4 +40,22 @@ class TeambuildTest < ActiveSupport::TestCase
     assert_includes Teambuild.with_name_like("gvg").map(&:id), gvg.id
     assert_equal [gvg.id], Teambuild.tagged_with_any(["meta"]).map(&:id)
   end
+
+  test "visible_to tolerates nil player by returning publics only" do
+    other = create_player
+    public_other = Teambuild.create!(player: other, source_uuid: SecureRandom.uuid, document: {}, visibility: "public")
+    private_other = Teambuild.create!(player: other, source_uuid: SecureRandom.uuid, document: {})
+
+    ids = Teambuild.visible_to(nil).map(&:id)
+    assert_includes ids, public_other.id
+    assert_not_includes ids, private_other.id
+  end
+
+  test "source_uuid is unique per player" do
+    player = create_player
+    source_uuid = SecureRandom.uuid
+    Teambuild.create!(player: player, source_uuid: source_uuid, document: {})
+    duplicate = Teambuild.new(player: player, source_uuid: source_uuid, document: {})
+    refute duplicate.valid?
+  end
 end

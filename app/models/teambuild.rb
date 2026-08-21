@@ -9,12 +9,12 @@ class Teambuild < ApplicationRecord
   belongs_to :player
   has_many :teambuild_characters, -> { order(:position) }, dependent: :destroy
 
-  validates :source_uuid, presence: true
+  validates :source_uuid, presence: true, uniqueness: { scope: :player_id }
   validates :visibility, inclusion: { in: VISIBILITIES }
   validates :player_count, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 12 }, allow_nil: true
 
   scope :publicly_visible, -> { where(visibility: "public") }
-  scope :owned_by, ->(player) { where(player_id: player.id) }
+  scope :owned_by, ->(player) { where(player_id: player) }
   scope :visible_to, ->(player) { publicly_visible.or(owned_by(player)) }
   scope :with_name_like, ->(query) { where("name ILIKE ?", "%#{sanitize_sql_like(query)}%") }
   scope :tagged_with_any, ->(values) { where("tags && ARRAY[?]::varchar[]", Array(values)) }
