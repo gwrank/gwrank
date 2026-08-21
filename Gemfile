@@ -18,8 +18,6 @@ gem 'jsbundling-rails'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.7'
-# Use Redis adapter to run Action Cable in production
-gem 'redis', '~> 4.0'
 # Use Active Model has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
@@ -50,8 +48,9 @@ gem 'pagy'
 gem 'pg_search'
 gem 'pundit'
 gem 'seed_dump'
-gem 'sidekiq'
 gem 'solid_cache'
+gem 'solid_cable'
+gem 'solid_queue'
 gem 'turbo-rails'
 
 group :development, :test do
