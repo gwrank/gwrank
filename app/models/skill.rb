@@ -3,6 +3,7 @@
 # Table name: skills
 #
 #  id                :bigint           not null, primary key
+#  campaign          :string
 #  description       :text
 #  is_elite          :boolean          default(FALSE)
 #  name              :string

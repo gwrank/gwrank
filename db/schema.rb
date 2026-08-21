@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_21_223128) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_22_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -312,6 +312,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_21_223128) do
   end
 
   create_table "skills", force: :cascade do |t|
+    t.string "campaign"
     t.datetime "created_at", null: false
     t.text "description"
     t.boolean "is_elite", default: false
@@ -533,6 +534,44 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_21_223128) do
     t.index ["team_id"], name: "index_team_players_on_team_id"
   end
 
+  create_table "teambuild_characters", force: :cascade do |t|
+    t.string "assignment"
+    t.datetime "created_at", null: false
+    t.string "dominant_attribute"
+    t.bigint "elite_skill_id"
+    t.string "name"
+    t.integer "position", null: false
+    t.bigint "primary_profession_id"
+    t.bigint "secondary_profession_id"
+    t.bigint "teambuild_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["elite_skill_id"], name: "index_teambuild_characters_on_elite_skill_id"
+    t.index ["primary_profession_id"], name: "index_teambuild_characters_on_primary_profession_id"
+    t.index ["secondary_profession_id"], name: "index_teambuild_characters_on_secondary_profession_id"
+    t.index ["teambuild_id", "position"], name: "index_teambuild_characters_on_teambuild_id_and_position", unique: true
+    t.index ["teambuild_id"], name: "index_teambuild_characters_on_teambuild_id"
+  end
+
+  create_table "teambuilds", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.jsonb "document", null: false
+    t.string "document_hash"
+    t.string "game_mode", default: ""
+    t.string "name"
+    t.integer "player_count"
+    t.bigint "player_id", null: false
+    t.uuid "source_uuid", null: false
+    t.string "tags", default: [], array: true
+    t.datetime "updated_at", null: false
+    t.string "visibility", default: "private", null: false
+    t.index ["player_count"], name: "index_teambuilds_on_player_count"
+    t.index ["player_id", "source_uuid"], name: "index_teambuilds_on_player_id_and_source_uuid", unique: true
+    t.index ["player_id"], name: "index_teambuilds_on_player_id"
+    t.index ["tags"], name: "index_teambuilds_on_tags", using: :gin
+    t.index ["updated_at"], name: "index_teambuilds_on_updated_at"
+    t.index ["visibility"], name: "index_teambuilds_on_visibility"
+  end
+
   create_table "teams", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "guild_id"
@@ -604,6 +643,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_21_223128) do
   add_foreign_key "team_players", "players"
   add_foreign_key "team_players", "professions"
   add_foreign_key "team_players", "teams"
+  add_foreign_key "teambuild_characters", "professions", column: "primary_profession_id"
+  add_foreign_key "teambuild_characters", "professions", column: "secondary_profession_id"
+  add_foreign_key "teambuild_characters", "skills", column: "elite_skill_id"
+  add_foreign_key "teambuild_characters", "teambuilds"
+  add_foreign_key "teambuilds", "players"
   add_foreign_key "teams", "guilds"
   add_foreign_key "teams", "matches"
   add_foreign_key "tournament_results", "guilds"
