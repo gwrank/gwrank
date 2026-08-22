@@ -33,6 +33,8 @@ class Skill < ApplicationRecord
 
   def html_image_simple(size: 32)
     ActionController::Base.helpers.image_tag("skills/#{filename}", title: name, width: size, loading: 'lazy')
+  rescue Propshaft::MissingAssetError
+    ''
   end
 
   private
