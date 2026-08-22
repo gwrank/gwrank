@@ -7,7 +7,7 @@ class Teambuild < ApplicationRecord
   }.freeze
 
   belongs_to :player
-  has_many :teambuild_characters, -> { order(:position) }, dependent: :destroy
+  has_many :teambuild_characters, -> { order(:position) }, inverse_of: :teambuild, dependent: :destroy
 
   validates :source_uuid, presence: true, uniqueness: { scope: :player_id }
   validates :visibility, inclusion: { in: VISIBILITIES }
