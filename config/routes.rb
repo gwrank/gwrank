@@ -3,6 +3,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :items, only: [:index, :show]
       resources :matches, only: [:create]
+      resources :teambuilds, only: [:index, :show, :update, :destroy]
     end
   end
 
