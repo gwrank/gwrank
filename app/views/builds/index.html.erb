@@ -1,0 +1,28 @@
+<div class="container mt-4">
+  <h1>Bibliothèque de builds</h1>
+
+  <%= form_with url: builds_path, method: :get, local: true, class: "mb-3" do %>
+    <div class="input-group">
+      <%= text_field_tag :q, params[:q], class: "form-control", placeholder: "Nom du teambuild…" %>
+      <button class="btn btn-outline-secondary" type="submit">Rechercher</button>
+    </div>
+  <% end %>
+
+  <div class="list-group">
+    <% @teambuilds.each do |teambuild| %>
+      <a class="list-group-item list-group-item-action" href="<%= build_path(teambuild) %>">
+        <div class="d-flex justify-content-between align-items-center">
+          <strong><%= teambuild.name.presence || "(sans nom)" %></strong>
+          <small class="text-muted"><%= teambuild.player_count %> perso · maj <%= teambuild.updated_at.strftime("%d/%m/%Y") %></small>
+        </div>
+        <div>
+          <span class="badge <%= teambuild.visibility == 'public' ? 'bg-success' : 'bg-secondary' %>"><%= teambuild.visibility %></span>
+          <span class="badge bg-dark"><%= teambuild.game_mode.presence || "?" %></span>
+          <% teambuild.tags.each do |tag| %>
+            <span class="badge bg-light text-dark border"><%= tag %></span>
+          <% end %>
+        </div>
+      </a>
+    <% end %>
+  </div>
+</div>

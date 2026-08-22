@@ -8,6 +8,9 @@ Rails.application.routes.draw do
   end
 
   resource :api_token, only: [:show]
+  resources :builds, only: [:index, :show] do
+    member { get :download }
+  end
   resources :comments, only: [:create]
   resources :guilds, only: [:index, :show, :new, :create]
   resources :matches, only: [:index, :show, :new, :create, :destroy]

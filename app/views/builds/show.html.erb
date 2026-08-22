@@ -1,0 +1,35 @@
+<div class="container mt-4">
+  <div class="d-flex align-items-center gap-2 mb-3">
+    <h1 class="mb-0"><%= @teambuild.name.presence || "(sans nom)" %></h1>
+    <span class="badge <%= @teambuild.visibility == 'public' ? 'bg-success' : 'bg-secondary' %>"><%= @teambuild.visibility %></span>
+    <%= link_to "Télécharger .zcx", download_build_path(@teambuild), class: "btn btn-outline-primary btn-sm ms-auto" %>
+  </div>
+
+  <% @rows.each do |row| %>
+    <% summary = row[:summary] %>
+    <div class="card mb-3">
+      <div class="card-header d-flex align-items-center gap-2">
+        <%= summary.primary_profession&.html_image_simple %>
+        <%= summary.secondary_profession&.html_image_simple %>
+        <strong><%= summary.name.presence || "(unnamed)" %></strong>
+        <% if summary.assignment.present? %>
+          <span class="badge bg-info text-dark"><%= summary.assignment %></span>
+        <% end %>
+        <% if summary.dominant_attribute.present? %>
+          <small class="text-muted ms-auto"><%= summary.dominant_attribute %></small>
+        <% end %>
+      </div>
+      <div class="card-body">
+        <p class="mb-2"><%= safe_join(row[:skills].compact.map(&:html_image_simple)) %></p>
+        <ul class="list-inline mb-2">
+          <% row[:attributes].each do |attribute| %>
+            <li class="list-inline-item"><strong><%= attribute[:name] %></strong> : <%= attribute[:points] %></li>
+          <% end %>
+        </ul>
+        <% if row[:notes].present? %>
+          <p class="text-muted mb-0"><%= row[:notes] %></p>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>
