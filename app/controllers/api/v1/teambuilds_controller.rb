@@ -2,13 +2,18 @@ class Api::V1::TeambuildsController < ApplicationController
   skip_before_action :verify_authenticity_token
   before_action :verify_api_token
 
+  rescue_from ActionDispatch::Http::Parameters::ParseError do
+    render_malformed_json
+  end
+
   PER_PAGE_DEFAULT = 25
   PER_PAGE_MAX = 100
 
   def index
     relation = filtered(Teambuild.visible_to(@player))
     total_count = relation.distinct.count
-    records = relation.order(Teambuild::SORTS.fetch(params[:sort], Teambuild::SORTS.fetch("updated_at")))
+    records = relation.includes(teambuild_characters: [:primary_profession, :secondary_profession, :elite_skill])
+                      .order(Teambuild::SORTS.fetch(params[:sort], Teambuild::SORTS.fetch("updated_at")))
                       .limit(per_page).offset(offset)
 
     render json: {
@@ -66,9 +71,13 @@ class Api::V1::TeambuildsController < ApplicationController
   def parse_document
     JSON.parse(request.raw_post)
   rescue JSON::ParserError
+    render_malformed_json
+    nil
+  end
+
+  def render_malformed_json
     render json: { errors: [{ "path" => "$", "code" => "malformed_json",
                               "message" => "Corps de requête illisible" }] }, status: :bad_request
-    nil
   end
 
   def valid_source_uuid?
