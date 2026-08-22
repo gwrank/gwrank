@@ -36,12 +36,21 @@ class Api::V1::TeambuildsController < ApplicationController
     document = parse_document
     return if performed?
 
-    result = Teambuilds::Ingest.call(
-      player: @player,
-      source_uuid: source_uuid_param,
-      document: document,
-      visibility: params[:visibility]
-    )
+    result = begin
+      Teambuilds::Ingest.call(
+        player: @player,
+        source_uuid: source_uuid_param,
+        document: document,
+        visibility: params[:visibility]
+      )
+    rescue ActiveRecord::RecordNotUnique
+      Teambuilds::Ingest.call(
+        player: @player,
+        source_uuid: source_uuid_param,
+        document: document,
+        visibility: params[:visibility]
+      )
+    end
 
     if result.ok?
       payload = result.teambuild.summary.merge(created: result.created?, changed: result.changed?)
@@ -106,8 +115,8 @@ class Api::V1::TeambuildsController < ApplicationController
   def filtered(relation)
     relation = relation.with_name_like(params[:q]) if params[:q].present?
     relation = relation.tagged_with_any(params[:tags]) if params[:tags].present?
-    relation = relation.with_primary_profession(params[:profession_id]) if params[:profession_id].present?
-    relation = relation.with_elite_skill(params[:elite_skill_id]) if params[:elite_skill_id].present?
+    relation = relation.with_profession_code(params[:profession_id]) if params[:profession_id].present?
+    relation = relation.with_skill_id(params[:elite_skill_id]) if params[:elite_skill_id].present?
     relation = relation.with_campaign(params[:campaign]) if params[:campaign].present?
     relation = relation.with_game_mode(params[:game_mode]) if params[:game_mode].present?
     relation = apply_player_count_range(relation)

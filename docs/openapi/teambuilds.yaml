@@ -19,8 +19,8 @@ paths:
       parameters:
         - { name: q, in: query, schema: { type: string }, description: Nom, insensible à la casse }
         - { name: "tags[]", in: query, schema: { type: array, items: { type: string } }, description: Recouvrement }
-        - { name: profession_id, in: query, schema: { type: integer }, description: Profession primaire GW1 présente }
-        - { name: elite_skill_id, in: query, schema: { type: integer } }
+        - { name: profession_id, in: query, schema: { type: integer }, description: Code de profession GW1 officiel (0–10) }
+        - { name: elite_skill_id, in: query, schema: { type: integer }, description: SkillId GW1 officiel }
         - { name: campaign, in: query, schema: { type: string } }
         - { name: game_mode, in: query, schema: { type: string, enum: ["All", "PvE", "PvP", ""] } }
         - { name: player_count_min, in: query, schema: { type: integer, minimum: 1 } }

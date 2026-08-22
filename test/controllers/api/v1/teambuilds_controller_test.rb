@@ -181,11 +181,11 @@ module Api::V1
       get api_v1_teambuilds_path(q: "ranger"), headers: auth_headers(@owner)
       assert_equal ["Ranger Trap"], response.parsed_body["teambuilds"].map { |t| t["name"] }
 
-      get api_v1_teambuilds_path(profession_id: professions(:ranger).id),
+      get api_v1_teambuilds_path(profession_id: professions(:ranger).profession_id),
           headers: auth_headers(@owner)
       assert_equal ["Ranger Trap"], response.parsed_body["teambuilds"].map { |t| t["name"] }
 
-      get api_v1_teambuilds_path(elite_skill_id: skills(:mist_form).id),
+      get api_v1_teambuilds_path(elite_skill_id: skills(:mist_form).skill_id),
           headers: auth_headers(@owner)
       assert_includes response.parsed_body["teambuilds"].map { |t| t["name"] }, "GvG Split"
 
@@ -205,6 +205,20 @@ module Api::V1
 
       get api_v1_teambuilds_path(visibility: "mine"), headers: auth_headers(@owner)
       assert_equal ["GvG Split"], response.parsed_body["teambuilds"].map { |t| t["name"] }
+    end
+
+    test "filters accept gw1 canonical ids" do
+      get api_v1_teambuilds_path(profession_id: 6), headers: auth_headers(@owner)
+      assert_includes response.parsed_body["teambuilds"].map { |t| t["name"] }, "GvG Split"
+
+      get api_v1_teambuilds_path(elite_skill_id: 1064), headers: auth_headers(@owner)
+      assert_includes response.parsed_body["teambuilds"].map { |t| t["name"] }, "GvG Split"
+
+      get api_v1_teambuilds_path(profession_id: 999), headers: auth_headers(@owner)
+      assert_empty response.parsed_body["teambuilds"]
+
+      get api_v1_teambuilds_path(elite_skill_id: 123_456), headers: auth_headers(@owner)
+      assert_empty response.parsed_body["teambuilds"]
     end
   end
 end

@@ -20,6 +20,14 @@ class Teambuild < ApplicationRecord
   scope :tagged_with_any, ->(values) { where("tags && ARRAY[?]::varchar[]", Array(values)) }
   scope :with_primary_profession, ->(id) { joins(:teambuild_characters).where(teambuild_characters: { primary_profession_id: id }).distinct }
   scope :with_elite_skill, ->(id) { joins(:teambuild_characters).where(teambuild_characters: { elite_skill_id: id }).distinct }
+  scope :with_profession_code, ->(code) do
+    profession = Profession.find_by(profession_id: code)
+    profession ? with_primary_profession(profession.id) : none
+  end
+  scope :with_skill_id, ->(gw1_skill_id) do
+    skill = Skill.find_by(skill_id: gw1_skill_id)
+    skill ? with_elite_skill(skill.id) : none
+  end
   scope :with_campaign, ->(name) { joins(teambuild_characters: :elite_skill).where(skills: { campaign: name }).distinct }
   scope :with_game_mode, ->(mode) { where(game_mode: mode) }
 
