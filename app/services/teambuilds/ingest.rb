@@ -25,7 +25,10 @@ module Teambuilds
       ActiveRecord::Base.transaction do
         existing = @player.teambuilds.find_by(source_uuid: @source_uuid)
         incoming_hash = DocumentHash.of(@document)
-        return success(existing, false, false) if existing && existing.document_hash == incoming_hash
+        if existing && existing.document_hash == incoming_hash
+          existing.update_column(:visibility, @visibility) if existing.visibility != @visibility
+          return success(existing, false, false)
+        end
 
         created = existing.nil?
         teambuild = existing || @player.teambuilds.new(source_uuid: @source_uuid)

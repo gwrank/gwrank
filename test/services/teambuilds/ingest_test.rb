@@ -61,6 +61,17 @@ module Teambuilds
       assert_equal @doc, @owner.teambuilds.sole.reload.document
     end
 
+    test "applies a visibility change even when the document is unchanged" do
+      ingest(@doc)
+      teambuild = @owner.teambuilds.sole
+      before = teambuild.updated_at
+      result = ingest(@doc, visibility: "public")
+      assert result.ok?
+      assert_not result.changed?
+      assert_equal "public", teambuild.reload.visibility
+      assert_equal before, teambuild.reload.updated_at
+    end
+
     test "rejects a non-canonical source uuid" do
       result = ingest(@doc, source_uuid: "Not-A-UUID")
       assert_not result.ok?
