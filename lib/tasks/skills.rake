@@ -53,6 +53,20 @@ namespace :skills do
     end
   end
 
+  desc "Backfill Skill#campaign depuis data/campaigns.txt (<skill_id> <campagne>)"
+  task update_campaigns: :environment do
+    path = ENV.fetch("CAMPAIGNS_FILE") { Rails.root.join("data", "campaigns.txt").to_s }
+    abort "Fichier introuvable : #{path}" unless File.exist?(path)
+    updated = 0
+    File.foreach(path) do |line|
+      line = line.strip
+      next if line.empty? || line.start_with?("#")
+      skill_id, campaign = line.split(/\s+/, 2)
+      updated += Skill.where(skill_id: skill_id.to_i).update_all(campaign: campaign)
+    end
+    puts "#{updated} compétences mises à jour."
+  end
+
   task clean_unknown_skills: :environment do
     no_skill_id = Skill.find_by(skill_id: 0).id
     Skill.where(name: 'Unknown').each do |skill|

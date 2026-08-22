@@ -1,0 +1,5 @@
+# Format : <skill_id> <campagne> — une ligne par compétence
+# Campagnes : Core, Factions, Nightfall, Eye of the North
+1064 Core
+1010 Core
+946 Nightfall
