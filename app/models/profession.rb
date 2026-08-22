@@ -21,6 +21,8 @@ class Profession < ApplicationRecord
     else
       ActionController::Base.helpers.image_tag("professions/#{name}.png", data: { controller: 'tooltip', bs_toggle: 'tooltip', bs_placement: 'bottom' }, title: name, width: 33, loading: 'lazy')
     end
+  rescue Propshaft::MissingAssetError
+    ''
   end
 
   def html_image_simple(size: 33)
@@ -29,5 +31,7 @@ class Profession < ApplicationRecord
     else
       ActionController::Base.helpers.image_tag("professions/#{name}.png", title: name, width: size, loading: 'lazy')
     end
+  rescue Propshaft::MissingAssetError
+    ''
   end
 end

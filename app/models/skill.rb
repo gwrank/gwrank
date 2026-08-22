@@ -29,6 +29,8 @@ class Skill < ApplicationRecord
 
   def html_image
     ActionController::Base.helpers.image_tag("skills/#{filename}", data: { controller: 'tooltip', bs_toggle: 'tooltip', bs_placement: 'bottom' }, title: "#{name}. #{skill_type}. #{description}", width: 55, loading: 'lazy')
+  rescue Propshaft::MissingAssetError
+    ''
   end
 
   def html_image_simple(size: 32)
