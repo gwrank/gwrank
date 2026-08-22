@@ -255,14 +255,35 @@ components:
             titleRanks: { "Lightbringer rank": 8 }
             equipment:
               armor: [{ slot: 2, itemId: 76, dye: 10, modifierIds: [129, 205] }]
-              weaponSets: [{ items: [{ slot: 0, itemId: 21, dye: 0, modifierIds: [47] }] }]
+              weaponSets:
+                - items:
+                    - { slot: 0, itemId: 21, dye: 0, modifierIds: [47] }
+                    - { slot: 1, itemId: 34, dye: 0, modifierIds: [] }
               activeSet: 0
             notes: "Élémentaliste eau & dégén."
             durationBoostersEnabled: false
             activeAttributeBoosts: []
             variants: []
         locks: [{ index: 1, color: "#FFD700", memberIds: ["11111111-1111-1111-1111-111111111111"] }]
-        spike: []
+        spike:
+          - characterId: 11111111-1111-1111-1111-111111111111
+            skills:
+              - slot: 0
+                weaponDamageType: lightning
+                ticks: 1
+                order: 1
+                weaponKind: null
+                procs: 1
+                conditional: true
+                threshold: -1
+                casterCurrentHp: 480
+                casterMaxHp: 480
+                weaponMod: sundering
+                sunderingProc: true
+                hornbow: false
+            buffs: ["judges-insight"]
+            slots: []
+            weaponDamageType: null
         flux: 7
         natureRituals: [1156]
         roaringWindsRank: 12
