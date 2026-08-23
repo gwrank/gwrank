@@ -1,5 +1,37 @@
 require "test_helper"
 
+# == Schema Information
+#
+# Table name: teambuilds
+#
+#  id            :bigint           not null, primary key
+#  document      :jsonb            not null
+#  document_hash :string
+#  game_mode     :string           default("")
+#  name          :string
+#  player_count  :integer
+#  source_uuid   :uuid             not null
+#  status        :string           default("published"), not null
+#  tags          :string           default([]), is an Array
+#  visibility    :string           default("private"), not null
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  player_id     :bigint           not null
+#
+# Indexes
+#
+#  index_teambuilds_on_player_count               (player_count)
+#  index_teambuilds_on_player_id                  (player_id)
+#  index_teambuilds_on_player_id_and_source_uuid  (player_id,source_uuid) UNIQUE
+#  index_teambuilds_on_status                     (status)
+#  index_teambuilds_on_tags                       (tags) USING gin
+#  index_teambuilds_on_updated_at                 (updated_at)
+#  index_teambuilds_on_visibility                 (visibility)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (player_id => players.id)
+#
 class TeambuildTest < ActiveSupport::TestCase
   test "visibility accepts only private or public" do
     player = create_player
@@ -57,5 +89,30 @@ class TeambuildTest < ActiveSupport::TestCase
     Teambuild.create!(player: player, source_uuid: source_uuid, document: {})
     duplicate = Teambuild.new(player: player, source_uuid: source_uuid, document: {})
     refute duplicate.valid?
+  end
+
+  test "status defaults to published and rejects unknown values" do
+    player = create_player
+    build = Teambuild.new(player: player, source_uuid: SecureRandom.uuid, document: {})
+    assert_equal "published", build.status
+    build.status = "brouillon"
+    refute build.valid?
+  end
+
+  test "draft and published scopes filter by status" do
+    player = create_player
+    draft = Teambuild.create!(player: player, source_uuid: SecureRandom.uuid, document: {}, status: "draft")
+    published = Teambuild.create!(player: player, source_uuid: SecureRandom.uuid, document: {})
+
+    assert_equal [draft.id], Teambuild.draft.map(&:id)
+    assert_includes Teambuild.published.map(&:id), published.id
+    assert_not_includes Teambuild.published.map(&:id), draft.id
+    assert_equal [draft.id], Teambuild.with_status("draft").map(&:id)
+  end
+
+  test "summary exposes status" do
+    player = create_player
+    teambuild = Teambuild.create!(player: player, source_uuid: SecureRandom.uuid, document: {})
+    assert_equal "published", teambuild.summary[:status]
   end
 end

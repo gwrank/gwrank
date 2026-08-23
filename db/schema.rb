@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_22_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_23_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -561,12 +561,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_22_000001) do
     t.integer "player_count"
     t.bigint "player_id", null: false
     t.uuid "source_uuid", null: false
+    t.string "status", default: "published", null: false
     t.string "tags", default: [], array: true
     t.datetime "updated_at", null: false
     t.string "visibility", default: "private", null: false
     t.index ["player_count"], name: "index_teambuilds_on_player_count"
     t.index ["player_id", "source_uuid"], name: "index_teambuilds_on_player_id_and_source_uuid", unique: true
     t.index ["player_id"], name: "index_teambuilds_on_player_id"
+    t.index ["status"], name: "index_teambuilds_on_status"
     t.index ["tags"], name: "index_teambuilds_on_tags", using: :gin
     t.index ["updated_at"], name: "index_teambuilds_on_updated_at"
     t.index ["visibility"], name: "index_teambuilds_on_visibility"
