@@ -13,9 +13,10 @@ module Api::V1
       auth_headers(player).merge("Content-Type" => "application/json")
     end
 
-    def put_doc(player, doc, visibility: nil)
+    def put_doc(player, doc, visibility: nil, status: nil)
+      query = { visibility: visibility, status: status }.compact
       path = api_v1_teambuild_path(doc["id"])
-      path += "?visibility=#{visibility}" if visibility
+      path += "?#{query.to_query}" unless query.empty?
       put path, params: doc.to_json, headers: json_headers(player)
     end
 
@@ -112,6 +113,27 @@ module Api::V1
       assert_response :created
       assert_equal "public", Teambuild.find_by(source_uuid: doc["id"]).visibility
       assert_equal true, response.parsed_body["changed"]
+    end
+
+    test "upsert accepts a status param and summaries expose it" do
+      fresh = JSON.parse(@document.to_json)
+      fresh["id"] = "fffffff1-0000-0000-0000-000000000001"
+      fresh["name"] = "Draft Split"
+      put_doc(@owner, fresh, status: "draft")
+      assert_response :created
+      assert_equal "draft", response.parsed_body["status"]
+
+      get api_v1_teambuilds_path(status: "draft"), headers: auth_headers(@owner)
+      assert_equal ["Draft Split"], response.parsed_body["teambuilds"].map { |t| t["name"] }
+
+      get api_v1_teambuilds_path(status: "published"), headers: auth_headers(@owner)
+      assert_includes response.parsed_body["teambuilds"].map { |t| t["name"] }, "GvG Split"
+    end
+
+    test "index ignores invalid status filters" do
+      get api_v1_teambuilds_path(status: "brouillon"), headers: auth_headers(@owner)
+      assert_response :success
+      assert_equal 1, response.parsed_body["pagination"]["totalCount"]
     end
 
     test "upsert rejects malformed json and non-canonical uuid" do

@@ -41,14 +41,16 @@ class Api::V1::TeambuildsController < ApplicationController
         player: @player,
         source_uuid: source_uuid_param,
         document: document,
-        visibility: params[:visibility]
+        visibility: params[:visibility],
+        status: params[:status]
       )
     rescue ActiveRecord::RecordNotUnique
       Teambuilds::Ingest.call(
         player: @player,
         source_uuid: source_uuid_param,
         document: document,
-        visibility: params[:visibility]
+        visibility: params[:visibility],
+        status: params[:status]
       )
     end
 
@@ -120,6 +122,7 @@ class Api::V1::TeambuildsController < ApplicationController
     relation = relation.with_campaign(params[:campaign]) if params[:campaign].present?
     relation = relation.with_game_mode(params[:game_mode]) if params[:game_mode].present?
     relation = apply_player_count_range(relation)
+    relation = relation.with_status(params[:status]) if Teambuild::STATUSES.include?(params[:status])
     relation = relation.owned_by(@player) if params[:visibility] == "mine"
     relation
   end
