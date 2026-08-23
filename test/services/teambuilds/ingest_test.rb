@@ -7,8 +7,9 @@ module Teambuilds
       @doc = load_zcx
     end
 
-    def ingest(document, visibility: "private", source_uuid: @doc["id"])
-      Ingest.call(player: @owner, source_uuid: source_uuid, document: document, visibility: visibility)
+    def ingest(document, visibility: "private", source_uuid: @doc["id"], status: nil)
+      Ingest.call(player: @owner, source_uuid: source_uuid, document: document,
+                  visibility: visibility, status: status)
     end
 
     test "creates a teambuild and derived indexes" do
@@ -76,6 +77,43 @@ module Teambuilds
       result = ingest(@doc, source_uuid: "Not-A-UUID")
       assert_not result.ok?
       assert_equal ["invalid_source_uuid"], result.errors.map { |e| e["code"] }
+    end
+
+    test "defaults status to published on creation" do
+      ingest(@doc)
+      assert_equal "published", @owner.teambuilds.sole.status
+    end
+
+    test "persists an explicit draft status" do
+      result = ingest(@doc, status: "draft")
+      assert result.ok?
+      assert_equal "draft", @owner.teambuilds.sole.reload.status
+    end
+
+    test "applies status changes without flipping changed?" do
+      ingest(@doc, status: "draft")
+      result = ingest(@doc)
+      assert result.ok?
+      assert_not result.changed?
+      assert_equal "draft", @owner.teambuilds.sole.reload.status
+
+      result = ingest(@doc, status: "published")
+      assert_not result.changed?
+      assert_equal "published", @owner.teambuilds.sole.reload.status
+    end
+
+    test "keeps the current status when replaced without the param" do
+      ingest(@doc, status: "draft")
+      changed = JSON.parse(@doc.to_json)
+      changed["name"] = "GvG Split v2"
+      ingest(changed)
+      assert_equal "draft", @owner.teambuilds.sole.reload.status
+    end
+
+    test "ignores unknown status values" do
+      ingest(@doc, status: "draft")
+      ingest(@doc, status: "brouillon")
+      assert_equal "draft", @owner.teambuilds.sole.reload.status
     end
   end
 end

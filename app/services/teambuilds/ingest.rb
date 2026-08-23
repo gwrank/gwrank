@@ -2,16 +2,17 @@ module Teambuilds
   class Ingest
     Result = Data.define(:ok?, :teambuild, :errors, :created?, :changed?)
 
-    def self.call(player:, source_uuid:, document:, visibility: "private")
+    def self.call(player:, source_uuid:, document:, visibility: "private", status: nil)
       new(player: player, source_uuid: source_uuid, document: document,
-          visibility: visibility).call
+          visibility: visibility, status: status).call
     end
 
-    def initialize(player:, source_uuid:, document:, visibility:)
+    def initialize(player:, source_uuid:, document:, visibility:, status:)
       @player = player
       @source_uuid = source_uuid.to_s.downcase
       @document = document
       @visibility = Teambuild::VISIBILITIES.include?(visibility) ? visibility : "private"
+      @status = Teambuild::STATUSES.include?(status) ? status : nil
     end
 
     def call
@@ -27,6 +28,7 @@ module Teambuilds
         incoming_hash = DocumentHash.of(@document)
         if existing && existing.document_hash == incoming_hash
           existing.update_column(:visibility, @visibility) if existing.visibility != @visibility
+          existing.update_column(:status, @status) if @status && existing.status != @status
           return success(existing, false, false)
         end
 
@@ -34,6 +36,7 @@ module Teambuilds
         teambuild = existing || @player.teambuilds.new(source_uuid: @source_uuid)
         teambuild.document = @document
         teambuild.visibility = @visibility
+        teambuild.status = @status if @status
         Indexer.call(teambuild)
         teambuild.save!
         success(teambuild, created, true)
