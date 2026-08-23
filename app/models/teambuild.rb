@@ -87,4 +87,8 @@ class Teambuild < ApplicationRecord
       updatedAt: updated_at
     }
   end
+
+  def export_summary
+    summary.merge(document: document)
+  end
 end

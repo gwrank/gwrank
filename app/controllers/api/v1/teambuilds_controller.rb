@@ -22,6 +22,14 @@ class Api::V1::TeambuildsController < ApplicationController
     }
   end
 
+  def export
+    records = filtered(Teambuild.visible_to(@player))
+              .includes(teambuild_characters: [:primary_profession, :secondary_profession, :elite_skill])
+              .order(updated_at: :desc)
+
+    render json: { teambuilds: records.map(&:export_summary) }
+  end
+
   def show
     teambuild = resolve_teambuild(params[:id])
     return head :not_found if teambuild.nil?

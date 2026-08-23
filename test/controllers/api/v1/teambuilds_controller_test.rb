@@ -242,5 +242,53 @@ module Api::V1
       get api_v1_teambuilds_path(elite_skill_id: 123_456), headers: auth_headers(@owner)
       assert_empty response.parsed_body["teambuilds"]
     end
+
+    test "export requires a token" do
+      get export_api_v1_teambuilds_path
+      assert_response :unauthorized
+    end
+
+    test "export returns visible builds with intact documents" do
+      public_doc = JSON.parse(@document.to_json)
+      public_doc["id"] = "aaaaaaa1-0000-0000-0000-000000000009"
+      put_doc(@other, public_doc, visibility: "public")
+
+      hidden_doc = JSON.parse(@document.to_json)
+      hidden_doc["id"] = "aaaaaaa1-0000-0000-0000-000000000008"
+      put_doc(@other, hidden_doc)
+
+      get export_api_v1_teambuilds_path, headers: auth_headers(@owner)
+      assert_response :success
+      entries = response.parsed_body["teambuilds"]
+      ids = entries.map { |entry| entry["sourceId"] }
+      assert_includes ids, @document["id"]
+      assert_includes ids, public_doc["id"]
+      assert_not_includes ids, hidden_doc["id"]
+
+      mine = entries.find { |entry| entry["sourceId"] == @document["id"] }
+      assert_equal @document, mine["document"]
+      assert_equal "published", mine["status"]
+      assert_equal 1, mine["playerCount"]
+    end
+
+    test "export includes others' public drafts and supports the status filter" do
+      draft_doc = JSON.parse(@document.to_json)
+      draft_doc["id"] = "bbbbbbb1-0000-0000-0000-000000000007"
+      put_doc(@other, draft_doc, visibility: "public", status: "draft")
+
+      get export_api_v1_teambuilds_path, headers: auth_headers(@owner)
+      assert_includes response.parsed_body["teambuilds"].map { |e| e["sourceId"] }, draft_doc["id"]
+
+      get export_api_v1_teambuilds_path(status: "draft"), headers: auth_headers(@owner)
+      assert_equal [draft_doc["id"]],
+                   response.parsed_body["teambuilds"].map { |e| e["sourceId"] }
+    end
+
+    test "export can be empty" do
+      Teambuild.destroy_all
+      get export_api_v1_teambuilds_path, headers: auth_headers(@owner)
+      assert_response :success
+      assert_empty response.parsed_body["teambuilds"]
+    end
   end
 end
