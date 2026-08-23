@@ -29,6 +29,7 @@ module Teambuilds
     ALLOWED_TAGS = %w[GvG HA RA TA AB FA JQ PvP PvE].freeze
     SKILL_SLOTS = 8
     MAX_DEPTH = 64
+    MAX_TOTAL_CHARACTERS = 512
 
     def self.validate(document)
       unless document.is_a?(Hash)
@@ -42,6 +43,7 @@ module Teambuilds
     def initialize(document)
       @document = document
       @errors = []
+      @character_count = 0
     end
 
     def call
@@ -51,6 +53,10 @@ module Teambuilds
       validate_characters(@document["characters"]) if @document.key?("characters")
       validate_locks(@document["locks"])
       validate_spike(@document["spike"])
+      if @character_count > MAX_TOTAL_CHARACTERS
+        add_error("$.characters", "too_many_characters",
+                  "L'arbre complet (variants compris) dépasse #{MAX_TOTAL_CHARACTERS} personnages")
+      end
       errors
     end
 
@@ -106,6 +112,7 @@ module Teambuilds
       if depth > MAX_DEPTH
         return add_error(path, "max_depth", "Arbre de variantes trop profond")
       end
+      @character_count += 1
       check_keys(path, character, CHARACTER_KEYS)
       reject_null_arrays(path, character, %w[skillIds attributes activeAttributeBoosts variants])
       validate_skill_ids(path, character["skillIds"])

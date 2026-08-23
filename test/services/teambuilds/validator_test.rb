@@ -50,6 +50,19 @@ module Teambuilds
       assert_equal ["too_many_characters"], errors_for(@doc).map { |e| e["code"] }
     end
 
+    test "rejects flattened trees over 512 characters including variants" do
+      variant = JSON.parse(@doc["characters"][0].to_json)
+      variant["variants"] = []
+      @doc["characters"] = Array.new(12) { JSON.parse(variant.to_json) }
+      @doc["characters"].each do |character|
+        43.times { character["variants"] << JSON.parse(variant.to_json) }
+      end
+      errors = errors_for(@doc)
+      code_errors = errors.select { |e| e["code"] == "too_many_characters" }
+      assert_equal 1, code_errors.size
+      assert_equal "$.characters", code_errors.first["path"]
+    end
+
     test "rejects skillIds without exactly 8 integers" do
       @doc["characters"][0]["skillIds"].pop
       assert_equal ["invalid_skill_ids"], errors_for(@doc).map { |e| e["code"] }
