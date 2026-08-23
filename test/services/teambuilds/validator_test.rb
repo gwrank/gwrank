@@ -63,6 +63,14 @@ module Teambuilds
       assert_equal "$.characters", code_errors.first["path"]
     end
 
+    test "accepts exactly 512 characters including variants" do
+      leaf = JSON.parse(@doc["characters"][0].to_json)
+      leaf["variants"] = []
+      @doc["characters"] = Array.new(8) { JSON.parse(leaf.to_json) }
+      @doc["characters"].each { |c| 63.times { c["variants"] << JSON.parse(leaf.to_json) } }
+      assert_empty errors_for(@doc)
+    end
+
     test "rejects skillIds without exactly 8 integers" do
       @doc["characters"][0]["skillIds"].pop
       assert_equal ["invalid_skill_ids"], errors_for(@doc).map { |e| e["code"] }
