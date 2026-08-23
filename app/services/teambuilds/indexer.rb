@@ -19,10 +19,16 @@ module Teambuilds
 
     def assign_scalars
       @teambuild.name = @document["name"].to_s
-      @teambuild.tags = Array(@document["tags"])
+      @teambuild.tags = canonical_tags
       @teambuild.game_mode = @document["gameMode"].to_s
       @teambuild.player_count = root_characters.size
       @teambuild.document_hash = DocumentHash.of(@document)
+    end
+
+    def canonical_tags
+      Array(@document["tags"]).filter_map do |tag|
+        Teambuilds::Validator::ALLOWED_TAGS.find { |allowed| allowed.casecmp(tag.to_s).zero? }
+      end.uniq
     end
 
     def root_characters
@@ -33,7 +39,17 @@ module Teambuilds
 
     def rebuild_characters
       @teambuild.teambuild_characters.destroy_all
-      root_characters.each_with_index { |character, position| build_row(character, position) }
+      indexed_characters.each_with_index { |character, position| build_row(character, position) }
+    end
+
+    def indexed_characters
+      [].tap do |flat|
+        walk = lambda do |character|
+          flat << character
+          Array(character["variants"]).each { |variant| walk.call(variant) if variant.is_a?(Hash) }
+        end
+        root_characters.each { |character| walk.call(character) }
+      end
     end
 
     def build_row(character, position)

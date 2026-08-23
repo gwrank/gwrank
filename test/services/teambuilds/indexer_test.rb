@@ -57,5 +57,34 @@ module Teambuilds
       assert_equal "Wilderness Survival", rows.second.dominant_attribute
       assert_nil rows.second.secondary_profession_id
     end
+
+    test "indexes variant characters after root ones" do
+      doc = load_zcx
+      variant = JSON.parse(doc["characters"][0].to_json)
+      variant["id"] = "22222222-2222-2222-2222-222222222222"
+      variant["name"] = "Water Snare Variant"
+      variant["skillIds"] = [946, 0, 0, 0, 0, 0, 0, 0]
+      variant["variants"] = []
+      doc["characters"][0]["variants"] << variant
+
+      @teambuild.document = doc
+      Indexer.call(@teambuild)
+      @teambuild.save!
+
+      rows = @teambuild.reload.teambuild_characters.order(:position)
+      assert_equal 2, rows.count
+      assert_equal "Water Snare", rows.first.name
+      assert_equal "Water Snare Variant", rows.second.name
+      assert_equal skills(:trappers_focus).id, rows.second.elite_skill_id
+      assert_equal 1, @teambuild.player_count
+    end
+
+    test "canonicalizes and deduplicates tags against the closed list" do
+      doc = load_zcx
+      doc["tags"] = ["gvg", "PVP", "GvG"]
+      @teambuild.document = doc
+      Indexer.call(@teambuild)
+      assert_equal %w[GvG PvP], @teambuild.tags
+    end
   end
 end
