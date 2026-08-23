@@ -47,4 +47,18 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     get download_build_path(Teambuild.last)
     assert_redirected_to builds_path
   end
+
+  test "public drafts carry a Draft badge" do
+    doc = JSON.parse(@document.to_json)
+    doc["id"] = "ddddddd9-0000-0000-0000-000000000001"
+    Teambuilds::Ingest.call(player: @other, source_uuid: doc["id"], document: doc,
+                            visibility: "public", status: "draft")
+    draft = Teambuild.find_by(source_uuid: doc["id"])
+
+    get builds_path
+    assert_select ".badge", text: "Draft", count: 1
+
+    get build_path(draft)
+    assert_select ".badge", text: "Draft", count: 1
+  end
 end

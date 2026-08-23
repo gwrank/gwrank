@@ -2,6 +2,9 @@
   <div class="d-flex align-items-center gap-2 mb-3">
     <h1 class="mb-0"><%= @teambuild.name.presence || "(sans nom)" %></h1>
     <span class="badge <%= @teambuild.visibility == 'public' ? 'bg-success' : 'bg-secondary' %>"><%= @teambuild.visibility %></span>
+    <% if @teambuild.status == "draft" %>
+      <span class="badge bg-warning text-dark">Draft</span>
+    <% end %>
     <%= link_to "Télécharger .zcx", download_build_path(@teambuild), class: "btn btn-outline-primary btn-sm ms-auto" %>
   </div>
 
