@@ -26,6 +26,7 @@ module Teambuilds
     ].freeze
 
     MAX_ROOT_CHARACTERS = 12
+    ALLOWED_TAGS = %w[GvG HA RA TA AB FA JQ PvP PvE].freeze
     SKILL_SLOTS = 8
     MAX_DEPTH = 64
 
@@ -46,6 +47,7 @@ module Teambuilds
     def call
       check_keys("$", @document, ROOT_KEYS)
       reject_null_arrays("$", @document, %w[tags natureRituals locks spike])
+      validate_tags(@document["tags"])
       validate_characters(@document["characters"]) if @document.key?("characters")
       validate_locks(@document["locks"])
       validate_spike(@document["spike"])
@@ -72,6 +74,19 @@ module Teambuilds
         next unless object.key?(key) && object[key].nil?
         add_error("#{path}.#{key}", "null_array", %(#{key} ne peut pas être null : émettre []))
       end
+    end
+
+    def validate_tags(tags)
+      return unless tags.is_a?(Array)
+      tags.each do |tag|
+        next if allowed_tag?(tag)
+        add_error("$.tags", "forbidden_tag",
+                  %(Tag #{tag.inspect} non autorisé (autorisés : #{ALLOWED_TAGS.join(", ")})))
+      end
+    end
+
+    def allowed_tag?(tag)
+      tag.is_a?(String) && ALLOWED_TAGS.any? { |allowed| allowed.casecmp(tag).zero? }
     end
 
     def validate_characters(characters)

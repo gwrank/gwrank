@@ -72,5 +72,22 @@ module Teambuilds
       @doc["characters"] = nil
       assert_includes errors_for(@doc).map { |e| e["code"] }, "null_array"
     end
+
+    test "rejects tags outside the closed list" do
+      @doc["tags"] = ["GvG", "meta"]
+      errors = errors_for(@doc)
+      assert_equal ["forbidden_tag"], errors.map { |e| e["code"] }
+      assert_equal "$.tags", errors.first["path"]
+    end
+
+    test "accepts allowed tags case-insensitively" do
+      @doc["tags"] = ["gvg", "PvE"]
+      assert_empty errors_for(@doc)
+    end
+
+    test "rejects non-string tags" do
+      @doc["tags"] = ["GvG", 42]
+      assert_includes errors_for(@doc).map { |e| e["code"] }, "forbidden_tag"
+    end
   end
 end

@@ -12,7 +12,7 @@ module Teambuilds
 
     test "derives scalar columns" do
       assert_equal "GvG Split", @teambuild.name
-      assert_equal %w[GvG meta], @teambuild.tags
+      assert_equal %w[GvG], @teambuild.tags
       assert_equal "PvP", @teambuild.game_mode
       assert_equal 1, @teambuild.player_count
       assert_not_empty @teambuild.document_hash
