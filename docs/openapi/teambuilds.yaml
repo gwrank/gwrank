@@ -26,6 +26,7 @@ paths:
         - { name: player_count_min, in: query, schema: { type: integer, minimum: 1 } }
         - { name: player_count_max, in: query, schema: { type: integer, maximum: 12 } }
         - { name: visibility, in: query, schema: { type: string, enum: ["mine"] } }
+        - { name: status, in: query, schema: { type: string, enum: [draft, published] } }
         - { name: sort, in: query, schema: { type: string, enum: [updated_at, name, player_count] } }
         - { name: page, in: query, schema: { type: integer, minimum: 1 } }
         - { name: per_page, in: query, schema: { type: integer, minimum: 1, maximum: 100 } }
@@ -39,6 +40,27 @@ paths:
                 properties:
                   teambuilds: { type: array, items: { $ref: "#/components/schemas/TeambuildSummary" } }
                   pagination: { $ref: "#/components/schemas/Pagination" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+  /api/v1/teambuilds/export:
+    get:
+      summary: Exporter tous les teambuilds visibles en un appel
+      description: >
+        Résumés enrichis du document .zcx intégral pour tout ce que l'appelant
+        peut voir : publics + les siens, drafts publics compris (filtrables via
+        status). Réponse unique, sans pagination.
+      parameters:
+        - { name: status, in: query, schema: { type: string, enum: [draft, published] } }
+      responses:
+        "200":
+          description: Liste complète des teambuilds visibles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  teambuilds:
+                    type: array
+                    items: { $ref: "#/components/schemas/TeambuildExport" }
         "401": { $ref: "#/components/responses/Unauthorized" }
   /api/v1/teambuilds/{id}:
     get:
@@ -65,10 +87,11 @@ paths:
       description: >
         Corps = document .zcx brut. Upsert idempotent clé par (propriétaire, source_uuid) :
         création si absent ; no-op si le hash (hors updatedAt) est inchangé ;
-        remplacement sinon. visibility en query, défaut private.
+        remplacement sinon. visibility et status en query, défauts private/published.
       parameters:
         - { name: id, in: path, required: true, schema: { type: string, format: uuid }, description: source_uuid canonique minuscule }
         - { name: visibility, in: query, schema: { type: string, enum: [private, public], default: private } }
+        - { name: status, in: query, schema: { type: string, enum: [draft, published], default: published }, description: Statut conservé si absent }
       requestBody:
         required: true
         content:
@@ -137,7 +160,7 @@ components:
                 type: string
                 enum: [malformed_json, invalid_source_uuid, not_an_object, wrong_case,
                        null_array, duplicate_attribute_id, invalid_skill_ids,
-                       too_many_characters, max_depth]
+                       too_many_characters, max_depth, forbidden_tag]
               message: { type: string }
     TeambuildCharacterSummary:
       type: object
@@ -158,6 +181,7 @@ components:
         gameMode: { type: string }
         playerCount: { type: integer }
         visibility: { type: string, enum: [private, public] }
+        status: { type: string, enum: [draft, published] }
         characters: { type: array, items: { $ref: "#/components/schemas/TeambuildCharacterSummary" } }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
@@ -168,6 +192,12 @@ components:
           properties:
             created: { type: boolean }
             changed: { type: boolean }
+    TeambuildExport:
+      allOf:
+        - $ref: "#/components/schemas/TeambuildSummary"
+        - type: object
+          properties:
+            document: { $ref: "#/components/schemas/ZcxDocument" }
     ZcxDocument:
       type: object
       additionalProperties: true
@@ -179,7 +209,10 @@ components:
         version: { type: integer, description: Informatif, jamais routé }
         id: { type: string, format: uuid }
         name: { type: string }
-        tags: { type: array, items: { type: string } }
+        tags:
+          type: array
+          items: { type: string, enum: [GvG, HA, RA, TA, AB, FA, JQ, PvP, PvE] }
+          description: Liste fermée imposée à l'ingestion (comparaison insensible à la casse, stockage canonique)
         notes: { type: string }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
@@ -235,7 +268,7 @@ components:
         version: 18
         id: 0f6a2f6c-9a1e-4b7d-9c3a-5f0e2b8c1d44
         name: GvG Split
-        tags: [GvG, meta]
+        tags: [GvG]
         notes: ""
         createdAt: "2026-08-21T09:30:00Z"
         updatedAt: "2026-08-21T17:05:12Z"
