@@ -93,7 +93,7 @@ elite skill / attribut matchent aussi les personnages alternatifs.
 
 ## 4. Tags : liste fermée imposée
 
-- `Teambuild::ALLOWED_TAGS = %w[GvG HA RA TA AB FA JQ PvP PvE]`.
+- `Teambuilds::Validator::ALLOWED_TAGS = %w[GvG HA RA TA AB FA JQ PvP PvE]`.
 - Enforcement dans `Teambuilds::Validator` (point d'entrée unique des règles document,
   cohérent avec les erreurs 422 structurées existantes) :
   - chaque entrée de `tags` est comparée insensiblement à la casse à la liste autorisée ;
