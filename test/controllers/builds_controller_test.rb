@@ -70,6 +70,7 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".gw-row", count: 1
     assert_select ".gw-badge-mode", text: "PvP"
     assert_select ".gw-badge-tag", text: "GvG"
+    assert_select ".gw-prof-icon img", minimum: 1
   end
 
   test "index shows an empty state when nothing matches" do
