@@ -1,6 +1,8 @@
 module DiscordBot
   module Commands
     class BuildCommands
+      include SaveSupport
+
       def self.register(bot)
         new(bot).register
       end
@@ -24,6 +26,8 @@ module DiscordBot
         @bot.register_application_command(:build, 'Show a build from a GW1 template code', server_id: ENV['DISCORD_SERVER_ID']) do |cmd|
           cmd.string(:code, 'The template code, e.g. from the in-game Templates panel', required: true)
           cmd.boolean(:verbose, 'Show skill names and descriptions (default: off)', required: false)
+          cmd.string(:visibility, 'Save the build to your account (default: private)', required: false,
+                     choices: { 'Private' => 'private', 'Public' => 'public' })
         end
       end
 
@@ -36,11 +40,18 @@ module DiscordBot
         verbose = event.options['verbose'] == true
         reader = GW::TemplateReader.decode!(code)
         render_build(event, reader, verbose)
+        save_to_account(event, [DiscordBot::SaveBuild::Entry.new(skills_code: reader.code, player: nil, slot_name: nil)], default_name(reader))
       rescue GW::TemplateReader::InvalidCode
         event.respond(content: "That doesn't look like a valid Guild Wars build code.", ephemeral: true)
       rescue StandardError => e
         Rails.logger.error("Failed to render build: #{e.class}: #{e.message}")
         event.respond(content: 'Something went wrong rendering that build.', ephemeral: true)
+      end
+
+      def default_name(reader)
+        abbr = GW::TemplateReader::ProfessionAbbr[reader.primary]
+        abbr += "/#{GW::TemplateReader::ProfessionAbbr[reader.secondary]}" unless reader.secondary.zero?
+        "#{abbr} Build"
       end
 
       def render_build(event, reader, verbose)

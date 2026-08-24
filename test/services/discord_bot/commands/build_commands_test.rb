@@ -70,6 +70,87 @@ module DiscordBot
         assert response[:ephemeral]
         assert_match(/Something went wrong rendering that build/, response[:content])
       end
+
+      test "a valid code defaults to saving a private build owned by the discord user, confirmed ephemerally" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user, options: { "code" => VALID_CODE }
+        )
+
+        BuildCommands.new(nil).dispatch(event)
+
+        player = Player.find_by(provider: "discord", uid: "111")
+        build = player.teambuilds.sole
+        assert_equal "private", build.visibility
+        assert_equal 1, build.teambuild_characters.size
+
+        followup = event.followups.sole
+        assert followup[:ephemeral]
+        assert_match(/saved to your account as \*\*private\*\*/, followup[:content])
+        assert_match(/\[View build\]\(/, followup[:content])
+      end
+
+      test "visibility public makes the saved build publicly visible and confirms it" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user,
+          options: { "code" => VALID_CODE, "visibility" => "public" }
+        )
+
+        BuildCommands.new(nil).dispatch(event)
+
+        build = Player.find_by(provider: "discord", uid: "111").teambuilds.sole
+        assert_equal "public", build.visibility
+        assert_includes Teambuild.publicly_visible.ids, build.id
+        assert_match(/saved to your account as \*\*public\*\*/, event.followups.sole[:content])
+      end
+
+      test "reposting the same code confirms an update instead of creating a duplicate" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
+        first = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user, options: { "code" => VALID_CODE }
+        )
+        second = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user, options: { "code" => VALID_CODE }
+        )
+
+        BuildCommands.new(nil).dispatch(first)
+        BuildCommands.new(nil).dispatch(second)
+
+        player = Player.find_by(provider: "discord", uid: "111")
+        assert_equal 1, player.teambuilds.count
+        assert_match(/saved to your account/, first.followups.sole[:content])
+        assert_match(/updated in your account/, second.followups.sole[:content])
+      end
+
+      test "an invalid code saves nothing" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user, options: { "code" => "not a valid code!!" }
+        )
+
+        BuildCommands.new(nil).dispatch(event)
+
+        assert_equal 0, Teambuild.count
+        assert_empty event.followups
+      end
+
+      test "a save failure still posts the embed and warns ephemerally" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user, options: { "code" => VALID_CODE }
+        )
+        failure = Teambuilds::Ingest::Result.new(false, nil, [{ "message" => "nope" }], false, false)
+
+        Teambuilds::Ingest.stub(:call, failure) do
+          BuildCommands.new(nil).dispatch(event)
+        end
+
+        assert_equal 1, event.responses.size # embed was posted
+        assert_equal 0, Teambuild.count
+        assert_match(/couldn't save it: nope/, event.followups.sole[:content])
+        assert event.followups.sole[:ephemeral]
+      end
     end
   end
 end
