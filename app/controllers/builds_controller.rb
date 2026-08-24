@@ -1,4 +1,6 @@
 class BuildsController < ApplicationController
+  layout "gw"
+
   before_action :set_teambuild, only: [:show, :download]
 
   def index
