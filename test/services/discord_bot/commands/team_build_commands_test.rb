@@ -33,6 +33,31 @@ module DiscordBot
         assert_equal "1. P/Me: `OQWjUyoogOXgiQPYBzgdwubBA`", lines[0]
       end
 
+      test "a name option replaces the compact embed title" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user, options: { "code" => VALID_TEAM_CODE, "name" => "My Build" }
+        )
+
+        TeamBuildCommands.new(nil).dispatch(event)
+
+        embed = event.responses.first[:embeds][0]
+        assert_equal "My Build", embed[:title]
+      end
+
+      test "a name option is ignored in verbose mode, leaving per-player titles untouched" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user,
+          options: { "code" => VALID_TEAM_CODE, "verbose" => true, "name" => "My Build" }
+        )
+
+        TeamBuildCommands.new(nil).dispatch(event)
+
+        assert_equal 8, event.responses.first[:embeds].size
+        assert_equal "1. Paragon / Mesmer", event.responses.first[:embeds][0][:title]
+      end
+
       test "verbose:true posts one embed per player, each with its own image, attributes, and skill names" do
         discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
         event = DiscordBot::Test::FakeApplicationCommandEvent.new(

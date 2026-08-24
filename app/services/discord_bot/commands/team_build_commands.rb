@@ -24,6 +24,7 @@ module DiscordBot
         @bot.register_application_command(:teambuild, 'Show a team build from a pawned2 export', server_id: ENV['DISCORD_SERVER_ID']) do |cmd|
           cmd.string(:code, 'The pawned2 team build text, copied from paw.ned2', required: true)
           cmd.boolean(:verbose, 'Show skill names for each player (default: off)', required: false)
+          cmd.string(:name, 'Override the embed title (default: auto)', required: false)
         end
       end
 
@@ -34,7 +35,8 @@ module DiscordBot
       def handle_teambuild(event)
         entries = GW::PwndTemplate.decode!(event.options['code'].to_s.strip)
         verbose = event.options['verbose'] == true
-        render_team(event, entries, verbose)
+        name = event.options['name'].to_s.strip.presence
+        render_team(event, entries, verbose, name)
       rescue GW::PwndTemplate::InvalidCode
         event.respond(content: "That doesn't look like a valid pawned2 team build.", ephemeral: true)
       rescue StandardError => e
@@ -50,8 +52,8 @@ module DiscordBot
       # image), so 8 stays comfortably within both caps.
       MAX_ENTRIES = 8
 
-      def render_team(event, entries, verbose)
-        return render_compact_team(event, entries.first(MAX_ENTRIES)) unless verbose
+      def render_team(event, entries, verbose, name = nil)
+        return render_compact_team(event, entries.first(MAX_ENTRIES), name) unless verbose
 
         render_verbose_team(event, entries.first(MAX_ENTRIES))
       end
@@ -60,12 +62,12 @@ module DiscordBot
       # screen: one embed, one grid image (one row of 8 skill icons per
       # player), and each player's template code as plain text underneath -
       # instead of the 8 separate image-carrying embeds verbose:true posts.
-      def render_compact_team(event, entries)
+      def render_compact_team(event, entries, name = nil)
         readers = entries.map { |entry| decode_reader(entry) }
         strip_image = GW::SkillStripImage.build_grid(readers.map { |reader| grid_row(reader) }, numbered: true)
 
         embed = {
-          title: "Team Build (#{entries.size} #{entries.size == 1 ? 'player' : 'players'})",
+          title: name ? name.truncate(TITLE_LIMIT) : "Team Build (#{entries.size} #{entries.size == 1 ? 'player' : 'players'})",
           description: code_lines(entries, readers),
           image: { url: "attachment://#{File.basename(strip_image.path)}" }
         }
@@ -144,6 +146,9 @@ module DiscordBot
         }
         [embed, strip_image]
       end
+
+      # Discord caps embed titles at 256 characters.
+      TITLE_LIMIT = 256
 
       # player/slot_name come from the pawned2 description field, which can
       # decode to an arbitrarily large blob (up to ~3000 bytes) if the

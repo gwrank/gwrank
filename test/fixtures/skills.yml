@@ -1,3 +1,27 @@
+# == Schema Information
+#
+# Table name: skills
+#
+#  id                :bigint           not null, primary key
+#  campaign          :string
+#  description       :text
+#  is_elite          :boolean          default(FALSE)
+#  name              :string
+#  skill_type        :string
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  profession_id     :bigint
+#  skill_id          :integer
+#  template_skill_id :integer
+#
+# Indexes
+#
+#  index_skills_on_profession_id  (profession_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (profession_id => professions.id)
+#
 mist_form:
   skill_id: 1064
   template_skill_id: 1064
