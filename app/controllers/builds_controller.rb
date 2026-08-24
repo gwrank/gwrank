@@ -24,7 +24,7 @@ class BuildsController < ApplicationController
 
   def set_teambuild
     @teambuild = Teambuild.find_by(id: params[:id])
-    redirect_to builds_path, alert: "Build introuvable ou privé." if @teambuild.nil? || !@teambuild.visible_to?(current_player)
+    redirect_to builds_path, alert: "Build not found or private." if @teambuild.nil? || !@teambuild.visible_to?(current_player)
   end
 
   def build_rows
