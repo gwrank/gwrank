@@ -60,6 +60,7 @@ module Api::V1
       get api_v1_teambuild_path(Teambuild.last.id), headers: auth_headers(@owner)
       assert_response :success
       assert_equal @document, response.parsed_body.except("author")
+      assert_equal @owner.username, response.parsed_body["author"]
     end
 
     test "show forbids other players' privates" do
@@ -88,6 +89,7 @@ module Api::V1
       put_doc(@owner, fresh)
       assert_response :created
       assert_equal true, response.parsed_body["created"]
+      assert_equal @owner.username, response.parsed_body["author"]
 
       before = Teambuild.last.updated_at
       touched = JSON.parse(@document.to_json)
@@ -266,6 +268,7 @@ module Api::V1
       assert_includes ids, @document["id"]
       assert_includes ids, public_doc["id"]
       assert_not_includes ids, hidden_doc["id"]
+      assert_equal @other.username, entries.first["author"]
 
       mine = entries.find { |entry| entry["sourceId"] == @document["id"] }
       assert_equal @document, mine["document"]
