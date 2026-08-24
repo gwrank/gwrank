@@ -1,0 +1,267 @@
+// Composants « fenêtre Guild Wars » pour les pages /builds
+// Palette alignée sur custom.scss
+
+.gw-window {
+  background: rgba(10, 7, 3, 0.92);
+  border: 2px solid #9c7c3c;
+  border-radius: 6px;
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.85);
+  overflow: hidden;
+}
+
+.gw-window-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: linear-gradient(#3a2c14, #241a09);
+  border-bottom: 1px solid #9c7c3c;
+}
+
+.gw-title {
+  color: #f4dfa0;
+  font-size: 1.15rem;
+  margin: 0;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+.gw-count {
+  color: #9b8a5f;
+  font-size: 0.75rem;
+  margin-left: 8px;
+}
+
+.gw-search {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.gw-search-input {
+  background: #100b05;
+  border: 1px solid #7a5f28;
+  color: #ffe9ad;
+  border-radius: 3px;
+  padding: 4px 10px;
+  min-width: 200px;
+
+  &::placeholder { color: #9b8a5f; }
+  &:focus {
+    outline: none;
+    border-color: #c9a959;
+    box-shadow: 0 0 6px rgba(201, 169, 89, 0.4);
+  }
+}
+
+.gw-btn {
+  display: inline-block;
+  background: linear-gradient(#c9a959, #9c7c3c);
+  color: #171006 !important;
+  border: 1px solid #f4dfa0;
+  border-radius: 3px;
+  padding: 4px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: linear-gradient(#dcbb6b, #a8853f);
+    color: #000 !important;
+    text-decoration: none;
+  }
+}
+
+.gw-list {
+  display: block;
+}
+
+.gw-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid #241a09;
+  border-left: 3px solid transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    background: #171006;
+    border-left-color: #cd9219;
+  }
+}
+
+.gw-row-profs {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.gw-prof-icon img {
+  border-radius: 50%;
+  border: 1px solid #9c7c3c;
+  background: #241a09;
+}
+
+.gw-prof-more {
+  color: #6b5c38;
+  font-size: 0.7rem;
+  align-self: center;
+}
+
+.gw-row-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.gw-row-name {
+  display: block;
+  color: #ffe9ad;
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gw-row-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.gw-row-meta {
+  color: #9b8a5f;
+  font-size: 0.75rem;
+  text-align: right;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.gw-badge-mode {
+  background: linear-gradient(#c9a959, #9c7c3c);
+  color: #171006;
+  font-weight: 600;
+}
+
+.gw-badge-tag {
+  background: transparent;
+  color: #e8d9a8;
+  border: 1px solid #7a5f28;
+}
+
+.gw-badge-draft {
+  background: #5c4a14;
+  color: #ffd98a;
+  border: 1px solid #cd9219;
+}
+
+.gw-badge-visibility {
+  background: #2b1815;
+  color: #b9a08a;
+  border: 1px solid #4b2a22;
+}
+
+.gw-empty {
+  color: #9b8a5f;
+  text-align: center;
+  padding: 32px 16px;
+  margin: 0;
+}
+
+.gw-build-header .gw-header-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.gw-character-card + .gw-character-card {
+  margin-top: 12px;
+}
+
+.gw-character-name {
+  color: #ffe9ad;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gw-dominant {
+  margin-left: auto;
+  color: #9b8a5f;
+}
+
+.gw-character-body {
+  padding: 12px 14px;
+}
+
+.gw-skillbar {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.gw-skillbar-slot {
+  width: 31px;
+  height: 31px;
+  background: #241a09;
+  border: 2px solid #9c7c3c;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.gw-skillbar-slot--empty {
+  opacity: 0.55;
+}
+
+.gw-skillbar-slot--elite {
+  border-color: #f4dfa0;
+  box-shadow: 0 0 8px rgba(244, 223, 160, 0.5);
+}
+
+.gw-attributes {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px 18px;
+  padding: 0;
+  margin: 0 0 8px;
+  color: #cfcfcf;
+  font-size: 0.85rem;
+
+  li { display: flex; justify-content: space-between; }
+
+  .gw-attribute-points {
+    color: #ffe9ad;
+    font-weight: bold;
+  }
+}
+
+.gw-notes {
+  color: #8a7565;
+  font-style: italic;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+@media (max-width: 575.98px) {
+  .gw-row {
+    flex-wrap: wrap;
+
+    .gw-row-meta {
+      width: 100%;
+      order: 3;
+      text-align: left;
+    }
+  }
+
+  .gw-attributes {
+    grid-template-columns: 1fr;
+  }
+}
