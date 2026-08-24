@@ -1,65 +1,48 @@
-<div class="content-wrap">
-  <div class="mpl-navbar-mobile-overlay"></div>
-  <div>
-    <section class="mpl-banner mpl-banner-top mpl-banner-parallax mpl-banner-small">
-      <div class="mpl-image" data-speed="0.8">
-        <%= image_tag 'background.jpg', class: 'jarallax-img' %>
-      </div>
-      <div class="mpl-banner-content mpl-box-sm">
-        <div class="container">
-          <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-              <li class="breadcrumb-item"><a href="/">Home</a></li>
-              <li class="breadcrumb-item"><%= link_to 'Scrims', scrims_path %></li>
-              <li class="breadcrumb-item active" aria-current="page">Scrim #<%= @scrim.id %></li>
-            </ol>
-          </nav>
-          <h1 class="lg:display-1 mb-0">Scrim #<%= @scrim.id %></h1>
-        </div>
-      </div>
-    </section>
-    <div class="mpl-box-md">
-      <div class="container">
-        <div class="row hgap-lg vgap-lg">
-          <div class="col-lg mpl-content">
-            <p>
-              <%= l @scrim.created_at %> &middot;
-              Score: <strong><%= @scrim.team_a_wins %>-<%= @scrim.team_b_wins %></strong>
-              <% if @scrim.winner_team_id.present? %>
-                &middot; Winner: <strong>Team <%= @scrim.winner_team_id == @scrim.team_a_id ? 'A' : 'B' %></strong>
-              <% else %>
-                &middot; <span class="badge badge-secondary">In progress</span>
-              <% end %>
-            </p>
+<div class="space-y-4">
+  <div class="gw-window gw-frame">
+    <%= render "application/gw_tabs", tabs: [["Scrims", scrims_path], ["Scrim ##{@scrim.id}", nil]] %>
+    <div class="gw-window-header">
+      <h1 class="gw-title text-base m-0">Scrim #<%= @scrim.id %></h1>
+      <% if @scrim.winner_team_id.present? %>
+        <span class="gw-badge gw-badge--mode">Team <%= @scrim.winner_team_id == @scrim.team_a_id ? 'A' : 'B' %> won</span>
+      <% else %>
+        <span class="gw-badge gw-badge--draft">In progress</span>
+      <% end %>
+    </div>
 
-            <div class="row hgap-lg vgap-lg">
-              <div class="col-6">
-                <h2>Team A<%= ' (winner)' if @scrim.winner_team_id == @scrim.team_a_id %></h2>
-                <ul>
-                  <% @scrim.team_a.team_players.includes(:player, :profession).each do |team_player| %>
-                    <li>
-                      <%= link_to team_player.player.name, player_path(team_player.player) %>
-                      (<%= team_player.profession.name %>)<%= ' - captain' if team_player.is_captain? %>
-                    </li>
-                  <% end %>
-                </ul>
-              </div>
-              <div class="col-6">
-                <h2>Team B<%= ' (winner)' if @scrim.winner_team_id == @scrim.team_b_id %></h2>
-                <ul>
-                  <% @scrim.team_b.team_players.includes(:player, :profession).each do |team_player| %>
-                    <li>
-                      <%= link_to team_player.player.name, player_path(team_player.player) %>
-                      (<%= team_player.profession.name %>)<%= ' - captain' if team_player.is_captain? %>
-                    </li>
-                  <% end %>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div class="p-4 space-y-4">
+      <p class="m-0">
+        <%= l @scrim.created_at %> &middot;
+        Score: <strong class="font-display text-gold-300 text-xl"><%= @scrim.team_a_wins %>-<%= @scrim.team_b_wins %></strong>
+        <% unless @scrim.winner_team_id.present? %>
+          &middot; <span class="text-muted">In progress</span>
+        <% end %>
+      </p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <section>
+          <h2 class="font-display text-parchment text-sm mb-1">Team A<%= ' (winner)' if @scrim.winner_team_id == @scrim.team_a_id %></h2>
+          <ul class="list-none m-0 p-0 text-sm space-y-1">
+            <% @scrim.team_a.team_players.includes(:player, :profession).each do |team_player| %>
+              <li>
+                <%= link_to team_player.player.name, player_path(team_player.player), class: "hover:text-gold-400" %>
+                (<%= team_player.profession.name %>)<%= ' - captain' if team_player.is_captain? %>
+              </li>
+            <% end %>
+          </ul>
+        </section>
+        <section>
+          <h2 class="font-display text-parchment text-sm mb-1">Team B<%= ' (winner)' if @scrim.winner_team_id == @scrim.team_b_id %></h2>
+          <ul class="list-none m-0 p-0 text-sm space-y-1">
+            <% @scrim.team_b.team_players.includes(:player, :profession).each do |team_player| %>
+              <li>
+                <%= link_to team_player.player.name, player_path(team_player.player), class: "hover:text-gold-400" %>
+                (<%= team_player.profession.name %>)<%= ' - captain' if team_player.is_captain? %>
+              </li>
+            <% end %>
+          </ul>
+        </section>
       </div>
     </div>
-    <%= render 'footer' %>
   </div>
 </div>

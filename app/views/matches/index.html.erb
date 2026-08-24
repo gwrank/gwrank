@@ -1,42 +1,37 @@
-<div class="content-wrap">
-  <div class="mpl-navbar-mobile-overlay"></div>
-  <div>
-    <section class="mpl-banner mpl-banner-top mpl-banner-parallax mpl-banner-small">
-      <div class="mpl-image" data-speed="0.8">
-        <%= image_tag 'background.jpg', class: 'jarallax-img' %>
-      </div>
-      <div class="mpl-banner-content mpl-box-sm">
-        <div class="container">
-          <nav aria-label="breadcrumb">
-              <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/">Home</a></li>
-                <li class="breadcrumb-item active"><%= link_to 'Matches', matches_path %></li>
-              </ol>
-            </nav>
-          <h1 class="lg:display-1 mb-0">Matches</h1>
-        </div>
-      </div>
-    </section>
-    <div class="mpl-box-md">
-      <div class="container">
-        <%= render "matches/filters" %>
-        <div class="row hgap-lg vgap-lg">
-          <div class="col-lg mpl-content">
-            <ul class="cyberpress-matchs-archive" data-sr="matches" data-sr-duration="1000">
-              <% cache @matches do %>
-                <% @matches.each do |match| %>
-                  <%= render "match", match: match %>
-                <% end %>
-              <% end %>
-              <%== @pagy.series_nav(:bootstrap) %>
-            </ul>
-          </div>
-          <div class="col-auto-lg mpl-sidebar" data-sr="widget" data-sr-duration="1200" data-sr-distance="20">
-            <%= link_to 'Add a Match', new_match_path, class: 'btn btn-md' %>
-          </div>
-        </div>
-      </div>
+<div class="space-y-4">
+  <div class="gw-window gw-frame">
+    <%= render "application/gw_tabs", tabs: [["Matches", matches_path]] %>
+    <div class="gw-window-header">
+      <h1 class="gw-title text-base m-0">Matches</h1>
+      <span class="gw-count text-sm"><%= @pagy.count %> matches</span>
+      <%= link_to 'Add a Match', new_match_path, class: 'gw-btn ml-auto' %>
     </div>
-    <%= render 'footer' %>
+
+    <details class="border-b border-[#2b2010]">
+      <summary class="gw-window-header cursor-pointer select-none list-none">
+        <span class="gw-title text-xs">Filters</span>
+        <% active_filters = params[:opponent].present? || params[:date_from].present? || params[:date_to].present? || params[:tournament_type].present? || params[:flux_month].present? || params[:map_id].present? %>
+        <span class="text-muted text-xs"><%= active_filters ? "· active" : "· none" %></span>
+      </summary>
+      <div class="p-4">
+        <%= render "filters" %>
+      </div>
+    </details>
+
+    <% if @matches.any? %>
+      <ul class="list-none m-0 p-0">
+        <% cache @matches do %>
+          <% @matches.each do |match| %>
+            <%= render "match", match: match %>
+          <% end %>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="gw-empty">No matches found for these filters.</p>
+    <% end %>
+
+    <div class="flex justify-center p-4">
+      <div class="gw-pagy"><%== @pagy.series_nav(:bootstrap) %></div>
+    </div>
   </div>
 </div>

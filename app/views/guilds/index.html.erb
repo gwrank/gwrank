@@ -1,52 +1,39 @@
-<div class="content-wrap">
-  <div class="mpl-navbar-mobile-overlay"></div>
-  <div>
-    <section class="mpl-banner mpl-banner-top mpl-banner-parallax mpl-banner-small">
-      <div class="mpl-image" data-speed="0.8">
-        <%= image_tag 'background.jpg', class: 'jarallax-img' %>
-      </div>
-      <div class="mpl-banner-content mpl-box-sm">
-        <div class="container">
-          <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-              <li class="breadcrumb-item"><a href="/">Home</a></li>
-              <li class="breadcrumb-item active">Guilds</li>
-            </ol>
-          </nav>
-          <h1 class="lg:display-1 mb-0">Guilds</h1>
-        </div>
-      </div>
-    </section>
-    <div class="mpl-box-md">
-      <div class="container">
-        <%= render "searches/form", search_query: '' %>
-        <div class="row hgap-lg vgap-lg">
-          <div class="col-lg mpl-content">
-            <div class="row hgap-md vgap-md" data-sr="teams" data-sr-interval="100" data-sr-duration="1000" data-sr-distance="20">
-              <% @guilds.each do |guild| %>
-                <% cache guild do %>
-                  <%= render "guild", guild: guild %>
-                <% end %>
-              <% end %>
-              <%== @pagy.series_nav(:bootstrap) %>
-            </div>
-          </div>
-          <div class="col-auto-lg mpl-sidebar" data-sr="widget" data-sr-duration="1200" data-sr-distance="20">
-            <% if current_player %>
-              <% if current_player.guild.present? %>
-                <%= link_to 'Go to my Guild', guild_path(current_player.guild), class: 'btn btn-md' %>
-              <% else %>
-                <%= link_to 'Register my Guild', new_guild_path, class: 'btn btn-md' %>
-              <% end %>
-            <% else %>
-              <%= form_tag(omniauth_authorize_path(:player, :discord), method: 'post', data: { turbo: false }) do %>
-                <button type="submit" class="btn btn-md">Login with Discord to register my guild</button>
-              <% end %>
-            <% end %>
-          </div>
-        </div>
-      </div>
+<div class="space-y-4">
+  <div class="gw-window gw-frame">
+    <%= render "application/gw_tabs", tabs: [["Guilds", guilds_path]] %>
+    <div class="gw-window-header">
+      <h1 class="gw-title text-base m-0">Guilds</h1>
+      <span class="gw-count text-sm"><%= @pagy.count %> guilds</span>
+      <% if current_player %>
+        <% if current_player.guild.present? %>
+          <%= link_to 'Go to my Guild', guild_path(current_player.guild), class: 'gw-btn ml-auto' %>
+        <% else %>
+          <%= link_to 'Register my Guild', new_guild_path, class: 'gw-btn ml-auto' %>
+        <% end %>
+      <% else %>
+        <%= form_tag(omniauth_authorize_path(:player, :discord), method: 'post', data: { turbo: false }, class: 'ml-auto') do %>
+          <button type="submit" class="gw-btn">Login with Discord to register my guild</button>
+        <% end %>
+      <% end %>
     </div>
-    <%= render 'footer' %>
+
+    <div class="p-4 space-y-4">
+      <%= render "searches/form", search_query: '' %>
+
+      <% if @guilds.any? %>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <% @guilds.each do |guild| %>
+            <% cache guild do %>
+              <%= render "guild", guild: guild %>
+            <% end %>
+          <% end %>
+        </div>
+        <div class="flex justify-center">
+          <div class="gw-pagy"><%== @pagy.series_nav(:bootstrap) %></div>
+        </div>
+      <% else %>
+        <p class="gw-empty">No guilds found.</p>
+      <% end %>
+    </div>
   </div>
 </div>

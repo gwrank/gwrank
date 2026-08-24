@@ -83,6 +83,15 @@
     color: #f5ded9 !important;
     border-color: #b06a5f;
   }
+  /* Compat : health_chart_controller.js bascule ces noms de classes bootstrap
+     sur ses boutons — on les habille en fantôme pour l'état inactif. */
+  .gw-btn.btn-outline-primary {
+    background: none;
+    color: var(--color-parchment);
+    border-color: var(--color-border-dim);
+    box-shadow: none;
+    font-weight: 400;
+  }
 
   /* Champs */
   .gw-input, .gw-select, .gw-textarea {

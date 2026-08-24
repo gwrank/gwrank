@@ -1,15 +1,8 @@
-<%= form_with url: search_path, method: :get, class: "mb-50" do |form| %>
-  <div class="row hgap-xs">
-    <div class="col">
-      <%= form.text_field :q, placeholder: "Search in players, guilds and matches", value: search_query, class: "form-control" %>
-      <span class="form-control-bg"></span>
-    </div>
-    <div class="col-auto">
-      <%= form.button class: "btn btn-md" do %>
-        <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" />
-        </svg>
-      <% end %>
-    </div>
-  </div>
+<%= form_with url: search_path, method: :get, class: "flex gap-2" do |form| %>
+  <%= form.text_field :q, placeholder: "Search in players, guilds and matches", value: search_query, class: "gw-input" %>
+  <%= form.button class: "gw-btn shrink-0" do %>
+    <svg class="w-4 h-4" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" />
+    </svg>
+  <% end %>
 <% end %>

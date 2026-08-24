@@ -1,326 +1,300 @@
-<div class="mb-3 p-2" style="background-color: rgba(0, 0, 0, 0.2); border-radius: 5px;">
-  <strong>NPCs Killed:</strong> <span class="text-warning"><%= match.npc_kills(team_index) %></span>
+<div class="mb-3 p-2 rounded bg-black/20">
+  <strong>NPCs Killed:</strong> <span class="text-amber-300"><%= match.npc_kills(team_index) %></span>
 </div>
 
 <div class="mb-3">
-  <div class="form-check form-switch">
-    <input class="form-check-input" type="checkbox" id="excludeNpcToggle-<%= team_index %>" checked>
-    <label class="form-check-label" for="excludeNpcToggle-<%= team_index %>">
-      <strong>Include NPC Damage in Stats</strong>
-    </label>
-  </div>
+  <label class="flex items-center gap-2 text-sm" for="excludeNpcToggle-<%= team_index %>">
+    <input type="checkbox" id="excludeNpcToggle-<%= team_index %>" checked class="accent-[#c9a959]">
+    <strong>Include NPC Damage in Stats</strong>
+  </label>
 </div>
 
-<div class="table-responsive">
-  <table class="table table-striped table-stats" data-team-index="<%= team_index %>">
-    <thead>
-      <tr>
-        <th style="width: 30px;"></th>
-        <th>Player</th>
-        <th>Prof</th>
-        <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Kills / Deaths (K/D Ratio)">K/D</th>
-        <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Damage: Dealt / Received (Toggle above to include/exclude NPC damage)">Damage<br>D/R</th>
-        <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Healing: Dealt / Received">Healing<br>D/R</th>
-        <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Critical Hits: Dealt / Received">Crits<br>D/R</th>
-        <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Skills Interrupted">Int</th>
-        <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Skills Cancelled">Cancel</th>
+<table class="gw-table table-stats" data-team-index="<%= team_index %>">
+  <thead>
+    <tr>
+      <th style="width: 30px;"></th>
+      <th>Player</th>
+      <th>Prof</th>
+      <th class="text-center" data-controller="tooltip" data-tooltip-content-value="Kills / Deaths (K/D Ratio)">K/D</th>
+      <th class="text-center" data-controller="tooltip" data-tooltip-content-value="Damage: Dealt / Received (Toggle above to include/exclude NPC damage)">Damage<br>D/R</th>
+      <th class="text-center" data-controller="tooltip" data-tooltip-content-value="Healing: Dealt / Received">Healing<br>D/R</th>
+      <th class="text-center" data-controller="tooltip" data-tooltip-content-value="Critical Hits: Dealt / Received">Crits<br>D/R</th>
+      <th class="text-center" data-controller="tooltip" data-tooltip-content-value="Skills Interrupted">Int</th>
+      <th class="text-center" data-controller="tooltip" data-tooltip-content-value="Skills Cancelled">Cancel</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% team_stats.each do |player_stat| %>
+      <% stats = player_stat[:stats] %>
+      <% 
+        # Calculate player-only damage (excluding NPCs)
+        damage_to_agents = stats["damage_dealt_to_agents"] || {}
+        damage_from_agents = stats["damage_received_from_agents"] || {}
+        
+        player_damage_dealt = 0
+        player_damage_received = 0
+        
+        damage_to_agents.each do |agent_id, damage|
+          agent = @match.agent_by_id(agent_id)
+          player_damage_dealt += damage if agent && agent["guild_id"] != 0
+        end
+        
+        damage_from_agents.each do |agent_id, damage|
+          agent = @match.agent_by_id(agent_id)
+          player_damage_received += damage if agent && agent["guild_id"] != 0
+        end
+        
+        total_damage_dealt = stats["total_damage_dealt"] || 0
+        total_damage_received = stats["total_damage_received"] || 0
+      %>
+      <tr class="player-row cursor-pointer" data-agent-id="<%= player_stat[:agent_id] %>">
+        <td class="text-center expand-icon">▶</td>
+        <% team_player = @match.team_players.find_by(igname: player_stat[:name]) %>
+        <td><strong><%= display_team_player_name(team_player, current_player) %></strong></td>
+        <td><span class="gw-badge gw-badge--mode"><%= player_stat[:profession] %></span></td>
+        <td class="text-center">
+          <% kills = stats["kills"] || 0 %>
+          <% deaths = stats["deaths"] || 0 %>
+          <%= kills %>/<%= deaths %> (<%= stats["kdr_str"] || "0.00" %>)
+        </td>
+        <td class="text-center damage-cell" 
+            data-total-dealt="<%= total_damage_dealt %>" 
+            data-total-received="<%= total_damage_received %>"
+            data-player-dealt="<%= player_damage_dealt %>" 
+            data-player-received="<%= player_damage_received %>">
+          <span class="text-emerald-400 damage-dealt"><%= total_damage_dealt %></span> /
+          <span class="text-red-400 damage-received"><%= total_damage_received %></span>
+        </td>
+        <td class="text-center">
+          <span class="text-emerald-400"><%= stats["total_healing_dealt"] || 0 %></span> /
+          <span class="text-sky-400"><%= stats["total_healing_received"] || 0 %></span>
+        </td>
+        <td class="text-center">
+          <span class="text-emerald-400"><%= stats["total_crits_dealt"] || 0 %></span> /
+          <span class="text-red-400"><%= stats["total_crits_received"] || 0 %></span>
+        </td>
+        <td class="text-center"><%= stats["interrupted_count"] || 0 %></td>
+        <td class="text-center"><%= stats["cancelled_count"] || 0 %></td>
       </tr>
-    </thead>
-    <tbody>
-      <% team_stats.each do |player_stat| %>
-        <% stats = player_stat[:stats] %>
-        <% 
-          # Calculate player-only damage (excluding NPCs)
-          damage_to_agents = stats["damage_dealt_to_agents"] || {}
-          damage_from_agents = stats["damage_received_from_agents"] || {}
-          
-          player_damage_dealt = 0
-          player_damage_received = 0
-          
-          damage_to_agents.each do |agent_id, damage|
-            agent = @match.agent_by_id(agent_id)
-            player_damage_dealt += damage if agent && agent["guild_id"] != 0
-          end
-          
-          damage_from_agents.each do |agent_id, damage|
-            agent = @match.agent_by_id(agent_id)
-            player_damage_received += damage if agent && agent["guild_id"] != 0
-          end
-          
-          total_damage_dealt = stats["total_damage_dealt"] || 0
-          total_damage_received = stats["total_damage_received"] || 0
-        %>
-        <tr class="player-row" data-agent-id="<%= player_stat[:agent_id] %>" style="cursor: pointer;">
-          <td class="text-center expand-icon">▶</td>
-          <% team_player = @match.team_players.find_by(igname: player_stat[:name]) %>
-          <td><strong><%= display_team_player_name(team_player, current_player) %></strong></td>
-          <td><span class="badge bg-primary"><%= player_stat[:profession] %></span></td>
-          <td class="text-center">
-            <% kills = stats["kills"] || 0 %>
-            <% deaths = stats["deaths"] || 0 %>
-            <%= kills %>/<%= deaths %> (<%= stats["kdr_str"] || "0.00" %>)
-          </td>
-          <td class="text-center damage-cell" 
-              data-total-dealt="<%= total_damage_dealt %>" 
-              data-total-received="<%= total_damage_received %>"
-              data-player-dealt="<%= player_damage_dealt %>" 
-              data-player-received="<%= player_damage_received %>">
-            <span class="text-success damage-dealt"><%= total_damage_dealt %></span> /
-            <span class="text-danger damage-received"><%= total_damage_received %></span>
-          </td>
-          <td class="text-center">
-            <span class="text-success"><%= stats["total_healing_dealt"] || 0 %></span> /
-            <span class="text-info"><%= stats["total_healing_received"] || 0 %></span>
-          </td>
-          <td class="text-center">
-            <span class="text-success"><%= stats["total_crits_dealt"] || 0 %></span> /
-            <span class="text-danger"><%= stats["total_crits_received"] || 0 %></span>
-          </td>
-          <td class="text-center"><%= stats["interrupted_count"] || 0 %></td>
-          <td class="text-center"><%= stats["cancelled_count"] || 0 %></td>
-        </tr>
-        <tr class="player-details" id="details-<%= player_stat[:agent_id] %>" style="display: none;">
-          <td colspan="9">
-            <div class="p-3">
-              <div class="row">
-                <div class="col-md-6">
-                  <h5 style="cursor: pointer; user-select: none;" data-bs-toggle="collapse" data-bs-target="#damage-opponents-<%= player_stat[:agent_id] %>" aria-expanded="true">
-                    <span class="collapse-icon">▼</span> Damage (Opponents)
-                  </h5>
-                  <div class="collapse show" id="damage-opponents-<%= player_stat[:agent_id] %>">
-                  <table class="table table-sm table-striped table-bordered">
-                    <thead>
+      <tr class="player-details" id="details-<%= player_stat[:agent_id] %>" style="display: none;">
+        <td colspan="9">
+          <div class="p-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+            <details open>
+              <summary class="cursor-pointer select-none font-display text-gold-300 text-sm mb-2"><span class="collapse-icon">▼</span> Damage (Opponents)</summary>
+              <table class="gw-table">
+                <thead>
+                  <tr>
+                    <th>Player</th>
+                    <th class="text-right">Dealt</th>
+                    <th class="text-right">Received</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% damage_to_agents = stats["damage_dealt_to_agents"] || {} %>
+                  <% damage_from_agents = stats["damage_received_from_agents"] || {} %>
+                  <% all_agent_ids = (damage_to_agents.keys + damage_from_agents.keys).uniq %>
+                  <% if all_agent_ids.any? %>
+                    <% 
+                      # Get opponent team and create position map
+                      opponent_team = team_index == 1 ? @match.teams.second : @match.teams.first
+                      agent_position_map = {}
+                      opponent_team.team_players.each do |tp|
+                        agent = @match.json.dig("agents", "by_id")&.find { |_id, a| a["sanitized_name"] == tp.igname_for_matching }
+                        agent_position_map[agent[0]] = tp.position if agent
+                      end
+                      # Sort agent IDs by opponent team position
+                      sorted_agent_ids = all_agent_ids.select do |agent_id|
+                        agent = @match.agent_by_id(agent_id)
+                        agent && agent["guild_id"] != 0
+                      end.sort_by { |agent_id| agent_position_map[agent_id] || 999 }
+                    %>
+                    <% sorted_agent_ids.each do |agent_id| %>
+                      <% agent = @match.agent_by_id(agent_id) %>
+                      <% team_player = @match.team_players.find_by(igname: agent["sanitized_name"]) %>
                       <tr>
-                        <th>Player</th>
-                        <th class="text-end">Dealt</th>
-                        <th class="text-end">Received</th>
+                        <td><%= display_team_player_name(team_player, current_player) %></td>
+                        <td class="text-right text-red-400"><%= damage_to_agents[agent_id] || 0 %></td>
+                        <td class="text-right text-amber-300"><%= damage_from_agents[agent_id] || 0 %></td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      <% damage_to_agents = stats["damage_dealt_to_agents"] || {} %>
-                      <% damage_from_agents = stats["damage_received_from_agents"] || {} %>
-                      <% all_agent_ids = (damage_to_agents.keys + damage_from_agents.keys).uniq %>
-                      <% if all_agent_ids.any? %>
-                        <% 
-                          # Get opponent team and create position map
-                          opponent_team = team_index == 1 ? @match.teams.second : @match.teams.first
-                          agent_position_map = {}
-                          opponent_team.team_players.each do |tp|
-                            agent = @match.json.dig("agents", "by_id")&.find { |_id, a| a["sanitized_name"] == tp.igname_for_matching }
-                            agent_position_map[agent[0]] = tp.position if agent
-                          end
-                          # Sort agent IDs by opponent team position
-                          sorted_agent_ids = all_agent_ids.select do |agent_id|
-                            agent = @match.agent_by_id(agent_id)
-                            agent && agent["guild_id"] != 0
-                          end.sort_by { |agent_id| agent_position_map[agent_id] || 999 }
-                        %>
-                        <% sorted_agent_ids.each do |agent_id| %>
-                          <% agent = @match.agent_by_id(agent_id) %>
-                          <% team_player = @match.team_players.find_by(igname: agent["sanitized_name"]) %>
-                          <tr>
-                            <td><%= display_team_player_name(team_player, current_player) %></td>
-                            <td class="text-end text-danger"><%= damage_to_agents[agent_id] || 0 %></td>
-                            <td class="text-end text-warning"><%= damage_from_agents[agent_id] || 0 %></td>
-                          </tr>
-                        <% end %>
-                      <% else %>
-                        <tr><td colspan="3" class="text-center text-muted">No damage data</td></tr>
-                      <% end %>
-                    </tbody>
-                  </table>
-                  </div>
-                </div>
-                
-                <div class="col-md-6">
-                  <h5 style="cursor: pointer; user-select: none;" data-bs-toggle="collapse" data-bs-target="#healing-allies-<%= player_stat[:agent_id] %>" aria-expanded="true">
-                    <span class="collapse-icon">▼</span> Healing (Allies)
-                  </h5>
-                  <div class="collapse show" id="healing-allies-<%= player_stat[:agent_id] %>">
-                  <table class="table table-sm table-striped table-bordered">
-                    <thead>
-                      <tr>
-                        <th>Player</th>
-                        <th class="text-end">Dealt</th>
-                        <th class="text-end">Received</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <% healing_to_agents = stats["healing_dealt_to_agents"] || {} %>
-                      <% healing_from_agents = stats["healing_received_from_agents"] || {} %>
-                      <% all_healing_ids = (healing_to_agents.keys + healing_from_agents.keys).uniq %>
-                      <% if all_healing_ids.any? %>
-                        <% 
-                          # Create position map for current team
-                          agent_position_map = {}
-                          team.team_players.each do |tp|
-                            agent = @match.json.dig("agents", "by_id")&.find { |_id, a| a["sanitized_name"] == tp.igname_for_matching }
-                            agent_position_map[agent[0]] = tp.position if agent
-                          end
-                          # Sort agent IDs by current team position
-                          sorted_healing_ids = all_healing_ids.sort_by { |agent_id| agent_position_map[agent_id] || 999 }
-                        %>
-                        <% sorted_healing_ids.each do |agent_id| %>
-                          <% agent = @match.agent_by_id(agent_id) %>
-                          <% team_player = @match.team_players.find_by(igname: agent["sanitized_name"]) %>
-                          <% if agent %>
-                            <tr>
-                              <td><%= display_team_player_name(team_player, current_player) %></td>
-                              <td class="text-end text-success"><%= healing_to_agents[agent_id] || 0 %></td>
-                              <td class="text-end text-info"><%= healing_from_agents[agent_id] || 0 %></td>
-                            </tr>
-                          <% end %>
-                        <% end %>
-                      <% else %>
-                        <tr><td colspan="3" class="text-center text-muted">No healing data</td></tr>
-                      <% end %>
-                    </tbody>
-                  </table>
-                  </div>
-                </div>
-              </div>
+                    <% end %>
+                  <% else %>
+                    <tr><td colspan="3" class="text-center text-muted">No damage data</td></tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </details>
 
-              <div class="row mt-3">
-                <div class="col-12">
-                  <h5 style="cursor: pointer; user-select: none;" data-bs-toggle="collapse" data-bs-target="#damage-npcs-<%= player_stat[:agent_id] %>" aria-expanded="true">
-                    <span class="collapse-icon">▼</span> Damage (NPCs)
-                  </h5>
-                  <div class="collapse show" id="damage-npcs-<%= player_stat[:agent_id] %>">
-                  <table class="table table-sm table-striped table-bordered">
-                    <thead>
-                      <tr>
-                        <th>NPC</th>
-                        <th class="text-end">Kills</th>
-                        <th class="text-end">Dealt</th>
-                        <th class="text-end">Received</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <% damage_to_agents = stats["damage_dealt_to_agents"] || {} %>
-                      <% damage_from_agents = stats["damage_received_from_agents"] || {} %>
-                      <% all_agent_ids = (damage_to_agents.keys + damage_from_agents.keys).uniq %>
-                      <% player_agent_id = player_stat[:agent_id].to_s %>
-                      <% npc_grouped = Hash.new { |h, k| h[k] = { dealt: 0, received: 0, kills: 0 } } %>
-                      <% all_agent_ids.each do |agent_id| %>
-                        <% agent = @match.agent_by_id(agent_id) %>
-                        <% if agent && agent["guild_id"] == 0 %>
-                          <% npc_name = agent["sanitized_name"] %>
-                          <% npc_grouped[npc_name][:dealt] += damage_to_agents[agent_id] || 0 %>
-                          <% npc_grouped[npc_name][:received] += damage_from_agents[agent_id] || 0 %>
-                          <% death_events = agent["death_events"] || [] %>
-                          <% death_events.each do |death_event| %>
-                            <% if death_event["killer_agent_id"].to_s == player_agent_id %>
-                              <% npc_grouped[npc_name][:kills] += 1 %>
-                            <% end %>
-                          <% end %>
-                        <% end %>
-                      <% end %>
-                      <% if npc_grouped.any? %>
-                        <% npc_grouped.sort_by { |_name, data| -data[:dealt] }.each do |npc_name, data| %>
-                          <tr>
-                            <td><%= npc_name %></td>
-                            <td class="text-end text-success"><%= data[:kills] %></td>
-                            <td class="text-end text-danger"><%= data[:dealt] %></td>
-                            <td class="text-end text-warning"><%= data[:received] %></td>
-                          </tr>
-                        <% end %>
-                      <% else %>
-                        <tr><td colspan="4" class="text-center text-muted">No NPC damage data</td></tr>
-                      <% end %>
-                    </tbody>
-                  </table>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row mt-3">
-                <div class="col-12">
-                  <h5 style="cursor: pointer; user-select: none;" data-bs-toggle="collapse" data-bs-target="#spells-cast-<%= player_stat[:agent_id] %>" aria-expanded="true">
-                    <span class="collapse-icon">▼</span> Spells Cast
-                  </h5>
-                  <div class="collapse show" id="spells-cast-<%= player_stat[:agent_id] %>">
-                  <table class="table table-sm table-striped table-bordered">
-                    <thead>
-                      <tr>
-                        <th>Spell</th>
-                        <th class="text-end">Cancelled</th>
-                        <th class="text-end">Interrupted</th>
-                        <th class="text-end">Finished</th>
-                        <th class="text-end">Damage/Heal</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <% skills_used = stats["skills_used"] || {} %>
-                      <% damage_by_skill = stats["damage_by_skill"] || {} %>
-                      <% healing_by_skill = stats["healing_by_skill"] || {} %>
-                      <% skills_used.sort_by { |_k, v| -(v["started"] || 0) }.each do |skill_id, skill_data| %>
-                        <% skill = @skills_cache&.dig(skill_id.to_i) %>
-                        <% damage = damage_by_skill[skill_id] || 0 %>
-                        <% healing = healing_by_skill[skill_id] || 0 %>
+            <details open>
+              <summary class="cursor-pointer select-none font-display text-gold-300 text-sm mb-2"><span class="collapse-icon">▼</span> Healing (Allies)</summary>
+              <table class="gw-table">
+                <thead>
+                  <tr>
+                    <th>Player</th>
+                    <th class="text-right">Dealt</th>
+                    <th class="text-right">Received</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% healing_to_agents = stats["healing_dealt_to_agents"] || {} %>
+                  <% healing_from_agents = stats["healing_received_from_agents"] || {} %>
+                  <% all_healing_ids = (healing_to_agents.keys + healing_from_agents.keys).uniq %>
+                  <% if all_healing_ids.any? %>
+                    <% 
+                      # Create position map for current team
+                      agent_position_map = {}
+                      team.team_players.each do |tp|
+                        agent = @match.json.dig("agents", "by_id")&.find { |_id, a| a["sanitized_name"] == tp.igname_for_matching }
+                        agent_position_map[agent[0]] = tp.position if agent
+                      end
+                      # Sort agent IDs by current team position
+                      sorted_healing_ids = all_healing_ids.sort_by { |agent_id| agent_position_map[agent_id] || 999 }
+                    %>
+                    <% sorted_healing_ids.each do |agent_id| %>
+                      <% agent = @match.agent_by_id(agent_id) %>
+                      <% team_player = @match.team_players.find_by(igname: agent["sanitized_name"]) %>
+                      <% if agent %>
                         <tr>
-                          <td>
-                            <% if skill %>
-                              <%= skill.html_image.html_safe %>
-                              <%= skill.name %>
-                            <% else %>
-                              Unknown (#{skill_id})
-                            <% end %>
-                          </td>
-                          <td class="text-end text-warning"><%= skill_data["stopped"] || 0 %></td>
-                          <td class="text-end text-danger"><%= skill_data["interrupted"] || 0 %></td>
-                          <td class="text-end text-success"><%= skill_data["finished"] || 0 %></td>
-                          <td class="text-end">
-                            <% if damage > 0 && healing > 0 %>
-                              <span class="text-warning"><%= damage %></span> / <span class="text-success"><%= healing %></span>
-                            <% elsif damage > 0 %>
-                              <span class="text-warning"><%= damage %></span>
-                            <% elsif healing > 0 %>
-                              <span class="text-success"><%= healing %></span>
-                            <% else %>
-                              <span class="text-muted">-</span>
-                            <% end %>
-                          </td>
+                          <td><%= display_team_player_name(team_player, current_player) %></td>
+                          <td class="text-right text-emerald-400"><%= healing_to_agents[agent_id] || 0 %></td>
+                          <td class="text-right text-sky-400"><%= healing_from_agents[agent_id] || 0 %></td>
                         </tr>
                       <% end %>
-                      <% if skills_used.empty? %>
-                        <tr><td colspan="5" class="text-center text-muted">No spells cast</td></tr>
-                      <% end %>
-                    </tbody>
-                  </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-</div>
+                    <% end %>
+                  <% else %>
+                    <tr><td colspan="3" class="text-center text-muted">No healing data</td></tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </details>
 
-<div class="stats-legend mt-3 mb-5 p-3" style="background-color: rgba(0, 0, 0, 0.3); border-radius: 5px; margin-left: 0; margin-right: 0; width: 100%;">
+            <details open class="md:col-span-2">
+              <summary class="cursor-pointer select-none font-display text-gold-300 text-sm mb-2"><span class="collapse-icon">▼</span> Damage (NPCs)</summary>
+              <table class="gw-table">
+                <thead>
+                  <tr>
+                    <th>NPC</th>
+                    <th class="text-right">Kills</th>
+                    <th class="text-right">Dealt</th>
+                    <th class="text-right">Received</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% damage_to_agents = stats["damage_dealt_to_agents"] || {} %>
+                  <% damage_from_agents = stats["damage_received_from_agents"] || {} %>
+                  <% all_agent_ids = (damage_to_agents.keys + damage_from_agents.keys).uniq %>
+                  <% player_agent_id = player_stat[:agent_id].to_s %>
+                  <% npc_grouped = Hash.new { |h, k| h[k] = { dealt: 0, received: 0, kills: 0 } } %>
+                  <% all_agent_ids.each do |agent_id| %>
+                    <% agent = @match.agent_by_id(agent_id) %>
+                    <% if agent && agent["guild_id"] == 0 %>
+                      <% npc_name = agent["sanitized_name"] %>
+                      <% npc_grouped[npc_name][:dealt] += damage_to_agents[agent_id] || 0 %>
+                      <% npc_grouped[npc_name][:received] += damage_from_agents[agent_id] || 0 %>
+                      <% death_events = agent["death_events"] || [] %>
+                      <% death_events.each do |death_event| %>
+                        <% if death_event["killer_agent_id"].to_s == player_agent_id %>
+                          <% npc_grouped[npc_name][:kills] += 1 %>
+                        <% end %>
+                      <% end %>
+                    <% end %>
+                  <% end %>
+                  <% if npc_grouped.any? %>
+                    <% npc_grouped.sort_by { |_name, data| -data[:dealt] }.each do |npc_name, data| %>
+                      <tr>
+                        <td><%= npc_name %></td>
+                        <td class="text-right text-emerald-400"><%= data[:kills] %></td>
+                        <td class="text-right text-red-400"><%= data[:dealt] %></td>
+                        <td class="text-right text-amber-300"><%= data[:received] %></td>
+                      </tr>
+                    <% end %>
+                  <% else %>
+                    <tr><td colspan="4" class="text-center text-muted">No NPC damage data</td></tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </details>
+
+            <details open class="md:col-span-2">
+              <summary class="cursor-pointer select-none font-display text-gold-300 text-sm mb-2"><span class="collapse-icon">▼</span> Spells Cast</summary>
+              <table class="gw-table">
+                <thead>
+                  <tr>
+                    <th>Spell</th>
+                    <th class="text-right">Cancelled</th>
+                    <th class="text-right">Interrupted</th>
+                    <th class="text-right">Finished</th>
+                    <th class="text-right">Damage/Heal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% skills_used = stats["skills_used"] || {} %>
+                  <% damage_by_skill = stats["damage_by_skill"] || {} %>
+                  <% healing_by_skill = stats["healing_by_skill"] || {} %>
+                  <% skills_used.sort_by { |_k, v| -(v["started"] || 0) }.each do |skill_id, skill_data| %>
+                    <% skill = @skills_cache&.dig(skill_id.to_i) %>
+                    <% damage = damage_by_skill[skill_id] || 0 %>
+                    <% healing = healing_by_skill[skill_id] || 0 %>
+                    <tr>
+                      <td>
+                        <% if skill %>
+                          <%= skill.html_image.html_safe %>
+                          <%= skill.name %>
+                        <% else %>
+                          Unknown (#{skill_id})
+                        <% end %>
+                      </td>
+                      <td class="text-right text-amber-300"><%= skill_data["stopped"] || 0 %></td>
+                      <td class="text-right text-red-400"><%= skill_data["interrupted"] || 0 %></td>
+                      <td class="text-right text-emerald-400"><%= skill_data["finished"] || 0 %></td>
+                      <td class="text-right">
+                        <% if damage > 0 && healing > 0 %>
+                          <span class="text-amber-300"><%= damage %></span> / <span class="text-emerald-400"><%= healing %></span>
+                        <% elsif damage > 0 %>
+                          <span class="text-amber-300"><%= damage %></span>
+                        <% elsif healing > 0 %>
+                          <span class="text-emerald-400"><%= healing %></span>
+                        <% else %>
+                          <span class="text-muted">-</span>
+                        <% end %>
+                      </td>
+                    </tr>
+                  <% end %>
+                  <% if skills_used.empty? %>
+                    <tr><td colspan="5" class="text-center text-muted">No spells cast</td></tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </details>
+          </div>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<div class="stats-legend mt-3 mb-5 p-3 rounded border border-gold-600/40 bg-black/30 w-full">
   <h6 class="mb-2"><strong>Legend</strong></h6>
-  <div class="row g-0">
-    <div class="col-md-6 pe-md-3">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4">
+    <div>
       <p class="mb-1"><strong>Abbreviations:</strong></p>
-      <ul class="list-unstyled mb-2" style="font-size: 0.9rem;">
+      <ul class="list-none m-0 mb-2 p-0 text-sm">
         <li><strong>K/D</strong> - Kills / Deaths (Ratio)</li>
         <li><strong>D/R</strong> - Dealt / Received</li>
         <li><strong>Int</strong> - Interrupts (skills interrupted)</li>
         <li><strong>Cancel</strong> - Cancels (skills or attacks cancelled)</li>
       </ul>
     </div>
-    <div class="col-md-6 ps-md-3">
+    <div>
       <p class="mb-1"><strong>Color Coding:</strong></p>
-      <ul class="list-unstyled" style="font-size: 0.9rem;">
-        <li><span class="text-success">●</span> <strong>Green</strong> - Damage/Healing Dealt, Finished Casts</li>
-        <li><span class="text-danger">●</span> <strong>Red</strong> - Damage/Crits Received, Interrupted Casts</li>
-        <li><span class="text-info">●</span> <strong>Blue</strong> - Healing Received</li>
-        <li><span class="text-warning">●</span> <strong>Yellow</strong> - Skill Damage, Cancelled Casts</li>
+      <ul class="list-none m-0 p-0 text-sm">
+        <li><span class="text-emerald-400">●</span> <strong>Green</strong> - Damage/Healing Dealt, Finished Casts</li>
+        <li><span class="text-red-400">●</span> <strong>Red</strong> - Damage/Crits Received, Interrupted Casts</li>
+        <li><span class="text-sky-400">●</span> <strong>Blue</strong> - Healing Received</li>
+        <li><span class="text-amber-300">●</span> <strong>Yellow</strong> - Skill Damage, Cancelled Casts</li>
       </ul>
     </div>
   </div>
-  <p class="mb-0 mt-2" style="font-size: 0.85rem; opacity: 0.8;"><em>Click on any player row to expand detailed statistics including spell casting breakdown</em></p>
+  <p class="mb-0 mt-2 text-xs opacity-80"><em>Click on any player row to expand detailed statistics including spell casting breakdown</em></p>
 </div>
 
 <script>
@@ -362,30 +336,6 @@
     initPlayerStats();
   }
   
-  // Initialize Bootstrap tooltips
-  function initTooltips() {
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-      return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-  }
-
-  // Wait for Bootstrap to be available before initializing
-  function initTooltipsWithBootstrap() {
-    if (typeof bootstrap !== 'undefined') {
-      initTooltips();
-    } else {
-      setTimeout(initTooltipsWithBootstrap, 50);
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', initTooltipsWithBootstrap);
-  document.addEventListener('turbo:load', initTooltipsWithBootstrap);
-
-  if (document.readyState !== 'loading') {
-    initTooltipsWithBootstrap();
-  }
-  
   // NPC Damage Toggle functionality
   function initNpcToggle() {
     document.querySelectorAll('[id^="excludeNpcToggle-"]').forEach(function(toggle) {
@@ -425,30 +375,5 @@
   
   if (document.readyState !== 'loading') {
     initNpcToggle();
-  }
-  
-  // Collapse icon rotation for damage/healing sections
-  function initCollapseIcons() {
-    document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function(trigger) {
-      const target = document.querySelector(trigger.getAttribute('data-bs-target'));
-      if (!target) return;
-      
-      target.addEventListener('show.bs.collapse', function() {
-        const icon = trigger.querySelector('.collapse-icon');
-        if (icon) icon.textContent = '▼';
-      });
-      
-      target.addEventListener('hide.bs.collapse', function() {
-        const icon = trigger.querySelector('.collapse-icon');
-        if (icon) icon.textContent = '▶';
-      });
-    });
-  }
-  
-  document.addEventListener('DOMContentLoaded', initCollapseIcons);
-  document.addEventListener('turbo:load', initCollapseIcons);
-  
-  if (document.readyState !== 'loading') {
-    initCollapseIcons();
   }
 </script>

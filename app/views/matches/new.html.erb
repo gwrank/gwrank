@@ -1,42 +1,25 @@
-<div class="content-wrap">
-  <div class="mpl-navbar-mobile-overlay"></div>
-  <div>
-    <section class="mpl-banner mpl-banner-top mpl-banner-parallax">
-      <div class="mpl-image" data-speed="0.8">
-        <%= image_tag 'background.jpg', class: 'jarallax-img' %>
-      </div>
-      <div class="mpl-banner-content mpl-box-sm">
-        <div class="container">
-          <div class="row justify-content-center">
-            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-              <div class="mpl-sign-form" data-sr="sign" data-sr-interval="100" data-sr-duration="1000" data-sr-distance="20">
-                <h1 data-sr-item="sign">Add a Match</h1>
-                <p class="lead" data-sr-item="sign">
-                  Export your matches from GWToolbox Observer Module and import them here.
-                </p>
-                <%= form_with model: @match do |form| %>
-                  <div class="row hgap-xs vgap-sm align-items-center">
-                    <div class="col-12" data-sr-item="sign">
-                      <%= form.label :json_file, 'JSON file from GWToolbox Observer Module :' %>
-                      <%= form.file_field :json_file, placeholder: 'JSON file, from Observer', class: 'form-control', required: true %><span class="form-control-bg"></span>
-                    </div>
-                    <div class="col-12" data-sr-item="sign">
-                      <%= form.submit 'Import Match', class: 'btn btn-primary btn-md btn-block' %>
-                    </div>
-                  </div>
-                <% end %>
-                <div class="mt-4 small" data-sr-item="sign">
-                  <strong>How it works:</strong><br>
-                  1. Launch GWToolbox Observer Module<br>
-                  2. Export your match as JSON version 1.0<br>
-                  3. Upload the file here to add it to GWRank
-                </div>
-              </div>
-            </div>
+<div class="max-w-md mx-auto my-8">
+  <div class="gw-window gw-frame">
+    <div class="gw-window-header"><h1 class="gw-title text-base m-0">Add a Match</h1></div>
+    <div class="p-5 space-y-4">
+      <p class="text-muted text-sm">Export your matches from GWToolbox Observer Module and import them here.</p>
+      <%= form_with model: @match do |form| %>
+        <div class="space-y-3">
+          <div>
+            <%= form.label :json_file, 'JSON file from GWToolbox Observer Module :', class: "block text-sm text-parchment mb-1" %>
+            <%= form.file_field :json_file, placeholder: 'JSON file, from Observer', class: 'gw-input', required: true %>
+          </div>
+          <div>
+            <%= form.submit 'Import Match', class: 'gw-btn w-full' %>
           </div>
         </div>
+      <% end %>
+      <div class="text-sm text-muted pt-2 border-t border-[#2b2010]">
+        <strong>How it works:</strong><br>
+        1. Launch GWToolbox Observer Module<br>
+        2. Export your match as JSON version 1.0<br>
+        3. Upload the file here to add it to GWRank
       </div>
-    </section>
-    <%= render 'footer' %>
+    </div>
   </div>
 </div>
