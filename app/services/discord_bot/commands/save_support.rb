@@ -4,11 +4,11 @@ module DiscordBot
     # author's account and answers ephemerally. Never raises into the
     # caller — the embed has already been posted by then.
     module SaveSupport
-      def save_to_account(event, entries, name)
+      def save_to_account(event, entries, name, visibility: event.options['visibility'])
         player = DiscordBot::FindOrCreatePlayer.call(event)
         result = DiscordBot::SaveBuild.call(
           player: player, entries: Array(entries), name: name,
-          visibility: event.options['visibility']
+          visibility: visibility
         )
 
         unless result.ok?

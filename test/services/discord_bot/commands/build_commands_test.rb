@@ -151,6 +151,21 @@ module DiscordBot
         assert_match(/couldn't save it: nope/, event.followups.sole[:content])
         assert event.followups.sole[:ephemeral]
       end
+
+      test "an unexpected save error still leaves the embed posted and answers ephemerally" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(111, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user, options: { "code" => VALID_CODE }
+        )
+
+        DiscordBot::FindOrCreatePlayer.stub(:call, ->(*) { raise "boom" }) do
+          BuildCommands.new(nil).dispatch(event)
+        end
+
+        assert_equal 1, event.responses.size
+        assert_match(/couldn't save it right now/, event.followups.sole[:content])
+        assert event.followups.sole[:ephemeral]
+      end
     end
   end
 end

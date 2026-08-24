@@ -40,7 +40,7 @@ module DiscordBot
         verbose = event.options['verbose'] == true
         reader = GW::TemplateReader.decode!(code)
         render_build(event, reader, verbose)
-        save_to_account(event, [DiscordBot::SaveBuild::Entry.new(skills_code: reader.code, player: nil, slot_name: nil)], default_name(reader))
+        save_posted_build(event, reader)
       rescue GW::TemplateReader::InvalidCode
         event.respond(content: "That doesn't look like a valid Guild Wars build code.", ephemeral: true)
       rescue StandardError => e
@@ -48,9 +48,15 @@ module DiscordBot
         event.respond(content: 'Something went wrong rendering that build.', ephemeral: true)
       end
 
+      def save_posted_build(event, reader)
+        entry = DiscordBot::SaveBuild::Entry.new(skills_code: reader.code, player: nil, slot_name: nil)
+        save_to_account(event, [entry], default_name(reader))
+      end
+
       def default_name(reader)
-        abbr = GW::TemplateReader::ProfessionAbbr[reader.primary]
-        abbr += "/#{GW::TemplateReader::ProfessionAbbr[reader.secondary]}" unless reader.secondary.zero?
+        abbr = GW::TemplateReader::ProfessionAbbr[reader.primary].to_s
+        secondary = GW::TemplateReader::ProfessionAbbr[reader.secondary]
+        abbr += "/#{secondary}" if secondary && !reader.secondary.zero?
         "#{abbr} Build"
       end
 
