@@ -20,6 +20,10 @@
   }
   .gw-count { color: var(--color-muted); }
 
+  /* Long-form pages : tailles de titres rétablies sous le preflight Tailwind */
+  .gw-doc h2 { font-size: 1.25rem; font-weight: 700; color: var(--color-gold-300); margin-top: .5rem; }
+  .gw-doc h3 { font-size: 1.05rem; font-weight: 600; color: var(--color-parchment); }
+
   /* Onglets */
   .gw-tabs {
     display: flex; gap: 2px; flex-wrap: wrap;

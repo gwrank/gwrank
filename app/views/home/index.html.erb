@@ -11,14 +11,14 @@
       </p>
 
       <div class="flex flex-wrap justify-center gap-3">
-        <%= link_to 'Add Bot to Discord', 'https://discord.com/oauth2/authorize?client_id=788778440877801504', target: '_blank', class: 'gw-btn' %>
-        <%= link_to 'Join our Discord', 'https://discord.gg/Gjefv7GJ9g', target: '_blank', class: 'gw-btn--ghost' %>
+        <%= link_to 'Add Bot to Discord', 'https://discord.com/oauth2/authorize?client_id=788778440877801504', target: '_blank', rel: 'noopener noreferrer', class: 'gw-btn' %>
+        <%= link_to 'Join our Discord', 'https://discord.gg/Gjefv7GJ9g', target: '_blank', rel: 'noopener noreferrer', class: 'gw-btn--ghost' %>
       </div>
 
       <% if current_player %>
         <p class="text-sm text-muted">
           Logged in as: <strong><%= current_player.name %></strong> |
-          <a href="<%= destroy_player_session_path %>" data-turbo-method="delete">Log Out</a>
+          <%= link_to "Log out", destroy_player_session_path, data: { turbo_method: :delete } %>
         </p>
       <% else %>
         <%= link_to 'Login with Discord', new_player_session_path, class: 'gw-btn' %>
@@ -29,25 +29,25 @@
       <h2 class="font-display text-gold-300 text-xl tracking-wide text-center mb-5">Discord Bot Documentation</h2>
 
       <div class="grid gap-4 sm:grid-cols-2">
-        <div class="gw-parchment rounded-md border border-gold-600/40 p-4 space-y-3">
+        <div class="gw-doc gw-parchment rounded-md border border-gold-600/40 p-4 space-y-3">
           <h3>Build Commands</h3>
           <p>Display individual Guild Wars builds from template codes. Share your character builds with others.</p>
           <%= link_to 'View Build Commands', build_doc_path, class: 'gw-btn' %>
         </div>
 
-        <div class="gw-parchment rounded-md border border-gold-600/40 p-4 space-y-3">
+        <div class="gw-doc gw-parchment rounded-md border border-gold-600/40 p-4 space-y-3">
           <h3>Team Build Commands</h3>
           <p>Display complete team builds from pawned2 exports. Share your team compositions and strategies.</p>
           <%= link_to 'View Team Build Commands', teambuild_doc_path, class: 'gw-btn' %>
         </div>
 
-        <div class="gw-parchment rounded-md border border-gold-600/40 p-4 space-y-3">
+        <div class="gw-doc gw-parchment rounded-md border border-gold-600/40 p-4 space-y-3">
           <h3>Automated Tournament</h3>
           <p>Daily AT queue management and scheduling. Organize your daily automated tournaments.</p>
           <%= link_to 'View AT Commands', at_doc_path, class: 'gw-btn' %>
         </div>
 
-        <div class="gw-parchment rounded-md border border-gold-600/40 p-4 space-y-3">
+        <div class="gw-doc gw-parchment rounded-md border border-gold-600/40 p-4 space-y-3">
           <h3>Monthly AT</h3>
           <p>Monthly Automated Tournament scheduling and registration. Organize your monthly tournaments.</p>
           <%= link_to 'View MAT Commands', mat_doc_path, class: 'gw-btn' %>
