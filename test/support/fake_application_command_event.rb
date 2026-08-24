@@ -28,19 +28,24 @@ module DiscordBot
     end
 
     class FakeApplicationCommandEvent
-      attr_reader :subcommand, :options, :user, :responses, :channel
+      attr_reader :subcommand, :options, :user, :responses, :followups, :channel
 
       def initialize(subcommand:, user:, options: {}, channel_id: nil)
         @subcommand = subcommand
         @user = user
         @options = options
         @responses = []
+        @followups = []
         @channel = FakeChannel.new(id: channel_id)
       end
 
       def respond(**kwargs, &block)
         @responses << kwargs
         block&.call(nil, nil)
+      end
+
+      def send_message(**kwargs)
+        @followups << kwargs
       end
     end
   end
