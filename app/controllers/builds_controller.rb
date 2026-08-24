@@ -15,7 +15,7 @@ class BuildsController < ApplicationController
 
   def download
     send_data JSON.pretty_generate(@teambuild.document),
-              filename: "#{@teambuild.source_uuid}.zcx",
+              filename: "#{@teambuild.name.presence&.parameterize.presence || @teambuild.source_uuid}.zcx",
               type: "application/octet-stream",
               disposition: "attachment"
   end

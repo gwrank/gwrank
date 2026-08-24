@@ -39,6 +39,7 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     get download_build_path(teambuild)
     assert_response :success
     assert_equal "attachment", response.headers["Content-Disposition"].split(";").first.strip
+    assert_includes response.headers["Content-Disposition"], "filename=\"gvg-split.zcx\""
     assert_equal @document, JSON.parse(response.body)
   end
 
