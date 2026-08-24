@@ -1,4 +1,6 @@
 class TournamentsController < ApplicationController
+  layout "gw"
+
   def index
     @tournaments = Tournament.order(date: :desc, year: :desc, month: :desc)
     

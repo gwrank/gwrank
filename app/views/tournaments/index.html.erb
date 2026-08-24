@@ -1,64 +1,50 @@
-<div class="content-wrap">
-  <div class="mpl-navbar-mobile-overlay"></div>
-  <div>
-    <section class="mpl-banner mpl-banner-top mpl-banner-parallax mpl-banner-small">
-      <div class="mpl-image" data-speed="0.8">
-        <%= image_tag 'background.jpg', class: 'jarallax-img' %>
-      </div>
-      <div class="mpl-banner-content mpl-box-sm">
-        <div class="container">
-          <nav aria-label="breadcrumb">
-              <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/">Home</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Tournaments</li>
-              </ol>
-            </nav>
-          <h1 class="lg:display-1 mb-0">Tournaments</h1>
-        </div>
-      </div>
-    </section>
-    <div class="mpl-box-md">
-      <div class="container">
-        <%= render "tournaments/filters" %>
-        <div class="row hgap-lg vgap-lg">
-          <div class="col-lg mpl-content">
-            <div class="row vgap" data-sr="tournaments" data-sr-interval="100" data-sr-duration="1000" data-sr-distance="20">
-              <% @tournaments.each do |tournament| %>
-                <div class="col-12 col-lg-6" data-sr-item="tournaments">
-                  <div class="cyberpress-tournament">
-                    <h2 class="cyberpress-tournament-title h4">
-                      <%= link_to tournament.title, tournament_path(tournament) %>
-                    </h2>
-                    <ul class="cyberpress-tournament-info">
-                      <% if tournament.date.present? %>
-                        <li>
-                          <svg class="icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M16 2V6M8 2V6M3 10H21M5 4H19C20.1046 4 21 4.89543 21 6V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V6C3 4.89543 3.89543 4 5 4Z"></path>
-                          </svg><%= tournament.date %>
-                        </li>
-                      <% end %>
-                      <% if tournament.guild_number.present? %>
-                        <li>
-                          Guild number: <%= tournament.guild_number %>
-                        </li>
-                      <% end %>
-                      <% if tournament.winner_guild.present? %>
-                        <li>
-                          Winner: <%= tournament.winner_guild.name_with_tag %>
-                        </li>
-                      <% end %>
-                    </ul>
-                  </div>
-                </div>
-              <% end %>
-              <%== @pagy.series_nav(:bootstrap) %>
-            </div>
-          </div>
-          <div class="col-auto-lg mpl-sidebar" data-sr="widget" data-sr-duration="1200" data-sr-distance="20">
-          </div>
-        </div>
-      </div>
+<div class="space-y-4">
+  <div class="gw-window gw-frame">
+    <%= render "application/gw_tabs", tabs: [["Tournaments", tournaments_path]] %>
+    <div class="gw-window-header">
+      <h1 class="gw-title text-base m-0">Tournaments</h1>
+      <span class="gw-count text-sm"><%= @pagy.count %> tournaments</span>
     </div>
-    <%= render 'footer' %>
+
+    <details class="border-b border-[#2b2010]" <%= 'open' if params[:date_from].present? || params[:date_to].present? || params[:tournament_type].present? || params[:flux_month].present? %>>
+      <summary class="gw-window-header cursor-pointer select-none list-none">
+        <span class="gw-title text-xs">Filters</span>
+        <% active_filters = params[:date_from].present? || params[:date_to].present? || params[:tournament_type].present? || params[:flux_month].present? %>
+        <span class="text-muted text-xs"><%= active_filters ? "· active" : "· none" %></span>
+      </summary>
+      <div class="p-4">
+        <%= render "tournaments/filters" %>
+      </div>
+    </details>
+
+    <div class="p-4 space-y-4">
+      <% if @tournaments.any? %>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <% @tournaments.each do |tournament| %>
+            <div class="gw-parchment border border-gold-600/40 rounded-md p-4 hover:border-gold-500 transition-colors">
+              <h2 class="font-display text-base m-0">
+                <%= link_to tournament.title, tournament_path(tournament), class: "hover:text-gold-500" %>
+              </h2>
+              <ul class="list-none m-0 mt-2 p-0 text-sm space-y-1">
+                <% if tournament.date.present? %>
+                  <li><%= tournament.date %></li>
+                <% end %>
+                <% if tournament.guild_number.present? %>
+                  <li>Guild number: <%= tournament.guild_number %></li>
+                <% end %>
+                <% if tournament.winner_guild.present? %>
+                  <li>Winner: <%= link_to tournament.winner_guild.name_with_tag, guild_path(tournament.winner_guild), class: "hover:text-gold-500" %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+        </div>
+        <div class="flex justify-center">
+          <div class="gw-pagy"><%== @pagy.series_nav(:bootstrap) %></div>
+        </div>
+      <% else %>
+        <p class="gw-empty">No tournaments found for these filters.</p>
+      <% end %>
+    </div>
   </div>
 </div>
