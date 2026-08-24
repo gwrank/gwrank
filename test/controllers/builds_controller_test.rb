@@ -71,6 +71,22 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".gw-badge-mode", text: "PvP"
     assert_select ".gw-badge-tag", text: "GvG"
     assert_select ".gw-prof-icon img", minimum: 1
+    assert_select ".gw-prof-more", count: 0
+    assert_select ".gw-topbar"
+  end
+
+  test "index renders all eight profession icons on one row" do
+    doc = load_zcx("eight_man")
+    Teambuilds::Ingest.call(player: @owner, source_uuid: doc["id"], document: doc,
+                            visibility: "public")
+    get builds_path
+    assert_response :success
+    assert_select ".gw-row", text: /Eight Man Test/ do
+      assert_select ".gw-prof-icon img", count: 8
+    end
+    assert_select ".gw-prof-more", count: 0
+    assert_select ".gw-row-meta", text: /\Amaj /
+    assert_select ".gw-row-meta", text: /persos/, count: 0
   end
 
   test "index shows an empty state when nothing matches" do

@@ -1,0 +1,363 @@
+{
+ "version": 18,
+ "id": "7c4e88a1-5b21-4f9e-8d30-1a2b3c4d5e60",
+ "name": "Eight Man Test",
+ "tags": [
+  "GvG"
+ ],
+ "notes": "",
+ "createdAt": "2026-08-24T08:00:00Z",
+ "updatedAt": "2026-08-24T08:00:00Z",
+ "characters": [
+  {
+   "id": "00000001-2222-3333-4444-000000000001",
+   "name": "Bal G1",
+   "primaryProfession": 1,
+   "secondaryProfession": 3,
+   "isFavorite": false,
+   "assignment": "Flag",
+   "gender": 1,
+   "skillIds": [
+    110,
+    111,
+    112,
+    113,
+    114,
+    115,
+    116,
+    901
+   ],
+   "attributes": [
+    {
+     "id": 17,
+     "points": 12
+    },
+    {
+     "id": 20,
+     "points": 10
+    },
+    {
+     "id": 21,
+     "points": 8
+    }
+   ],
+   "titleRanks": {},
+   "equipment": {
+    "armor": [],
+    "weaponSets": [],
+    "activeSet": 0
+   },
+   "notes": "Positionnement : rester groupé sur le flag.",
+   "durationBoostersEnabled": false,
+   "activeAttributeBoosts": [],
+   "variants": []
+  },
+  {
+   "id": "00000002-2222-3333-4444-000000000002",
+   "name": "Bal G2",
+   "primaryProfession": 1,
+   "secondaryProfession": 3,
+   "isFavorite": false,
+   "assignment": "Flag",
+   "gender": 1,
+   "skillIds": [
+    120,
+    121,
+    122,
+    123,
+    124,
+    125,
+    126,
+    902
+   ],
+   "attributes": [
+    {
+     "id": 17,
+     "points": 12
+    },
+    {
+     "id": 20,
+     "points": 10
+    },
+    {
+     "id": 21,
+     "points": 8
+    }
+   ],
+   "titleRanks": {},
+   "equipment": {
+    "armor": [],
+    "weaponSets": [],
+    "activeSet": 0
+   },
+   "notes": "",
+   "durationBoostersEnabled": false,
+   "activeAttributeBoosts": [],
+   "variants": []
+  },
+  {
+   "id": "00000003-2222-3333-4444-000000000003",
+   "name": "Mid W1",
+   "primaryProfession": 1,
+   "secondaryProfession": 6,
+   "isFavorite": false,
+   "assignment": "Frontline",
+   "gender": 1,
+   "skillIds": [
+    130,
+    131,
+    132,
+    133,
+    134,
+    135,
+    136,
+    903
+   ],
+   "attributes": [
+    {
+     "id": 17,
+     "points": 12
+    },
+    {
+     "id": 20,
+     "points": 10
+    },
+    {
+     "id": 21,
+     "points": 8
+    }
+   ],
+   "titleRanks": {},
+   "equipment": {
+    "armor": [],
+    "weaponSets": [],
+    "activeSet": 0
+   },
+   "notes": "",
+   "durationBoostersEnabled": false,
+   "activeAttributeBoosts": [],
+   "variants": []
+  },
+  {
+   "id": "00000004-2222-3333-4444-000000000004",
+   "name": "Vamp W2",
+   "primaryProfession": 1,
+   "secondaryProfession": 4,
+   "isFavorite": false,
+   "assignment": "Frontline",
+   "gender": 1,
+   "skillIds": [
+    140,
+    141,
+    142,
+    143,
+    144,
+    145,
+    146,
+    904
+   ],
+   "attributes": [
+    {
+     "id": 4,
+     "points": 12
+    },
+    {
+     "id": 5,
+     "points": 10
+    },
+    {
+     "id": 7,
+     "points": 8
+    }
+   ],
+   "titleRanks": {},
+   "equipment": {
+    "armor": [],
+    "weaponSets": [],
+    "activeSet": 0
+   },
+   "notes": "",
+   "durationBoostersEnabled": false,
+   "activeAttributeBoosts": [],
+   "variants": []
+  },
+  {
+   "id": "00000005-2222-3333-4444-000000000005",
+   "name": "Snare Me",
+   "primaryProfession": 5,
+   "secondaryProfession": 3,
+   "isFavorite": false,
+   "assignment": "Midline",
+   "gender": 1,
+   "skillIds": [
+    150,
+    151,
+    152,
+    153,
+    154,
+    155,
+    156,
+    905
+   ],
+   "attributes": [
+    {
+     "id": 0,
+     "points": 12
+    },
+    {
+     "id": 1,
+     "points": 10
+    },
+    {
+     "id": 2,
+     "points": 8
+    }
+   ],
+   "titleRanks": {},
+   "equipment": {
+    "armor": [],
+    "weaponSets": [],
+    "activeSet": 0
+   },
+   "notes": "",
+   "durationBoostersEnabled": false,
+   "activeAttributeBoosts": [],
+   "variants": []
+  },
+  {
+   "id": "00000006-2222-3333-4444-000000000006",
+   "name": "Burst E",
+   "primaryProfession": 6,
+   "secondaryProfession": 5,
+   "isFavorite": false,
+   "assignment": "Midline",
+   "gender": 1,
+   "skillIds": [
+    160,
+    161,
+    162,
+    163,
+    164,
+    165,
+    166,
+    906
+   ],
+   "attributes": [
+    {
+     "id": 8,
+     "points": 12
+    },
+    {
+     "id": 10,
+     "points": 10
+    },
+    {
+     "id": 11,
+     "points": 8
+    }
+   ],
+   "titleRanks": {},
+   "equipment": {
+    "armor": [],
+    "weaponSets": [],
+    "activeSet": 0
+   },
+   "notes": "",
+   "durationBoostersEnabled": false,
+   "activeAttributeBoosts": [],
+   "variants": []
+  },
+  {
+   "id": "00000007-2222-3333-4444-000000000007",
+   "name": "Heal Mo",
+   "primaryProfession": 3,
+   "secondaryProfession": 5,
+   "isFavorite": false,
+   "assignment": "Backline",
+   "gender": 1,
+   "skillIds": [
+    170,
+    171,
+    172,
+    173,
+    174,
+    175,
+    176,
+    907
+   ],
+   "attributes": [
+    {
+     "id": 13,
+     "points": 12
+    },
+    {
+     "id": 15,
+     "points": 10
+    },
+    {
+     "id": 16,
+     "points": 8
+    }
+   ],
+   "titleRanks": {},
+   "equipment": {
+    "armor": [],
+    "weaponSets": [],
+    "activeSet": 0
+   },
+   "notes": "",
+   "durationBoostersEnabled": false,
+   "activeAttributeBoosts": [],
+   "variants": []
+  },
+  {
+   "id": "00000008-2222-3333-4444-000000000008",
+   "name": "Prot Mo",
+   "primaryProfession": 3,
+   "secondaryProfession": 6,
+   "isFavorite": false,
+   "assignment": "Backline",
+   "gender": 1,
+   "skillIds": [
+    180,
+    181,
+    182,
+    183,
+    184,
+    185,
+    186,
+    908
+   ],
+   "attributes": [
+    {
+     "id": 13,
+     "points": 12
+    },
+    {
+     "id": 15,
+     "points": 10
+    },
+    {
+     "id": 16,
+     "points": 8
+    }
+   ],
+   "titleRanks": {},
+   "equipment": {
+    "armor": [],
+    "weaponSets": [],
+    "activeSet": 0
+   },
+   "notes": "",
+   "durationBoostersEnabled": false,
+   "activeAttributeBoosts": [],
+   "variants": []
+  }
+ ],
+ "locks": [],
+ "spike": [],
+ "natureRituals": [],
+ "roaringWindsRank": 0,
+ "tranquilityRank": 0,
+ "gameMode": "PvP"
+}

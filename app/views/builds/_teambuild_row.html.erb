@@ -1,10 +1,7 @@
 <a class="gw-row" href="<%= build_path(teambuild) %>">
   <span class="gw-row-profs" aria-hidden="true">
-    <% teambuild.teambuild_characters.first(6).each do |character| %>
+    <% teambuild.teambuild_characters.first(8).each do |character| %>
       <span class="gw-prof-icon"><%= character.primary_profession&.html_image_simple(size: 24) %></span>
-    <% end %>
-    <% if teambuild.teambuild_characters.size > 6 %>
-      <span class="gw-prof-more">+<%= teambuild.teambuild_characters.size - 6 %></span>
     <% end %>
   </span>
   <span class="gw-row-main">
@@ -22,5 +19,5 @@
       <% end %>
     </span>
   </span>
-  <span class="gw-row-meta"><%= teambuild.player_count %> persos · maj <%= teambuild.updated_at.strftime("%d/%m/%Y") %></span>
+  <span class="gw-row-meta">maj <%= teambuild.updated_at.strftime("%d/%m/%Y") %></span>
 </a>
