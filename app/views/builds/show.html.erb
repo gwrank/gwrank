@@ -1,7 +1,7 @@
 <div class="container mt-4">
   <div class="gw-window mb-3">
     <div class="gw-window-header">
-      <h1 class="gw-title"><%= @teambuild.name.presence || "(sans nom)" %></h1>
+      <h1 class="gw-title"><%= @teambuild.name.presence || "(unnamed)" %></h1>
       <span class="gw-header-badges">
         <% if @teambuild.visibility != "public" %>
           <span class="badge gw-badge-visibility"><%= @teambuild.visibility %></span>
@@ -14,13 +14,14 @@
           <span class="badge gw-badge-tag"><%= tag %></span>
         <% end %>
       </span>
-      <%= link_to "Télécharger .zcx", download_build_path(@teambuild), class: "gw-btn ms-auto" %>
+      <small class="gw-author">by @<%= @teambuild.player&.username || "unknown" %></small>
+      <%= link_to "Download .zcx", download_build_path(@teambuild), class: "gw-btn ms-auto" %>
     </div>
   </div>
 
   <% if @rows.any? %>
     <%= render partial: "character_card", collection: @rows, as: :row %>
   <% else %>
-    <div class="gw-window"><p class="gw-empty">Ce build ne contient aucun personnage.</p></div>
+    <div class="gw-window"><p class="gw-empty">This build has no characters.</p></div>
   <% end %>
 </div>

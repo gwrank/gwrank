@@ -5,7 +5,7 @@
     <% end %>
   </span>
   <span class="gw-row-main">
-    <span class="gw-row-name"><%= teambuild.name.presence || "(sans nom)" %></span>
+    <span class="gw-row-name"><%= teambuild.name.presence || "(unnamed)" %></span>
     <span class="gw-row-badges">
       <% if teambuild.status == "draft" %>
         <span class="badge gw-badge-draft">Draft</span>
@@ -19,5 +19,5 @@
       <% end %>
     </span>
   </span>
-  <span class="gw-row-meta">maj <%= teambuild.updated_at.strftime("%d/%m/%Y") %></span>
+  <span class="gw-row-meta">by @<%= teambuild.player&.username || "unknown" %> · updated <%= teambuild.updated_at.strftime("%d/%m/%Y") %></span>
 </a>

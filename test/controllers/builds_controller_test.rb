@@ -73,6 +73,7 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".gw-prof-icon img", minimum: 1
     assert_select ".gw-prof-more", count: 0
     assert_select ".gw-topbar"
+    assert_select ".gw-row-meta", text: /@#{Regexp.escape(@owner.username)}/
   end
 
   test "index renders all eight profession icons on one row" do
@@ -85,7 +86,7 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
       assert_select ".gw-prof-icon img", count: 8
     end
     assert_select ".gw-prof-more", count: 0
-    assert_select ".gw-row-meta", text: /\Amaj /
+    assert_select ".gw-row-meta", text: /updated \d{2}\/\d{2}\/\d{4}/
     assert_select ".gw-row-meta", text: /persos/, count: 0
   end
 
@@ -104,5 +105,6 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".gw-skillbar-slot", minimum: 8
     assert_select ".gw-skillbar-slot--elite", minimum: 1
     assert_select ".gw-attribute-points", minimum: 1
+    assert_select ".gw-author", text: /@#{Regexp.escape(@owner.username)}/
   end
 end
