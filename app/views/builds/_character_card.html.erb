@@ -4,7 +4,7 @@
       <span class="gw-prof-icon"><%= row[:summary].primary_profession&.html_image_simple(size: 26) %></span>
       <span class="gw-prof-icon"><%= row[:summary].secondary_profession&.html_image_simple(size: 26) %></span>
     </span>
-    <strong class="gw-character-name"><%= row[:summary].name.presence || "(sans nom)" %></strong>
+    <strong class="gw-character-name"><%= row[:summary].name.presence || "(unnamed)" %></strong>
     <% if row[:summary].assignment.present? %>
       <span class="badge gw-badge-mode"><%= row[:summary].assignment %></span>
     <% end %>
