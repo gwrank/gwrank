@@ -2,17 +2,21 @@
   "name": "app",
   "private": true,
   "devDependencies": {
-    "esbuild": "^0.27.2"
+    "@tailwindcss/postcss": "^4.3.3",
+    "esbuild": "^0.27.2",
+    "tailwindcss": "^4.3.3"
   },
   "scripts": {
     "build": "esbuild app/javascript/*.* --bundle --sourcemap --format=esm --outdir=app/assets/builds --public-path=/assets",
-    "build:css": "yarn build:css:compile && yarn build:css:prefix",
-    "build:css:compile": "sass ./app/assets/stylesheets/application.bootstrap.scss:./app/assets/builds/application.css --no-source-map --load-path=node_modules",
-    "build:css:prefix": "postcss ./app/assets/builds/application.css --use=autoprefixer --output=./app/assets/builds/application.css",
-    "watch:css": "nodemon --watch ./app/assets/stylesheets/ --ext scss --exec \"yarn build:css\"",
+    "build:css": "yarn build:css:tailwind && yarn build:css:legacy",
+    "build:css:tailwind": "postcss ./app/assets/stylesheets/application.css --output=./app/assets/builds/application.css",
+    "build:css:legacy": "sass ./app/assets/stylesheets/application.bootstrap.scss:./app/assets/builds/legacy.css --no-source-map --load-path=node_modules",
+    "watch:css": "nodemon --watch ./app/assets/stylesheets/ --ext scss,css --exec \"yarn build:css\"",
     "watch:js": "esbuild app/javascript/*.* --bundle --sourcemap --format=esm --outdir=app/assets/builds --public-path=/assets --watch=forever"
   },
   "dependencies": {
+    "@fontsource/cinzel": "^5.3.0",
+    "@fontsource/eb-garamond": "^5.3.0",
     "@hotwired/stimulus": "^3.2.2",
     "@hotwired/turbo-rails": "^8.0.23",
     "@popperjs/core": "^2.11.8",

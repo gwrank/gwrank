@@ -1,0 +1,24 @@
+/* Double bordure ornementée : contour externe + filet interne */
+.gw-frame { position: relative; }
+.gw-frame::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid color-mix(in srgb, var(--color-gold-600) 35%, transparent);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Séparateur décoratif */
+.gw-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-gold-600) 50%, transparent);
+  opacity: .55;
+}
+
+/* Fond parchemin pour blocs lisibles */
+.gw-parchment {
+  background:
+    radial-gradient(120% 120% at 20% 0%, rgba(201,169,89,.06), transparent 60%),
+    rgba(16,11,5,.94);
+}

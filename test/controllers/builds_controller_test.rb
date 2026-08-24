@@ -67,7 +67,7 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     sign_in @owner
     get builds_path
     assert_response :success
-    assert_select ".gw-window", count: 1
+    assert_select "main .gw-window", count: 1
     assert_select ".gw-row", count: 1
     assert_select ".gw-badge-mode", text: "PvP"
     assert_select ".gw-badge-tag", text: "GvG"

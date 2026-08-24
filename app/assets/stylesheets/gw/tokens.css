@@ -1,0 +1,48 @@
+/* Polices auto-hébergées (fichiers latin .woff2 dans app/assets/fonts) */
+@font-face {
+  font-family: "Cinzel";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("cinzel-latin-500-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Cinzel";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("cinzel-latin-700-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "EB Garamond";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("eb-garamond-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "EB Garamond";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("eb-garamond-latin-400-italic.woff2") format("woff2");
+}
+@font-face {
+  font-family: "EB Garamond";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("eb-garamond-latin-600-normal.woff2") format("woff2");
+}
+
+/* Base commune au thème GW */
+body.gw-body {
+  font-family: var(--font-body);
+  background:
+    radial-gradient(1200px 500px at 50% -100px, #241a09, #0d0904 60%),
+    #0d0904;
+  color: var(--color-parchment);
+  min-height: 100vh;
+}
+
+h1, h2, h3, .font-display { font-family: var(--font-display); }

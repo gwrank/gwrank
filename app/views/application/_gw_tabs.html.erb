@@ -1,0 +1,8 @@
+<%# locals: (tabs:) %>
+<div class="gw-tabs mb-[-1px]" role="tablist">
+  <% tabs.each do |label, path| %>
+    <%= link_to label, path,
+          class: "gw-tab",
+          aria: { current: current_page?(path) ? "page" : nil } %>
+  <% end %>
+</div>

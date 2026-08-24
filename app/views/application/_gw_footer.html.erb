@@ -1,0 +1,21 @@
+<footer class="mt-auto">
+  <div class="gw-divider"></div>
+  <div class="max-w-6xl mx-auto px-4 py-6 text-center text-[#7d6d48] text-sm leading-7">
+    <p>2020-2026 © GWRank.com — not affiliated with ArenaNet® or NCsoft®.</p>
+    <p>
+      <%= link_to "Terms", terms_path, class: "hover:text-gold-400" %> ·
+      <%= link_to "Privacy", privacy_path, class: "hover:text-gold-400" %> ·
+      <%= mail_to "ko.arkalon@gmail.com", "Contact", class: "hover:text-gold-400" %>
+    </p>
+    <p class="mt-2 flex justify-center gap-4">
+      <a href="https://discord.gg/jqShPZBkcj" target="_blank" rel="noopener" class="hover:text-gold-400">Discord</a>
+      <a href="https://www.twitch.tv/gwrank" target="_blank" rel="noopener" class="hover:text-gold-400">Twitch</a>
+      <a href="https://www.youtube.com/channel/UCA0J_GFBe848GQwCSjeck-w" target="_blank" rel="noopener" class="hover:text-gold-400">YouTube</a>
+      <a href="https://twitter.com/GWRank_com" target="_blank" rel="noopener" class="hover:text-gold-400">X</a>
+      <a href="https://github.com/gwrank/gwrank" target="_blank" rel="noopener" class="hover:text-gold-400">GitHub</a>
+      <% if current_player&.is_admin? %>
+        <%= link_to "Administration", administration_players_path, class: "hover:text-gold-400" %>
+      <% end %>
+    </p>
+  </div>
+</footer>

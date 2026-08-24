@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink-900: #0d0904;
+  --color-ink-800: #171006;
+  --color-ink-700: #241a09;
+  --color-gold-300: #f4dfa0;
+  --color-gold-400: #ffe9ad;
+  --color-gold-500: #c9a959;
+  --color-gold-600: #9c7c3c;
+  --color-parchment: #e8d9a8;
+  --font-display: "Cinzel", serif;
+  --font-body: "EB Garamond", serif;
+}
+
+@import "./gw/tokens.css";
+@import "./gw/textures.css";
+@import "./gw/components.css";
+@import "./gw/utilities.css";

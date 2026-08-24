@@ -1,0 +1,196 @@
+@layer components {
+  /* Fenêtre */
+  .gw-window {
+    background: rgba(16, 11, 5, .94);
+    border: 1px solid var(--color-gold-600);
+    border-radius: 6px;
+    box-shadow: 0 0 0 1px rgba(0,0,0,.8), inset 0 0 30px rgba(0,0,0,.75);
+  }
+  .gw-window-header {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+    padding: 10px 16px;
+    background: linear-gradient(#3a2c14, #241a09);
+    border-bottom: 1px solid var(--color-gold-600);
+    border-radius: 5px 5px 0 0;
+  }
+  .gw-title {
+    color: var(--color-gold-300);
+    letter-spacing: 1px;
+    text-shadow: 0 1px 2px #000;
+  }
+  .gw-count { color: #9b8a5f; }
+
+  /* Onglets */
+  .gw-tabs {
+    display: flex; gap: 2px; flex-wrap: wrap;
+    padding: 8px 10px 0;
+    background: rgba(36,26,9,.5);
+    border-bottom: 1px solid #5a4520;
+  }
+  .gw-tab {
+    font-family: var(--font-display);
+    font-size: 11px; letter-spacing: .6px;
+    padding: 6px 13px 7px;
+    background: linear-gradient(#241a09, #171006);
+    border: 1px solid #4b3a18; border-bottom: none;
+    border-radius: 5px 5px 0 0;
+    color: #9b8a5f;
+  }
+  .gw-tab:hover { color: var(--color-parchment); }
+  .gw-tab[aria-current="page"], .gw-tab[aria-selected="true"], .gw-tab--active {
+    color: var(--color-gold-400);
+    background: linear-gradient(#3a2c14, #241a09);
+    border-color: var(--color-gold-600);
+    box-shadow: inset 0 1px 0 rgba(244,223,160,.3);
+    position: relative; top: 1px;
+  }
+
+  /* Boutons */
+  .gw-btn {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 11.5px; letter-spacing: .8px;
+    background: linear-gradient(#c9a959, #9c7c3c);
+    color: #171006 !important;
+    border: 1px solid var(--color-gold-300);
+    border-radius: 4px;
+    padding: 7px 16px;
+    font-weight: 700;
+    cursor: pointer;
+    min-height: 32px;
+    text-decoration: none;
+    box-shadow: 0 1px 4px rgba(0,0,0,.5);
+  }
+  .gw-btn:hover {
+    background: linear-gradient(#dcbb6b, #a8853f);
+    color: #000 !important;
+    text-decoration: none;
+  }
+  .gw-btn--ghost {
+    background: none;
+    color: var(--color-parchment) !important;
+    border: 1px solid #7a5f28;
+    font-weight: 400;
+    box-shadow: none;
+  }
+  .gw-btn--ghost:hover { border-color: var(--color-gold-500); color: var(--color-gold-400) !important; }
+
+  /* Champs */
+  .gw-input, .gw-select, .gw-textarea {
+    width: 100%;
+    background: #100b05;
+    border: 1px solid #7a5f28;
+    color: var(--color-gold-400);
+    border-radius: 4px;
+    padding: 7px 12px;
+    font-family: inherit;
+  }
+  .gw-input::placeholder { color: #7d6d48; }
+  .gw-input:focus, .gw-select:focus, .gw-textarea:focus {
+    outline: none;
+    border-color: var(--color-gold-500);
+    box-shadow: 0 0 6px rgba(201,169,89,.4);
+  }
+
+  /* Table */
+  .gw-table { width: 100%; border-collapse: collapse; }
+  .gw-table th {
+    font-family: var(--font-display);
+    font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+    color: #9b8a5f; text-align: left;
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--color-gold-600);
+    background: rgba(58,44,20,.35);
+  }
+  .gw-table td { padding: 7px 12px; border-bottom: 1px solid #241a09; }
+  .gw-table tbody tr:hover td { background: rgba(205,146,25,.06); }
+
+  /* Badges */
+  .gw-badge {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 9.5px; letter-spacing: .8px; text-transform: uppercase;
+    padding: 2px 8px 3px;
+    border-radius: 3px;
+  }
+  .gw-badge--mode { background: linear-gradient(#c9a959,#9c7c3c); color: #171006; }
+  .gw-badge--tag { background: transparent; color: var(--color-parchment); border: 1px solid #7a5f28; }
+  .gw-badge--draft { background: #3d2f0c; color: #ffd98a; border: 1px solid #cd9219; }
+  .gw-badge--private { background: #2b1815; color: #b9a08a; border: 1px solid #4b2a22; }
+
+  /* Skillbar */
+  .gw-skillbar { display: flex; gap: 3px; flex-wrap: wrap; }
+  .gw-skillbar-slot {
+    width: 34px; height: 34px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: radial-gradient(circle at 40% 30%, #3a2c14, #241a09);
+    border: 2px solid var(--color-gold-600);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .gw-skillbar-slot--empty { opacity: .4; }
+  .gw-skillbar-slot--elite {
+    border-color: var(--color-gold-300);
+    box-shadow: 0 0 9px rgba(244,223,160,.45);
+  }
+
+  /* Flash */
+  .gw-flash {
+    display: flex; gap: 10px; align-items: center;
+    margin: 12px auto 0; max-width: 72rem;
+    padding: 10px 14px;
+    border-radius: 5px;
+  }
+  .gw-flash--notice { background: #141f0e; border: 1px solid #4a6b2a; color: #b8d98a; }
+  .gw-flash--alert { background: #24100d; border: 1px solid #6b2a2a; color: #d98a8a; }
+
+  /* Pagination (markup Pagy habillé) */
+  .gw-pagy { display: flex; gap: 4px; flex-wrap: wrap; }
+  .gw-pagy a, .gw-pagy span {
+    min-width: 28px; height: 28px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid #5a4520; border-radius: 4px;
+    padding: 0 6px; color: #9b8a5f; text-decoration: none;
+  }
+  .gw-pagy .current, .gw-pagy .page.active {
+    background: linear-gradient(#c9a959,#9c7c3c);
+    color: #171006; border-color: var(--color-gold-300); font-weight: 700;
+  }
+
+  /* Empty state */
+  .gw-empty {
+    color: #9b8a5f; text-align: center;
+    padding: 40px 16px;
+  }
+  .gw-empty::before {
+    content: "⚔";
+    display: block;
+    font-size: 22px;
+    margin-bottom: 8px;
+    color: #5a4520;
+  }
+
+  /* Ligne cliquable de liste */
+  .gw-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 16px;
+    border-bottom: 1px solid #20170a;
+    border-left: 2px solid transparent;
+    transition: background .15s ease, border-color .15s ease;
+    color: inherit; text-decoration: none;
+  }
+  .gw-row:hover {
+    background: linear-gradient(90deg, rgba(205,146,25,.09), transparent);
+    border-left-color: #cd9219;
+  }
+
+  /* Focus visible global */
+  a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid var(--color-gold-500);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+}

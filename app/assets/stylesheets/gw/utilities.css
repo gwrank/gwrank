@@ -1,0 +1,10 @@
+/* Barre de progression Turbo dorée */
+.turbo-progress-bar {
+  background: linear-gradient(90deg, #9c7c3c, #f4dfa0);
+  height: 3px;
+}
+
+/* Champs invalides Rails */
+.field_with_errors input, .field_with_errors select, .field_with_errors textarea {
+  border-color: #b06a5f;
+}
