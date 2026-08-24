@@ -1,8 +1,12 @@
 <%# locals: (tabs:) %>
 <div class="gw-tabs mb-[-1px]">
   <% tabs.each do |label, path| %>
-    <%= link_to label, path,
-          class: "gw-tab",
-          aria: { current: current_page?(path) ? "page" : nil } %>
+    <% if path %>
+      <%= link_to label, path,
+            class: "gw-tab",
+            aria: { current: current_page?(path) ? "page" : nil } %>
+    <% else %>
+      <span class="gw-tab gw-tab--active"><%= label %></span>
+    <% end %>
   <% end %>
 </div>

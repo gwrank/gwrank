@@ -1,12 +1,12 @@
 <article class="gw-window gw-frame">
   <div class="gw-window-header">
     <span class="flex shrink-0 -space-x-1" aria-hidden="true">
-      <span class="rounded-full border border-gold-600 bg-[#241a09] w-[26px] h-[26px] inline-flex overflow-hidden"><%= row[:summary].primary_profession&.html_image_simple(size: 26) %></span>
-      <span class="rounded-full border border-gold-600 bg-[#241a09] w-[26px] h-[26px] inline-flex overflow-hidden"><%= row[:summary].secondary_profession&.html_image_simple(size: 26) %></span>
+      <span class="gw-prof-chip w-[26px] h-[26px]"><%= row[:summary].primary_profession&.html_image_simple(size: 26) %></span>
+      <span class="gw-prof-chip w-[26px] h-[26px]"><%= row[:summary].secondary_profession&.html_image_simple(size: 26) %></span>
     </span>
-    <strong class="text-gold-400 truncate"><%= row[:summary].name.presence || "(unnamed)" %></strong>
+    <strong class="min-w-0 text-gold-400 truncate"><%= row[:summary].name.presence || "(unnamed)" %></strong>
     <% if row[:summary].assignment.present? %><span class="gw-badge gw-badge--mode"><%= row[:summary].assignment %></span><% end %>
-    <% if row[:summary].dominant_attribute.present? %><small class="ml-auto text-[#9b8a5f]"><%= row[:summary].dominant_attribute %></small><% end %>
+    <% if row[:summary].dominant_attribute.present? %><small class="ml-auto text-muted"><%= row[:summary].dominant_attribute %></small><% end %>
   </div>
   <div class="p-4">
     <div class="gw-skillbar mb-3">

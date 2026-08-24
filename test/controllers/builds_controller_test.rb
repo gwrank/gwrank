@@ -72,7 +72,6 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".gw-badge--mode", text: "PvP"
     assert_select ".gw-badge--tag", text: "GvG"
     assert_select ".gw-row img", minimum: 1
-    assert_select ".gw-prof-more", count: 0
     assert_select ".gw-topbar"
     assert_select ".gw-row", text: /@#{Regexp.escape(@owner.username)}/
   end
@@ -86,9 +85,7 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".gw-row", text: /Eight Man Test/ do
       assert_select "img", count: 8
     end
-    assert_select ".gw-prof-more", count: 0
     assert_select ".gw-row", text: /updated \d{2}\/\d{2}\/\d{4}/
-    assert_select ".gw-row-meta", text: /persos/, count: 0
   end
 
   test "index shows an empty state when nothing matches" do

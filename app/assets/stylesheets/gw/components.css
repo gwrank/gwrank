@@ -118,6 +118,15 @@
   .gw-badge--draft { background: #3d2f0c; color: #ffd98a; border: 1px solid var(--color-gold-bright); }
   .gw-badge--private { background: #2b1815; color: #b9a08a; border: 1px solid #4b2a22; }
 
+  /* Puce ronde d'icône (profession) — taille fixée par l'appelant */
+  .gw-prof-chip {
+    display: inline-flex;
+    border-radius: 9999px;
+    border: 1px solid var(--color-gold-600);
+    background: var(--color-ink-700);
+    overflow: hidden;
+  }
+
   /* Skillbar */
   .gw-skillbar { display: flex; gap: 3px; flex-wrap: wrap; }
   .gw-skillbar-slot {

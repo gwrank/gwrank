@@ -1,15 +1,9 @@
 <div class="gw-window gw-frame mb-4">
-  <div class="gw-tabs">
-    <%= link_to "Build Library", builds_path, class: "gw-tab", aria: { current: nil } %>
-    <span class="gw-tab" aria-selected="true" style="cursor:text;"><%= truncate(@teambuild.name.presence || "(unnamed)", length: 28) %></span>
-  </div>
-  <div class="gw-window-header flex-wrap">
+  <%= render "application/gw_tabs", tabs: [["Build Library", builds_path], [truncate(@teambuild.name.presence || "(unnamed)", length: 28), nil]] %>
+  <div class="gw-window-header">
     <h1 class="gw-title text-base m-0"><%= @teambuild.name.presence || "(unnamed)" %></h1>
-    <% if @teambuild.visibility != "public" %><span class="gw-badge gw-badge--private"><%= @teambuild.visibility %></span><% end %>
-    <% if @teambuild.status == "draft" %><span class="gw-badge gw-badge--draft">Draft</span><% end %>
-    <span class="gw-badge gw-badge--mode"><%= @teambuild.game_mode.presence || "?" %></span>
-    <% @teambuild.tags.each do |tag| %><span class="gw-badge gw-badge--tag"><%= tag %></span><% end %>
-    <small class="text-[#9b8a5f]">by @<%= @teambuild.player&.username || "unknown" %></small>
+    <%= render "badges", teambuild: @teambuild %>
+    <small class="text-muted">by @<%= @teambuild.player&.username || "unknown" %></small>
     <%= link_to "Download .zcx", download_build_path(@teambuild), class: "gw-btn ml-auto" %>
   </div>
 </div>

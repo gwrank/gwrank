@@ -11,7 +11,7 @@
   <% else %>
     <p class="gw-empty">No builds found.<% if params[:q].present? %> No results for “<%= params[:q] %>”.<% end %></p>
   <% end %>
-  <div class="flex justify-between items-center px-4 py-3">
-    <span class="text-sm text-[#9b8a5f]"><%= @teambuilds.size %> builds</span>
+  <div class="flex items-center px-4 py-3">
+    <span class="text-sm text-muted"><%= @teambuilds.size %> builds</span>
   </div>
 </div>
