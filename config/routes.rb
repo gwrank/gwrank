@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  if Rails.env.development?
+  if !Rails.env.test?
     mount Rswag::Api::Engine => '/api-docs'
     mount Rswag::Ui::Engine => '/api-docs'
   end
