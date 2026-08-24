@@ -12,7 +12,7 @@ class Api::V1::TeambuildsController < ApplicationController
   def index
     relation = filtered(Teambuild.visible_to(@player))
     total_count = relation.distinct.count
-    records = relation.includes(teambuild_characters: [:primary_profession, :secondary_profession, :elite_skill])
+    records = relation.includes(:player, teambuild_characters: [:primary_profession, :secondary_profession, :elite_skill])
                       .order(Teambuild::SORTS.fetch(params[:sort], Teambuild::SORTS.fetch("updated_at")))
                       .limit(per_page).offset(offset)
 
@@ -24,7 +24,7 @@ class Api::V1::TeambuildsController < ApplicationController
 
   def export
     records = filtered(Teambuild.visible_to(@player))
-              .includes(teambuild_characters: [:primary_profession, :secondary_profession, :elite_skill])
+              .includes(:player, teambuild_characters: [:primary_profession, :secondary_profession, :elite_skill])
               .order(updated_at: :desc)
 
     render json: { teambuilds: records.map(&:export_summary) }
@@ -35,7 +35,7 @@ class Api::V1::TeambuildsController < ApplicationController
     return head :not_found if teambuild.nil?
     return head :forbidden unless teambuild.visible_to?(@player)
 
-    render json: teambuild.document
+    render json: teambuild.document.merge(author: teambuild.player&.username)
   end
 
   def update

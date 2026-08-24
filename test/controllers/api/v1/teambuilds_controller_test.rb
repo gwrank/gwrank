@@ -52,13 +52,14 @@ module Api::V1
     test "show returns the raw stored document intact" do
       get api_v1_teambuild_path(@document["id"]), headers: auth_headers(@owner)
       assert_response :success
-      assert_equal @document, response.parsed_body
+      assert_equal @document, response.parsed_body.except("author")
+      assert_equal @owner.username, response.parsed_body["author"]
     end
 
     test "show resolves by server id too" do
       get api_v1_teambuild_path(Teambuild.last.id), headers: auth_headers(@owner)
       assert_response :success
-      assert_equal @document, response.parsed_body
+      assert_equal @document, response.parsed_body.except("author")
     end
 
     test "show forbids other players' privates" do
@@ -70,6 +71,7 @@ module Api::V1
       get api_v1_teambuilds_path, headers: auth_headers(@owner)
       summary = response.parsed_body["teambuilds"].sole
       assert_equal "GvG Split", summary["name"]
+      assert_equal @owner.username, summary["author"]
       assert_equal @document["id"], summary["sourceId"]
       assert_equal 1, summary["playerCount"]
       assert_equal "PvP", summary["gameMode"]

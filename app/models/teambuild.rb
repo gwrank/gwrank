@@ -77,6 +77,7 @@ class Teambuild < ApplicationRecord
       id: id,
       sourceId: source_uuid,
       name: name,
+      author: player&.username,
       tags: tags,
       gameMode: game_mode,
       playerCount: player_count,
