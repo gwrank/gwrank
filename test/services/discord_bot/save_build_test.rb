@@ -98,5 +98,31 @@ module DiscordBot
       assert_predicate result, :ok?
       assert_equal 1, result.teambuild.document["characters"].size
     end
+
+    test "a non-ascii garbage entry does not crash the save and the rest persists" do
+      entries = [
+        SaveBuild::Entry.new(skills_code: VALID_CODE, player: nil, slot_name: nil),
+        SaveBuild::Entry.new(skills_code: "OQYTgmILZipQA4cQr4nQqoScvCé", player: nil, slot_name: nil)
+      ]
+
+      result = SaveBuild.call(player: @player, entries: entries)
+
+      assert_predicate result, :ok?
+      assert_equal 1, result.teambuild.document["characters"].size
+    end
+
+    test "an export with no decodable codes at all fails without persisting anything" do
+      entries = [
+        SaveBuild::Entry.new(skills_code: "", player: nil, slot_name: nil),
+        SaveBuild::Entry.new(skills_code: "OAAAAAAAAAAAAAAA", player: nil, slot_name: nil)
+      ]
+
+      result = SaveBuild.call(player: @player, entries: entries)
+
+      refute_predicate result, :ok?
+      assert_nil result.teambuild
+      assert_equal 0, Teambuild.count
+      assert_match(/décodable/, result.errors.first["message"])
+    end
   end
 end
