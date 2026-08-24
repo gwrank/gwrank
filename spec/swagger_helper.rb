@@ -21,7 +21,7 @@ RSpec.configure do |config|
           Les skillId inconnus du catalogue sont préservés tels quels (jamais normalisés à 0).
         DESC
       },
-      servers: [{ url: 'https://gwrank.example.com' }],
+      servers: [{ url: 'https://gwrank.com' }],
       security: [{ bearerAuth: [] }],
       paths: {},
       components: {

@@ -8,7 +8,7 @@ info:
     18). Les clés sont strictement camelCase. Les skillId inconnus du catalogue sont
     préservés tels quels (jamais normalisés à 0).
 servers:
-- url: https://gwrank.example.com
+- url: https://gwrank.com
 security:
 - bearerAuth: []
 paths:

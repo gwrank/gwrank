@@ -1,8 +1,7 @@
 Rails.application.routes.draw do
-  if !Rails.env.test?
-    mount Rswag::Api::Engine => '/api-docs'
-    mount Rswag::Ui::Engine => '/api-docs'
-  end
+  mount Rswag::Api::Engine => '/api-docs'
+  mount Rswag::Ui::Engine => '/api-docs'
+
   namespace :api do
     namespace :v1 do
       resources :items, only: [:index, :show]
