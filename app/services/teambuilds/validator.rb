@@ -6,6 +6,7 @@ module Teambuilds
       version id name tags notes createdAt updatedAt characters locks spike flux
       natureRituals roaringWindsRank tranquilityRank gameMode vampiricHits3 vampiricHits5
     ].freeze
+    RESERVED_ROOT_KEYS = %w[author].freeze
     CHARACTER_KEYS = %w[
       id name primaryProfession secondaryProfession isFavorite assignment gender skillIds
       attributes titleRanks equipment notes durationBoostersEnabled activeAttributeBoosts variants
@@ -48,6 +49,7 @@ module Teambuilds
 
     def call
       check_keys("$", @document, ROOT_KEYS)
+      reject_reserved_keys("$", @document)
       reject_null_arrays("$", @document, %w[tags natureRituals locks spike])
       validate_tags(@document["tags"])
       validate_characters(@document["characters"]) if @document.key?("characters")
@@ -72,6 +74,14 @@ module Teambuilds
         match = known_keys.find { |known| known.casecmp(key).zero? }
         next if match.nil? || match == key
         add_error("#{path}.#{key}", "wrong_case", %(La clé "#{key}" doit s'écrire "#{match}" (camelCase strict)))
+      end
+    end
+
+    def reject_reserved_keys(path, object)
+      RESERVED_ROOT_KEYS.each do |key|
+        next unless object.key?(key)
+        add_error("#{path}.#{key}", "reserved_key",
+                  %(La clé "#{key}" est réservée et ne peut pas être stockée))
       end
     end
 

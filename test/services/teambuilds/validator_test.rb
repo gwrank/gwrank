@@ -110,5 +110,13 @@ module Teambuilds
       @doc["tags"] = ["GvG", 42]
       assert_includes errors_for(@doc).map { |e| e["code"] }, "forbidden_tag"
     end
+
+    test "rejects the reserved author root key" do
+      @doc["author"] = "someone"
+      errors = errors_for(@doc)
+
+      assert_includes errors.map { |e| e["code"] }, "reserved_key"
+      assert errors.any? { |e| e["path"] == "$.author" }
+    end
   end
 end
