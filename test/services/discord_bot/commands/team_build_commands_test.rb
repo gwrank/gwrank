@@ -177,6 +177,77 @@ module DiscordBot
         assert_operator embed[:title].length, :<, 100
       end
 
+      test "posting without options saves a private teambuild named after the compact title" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(222, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user, options: { "code" => VALID_TEAM_CODE }
+        )
+
+        TeamBuildCommands.new(nil).dispatch(event)
+
+        build = Player.find_by(provider: "discord", uid: "222").teambuilds.sole
+        assert_equal "Team Build (8 players)", build.name
+        assert_equal "private", build.visibility
+        assert_equal 8, build.player_count
+        assert_match(/saved to your account as \*\*private\*\*/, event.followups.sole[:content])
+      end
+
+      test "the name option names the saved teambuild and visibility public publishes it" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(222, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user,
+          options: { "code" => VALID_TEAM_CODE, "name" => "GvG Split", "visibility" => "public" }
+        )
+
+        TeamBuildCommands.new(nil).dispatch(event)
+
+        build = Player.find_by(provider: "discord", uid: "222").teambuilds.sole
+        assert_equal "GvG Split", build.name
+        assert_equal "public", build.visibility
+        assert_includes Teambuild.publicly_visible.ids, build.id
+      end
+
+      test "an invalid pawned2 export saves nothing" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(222, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user, options: { "code" => "not a pawned2 export" }
+        )
+
+        TeamBuildCommands.new(nil).dispatch(event)
+
+        assert_equal 0, Teambuild.count
+        assert_empty event.followups
+      end
+
+      test "a save failure still posts the embeds and warns ephemerally" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(222, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user, options: { "code" => VALID_TEAM_CODE }
+        )
+        failure = Teambuilds::Ingest::Result.new(false, nil, [{ "message" => "nope" }], false, false)
+
+        Teambuilds::Ingest.stub(:call, failure) do
+          TeamBuildCommands.new(nil).dispatch(event)
+        end
+
+        assert_equal 1, event.responses.size
+        assert_equal 0, Teambuild.count
+        assert_match(/couldn't save it: nope/, event.followups.sole[:content])
+      end
+
+      test "a pawned2 export with only blank records renders but persists nothing" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(222, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user, options: { "code" => ten_blank_entries_pwnd_text }
+        )
+
+        TeamBuildCommands.new(nil).dispatch(event)
+
+        assert_equal 1, event.responses.size # embed still posted
+        assert_equal 0, Teambuild.count
+        assert_match(/couldn't save it/, event.followups.sole[:content])
+      end
+
       private
 
       # Build 1 has a blank skills field (unfilled roster slot). Build 2

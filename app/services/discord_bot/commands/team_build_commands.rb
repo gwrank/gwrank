@@ -1,6 +1,8 @@
 module DiscordBot
   module Commands
     class TeamBuildCommands
+      include SaveSupport
+
       def self.register(bot)
         new(bot).register
       end
@@ -25,6 +27,8 @@ module DiscordBot
           cmd.string(:code, 'The pawned2 team build text, copied from paw.ned2', required: true)
           cmd.boolean(:verbose, 'Show skill names for each player (default: off)', required: false)
           cmd.string(:name, 'Override the embed title (default: auto)', required: false)
+          cmd.string(:visibility, 'Save the team build to your account (default: private)', required: false,
+                     choices: { 'Private' => 'private', 'Public' => 'public' })
         end
       end
 
@@ -37,11 +41,23 @@ module DiscordBot
         verbose = event.options['verbose'] == true
         name = event.options['name'].to_s.strip.presence
         render_team(event, entries, verbose, name)
+        save_posted_team(event, entries.first(MAX_ENTRIES), name)
       rescue GW::PwndTemplate::InvalidCode
         event.respond(content: "That doesn't look like a valid pawned2 team build.", ephemeral: true)
       rescue StandardError => e
         Rails.logger.error("Failed to render team build: #{e.class}: #{e.message}")
         event.respond(content: 'Something went wrong rendering that team build.', ephemeral: true)
+      end
+
+      # Saves exactly what was rendered: entries are already capped at
+      # MAX_ENTRIES by the caller, and the saved name mirrors the compact
+      # embed's auto title when the user didn't pick one.
+      def save_posted_team(event, entries, name)
+        save_to_account(event, entries, name || default_team_name(entries))
+      end
+
+      def default_team_name(entries)
+        "Team Build (#{entries.size} #{entries.size == 1 ? 'player' : 'players'})"
       end
 
       # Discord allows at most 10 embeds and 10 file attachments per
