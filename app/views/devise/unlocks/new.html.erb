@@ -1,16 +1,11 @@
-<h2>Resend unlock instructions</h2>
-
-<%= form_for(resource, as: resource_name, url: unlock_path(resource_name), html: { method: :post }) do |f| %>
+<%= render "devise/shared/gw_card", title: "Resend unlock" do %>
   <%= render "devise/shared/error_messages", resource: resource %>
-
-  <div class="field">
-    <%= f.label :email %><br>
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
-  </div>
-
-  <div class="actions">
-    <%= f.submit "Resend unlock instructions" %>
-  </div>
+  <%= form_for(resource, as: resource_name, url: unlock_path(resource_name), html: { method: :post }) do |f| %>
+    <div class="space-y-3">
+      <%= f.label :email, class: "block text-sm text-parchment" %>
+      <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "gw-input" %>
+    </div>
+    <%= f.submit "Resend unlock instructions", class: "gw-btn mt-4 w-full" %>
+  <% end %>
+  <%= render "devise/shared/links" %>
 <% end %>
-
-<%= render "devise/shared/links" %>

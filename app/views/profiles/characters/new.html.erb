@@ -1,38 +1,11 @@
-<section class="mpl-banner mpl-banner-top mpl-banner-parallax">
-  <div class="mpl-banner-content mpl-box-sm">
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-          <div class="mpl-content">
-            <h1 data-sr-item="sign" style="visibility: visible;">Add in-game character</h1>
-            <%= form_with model: @character, url: profile_characters_path do |form| %>
-              <div class="mpl-snippet-fill">
-                <div class="row hgap-sm vgap-sm">
-                  <div class="col-12">
-                    <%= form.label :igname, 'In-game name' %>
-                    <%= form.text_field :igname, class: 'form-control', required: true %><span class="form-control-bg"></span>
-                  </div>
-                </div>
-              </div>
-              <div class="mpl-snippet-fill">
-                <div class="row hgap-sm vgap-sm">
-                  <div class="col-12">
-                    <%= form.label :profession_id, 'Profession' %>
-                    <%= form.select :profession_id, options_from_collection_for_select(@professions, :id, :name, @character.profession_id), { include_blank: true }, class: 'form-control' %><span class="form-control-bg"></span>
-                  </div>
-                </div>
-              </div>
-              <div class="mpl-snippet-fill">
-                <div class="row hgap-sm vgap-sm">
-                  <div class="col-12">
-                    <%= form.submit 'Publish', class: 'btn btn-md btn-success' %>
-                  </div>
-                </div>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      </div>
+<%= render "devise/shared/gw_card", title: "Add Character" do %>
+  <%= form_with model: @character, url: profile_characters_path do |form| %>
+    <div class="space-y-3">
+      <%= form.label :igname, 'In-game name', class: 'block text-sm text-parchment' %>
+      <%= form.text_field :igname, class: 'gw-input', required: true %>
+      <%= form.label :profession_id, 'Profession', class: 'block text-sm text-parchment' %>
+      <%= form.select :profession_id, options_from_collection_for_select(@professions, :id, :name, @character.profession_id), { include_blank: true }, class: 'gw-input' %>
     </div>
-  </div>
-</section>
+    <%= form.submit 'Publish', class: 'gw-btn mt-4 w-full' %>
+  <% end %>
+<% end %>

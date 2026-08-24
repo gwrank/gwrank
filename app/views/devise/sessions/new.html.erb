@@ -1,26 +1,18 @@
-<div class="content-wrap">
-  <div class="mpl-navbar-mobile-overlay"></div>
-  <div>
-    <section class="mpl-banner mpl-banner-top mpl-banner-parallax">
-      <div class="mpl-image" data-speed="0.8">
-        <%= image_tag 'background.jpg', class: 'jarallax-img' %>
-      </div>
-      <div class="mpl-banner-content mpl-box-sm">
-        <div class="container">
-          <div class="row">
-            <div class="col-lg-10" data-sr="banner" data-sr-interval="200" data-sr-duration="1200" data-sr-distance="20">
-              <h1 class="display-1" data-sr-item="banner">GWRank Discord Bot</h1>
-              <p class="lead" data-sr-item="banner">
-                Share builds, teambuilds and organize automated tournaments.
-              </p>
-              <%= form_tag(omniauth_authorize_path(:player, :discord), method: 'post', data: { turbo: false }) do %>
-                <button type="submit" class="btn btn-md btn-brand">Login with Discord</button>
-              <% end %>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    <%= render 'footer' %>
-  </div>
-</div>
+<%= render "devise/shared/gw_card", title: "Sign in" do %>
+  <%= render "devise/shared/error_messages", resource: resource %>
+  <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+    <div class="space-y-3">
+      <%= f.label :email, class: "block text-sm text-parchment" %>
+      <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "gw-input" %>
+      <%= f.label :password, class: "block text-sm text-parchment" %>
+      <%= f.password_field :password, autocomplete: "current-password", class: "gw-input" %>
+      <% if devise_mapping.rememberable? %>
+        <label class="flex items-center gap-2 text-sm text-parchment">
+          <%= f.check_box :remember_me %> Remember me
+        </label>
+      <% end %>
+    </div>
+    <%= f.submit "Sign in", class: "gw-btn mt-4 w-full" %>
+  <% end %>
+  <%= render "devise/shared/links" %>
+<% end %>

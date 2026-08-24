@@ -78,6 +78,11 @@
     box-shadow: none;
   }
   .gw-btn--ghost:hover { border-color: var(--color-gold-500); color: var(--color-gold-400) !important; }
+  .gw-btn--danger {
+    background: linear-gradient(#8a3c34, #5e241e);
+    color: #f5ded9 !important;
+    border-color: #b06a5f;
+  }
 
   /* Champs */
   .gw-input, .gw-select, .gw-textarea {
