@@ -79,4 +79,14 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".gw-empty"
   end
+
+  test "show renders character cards with skill bars" do
+    sign_in @owner
+    get build_path(Teambuild.last)
+    assert_response :success
+    assert_select ".gw-character-card", minimum: 1
+    assert_select ".gw-skillbar-slot", minimum: 8
+    assert_select ".gw-skillbar-slot--elite", minimum: 1
+    assert_select ".gw-attribute-points", minimum: 1
+  end
 end

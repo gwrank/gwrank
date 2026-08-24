@@ -1,0 +1,36 @@
+<div class="gw-window gw-character-card">
+  <div class="gw-window-header">
+    <span class="gw-row-profs" aria-hidden="true">
+      <span class="gw-prof-icon"><%= row[:summary].primary_profession&.html_image_simple(size: 26) %></span>
+      <span class="gw-prof-icon"><%= row[:summary].secondary_profession&.html_image_simple(size: 26) %></span>
+    </span>
+    <strong class="gw-character-name"><%= row[:summary].name.presence || "(sans nom)" %></strong>
+    <% if row[:summary].assignment.present? %>
+      <span class="badge gw-badge-mode"><%= row[:summary].assignment %></span>
+    <% end %>
+    <% if row[:summary].dominant_attribute.present? %>
+      <small class="gw-dominant"><%= row[:summary].dominant_attribute %></small>
+    <% end %>
+  </div>
+  <div class="gw-character-body">
+    <div class="gw-skillbar">
+      <% row[:skills].each_with_index do |skill, index| %>
+        <% if skill %>
+          <span class="gw-skillbar-slot <%= "gw-skillbar-slot--elite" if index == 7 %>" title="<%= skill.name %>"><%= skill.html_image_simple(size: 30) %></span>
+        <% else %>
+          <span class="gw-skillbar-slot gw-skillbar-slot--empty"></span>
+        <% end %>
+      <% end %>
+    </div>
+    <% if row[:attributes].any? %>
+      <ul class="gw-attributes">
+        <% row[:attributes].each do |attribute| %>
+          <li><span class="gw-attribute-name"><%= attribute[:name] %></span> <span class="gw-attribute-points"><%= attribute[:points] %></span></li>
+        <% end %>
+      </ul>
+    <% end %>
+    <% if row[:notes].present? %>
+      <p class="gw-notes"><%= row[:notes] %></p>
+    <% end %>
+  </div>
+</div>

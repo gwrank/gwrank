@@ -24,3 +24,12 @@ trappers_focus:
   is_elite: true
   profession: ranger
   campaign: Nightfall
+
+resurrection_signet:
+  skill_id: 1
+  template_skill_id: 1
+  name: Resurrection Signet Example
+  skill_type: Elite Spell
+  is_elite: true
+  profession: monk
+  campaign: Core
