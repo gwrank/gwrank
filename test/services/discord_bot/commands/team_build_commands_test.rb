@@ -248,6 +248,39 @@ module DiscordBot
         assert_match(/couldn't save it/, event.followups.sole[:content])
       end
 
+      test "reposting the same export updates instead of duplicating" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(222, "Cyril")
+        first = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user, options: { "code" => VALID_TEAM_CODE }
+        )
+        second = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user,
+          options: { "code" => VALID_TEAM_CODE, "visibility" => "public" }
+        )
+
+        TeamBuildCommands.new(nil).dispatch(first)
+        TeamBuildCommands.new(nil).dispatch(second)
+
+        player = Player.find_by(provider: "discord", uid: "222")
+        assert_equal 1, player.teambuilds.count
+        assert_equal "public", player.teambuilds.sole.visibility
+        assert_match(/updated in your account/, second.followups.sole[:content])
+      end
+
+      test "an unexpected save error still leaves the embeds posted and answers ephemerally" do
+        discord_user = DiscordBot::Test::FakeDiscordUser.new(222, "Cyril")
+        event = DiscordBot::Test::FakeApplicationCommandEvent.new(
+          subcommand: nil, user: discord_user, options: { "code" => VALID_TEAM_CODE }
+        )
+
+        DiscordBot::FindOrCreatePlayer.stub(:call, ->(*) { raise "boom" }) do
+          TeamBuildCommands.new(nil).dispatch(event)
+        end
+
+        assert_equal 1, event.responses.size
+        assert_match(/couldn't save it right now/, event.followups.sole[:content])
+      end
+
       private
 
       # Build 1 has a blank skills field (unfilled roster slot). Build 2

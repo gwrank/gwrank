@@ -53,10 +53,10 @@ module DiscordBot
       # MAX_ENTRIES by the caller, and the saved name mirrors the compact
       # embed's auto title when the user didn't pick one.
       def save_posted_team(event, entries, name)
-        save_to_account(event, entries, name || default_team_name(entries))
+        save_to_account(event, entries, name || auto_title(entries))
       end
 
-      def default_team_name(entries)
+      def auto_title(entries)
         "Team Build (#{entries.size} #{entries.size == 1 ? 'player' : 'players'})"
       end
 
@@ -83,7 +83,7 @@ module DiscordBot
         strip_image = GW::SkillStripImage.build_grid(readers.map { |reader| grid_row(reader) }, numbered: true)
 
         embed = {
-          title: name ? name.truncate(TITLE_LIMIT) : "Team Build (#{entries.size} #{entries.size == 1 ? 'player' : 'players'})",
+          title: name ? name.truncate(TITLE_LIMIT) : auto_title(entries),
           description: code_lines(entries, readers),
           image: { url: "attachment://#{File.basename(strip_image.path)}" }
         }
