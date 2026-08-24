@@ -1,10 +1,10 @@
 <div class="container mt-4">
   <div class="gw-window">
     <div class="gw-window-header">
-      <h1 class="gw-title">Bibliothèque de builds <span class="gw-count"><%= @teambuilds.size %> builds</span></h1>
+      <h1 class="gw-title">Build Library <span class="gw-count"><%= @teambuilds.size %> builds</span></h1>
       <%= form_with url: builds_path, method: :get, local: true, class: "gw-search" do %>
-        <%= text_field_tag :q, params[:q], class: "gw-search-input", placeholder: "Nom du teambuild…" %>
-        <button class="gw-btn" type="submit">Rechercher</button>
+        <%= text_field_tag :q, params[:q], class: "gw-search-input", placeholder: "Team build name…" %>
+        <button class="gw-btn" type="submit">Search</button>
       <% end %>
     </div>
     <div class="gw-list">
@@ -12,7 +12,7 @@
         <%= render partial: "teambuild_row", collection: @teambuilds, as: :teambuild %>
       <% else %>
         <p class="gw-empty">
-          Aucun build trouvé.<% if params[:q].present? %> Aucun résultat pour « <%= params[:q] %> ».<% end %>
+          No builds found.<% if params[:q].present? %> No results for “<%= params[:q] %>”.<% end %>
         </p>
       <% end %>
     </div>
