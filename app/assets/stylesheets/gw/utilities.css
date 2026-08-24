@@ -1,6 +1,6 @@
 /* Barre de progression Turbo dorée */
 .turbo-progress-bar {
-  background: linear-gradient(90deg, #9c7c3c, #f4dfa0);
+  background: linear-gradient(90deg, var(--color-gold-600), var(--color-gold-300));
   height: 3px;
 }
 

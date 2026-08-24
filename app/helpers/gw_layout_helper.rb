@@ -1,11 +1,13 @@
 module GWLayoutHelper
-  MAIN_NAV_ITEMS = [
-    { label: "Builds", path: "/builds" },
-    { label: "Archives", path: "/tournaments" },
-    { label: "Docs", path: "/build" }
-  ].freeze
-
   def main_nav_items
-    MAIN_NAV_ITEMS
+    [
+      { label: "Builds", path: builds_path },
+      { label: "Archives", path: tournaments_path },
+      { label: "Docs", path: build_doc_path }
+    ]
+  end
+
+  def gw_nav_active?(path)
+    request.path == path || request.path.start_with?("#{path}/")
   end
 end

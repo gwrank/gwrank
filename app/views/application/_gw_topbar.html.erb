@@ -6,7 +6,7 @@
     <% end %>
     <nav class="ml-auto hidden md:flex items-center gap-1 text-[15px]" aria-label="Main">
       <%- main_nav_items.each do |item| %>
-        <% active = request.path == item[:path] || (item[:path] != "/" && request.path.start_with?(item[:path])) %>
+        <% active = gw_nav_active?(item[:path]) %>
         <%= link_to item[:label], item[:path],
               class: "gw-tab #{'gw-tab--active' if active}" %>
       <%- end %>
