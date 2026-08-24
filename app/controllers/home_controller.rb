@@ -1,4 +1,6 @@
 class HomeController < ApplicationController
+  layout "gw"
+
   def index
     @queue_count = Player.in_queue.count
     @recent_scrims = Scrim.decided.order(created_at: :desc).limit(5)
