@@ -1,27 +1,23 @@
-<div class="container mt-4">
-  <div class="gw-window mb-3">
-    <div class="gw-window-header">
-      <h1 class="gw-title"><%= @teambuild.name.presence || "(unnamed)" %></h1>
-      <span class="gw-header-badges">
-        <% if @teambuild.visibility != "public" %>
-          <span class="badge gw-badge-visibility"><%= @teambuild.visibility %></span>
-        <% end %>
-        <% if @teambuild.status == "draft" %>
-          <span class="badge gw-badge-draft">Draft</span>
-        <% end %>
-        <span class="badge gw-badge-mode"><%= @teambuild.game_mode.presence || "?" %></span>
-        <% @teambuild.tags.each do |tag| %>
-          <span class="badge gw-badge-tag"><%= tag %></span>
-        <% end %>
-      </span>
-      <small class="gw-author">by @<%= @teambuild.player&.username || "unknown" %></small>
-      <%= link_to "Download .zcx", download_build_path(@teambuild), class: "gw-btn ms-auto" %>
-    </div>
+<div class="gw-window gw-frame mb-4">
+  <div class="gw-tabs">
+    <%= link_to "Build Library", builds_path, class: "gw-tab", aria: { current: nil } %>
+    <span class="gw-tab" aria-selected="true" style="cursor:text;"><%= truncate(@teambuild.name.presence || "(unnamed)", length: 28) %></span>
   </div>
-
-  <% if @rows.any? %>
-    <%= render partial: "character_card", collection: @rows, as: :row %>
-  <% else %>
-    <div class="gw-window"><p class="gw-empty">This build has no characters.</p></div>
-  <% end %>
+  <div class="gw-window-header flex-wrap">
+    <h1 class="gw-title text-base m-0"><%= @teambuild.name.presence || "(unnamed)" %></h1>
+    <% if @teambuild.visibility != "public" %><span class="gw-badge gw-badge--private"><%= @teambuild.visibility %></span><% end %>
+    <% if @teambuild.status == "draft" %><span class="gw-badge gw-badge--draft">Draft</span><% end %>
+    <span class="gw-badge gw-badge--mode"><%= @teambuild.game_mode.presence || "?" %></span>
+    <% @teambuild.tags.each do |tag| %><span class="gw-badge gw-badge--tag"><%= tag %></span><% end %>
+    <small class="text-[#9b8a5f]">by @<%= @teambuild.player&.username || "unknown" %></small>
+    <%= link_to "Download .zcx", download_build_path(@teambuild), class: "gw-btn ml-auto" %>
+  </div>
 </div>
+
+<% if @rows.any? %>
+  <div class="grid gap-3">
+    <%= render partial: "character_card", collection: @rows, as: :row %>
+  </div>
+<% else %>
+  <p class="gw-empty">This build has no characters.</p>
+<% end %>
