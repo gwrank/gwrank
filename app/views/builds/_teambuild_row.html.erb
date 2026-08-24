@@ -1,0 +1,26 @@
+<a class="gw-row" href="<%= build_path(teambuild) %>">
+  <span class="gw-row-profs" aria-hidden="true">
+    <% teambuild.teambuild_characters.first(6).each do |character| %>
+      <span class="gw-prof-icon"><%= character.primary_profession&.html_image_simple(size: 24) %></span>
+    <% end %>
+    <% if teambuild.teambuild_characters.size > 6 %>
+      <span class="gw-prof-more">+<%= teambuild.teambuild_characters.size - 6 %></span>
+    <% end %>
+  </span>
+  <span class="gw-row-main">
+    <span class="gw-row-name"><%= teambuild.name.presence || "(sans nom)" %></span>
+    <span class="gw-row-badges">
+      <% if teambuild.status == "draft" %>
+        <span class="badge gw-badge-draft">Draft</span>
+      <% end %>
+      <% if teambuild.visibility != "public" %>
+        <span class="badge gw-badge-visibility"><%= teambuild.visibility %></span>
+      <% end %>
+      <span class="badge gw-badge-mode"><%= teambuild.game_mode.presence || "?" %></span>
+      <% teambuild.tags.each do |tag| %>
+        <span class="badge gw-badge-tag"><%= tag %></span>
+      <% end %>
+    </span>
+  </span>
+  <span class="gw-row-meta"><%= teambuild.player_count %> persos · maj <%= teambuild.updated_at.strftime("%d/%m/%Y") %></span>
+</a>

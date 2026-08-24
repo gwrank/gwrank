@@ -4,7 +4,7 @@ class BuildsController < ApplicationController
   def index
     scope = current_player ? Teambuild.visible_to(current_player) : Teambuild.publicly_visible
     scope = scope.with_name_like(params[:q]) if params[:q].present?
-    @teambuilds = scope.order(updated_at: :desc).includes(:teambuild_characters).limit(50)
+    @teambuilds = scope.order(updated_at: :desc).includes(teambuild_characters: :primary_profession).limit(50)
   end
 
   def show

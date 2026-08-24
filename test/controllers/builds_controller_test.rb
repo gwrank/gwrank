@@ -61,4 +61,21 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     get build_path(draft)
     assert_select ".badge", text: "Draft", count: 1
   end
+
+  test "index renders the GW window structure" do
+    sign_in @owner
+    get builds_path
+    assert_response :success
+    assert_select ".gw-window", count: 1
+    assert_select ".gw-row", count: 1
+    assert_select ".gw-badge-mode", text: "PvP"
+    assert_select ".gw-badge-tag", text: "GvG"
+  end
+
+  test "index shows an empty state when nothing matches" do
+    sign_in @owner
+    get builds_path, params: { q: "inexistant" }
+    assert_response :success
+    assert_select ".gw-empty"
+  end
 end
