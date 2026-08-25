@@ -119,7 +119,8 @@ class Match < ApplicationRecord
 
   def title
     title = []
-    teams.includes(:guild).each do |team|
+    teams_scope = teams.loaded? ? teams : teams.includes(:guild)
+    teams_scope.each do |team|
       next unless team.guild
       title << team.guild.name_with_tag
     end
