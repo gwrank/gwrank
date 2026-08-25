@@ -164,6 +164,7 @@ class Api::V1::TeambuildsController < ApplicationController
     relation = relation.with_status(params[:status]) if Teambuild::STATUSES.include?(params[:status])
     relation = relation.with_updated_since(@updated_since) if @updated_since
     relation = relation.owned_by(@player) if params[:visibility] == "mine"
+    relation = relation.publicly_visible if params[:visibility] == "public"
     relation
   end
 

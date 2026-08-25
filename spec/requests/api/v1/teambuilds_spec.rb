@@ -39,7 +39,9 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
       parameter name: :game_mode, in: :query, schema: { type: :string, enum: ['All', 'PvE', 'PvP', ''] }
       parameter name: :player_count_min, in: :query, schema: { type: :integer, minimum: 1 }
       parameter name: :player_count_max, in: :query, schema: { type: :integer, maximum: 12 }
-      parameter name: :visibility, in: :query, schema: { type: :string, enum: ['mine'] }
+      parameter name: :visibility, in: :query,
+                schema: { type: :string, enum: %w[all mine public] },
+                description: 'all: everything visible to the caller (default); mine: own builds only; public: publicly visible only'
       parameter name: :status, in: :query, schema: { type: :string, enum: %w[draft published] }
       parameter name: :sort, in: :query, schema: { type: :string, enum: %w[updated_at name player_count] }
       parameter name: :page, in: :query, schema: { type: :integer, minimum: 1 }
@@ -63,6 +65,60 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
       let(:page) { 1 }
       let(:per_page) { 25 }
       let(:updated_since) { nil }
+
+      response(200, 'visibility=public keeps only publicly visible builds') do
+        before do
+          @owner = create_api_player
+          @other = create_api_player
+          seed_build(@owner, zcx)
+          seed_build(@other, zcx_variant('aaaaaaa1-0000-0000-0000-000000000002', name: 'Public Meta'),
+                     visibility: 'public')
+        end
+        let(:visibility) { 'public' }
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          expect(data.dig('pagination', 'totalCount')).to eq(1)
+          authors = data['teambuilds'].map { |build| build['author'] }
+          expect(authors).to contain_exactly(@other.username)
+        end
+      end
+
+      response(200, 'visibility=all lists everything the caller can see') do
+        before do
+          @owner = create_api_player
+          @other = create_api_player
+          seed_build(@owner, zcx)
+          seed_build(@other, zcx_variant('aaaaaaa1-0000-0000-0000-000000000003', name: 'Public Meta'),
+                     visibility: 'public')
+        end
+        let(:visibility) { 'all' }
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          expect(data.dig('pagination', 'totalCount')).to eq(2)
+          authors = data['teambuilds'].map { |build| build['author'] }
+          expect(authors).to contain_exactly(@owner.username, @other.username)
+        end
+      end
+
+      response(200, 'visibility=mine keeps only own builds') do
+        before do
+          @owner = create_api_player
+          @other = create_api_player
+          seed_build(@owner, zcx)
+          seed_build(@other, zcx_variant('aaaaaaa1-0000-0000-0000-000000000004', name: 'Public Meta'),
+                     visibility: 'public')
+        end
+        let(:visibility) { 'mine' }
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          expect(data.dig('pagination', 'totalCount')).to eq(1)
+          authors = data['teambuilds'].map { |build| build['author'] }
+          expect(authors).to contain_exactly(@owner.username)
+        end
+      end
 
       response(200, 'Paginated list of summaries') do
         before do

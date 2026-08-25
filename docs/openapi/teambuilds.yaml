@@ -68,7 +68,11 @@ paths:
         schema:
           type: string
           enum:
+          - all
           - mine
+          - public
+        description: 'all: everything visible to the caller (default); mine: own builds
+          only; public: publicly visible only'
       - name: status
         in: query
         schema:
