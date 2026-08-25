@@ -1,79 +1,58 @@
-<div class="content-wrap">
-  <div class="mpl-navbar-mobile-overlay"></div>
-  <div>
+<div class="space-y-4">
+  <div class="gw-window gw-frame p-6 leading-relaxed">
     <%= render 'documentation/breadcrumb', page: 'Player Commands' %>
-    
-    <section class="mpl-banner mpl-banner-top mpl-banner-small">
-      <div class="mpl-image" data-speed="0.8">
-        <%= image_tag 'background.jpg', class: 'jarallax-img' %>
-      </div>
-      <div class="mpl-banner-content mpl-box-sm">
-        <div class="container">
-          <h1 class="display-1 mb-0">Player Commands</h1>
-          <p class="lead">Manage your player profile and characters</p>
+
+    <h1 class="font-display text-gold-300 text-2xl tracking-wide m-0 mt-3">Player Commands</h1>
+    <p class="text-muted mt-1 mb-0">Manage your player profile and characters</p>
+
+    <div class="flex gap-6 mt-6">
+      <%= render 'documentation/sidebar' %>
+      <div class="flex-1 min-w-0 gw-doc">
+        <h2>Command Reference</h2>
+
+        <div class="mb-5 space-y-1">
+          <h3>/player register</h3>
+          <p class="m-0"><strong>Description:</strong> Set your in-game character name</p>
+          <p class="m-0"><strong>Usage:</strong> <code>/player register &lt;igname&gt;</code></p>
+          <p class="m-0"><strong>Example:</strong> <code>/player register Ko Arkalon</code></p>
+          <p class="m-0"><strong>Response:</strong> <code>&lt;@user&gt;, your in-game name is now **Ko Arkalon**.</code></p>
         </div>
-      </div>
-    </section>
-    
-    <div class="mpl-box-md">
-      <div class="container">
-        <div class="row hgap-lg vgap-lg">
-          <div class="col-lg mpl-content">
-            <article class="mpl-post">
-              <h2>Command Reference</h2>
-              
-              <div class="mb-4">
-                <h3>/player register</h3>
-                <p><strong>Description:</strong> Set your in-game character name</p>
-                <p><strong>Usage:</strong> <code>/player register &lt;igname&gt;</code></p>
-                <p><strong>Example:</strong> <code>/player register Ko Arkalon</code></p>
-                <p><strong>Response:</strong> <code>&lt;@user&gt;, your in-game name is now **Ko Arkalon**.</code></p>
-              </div>
-              
-              <div class="mb-4">
-                <h3>/player igname</h3>
-                <p><strong>Description:</strong> Look up a player's in-game name</p>
-                <p><strong>Usage:</strong> <code>/player igname &lt;@user&gt;</code></p>
-                <p><strong>Example:</strong> <code>/player igname @Arka</code></p>
-                <p><strong>Response:</strong> <code>&lt;@user&gt; (**Ko Arkalon**)</code></p>
-              </div>
-              
-              <div class="mb-4">
-                <h3>/player claim</h3>
-                <p><strong>Description:</strong> Claim a character name as your own</p>
-                <p><strong>Usage:</strong> <code>/player claim &lt;igname&gt;</code></p>
-                <p><strong>Example:</strong> <code>/player claim Ko Arkalon</code></p>
-                <p><strong>Response:</strong> <code>&lt;@user&gt;, you have successfully claimed the character **Ko Arkalon**!</code></p>
-              </div>
-              
-              <div class="mb-4">
-                <h3>/player professions</h3>
-                <p><strong>Description:</strong> View or toggle your professions</p>
-                <p><strong>Usage:</strong> <code>/player professions [&lt;profession&gt;]</code></p>
-                <p><strong>Available Professions:</strong> warrior, ranger, monk, necromancer, mesmer, elementalist, assassin, ritualist, paragon, dervish</p>
-                <p><strong>Example:</strong> <code>/player professions warrior</code></p>
-                <p><strong>Response:</strong> <code>&lt;@user&gt;, your current professions: Warrior, Monk</code></p>
-              </div>
-              
-              <div class="mt-5">
-                <h2>Related Pages</h2>
-                <ul>
-                  <li><%= link_to 'View all players', players_path %></li>
-                  <% if current_player %>
-                    <li><%= link_to 'Your profile', profile_path %></li>
-                  <% end %>
-                </ul>
-              </div>
-            </article>
-          </div>
-          
-          <div class="col-auto-lg mpl-sidebar">
-            <%= render 'documentation/sidebar' %>
-          </div>
+
+        <div class="mb-5 space-y-1">
+          <h3>/player igname</h3>
+          <p class="m-0"><strong>Description:</strong> Look up a player's in-game name</p>
+          <p class="m-0"><strong>Usage:</strong> <code>/player igname &lt;@user&gt;</code></p>
+          <p class="m-0"><strong>Example:</strong> <code>/player igname @Arka</code></p>
+          <p class="m-0"><strong>Response:</strong> <code>&lt;@user&gt; (**Ko Arkalon**)</code></p>
+        </div>
+
+        <div class="mb-5 space-y-1">
+          <h3>/player claim</h3>
+          <p class="m-0"><strong>Description:</strong> Claim a character name as your own</p>
+          <p class="m-0"><strong>Usage:</strong> <code>/player claim &lt;igname&gt;</code></p>
+          <p class="m-0"><strong>Example:</strong> <code>/player claim Ko Arkalon</code></p>
+          <p class="m-0"><strong>Response:</strong> <code>&lt;@user&gt;, you have successfully claimed the character **Ko Arkalon**!</code></p>
+        </div>
+
+        <div class="mb-5 space-y-1">
+          <h3>/player professions</h3>
+          <p class="m-0"><strong>Description:</strong> View or toggle your professions</p>
+          <p class="m-0"><strong>Usage:</strong> <code>/player professions [&lt;profession&gt;]</code></p>
+          <p class="m-0"><strong>Available Professions:</strong> warrior, ranger, monk, necromancer, mesmer, elementalist, assassin, ritualist, paragon, dervish</p>
+          <p class="m-0"><strong>Example:</strong> <code>/player professions warrior</code></p>
+          <p class="m-0"><strong>Response:</strong> <code>&lt;@user&gt;, your current professions: Warrior, Monk</code></p>
+        </div>
+
+        <div class="mt-8">
+          <h2>Related Pages</h2>
+          <ul>
+            <li><%= link_to 'View all players', players_path %></li>
+            <% if current_player %>
+              <li><%= link_to 'Your profile', profile_path %></li>
+            <% end %>
+          </ul>
         </div>
       </div>
     </div>
-    
-    <%= render 'footer' %>
   </div>
 </div>

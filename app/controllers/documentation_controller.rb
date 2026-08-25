@@ -1,6 +1,8 @@
 # app/controllers/documentation_controller.rb
 
 class DocumentationController < ApplicationController
+  layout "gw"
+
   before_action :set_documentation_data
   
   def player

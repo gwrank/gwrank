@@ -1,4 +1,6 @@
 class StatisticsController < ApplicationController
+  layout "gw"
+
   def index
     # ELO statistics - top 10 players by ELO rating
     @top_elo_players = Player.joins(:team_players)

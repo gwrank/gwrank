@@ -1,4 +1,4 @@
-<%= render "devise/shared/gw_card", title: "Edit Profile" do %>
+<%= render "application/gw_card", title: "Edit Profile" do %>
   <%= link_to 'My API token', api_token_path, class: 'gw-btn' %>
 
   <%= form_with model: @player, url: profile_path do |form| %>

@@ -1,9 +1,7 @@
-<nav aria-label="breadcrumb" class="mpl-breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><%= link_to 'Home', root_path %></li>
-      <li class="breadcrumb-item"><%= link_to 'Documentation', '#' %></li>
-      <li class="breadcrumb-item active" aria-current="page"><%= local_assigns[:page] || 'Documentation' %></li>
-    </ol>
-  </div>
+<nav aria-label="breadcrumb" class="text-sm text-[#9b8a5f]">
+  <%= link_to 'Home', root_path, class: 'hover:text-gold-400' %>
+  <span class="mx-1">/</span>
+  <%= link_to 'Documentation', '#', class: 'hover:text-gold-400' %>
+  <span class="mx-1">/</span>
+  <span class="text-gold-400"><%= local_assigns[:page] || 'Documentation' %></span>
 </nav>

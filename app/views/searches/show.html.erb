@@ -1,80 +1,71 @@
-<div class="content-wrap">
-  <div class="mpl-navbar-mobile-overlay"></div>
-  <div>
-    <section class="mpl-banner mpl-banner-top mpl-banner-parallax mpl-banner-small">
-      <div class="mpl-image" data-speed="0.8">
-        <%= image_tag 'background.jpg', class: 'jarallax-img' %>
-      </div>
-      <div class="mpl-banner-content mpl-box-sm">
-        <div class="container">
-          <div class="row">
-            <div class="col-lg-10">
-              <h1 class="display-1 mb-0">Search</h1>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    <div class="mpl-box-md">
-      <div class="container">
-        <%= render "form", search_query: @search_query %>
-        <div class="row vgap" data-sr="search" data-sr-duration="1000" data-sr-distance="20">
-          <div class="col-12 col-lg-6">
-            <h2>Guilds</h2>
-            <% if @guilds.any? %>
-              <% @guilds.each do |guild| %>
-                <%= link_to guild_path(guild), class: 'mpl-product-item mpl-product-horizontal', data: { 'sr-item': 'search' } do %>
-                  <span class="mpl-product-image">
-                    <span class="mpl-image">
-                    </span>
-                  </span>
-                  <span class="mpl-product-content">
-                    <span class="mpl-product-title h4"><%= guild.name_with_tag %></span>
-                    <span>Best position: <%= guild.best_position %></span>
-                  </span>
+<div class="space-y-4">
+  <div class="gw-window gw-frame">
+    <%= render "application/gw_tabs", tabs: [["Search", search_path]] %>
+    <div class="gw-window-header">
+      <h1 class="gw-title text-base m-0">Search</h1>
+      <% if @search_query.present? %>
+        <span class="text-muted text-sm"><%= @search_query %></span>
+      <% end %>
+    </div>
+
+    <div class="p-4 space-y-6">
+      <%= render "form", search_query: @search_query %>
+
+      <% if @guilds.any? %>
+        <section>
+          <h2 class="font-display text-gold-300 text-base mb-2">Guilds</h2>
+          <ul class="list-none m-0 p-0">
+            <% @guilds.each do |guild| %>
+              <li>
+                <%= link_to guild_path(guild), class: "gw-row" do %>
+                  <span class="flex-1 min-w-0 font-display text-gold-300 text-base leading-snug truncate"><%= guild.name_with_tag %></span>
+                  <span class="shrink-0 text-sm text-muted">Best position: <%= guild.best_position %></span>
                 <% end %>
-              <% end %>
+              </li>
             <% end %>
-          </div>
-          <div class="col-12 col-lg-6">
-            <h2>Players</h2>
-            <% if @players.any? %>
-              <% @players.each do |player| %>
-                <%= link_to player_path(player), class: 'mpl-product-item mpl-product-horizontal', data: { 'sr-item': 'search' } do %>
-                  <span class="mpl-product-image">
-                    <span class="mpl-image">
-                    </span>
-                  </span>
-                  <span class="mpl-product-content">
-                    <span class="mpl-product-title h4"><%= display_player_name(player, current_player) %></span>
-                    <% if player.guild.present? %>
-                      <span><%= player.guild.name_with_tag %></span>
-                    <% end %>
-                  </span>
+          </ul>
+        </section>
+      <% end %>
+
+      <% if @players.any? %>
+        <section>
+          <h2 class="font-display text-gold-300 text-base mb-2">Players</h2>
+          <ul class="list-none m-0 p-0">
+            <% @players.each do |player| %>
+              <li>
+                <%= link_to player_path(player), class: "gw-row" do %>
+                  <span class="flex-1 min-w-0 font-display text-gold-300 text-base leading-snug truncate"><%= display_player_name(player, current_player) %></span>
+                  <% if player.guild.present? %>
+                    <span class="shrink-0 text-sm text-muted"><%= player.guild.name_with_tag %></span>
+                  <% end %>
                 <% end %>
-              <% end %>
+              </li>
             <% end %>
-          </div>
-          <div class="col-12 col-lg-12">
-            <h2>Matches with player</h2>
+          </ul>
+        </section>
+      <% end %>
+
+      <% if @characters.any? %>
+        <section>
+          <h2 class="font-display text-gold-300 text-base mb-2">Matches with player</h2>
+          <ul class="list-none m-0 p-0">
             <% @characters.each do |character| %>
               <% character.team_players.each do |team_player| %>
-                <%= link_to  match_path(team_player.team.match), class: 'mpl-product-item mpl-product-horizontal', data: { 'sr-item': 'search' } do %>
-                  <span class="mpl-product-image">
-                    <span class="mpl-image">
-                    </span>
-                  </span>
-                  <span class="mpl-product-content">
-                    <span class="mpl-product-title h4"><%= team_player.team.match.title %></span>
-                    <span><%= display_character_name(character, current_player) %></span>
-                  </span>
-                <% end %>
+                <li>
+                  <%= link_to match_path(team_player.team.match), class: "gw-row" do %>
+                    <span class="flex-1 min-w-0 font-display text-gold-300 text-base leading-snug truncate"><%= team_player.team.match.title %></span>
+                    <span class="shrink-0 text-sm text-muted"><%= display_character_name(character, current_player) %></span>
+                  <% end %>
+                </li>
               <% end %>
             <% end %>
-          </div>
-        </div>
-      </div>
+          </ul>
+        </section>
+      <% end %>
+
+      <% if @guilds.blank? && @players.blank? && @characters.blank? %>
+        <p class="gw-empty">No results found.</p>
+      <% end %>
     </div>
-    <%= render 'footer' %>
   </div>
 </div>
