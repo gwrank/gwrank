@@ -148,6 +148,15 @@
 
   /* Skillbar */
   .gw-skillbar { display: flex; gap: 3px; flex-wrap: wrap; }
+
+  /* Fragments HTML générés côté modèle (chaînes d'<img>) : rétablit le flux
+     inline annulé par le preflight Tailwind (img { display: block }) */
+  .gw-imgs-inline img,
+  .gw-imgs-inline svg {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
   .gw-skillbar-slot {
     width: 34px; height: 34px;
     display: inline-flex; align-items: center; justify-content: center;

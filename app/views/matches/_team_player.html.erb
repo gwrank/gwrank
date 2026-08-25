@@ -1,7 +1,7 @@
 <tr>
   <td>
     <%= link_to(display_team_player_name(team_player, current_player), player_path(team_player.player)) %>
-    <span class="float-right">
+    <span class="float-right gw-imgs-inline">
       <%= team_player.profession.html_image %>
       <%= team_player.secondary_profession&.html_image %>
       <% unless team_player.team_player_skills.count > 8 %>
@@ -16,6 +16,6 @@
       <% end %>
     </span>
     <br>
-    <%= team_player.html_skills.html_safe %>
+    <div class="gw-imgs-inline"><%= team_player.html_skills.html_safe %></div>
   </td>
 </tr>
