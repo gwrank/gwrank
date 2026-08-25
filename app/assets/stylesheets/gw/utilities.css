@@ -6,5 +6,5 @@
 
 /* Champs invalides Rails */
 .field_with_errors input, .field_with_errors select, .field_with_errors textarea {
-  border-color: #b06a5f;
+  border-color: var(--color-danger-border-strong);
 }

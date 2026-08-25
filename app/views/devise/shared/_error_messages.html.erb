@@ -1,5 +1,5 @@
 <% if resource.errors.any? %>
-  <div class="rounded-md border border-[#6b2a2a] bg-[#24100d] p-3 text-sm text-[#d98a8a]" role="alert">
+  <div class="rounded-md border border-danger-border bg-danger-bg p-3 text-sm text-danger-text" role="alert">
     <ul class="list-disc pl-4 m-0 space-y-1">
       <% resource.errors.full_messages.each do |message| %>
         <li><%= message %></li>

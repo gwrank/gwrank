@@ -84,9 +84,9 @@
   }
   .gw-btn--ghost:hover { border-color: var(--color-gold-500); color: var(--color-gold-400) !important; }
   .gw-btn--danger {
-    background: linear-gradient(#8a3c34, #5e241e);
+    background: linear-gradient(var(--color-danger-border-strong), var(--color-danger-bg));
     color: #f5ded9 !important;
-    border-color: #b06a5f;
+    border-color: var(--color-danger-border-strong);
   }
 
   /* Champs */
@@ -99,7 +99,7 @@
     padding: 7px 12px;
     font-family: inherit;
   }
-  .gw-input::placeholder { color: #7d6d48; }
+  .gw-input::placeholder { color: var(--color-faded); }
   .gw-input:focus, .gw-select:focus, .gw-textarea:focus {
     outline: none;
     border-color: var(--color-gold-500);
@@ -165,7 +165,7 @@
     border-radius: 5px;
   }
   .gw-flash--notice { background: #141f0e; border: 1px solid #4a6b2a; color: #b8d98a; }
-  .gw-flash--alert { background: #24100d; border: 1px solid #6b2a2a; color: #d98a8a; }
+  .gw-flash--alert { background: var(--color-danger-bg); border: 1px solid var(--color-danger-border); color: var(--color-danger-text); }
 
   /* Pagination (markup Pagy habillé — gère nav>a et ul.pagination>li>a de la série bootstrap) */
   .gw-pagy { display: flex; gap: 4px; flex-wrap: wrap; }

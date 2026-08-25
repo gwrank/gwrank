@@ -13,6 +13,12 @@
   --color-muted: #9b8a5f;
   --color-hairline: #2b2010;
   --color-seam: #20170a;
+  --color-faded: #7d6d48;
+  --color-note: #8a7565;
+  --color-danger-bg: #24100d;
+  --color-danger-border: #6b2a2a;
+  --color-danger-text: #d98a8a;
+  --color-danger-border-strong: #b06a5f;
   --font-display: "Cinzel", serif;
   --font-body: "EB Garamond", serif;
 }
