@@ -52,6 +52,8 @@ Rails.application.routes.draw do
 
   get 'privacy', to: 'static_pages#privacy'
   get 'terms', to: 'static_pages#terms'
+  get 'z-codex', to: 'static_pages#z_codex'
+  get 'z-codex/download', to: 'static_pages#download'
 
   # Documentation routes
   get '/player', to: 'documentation#player', as: :player_doc
