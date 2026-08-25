@@ -41,7 +41,6 @@
 
 :root {
   /* Couleurs dérivées, utilisées par les composants GW */
-  --color-muted: #9b8a5f;
   --color-gold-bright: #cd9219;
   --color-header-from: #3a2c14;
   --color-border-dim: #7a5f28;

@@ -147,38 +147,33 @@
                   💡 Use mouse wheel to zoom • Click &amp; drag to pan
                   </p>
                   <div class="flex flex-wrap gap-2">
-                    <button 
+                    <button
                        data-action="click->health-chart#setModeHealth"
                        data-health-chart-target="healthButton"
-                       class="gw-btn <%= initial_mode == 'health' ? '' : 'gw-btn--ghost' %>"
-                       style="font-size: 12px; padding: 4px 12px;">
+                       class="gw-btn gw-btn--sm <%= initial_mode == 'health' ? '' : 'gw-btn--ghost' %>">
                       Health
                     </button>
-                    <button 
+                    <button
                        data-action="click->health-chart#setModeMorale"
                        data-health-chart-target="moraleButton"
-                       class="gw-btn <%= initial_mode == 'morale' ? '' : 'gw-btn--ghost' %>"
-                       style="font-size: 12px; padding: 4px 12px;">
+                       class="gw-btn gw-btn--sm <%= initial_mode == 'morale' ? '' : 'gw-btn--ghost' %>">
                       Morale
                     </button>
-                    <button 
+                    <button
                        data-action="click->health-chart#setModeTimeline"
                        data-health-chart-target="timelineButton"
-                       class="gw-btn <%= initial_mode == 'timeline' ? '' : 'gw-btn--ghost' %>"
-                       style="font-size: 12px; padding: 4px 12px;">
+                       class="gw-btn gw-btn--sm <%= initial_mode == 'timeline' ? '' : 'gw-btn--ghost' %>">
                       Timeline
                     </button>
-                    <button 
+                    <button
                        data-action="click->health-chart#setModeGuildLord"
                        data-health-chart-target="guildLordButton"
-                       class="gw-btn gw-btn--ghost"
-                       style="font-size: 12px; padding: 4px 12px;">
+                       class="gw-btn gw-btn--sm gw-btn--ghost">
                       Guild Lord Damage
                     </button>
-                    <button 
+                    <button
                        data-action="click->health-chart#resetZoom"
-                       class="gw-btn gw-btn--ghost"
-                       style="font-size: 12px; padding: 4px 12px;">
+                       class="gw-btn gw-btn--sm gw-btn--ghost">
                       Reset Zoom
                     </button>
                   </div>
