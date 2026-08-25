@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["card", "code"]
+  static targets = ["card", "code", "trigger"]
 
   connect() {
     this.boundOutsideClick = this.outsideClick.bind(this)
@@ -19,7 +19,8 @@ export default class extends Controller {
 
   toggle(event) {
     event.stopPropagation()
-    this.cardTarget.classList.toggle("hidden")
+    const hidden = this.cardTarget.classList.toggle("hidden")
+    this.syncExpanded(!hidden)
   }
 
   async copy(event) {
@@ -55,10 +56,18 @@ export default class extends Controller {
   }
 
   keydown(event) {
-    if (event.key === "Escape") this.hide()
+    if (event.key !== "Escape") return
+    const wasOpen = !this.cardTarget.classList.contains("hidden")
+    this.hide()
+    if (wasOpen) this.triggerTarget.focus()
   }
 
   hide() {
     this.cardTarget.classList.add("hidden")
+    this.syncExpanded(false)
+  }
+
+  syncExpanded(open) {
+    if (this.hasTriggerTarget) this.triggerTarget.setAttribute("aria-expanded", open ? "true" : "false")
   }
 }
