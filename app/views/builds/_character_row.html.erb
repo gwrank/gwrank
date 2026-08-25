@@ -1,0 +1,44 @@
+<tr>
+  <td>
+    <span class="flex flex-wrap items-center gap-2">
+      <strong class="text-gold-400"><%= row[:summary].name.presence || "(unnamed)" %></strong>
+      <% if row[:summary].assignment.present? %><span class="gw-badge gw-badge--mode"><%= row[:summary].assignment %></span><% end %>
+      <span class="ml-auto flex items-center gap-1 gw-imgs-inline">
+        <span class="gw-prof-chip h-[26px] w-[26px]"><%= row[:summary].primary_profession&.html_image_simple(size: 26) %></span>
+        <span class="gw-prof-chip h-[26px] w-[26px]"><%= row[:summary].secondary_profession&.html_image_simple(size: 26) %></span>
+        <%= render "application/template_code_popover",
+              template_code: row[:template_code],
+              name: row[:summary].name.presence || "(unnamed)",
+              primary_profession: row[:summary].primary_profession,
+              secondary_profession: row[:summary].secondary_profession,
+              assignment: row[:summary].assignment %>
+      </span>
+    </span>
+    <% skills = Array(row[:skills]) %>
+    <div class="mt-1.5 flex gap-x-2">
+      <% [skills[0, 4], skills[4, 4]].each do |group| %>
+        <% if group.any? %>
+          <span class="gw-imgs-inline shrink-0">
+            <% group.each do |skill| %>
+              <% if skill %>
+                <%= skill.html_image_simple(size: 32) %>
+              <% else %>
+                <%= image_tag "skills/Unknown_Junundu_Ability.jpg", title: "Unknown", width: 32, loading: "lazy" %>
+              <% end %>
+            <% end %>
+          </span>
+        <% end %>
+      <% end %>
+    </div>
+    <% if row[:attributes].any? %>
+      <ul class="list-none m-0 mt-2 flex flex-wrap gap-1.5 p-0 text-sm">
+        <% row[:attributes].each do |attribute| %>
+          <li class="inline-flex items-center gap-2 rounded border border-gold-600/40 bg-ink-deep px-2 py-0.5"><span class="text-muted"><%= attribute[:name] %></span> <strong class="text-gold-400"><%= attribute[:points] %></strong></li>
+        <% end %>
+      </ul>
+    <% end %>
+    <% if row[:notes].present? %>
+      <p class="italic text-sm text-note m-0 mt-1.5"><%= row[:notes] %></p>
+    <% end %>
+  </td>
+</tr>

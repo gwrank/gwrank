@@ -6,12 +6,18 @@
     <small class="text-muted">by @<%= @teambuild.player&.username || "unknown" %></small>
     <%= link_to "Download .zcx", download_build_path(@teambuild), class: "gw-btn ml-auto" %>
   </div>
-</div>
 
-<% if @rows.any? %>
-  <div class="grid gap-3">
-    <%= render partial: "character_card", collection: @rows, as: :row %>
-  </div>
-<% else %>
-  <p class="gw-empty">This build has no characters.</p>
-<% end %>
+  <% if @rows.any? %>
+    <div class="overflow-x-auto">
+      <table class="gw-table">
+        <tbody>
+          <% @rows.each do |row| %>
+            <%= render "character_row", row: row %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <p class="gw-empty">This build has no characters.</p>
+  <% end %>
+</div>

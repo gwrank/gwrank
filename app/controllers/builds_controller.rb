@@ -27,17 +27,32 @@ class BuildsController < ApplicationController
 
   def build_rows
     documents = Array(@teambuild.document["characters"])
-    @teambuild.teambuild_characters.each_with_index.map do |row, position|
+    @teambuild.teambuild_characters.includes(:primary_profession, :secondary_profession).each_with_index.map do |row, position|
       character = documents[position] || {}
+      skills = Array(character["skillIds"]).map { |sid| sid.zero? ? nil : Skill.find_by(skill_id: sid) }
+      document_attributes = Array(character["attributes"]).select { |attribute| attribute.is_a?(Hash) }
       {
         summary: row,
         notes: character["notes"],
-        skills: Array(character["skillIds"]).map { |sid| sid.zero? ? nil : Skill.find_by(skill_id: sid) },
-        attributes: Array(character["attributes"]).select { |attribute| attribute.is_a?(Hash) }.map do |attribute|
+        skills: skills,
+        attributes: document_attributes.map do |attribute|
           { name: Gw1::ReferenceTables::ATTRIBUTE_NAMES[attribute["id"].to_i] || attribute["id"],
             points: attribute["points"] }
-        end
+        end,
+        template_code: template_code_for(row, skills, document_attributes)
       }
     end
+  end
+
+  def template_code_for(row, skills, document_attributes)
+    return if row.primary_profession.nil? && row.secondary_profession.nil?
+    Gw1::TemplateCode.new(
+      primary_profession_id: row.primary_profession&.profession_id.to_i,
+      secondary_profession_id: row.secondary_profession&.profession_id.to_i,
+      skill_ids: skills.map { |skill| skill&.template_skill_id.to_i },
+      attributes: document_attributes.map { |a| [a["id"].to_i, a["points"].to_i] }
+    ).call
+  rescue ArgumentError
+    nil
   end
 end
