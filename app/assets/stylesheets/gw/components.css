@@ -23,6 +23,11 @@
   /* Long-form pages : tailles de titres rétablies sous le preflight Tailwind */
   .gw-doc h2 { font-size: 1.25rem; font-weight: 700; color: var(--color-gold-300); margin-top: .5rem; }
   .gw-doc h3 { font-size: 1.05rem; font-weight: 600; color: var(--color-parchment); }
+  .gw-doc ul { list-style: disc; padding-left: 1.25rem; }
+  .gw-doc ol { list-style: decimal; padding-left: 1.25rem; }
+  .gw-doc a { color: var(--color-gold-400); text-decoration: underline; }
+  .gw-doc a:hover { color: var(--color-gold-300); }
+  .gw-doc code { color: var(--color-gold-400); }
 
   /* Onglets */
   .gw-tabs {

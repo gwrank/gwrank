@@ -21,7 +21,7 @@
     <% if row[:attributes].any? %>
       <ul class="list-none flex flex-wrap gap-1.5 p-0 m-0 mb-2 text-sm">
         <% row[:attributes].each do |attribute| %>
-          <li class="inline-flex items-center gap-2 rounded border border-gold-600/40 bg-[#100b05] px-2 py-0.5"><span class="text-muted"><%= attribute[:name] %></span> <strong class="text-gold-400"><%= attribute[:points] %></strong></li>
+          <li class="inline-flex items-center gap-2 rounded border border-gold-600/40 bg-ink-deep px-2 py-0.5"><span class="text-muted"><%= attribute[:name] %></span> <strong class="text-gold-400"><%= attribute[:points] %></strong></li>
         <% end %>
       </ul>
     <% end %>
