@@ -39,8 +39,30 @@ class Gw1::TemplateCodeTest < ActiveSupport::TestCase
   end
 
   test "clamps attribute points into four bits instead of raising" do
-    code = encode(primary: 3, secondary: nil, skills: [], attributes: [[13, 99]])
-    assert_not_empty code
+    clamped = encode(primary: 3, secondary: nil, skills: [], attributes: [[13, 99]])
+    assert_equal encode(primary: 3, secondary: nil, skills: [], attributes: [[13, 15]]), clamped
+  end
+
+  test "raises when more than fifteen attributes are given" do
+    error = assert_raises(ArgumentError) do
+      encode(primary: 1, secondary: nil, skills: [], attributes: Array.new(16) { |i| [i, 1] })
+    end
+    assert_equal "too many attributes (max 15)", error.message
+  end
+
+  test "decodes through the real GW::TemplateReader" do
+    code = encode(
+      primary: 3, secondary: 4,
+      skills: [123, 456, 789, 101, 202, 303, 404, 505],
+      attributes: [[13, 12], [16, 3], [15, 10]]
+    )
+    reader = GW::TemplateReader.new(code)
+    assert_equal 14, reader.template
+    assert_equal 0, reader.version
+    assert_equal 3, reader.primary
+    assert_equal 4, reader.secondary
+    assert_equal [[13, 12], [16, 3], [15, 10]], reader.attributes
+    assert_equal [123, 456, 789, 101, 202, 303, 404, 505], reader.skills
   end
 
   test "round-trips through the documented decoder layout" do

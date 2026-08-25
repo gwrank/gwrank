@@ -7,7 +7,9 @@ module Gw1
       @secondary = secondary_profession_id.to_i
       @skills = Array(skill_ids).first(8).map(&:to_i)
       @skills << 0 while @skills.size < 8
-      @attributes = Array(attributes).map { |(id, points)| [id.to_i, points.to_i.clamp(0, 15)] }
+      @attributes = Array(attributes)
+      raise ArgumentError, "too many attributes (max 15)" if @attributes.size > 15
+      @attributes.map! { |(id, points)| [id.to_i, points.to_i.clamp(0, 15)] }
     end
 
     def call
@@ -17,18 +19,18 @@ module Gw1
         width.times { |i| bits << ((value >> i) & 1) }
       end
 
-      writer.(14, 4)
-      writer.(0, 4)
-      writer.(0, 2)
+      writer.(TEMPLATE_TYPE, 4)
+      writer.(VERSION, 4)
+      writer.(PROFESSION_WIDTH_CODE, 2)
       writer.(@primary, 4)
       writer.(@secondary, 4)
 
       writer.(@attributes.size, 4)
       attr_bits = attribute_width
-      writer.(attr_bits - 4, 4)
+      writer.(attr_bits - POINTS_WIDTH, 4)
       @attributes.each do |(id, points)|
         writer.(id, attr_bits)
-        writer.(points, 4)
+        writer.(points, POINTS_WIDTH)
       end
 
       skill_bits = needed_width(@skills.max, minimum: 8)
@@ -43,6 +45,12 @@ module Gw1
     end
 
     private
+
+    TEMPLATE_TYPE = 14
+    VERSION = 0
+    PROFESSION_WIDTH_CODE = 0
+    POINTS_WIDTH = 4
+    private_constant :TEMPLATE_TYPE, :VERSION, :PROFESSION_WIDTH_CODE, :POINTS_WIDTH
 
     def attribute_width
       max_id = @attributes.map(&:first).max || 0
