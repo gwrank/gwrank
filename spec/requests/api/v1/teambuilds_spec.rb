@@ -44,6 +44,9 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
       parameter name: :sort, in: :query, schema: { type: :string, enum: %w[updated_at name player_count] }
       parameter name: :page, in: :query, schema: { type: :integer, minimum: 1 }
       parameter name: :per_page, in: :query, schema: { type: :integer, minimum: 1, maximum: 100 }
+      parameter name: :updated_since, in: :query, required: false,
+                schema: { type: :string, format: :'date-time' },
+                description: 'ISO 8601 instant; only builds updated at or after it are returned'
 
       let(:Authorization) { "Bearer #{@owner.api_token}" }
       let(:q) { nil }
@@ -59,6 +62,7 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
       let(:sort) { nil }
       let(:page) { 1 }
       let(:per_page) { 25 }
+      let(:updated_since) { nil }
 
       response(200, 'Liste paginée de résumés') do
         before do
@@ -89,6 +93,18 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
         let(:Authorization) { '' }
         run_test!
       end
+
+      response(400, 'Malformed updated_since') do
+        before { @owner = create_api_player }
+        let(:updated_since) { 'yesterday' }
+
+        schema({ '$ref': '#/components/schemas/ErrorList' })
+
+        run_test! do |response|
+          codes = JSON.parse(response.body)['errors'].map { |e| e['code'] }
+          expect(codes).to include('invalid_updated_since')
+        end
+      end
     end
   end
 
@@ -102,9 +118,13 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
       DESC
 
       parameter name: :status, in: :query, schema: { type: :string, enum: %w[draft published] }
+      parameter name: :updated_since, in: :query, required: false,
+                schema: { type: :string, format: :'date-time' },
+                description: 'ISO 8601 instant; only builds updated at or after it are returned'
 
       let(:Authorization) { "Bearer #{@owner.api_token}" }
       let(:status) { nil }
+      let(:updated_since) { nil }
 
       response(200, 'Liste complète des teambuilds visibles') do
         before do
@@ -136,6 +156,18 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
         let(:Authorization) { '' }
         run_test!
       end
+
+      response(400, 'Malformed updated_since') do
+        before { @owner = create_api_player }
+        let(:updated_since) { 'yesterday' }
+
+        schema({ '$ref': '#/components/schemas/ErrorList' })
+
+        run_test! do |response|
+          codes = JSON.parse(response.body)['errors'].map { |e| e['code'] }
+          expect(codes).to include('invalid_updated_since')
+        end
+      end
     end
   end
 
@@ -164,6 +196,10 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
         let(:id) { @server_id }
 
         example('application/json', :gvgSplit, '$ref': '#/components/examples/GvgSplit')
+
+        header 'ETag',
+               description: 'Strong entity tag: quoted SHA-256 document hash. Use it as If-Match on PUT.',
+               schema: { type: :string }
 
         schema(
           allOf: [
@@ -209,14 +245,22 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
       produces 'application/json'
       consumes 'application/json'
       description <<~DESC.squish
-        Corps = document .zcx brut. Upsert idempotent clé par (propriétaire,
-        source_uuid) : création si absent ; no-op si le hash (hors updatedAt)
-        est inchangé ; remplacement sinon. visibility et status en query,
-        défauts private/published.
+        Body is the raw .zcx document. Idempotent upsert keyed by (owner, source_uuid):
+        create when absent; no-op when the content hash (updatedAt excluded) is unchanged;
+        full replace otherwise. Only the lowercase canonical source_uuid is accepted in the
+        path — server numeric ids are rejected here (they cannot identify a not-yet-created
+        build). visibility and status ride as query params, defaults private/published.
+        Optional optimistic locking: send the previously-read documentHash as a quoted
+        If-Match header (or * to require existence); on mismatch the write is refused with
+        412 and nothing changes. Nesting limit enforced by max_depth: a root character sits
+        at depth 0 and any node deeper than 64 levels is rejected.
       DESC
 
       parameter name: :id, in: :path, required: true, schema: { type: :string, format: :uuid },
-                description: 'source_uuid canonique minuscule'
+                description: 'Lowercase canonical source_uuid only'
+      parameter name: :'If-Match', in: :header, required: false, getter: :if_match,
+                schema: { type: :string },
+                description: 'Optional optimistic lock: quoted documentHash from a previous read, or * to require existence'
       parameter name: :visibility, in: :query,
                 schema: { type: :string, enum: %w[private public], default: 'private' }
       parameter name: :status, in: :query,
@@ -234,6 +278,7 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
       let(:document) { zcx_variant(id) }
       let(:visibility) { nil }
       let(:status) { nil }
+      let(:if_match) { nil }
 
       response(201, 'Créé') do
         before { @owner = create_api_player }
@@ -262,6 +307,22 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
           expect(body['changed']).to eq(true)
           expect(body['name']).to eq('GvG Split v2')
           expect(body['author']).to eq(@owner.username)
+        end
+      end
+
+      response(412, 'Precondition failed (stale If-Match)') do
+        before do
+          @owner = create_api_player
+          seed_build(@owner, zcx_variant(id))
+        end
+        let(:document) { zcx_variant(id, name: 'GvG Split v2') }
+        let(:if_match) { '"deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"' }
+
+        schema({ '$ref': '#/components/schemas/ErrorList' })
+
+        run_test! do |response|
+          codes = JSON.parse(response.body)['errors'].map { |error| error['code'] }
+          expect(codes).to include('precondition_failed')
         end
       end
 

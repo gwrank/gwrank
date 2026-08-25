@@ -68,8 +68,8 @@ RSpec.configure do |config|
                     path: { type: :string, examples: ['$.characters[0].skillIds'] },
                     code: {
                       type: :string,
-                      enum: %w[malformed_json invalid_source_uuid not_an_object wrong_case null_array
-                               duplicate_attribute_id invalid_skill_ids too_many_characters max_depth forbidden_tag reserved_key]
+                      enum: %w[malformed_json invalid_source_uuid invalid_updated_since not_an_object wrong_case null_array
+                               duplicate_attribute_id invalid_skill_ids too_many_characters max_depth invalid_tag reserved_key precondition_failed]
                     },
                     message: { type: :string }
                   }
@@ -81,11 +81,11 @@ RSpec.configure do |config|
             type: :object,
             properties: {
               name: { type: :string },
-              primaryProfession: { type: :integer, nullable: true, description: 'Id GW1 0-10' },
-              secondaryProfession: { type: :integer, nullable: true },
-              eliteSkillId: { type: :integer, nullable: true, description: 'SkillId GW1 officiel' },
+              primaryProfession: { type: ['integer', 'null'], description: 'GW1 id 0-10' },
+              secondaryProfession: { type: ['integer', 'null'] },
+              eliteSkillId: { type: ['integer', 'null'], description: 'Official GW1 skill id' },
               assignment: { type: :string },
-              dominantAttribute: { type: :string, nullable: true }
+              dominantAttribute: { type: ['string', 'null'] }
             }
           },
           TeambuildSummary: {
@@ -102,7 +102,11 @@ RSpec.configure do |config|
               status: { type: :string, enum: %w[draft published] },
               characters: { type: :array, items: { '$ref': '#/components/schemas/TeambuildCharacterSummary' } },
               createdAt: { type: :string, format: :'date-time' },
-              updatedAt: { type: :string, format: :'date-time' }
+              updatedAt: { type: :string, format: :'date-time' },
+              documentHash: {
+                type: :string,
+                description: 'Hex SHA-256 of the canonicalized stored document (updatedAt excluded). Send it quoted as If-Match on PUT.'
+              }
             }
           },
           UpsertResult: {
@@ -142,8 +146,9 @@ RSpec.configure do |config|
               name: { type: :string },
               tags: {
                 type: :array,
-                items: { type: :string, enum: %w[GvG HA RA TA AB FA JQ PvP PvE] },
-                description: 'Liste fermée imposée à l\'ingestion (comparaison insensible à la casse, stockage canonique)'
+                maxItems: 24,
+                items: { type: :string, maxLength: 64 },
+                description: 'Free-form labels. The nine canonical values (GvG HA RA TA AB FA JQ PvP PvE, case-insensitive) are normalized and feed search filters; other labels are preserved verbatim.'
               },
               notes: { type: :string },
               createdAt: { type: :string, format: :'date-time' },
@@ -195,7 +200,7 @@ RSpec.configure do |config|
                 description: "ids uniques au sein d'un même personnage (sinon rejet 422)"
               },
               titleRanks: { type: :object, additionalProperties: { type: :integer } },
-              equipment: { type: :object, additionalProperties: true, nullable: true },
+              equipment: { type: [:object, 'null'], additionalProperties: true },
               notes: { type: :string },
               durationBoostersEnabled: { type: :boolean },
               activeAttributeBoosts: { type: :array, items: { type: :integer } },

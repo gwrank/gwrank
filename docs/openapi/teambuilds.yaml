@@ -95,6 +95,13 @@ paths:
           type: integer
           minimum: 1
           maximum: 100
+      - name: updated_since
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+        description: ISO 8601 instant; only builds updated at or after it are returned
       responses:
         '200':
           description: Liste paginée de résumés
@@ -111,6 +118,12 @@ paths:
                     "$ref": "#/components/schemas/Pagination"
         '401':
           description: Token absent ou invalide
+        '400':
+          description: Malformed updated_since
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorList"
   "/api/v1/teambuilds/export":
     get:
       summary: Exporter tous les teambuilds visibles en un appel
@@ -125,6 +138,13 @@ paths:
           enum:
           - draft
           - published
+      - name: updated_since
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+        description: ISO 8601 instant; only builds updated at or after it are returned
       responses:
         '200':
           description: Liste complète des teambuilds visibles
@@ -139,6 +159,12 @@ paths:
                       "$ref": "#/components/schemas/TeambuildExport"
         '401':
           description: Token absent ou invalide
+        '400':
+          description: Malformed updated_since
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorList"
   "/api/v1/teambuilds/{id}":
     get:
       summary: Récupérer un teambuild complet
@@ -171,6 +197,12 @@ paths:
                       type: string
                       description: Nom d'utilisateur du propriétaire (@username sans
                         @)
+          headers:
+            ETag:
+              description: 'Strong entity tag: quoted SHA-256 document hash. Use it
+                as If-Match on PUT.'
+              schema:
+                type: string
         '404':
           description: Introuvable
         '403':
@@ -179,9 +211,16 @@ paths:
           description: Token absent ou invalide
     put:
       summary: Créer ou remplacer un teambuild (sync fichier par fichier)
-      description: 'Corps = document .zcx brut. Upsert idempotent clé par (propriétaire,
-        source_uuid) : création si absent ; no-op si le hash (hors updatedAt) est
-        inchangé ; remplacement sinon. visibility et status en query, défauts private/published.'
+      description: 'Body is the raw .zcx document. Idempotent upsert keyed by (owner,
+        source_uuid): create when absent; no-op when the content hash (updatedAt excluded)
+        is unchanged; full replace otherwise. Only the lowercase canonical source_uuid
+        is accepted in the path — server numeric ids are rejected here (they cannot
+        identify a not-yet-created build). visibility and status ride as query params,
+        defaults private/published. Optional optimistic locking: send the previously-read
+        documentHash as a quoted If-Match header (or * to require existence); on mismatch
+        the write is refused with 412 and nothing changes. Nesting limit enforced
+        by max_depth: a root character sits at depth 0 and any node deeper than 64
+        levels is rejected.'
       parameters:
       - name: id
         in: path
@@ -189,7 +228,14 @@ paths:
         schema:
           type: string
           format: uuid
-        description: source_uuid canonique minuscule
+        description: Lowercase canonical source_uuid only
+      - name: If-Match
+        in: header
+        required: false
+        schema:
+          type: string
+        description: 'Optional optimistic lock: quoted documentHash from a previous
+          read, or * to require existence'
       - name: visibility
         in: query
         schema:
@@ -220,6 +266,12 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/UpsertResult"
+        '412':
+          description: Precondition failed (stale If-Match)
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorList"
         '400':
           description: JSON malformé ou identifiant invalide
           content:
@@ -316,6 +368,7 @@ components:
                 enum:
                 - malformed_json
                 - invalid_source_uuid
+                - invalid_updated_since
                 - not_an_object
                 - wrong_case
                 - null_array
@@ -323,8 +376,9 @@ components:
                 - invalid_skill_ids
                 - too_many_characters
                 - max_depth
-                - forbidden_tag
+                - invalid_tag
                 - reserved_key
+                - precondition_failed
               message:
                 type: string
     TeambuildCharacterSummary:
@@ -333,21 +387,25 @@ components:
         name:
           type: string
         primaryProfession:
-          type: integer
-          nullable: true
-          description: Id GW1 0-10
+          type:
+          - integer
+          - 'null'
+          description: GW1 id 0-10
         secondaryProfession:
-          type: integer
-          nullable: true
+          type:
+          - integer
+          - 'null'
         eliteSkillId:
-          type: integer
-          nullable: true
-          description: SkillId GW1 officiel
+          type:
+          - integer
+          - 'null'
+          description: Official GW1 skill id
         assignment:
           type: string
         dominantAttribute:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
     TeambuildSummary:
       type: object
       properties:
@@ -389,6 +447,10 @@ components:
         updatedAt:
           type: string
           format: date-time
+        documentHash:
+          type: string
+          description: Hex SHA-256 of the canonicalized stored document (updatedAt
+            excluded). Send it quoted as If-Match on PUT.
     UpsertResult:
       allOf:
       - "$ref": "#/components/schemas/TeambuildSummary"
@@ -422,20 +484,13 @@ components:
           type: string
         tags:
           type: array
+          maxItems: 24
           items:
             type: string
-            enum:
-            - GvG
-            - HA
-            - RA
-            - TA
-            - AB
-            - FA
-            - JQ
-            - PvP
-            - PvE
-          description: Liste fermée imposée à l'ingestion (comparaison insensible
-            à la casse, stockage canonique)
+            maxLength: 64
+          description: Free-form labels. The nine canonical values (GvG HA RA TA AB
+            FA JQ PvP PvE, case-insensitive) are normalized and feed search filters;
+            other labels are preserved verbatim.
         notes:
           type: string
         createdAt:
@@ -541,9 +596,10 @@ components:
           additionalProperties:
             type: integer
         equipment:
-          type: object
+          type:
+          - object
+          - 'null'
           additionalProperties: true
-          nullable: true
         notes:
           type: string
         durationBoostersEnabled:
