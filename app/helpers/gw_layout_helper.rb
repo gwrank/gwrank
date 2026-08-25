@@ -2,8 +2,8 @@ module GWLayoutHelper
   def main_nav_items
     [
       { label: "Builds", path: builds_path },
-      { label: "Archives", path: tournaments_path },
-      { label: "Docs", path: build_doc_path }
+      { label: "Bot & Docs", path: bot_path },
+      { label: "Archives", path: tournaments_path }
     ]
   end
 

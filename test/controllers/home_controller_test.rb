@@ -14,4 +14,14 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_select 'body', text: /Tournament Archives/
     assert_select 'body', text: /Documentation/
   end
+
+  test "top navigation shows Builds, Bot & Docs and Archives" do
+    get root_path
+
+    assert_response :success
+    assert_select 'a', text: 'Builds'
+    assert_select 'a', text: 'Bot & Docs'
+    assert_select 'a', text: 'Archives'
+    assert_select 'small', text: 'Guild Wars · GvG Tools'
+  end
 end
