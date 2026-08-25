@@ -78,4 +78,12 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     get matches_path(opponent: 'Guild')
     assert_response :success
   end
+
+  test "show renders shared template code popovers for team players" do
+    match = create_match
+    get match_path(match)
+    assert_response :success
+    assert_select "[data-controller='template-code-popover']", count: 2
+    assert_select "[data-template-code-popover-target='code']", minimum: 2
+  end
 end
