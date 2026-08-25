@@ -12,13 +12,6 @@ class Players::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   end
 
   def failure
-    Rails.logger.warn(
-      "[OMNIAUTH-DEBUG] type=#{request.env["omniauth.error.type"].inspect} " \
-      "error=#{request.env["omniauth.error"].inspect} " \
-      "strategy=#{request.env["omniauth.error.strategy"]&.name.inspect} " \
-      "host=#{request.host} session_state=#{session[:omniauth.state].inspect} " \
-      "param_state=#{params[:state].inspect}"
-    )
     redirect_to root_path
   end
 end
