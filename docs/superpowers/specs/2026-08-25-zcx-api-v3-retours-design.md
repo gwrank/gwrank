@@ -98,10 +98,12 @@ dédupliqué. La colonne `tags varchar[]` existante suffit — aucune migration.
 - Scope `with_updated_since(time)` dans `Teambuild` (`where(updated_at: time..)`),
   branché dans `filtered` → disponible automatiquement sur `GET /teambuilds`
   **et** `GET /teambuilds/export`.
-- Parsing strict `Time.iso8601`. Paramètre **absent** → pas de filtre ; paramètre
-  **présent** mais vide ou malformé → **400** `{errors: [{code: "invalid_updated_since",
+- Parsing strict `Time.iso8601`. Paramètre **absent ou vide** → pas de filtre ; paramètre
+  **présent et malformé** → **400** `{errors: [{code: "invalid_updated_since",
   …}]}` (cohérent avec `invalid_source_uuid`, répond au principe « contrat vérifiable »
-  du §5.1 des retours).
+  du §5.1 des retours). *(Ajusté pendant l'implémentation : rswag émet `updated_since=`
+  vide dans ses exemples, et un vide explicite signifie bénignement « pas de filtre » ;
+  seul le malformé est rejeté.)*
 - Date future acceptée (résultat vide) — pas de cas particulier.
 
 ---
