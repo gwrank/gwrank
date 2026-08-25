@@ -109,6 +109,18 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".gw-window-header small", text: /@#{Regexp.escape(@owner.username)}/
   end
 
+  test "show renders rows for variant characters" do
+    doc = load_zcx
+    doc["id"] = "ddddddd9-0000-0000-0000-000000000003"
+    doc["characters"][0]["variants"] = [doc["characters"][0].dup.merge("name" => "Variant One")]
+    Teambuilds::Ingest.call(player: @owner, source_uuid: doc["id"], document: doc, visibility: "private")
+
+    sign_in @owner
+    get build_path(Teambuild.find_by!(source_uuid: doc["id"]))
+    assert_response :success
+    assert_select "tbody tr td strong", text: /Variant One/
+  end
+
   test "hides template code trigger for characters without professions" do
     doc = load_zcx
     doc["id"] = "ddddddd9-0000-0000-0000-000000000002"
