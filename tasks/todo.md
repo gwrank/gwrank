@@ -1,28 +1,28 @@
-# Task 4 — Archives: matches, players, scrims, guilds, tournaments
+# Refonte UI « Client GW fidèle » — Suivi
 
-## Status: DONE (both commits verified)
+## Statut : TERMINÉ (branche `redesign/gw-ui`, en attente de revue visuelle + merge)
 
-## Commit A — 05f49291 matches, players, scrims, guilds
-- [x] Controllers: `layout "gw"` → matches, players, scrims, guilds (no guilds/* namespace exists)
-- [x] searches/_form.html.erb → gw-input/gw-btn (rendered by 3 of my pages; searches/show left for Task 5 "recherche")
-- [x] components.css: one compat rule for `.gw-btn.btn-outline-primary` (health-chart JS toggles bootstrap classnames; controller untouched)
-- [x] matches: index (+ collapsible filters), show, new, _filters, _match (gw-row + preserved match-builds popup), _team_player (untouched — popover contract already valid), _team_stats (tooltip controller + native <details>, vanilla JS kept, dead bootstrap JS removed)
-- [x] players: index, show, _matches
-- [x] scrims: index, show
-- [x] guilds: index, _guild, show, new (_form.html.erb is empty/unrendered — nothing to migrate)
-- [x] rel="noopener noreferrer" added on touched target="_blank" links
-- Verify: 199 runs / 5 failures / 0 errors ✓ ; yarn build + build:css OK ✓
+- [x] Task 0 — Fondations Tailwind v4, tokens, composants, chrome (dd9b1bd2)
+- [x] Task 1 — Portage Builds (86b87089)
+- [x] Task 2 — Home & statiques (1e14e400)
+- [x] Task 3 — Auth Devise, profil, token API (bf55e7fd)
+- [x] Task 4 — Archives matches/players/scrims/guilds/tournaments (276e42e1 → d5575df4)
+- [x] Task 5 — Statistics/streamers/docs/search + relocation _gw_card (df8e9c98)
+- [x] Task 6 — Administration (5848d9e4)
+- [x] Task 7 — Bascule finale, purge legacy, pages 404/500, tests système (edd5e81b → 21f382ba)
+- [x] Retours utilisateur : bouton Discord home, pagination horizontale, chips d'attributs, loupe recherche (b1691e36, 8de0e2f4)
+- [x] Revue finale : debug logging excisé (901b4561), highlight Pagy, vendor JS purgé, tokens, a11y, touch targets (0f9cfa3a)
+- [x] Nav mobile à onglets défilants (08cf834e)
 
-## Commit B — 276e42e1 tournaments
-- [x] tournaments_controller → layout "gw"
-- [x] index: season card grid (gw-parchment cards) + collapsible migrated filters
-- [x] _filters: GW form treatment
-- [x] show / show_old: windows + gw-table results + comments window
-- [x] Year partials {2008,2009,2010}/**: ZERO legacy classes (pure <tr> rows, no class attrs at all) — mechanical mapping is a no-op
-- Verify: 199/5/0 exact baseline ✓ ; grep -rl "mpl-\|class=\"table\|btn btn-" app/views/tournaments = 0 ✓ ; overall mpl- files = 20, all in later-task scope (documentation/statistics/streamers/searches → Task 5; admin + old navbar/footer/preloader → later chrome tasks)
+## Revue (post-implémentation)
 
-## Notes / decisions
-- ScrimsControllerTest ×3 fail on pre-existing 302 auth redirects BEFORE content assertions — markup can't affect them. HomeControllerTest ×2 pre-existing home-page content failures.
-- Scratch smoke tests (signed-in rendering of every migrated page incl. match/tournament fixtures) passed 9/9 then deleted before commit.
-- Health-chart buttons keep targets/actions/values + canvas verbatim; active-mode visual state bridged via CSS alias for the bootstrap classnames the controller toggles.
-- No score field invented for match rows (none exists on the model); kept ranks/names/round/date/winner-trophy as before.
+**Vérification :** `bin/rails test` → 199 runs / 5 échecs préexistants (Home ×2, Scrims ×3, auth-redirects antérieurs à la branche) / 0 errors · `bundle exec rspec` → 17/0 · système → 4/29 verts · grep legacy (mpl-/monsterplay/data-bs-/fancybox) → 0 · routes/models/API intacts (diff 0 ligne) · builds JS+CSS OK.
+
+**Process :** chaque tâche = implémenteur dédié + revue conformité spec + revue qualité + boucle de correctifs re-revue. ~22 commits conventionnels.
+
+**Hors périmètre respecté :** aucun changement models/routes/API.
+
+## Reste ouvert (hors branche)
+
+- Connexion Discord : cause externe confirmée (client secret rejeté — `invalid_client`) ; l'utilisateur doit régénérer le secret dans le portail développeur. Un patch local non commité ([OMNIAUTH-DEBUG]) reste dans le worktree le temps du diagnostic — à retirer avant merge.
+- 5 échecs de tests préexistants sur main (Home/Scrims) — à traiter séparément.
