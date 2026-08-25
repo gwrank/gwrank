@@ -100,9 +100,12 @@ class Api::V1::TeambuildsController < ApplicationController
   def check_updated_since
     return unless request.query_parameters.key?("updated_since")
 
+    raw = params[:updated_since].to_s
+    return if raw.strip.empty?
+
     @updated_since =
       begin
-        Time.iso8601(params[:updated_since].to_s)
+        Time.iso8601(raw)
       rescue ArgumentError
         render json: { errors: [{ "path" => "$", "code" => "invalid_updated_since",
                                   "message" => "updated_since doit être une date-heure ISO 8601" }] },

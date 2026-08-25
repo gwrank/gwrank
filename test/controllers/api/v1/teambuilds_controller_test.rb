@@ -347,13 +347,13 @@ module Api::V1
       assert_not_includes ids, old_doc["id"]
     end
 
-    test "updated_since rejects malformed and blank values with 400" do
+    test "updated_since rejects malformed values with 400 and tolerates blanks" do
       get api_v1_teambuilds_path(updated_since: "yesterday"), headers: auth_headers(@owner)
       assert_response :bad_request
       assert_equal "invalid_updated_since", response.parsed_body["errors"].sole["code"]
 
-      get export_api_v1_teambuilds_path(updated_since: ""), headers: auth_headers(@owner)
-      assert_response :bad_request
+      get api_v1_teambuilds_path(updated_since: ""), headers: auth_headers(@owner)
+      assert_response :success
 
       get api_v1_teambuilds_path, headers: auth_headers(@owner)
       assert_response :success
