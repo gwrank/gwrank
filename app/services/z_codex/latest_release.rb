@@ -57,7 +57,7 @@ module ZCodex
     end
 
     def build_release(payload)
-      asset = payload["assets"]&.find { |candidate| candidate["name"].match?(/setup\.exe\z/i) }
+      asset = payload["assets"]&.find { |candidate| candidate["name"].match?(/-setup\.exe\z/i) }
 
       Release.new(
         version: payload["tag_name"].to_s.sub(/\Av/i, ""),

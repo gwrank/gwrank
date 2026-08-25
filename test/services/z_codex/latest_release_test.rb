@@ -30,6 +30,19 @@ class ZCodex::LatestReleaseTest < ActiveSupport::TestCase
     end
   end
 
+  test "ignores assets whose name merely contains setup.exe" do
+    payload = github_payload(assets: [
+      { "name" => "Z-Codex-1.2.3-mysetup.exe", "browser_download_url" => "https://example.com/wrong.exe" },
+      { "name" => "Z-Codex-1.2.3-setup.exe",
+        "browser_download_url" => "https://github.com/LuxIudicium/Z-Codex/releases/download/v1.2.3/Z-Codex-1.2.3-setup.exe" }
+    ])
+
+    with_http(payload) do |service|
+      assert_equal "https://github.com/LuxIudicium/Z-Codex/releases/download/v1.2.3/Z-Codex-1.2.3-setup.exe",
+                   service.call.asset_url
+    end
+  end
+
   test "returns nil when GitHub is unreachable" do
     service = ZCodex::LatestRelease.new
     service.stub(:http_get, -> { raise Errno::ECONNREFUSED }) do
