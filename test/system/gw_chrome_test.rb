@@ -24,4 +24,14 @@ class GwChromeTest < ApplicationSystemTestCase
     find("button[aria-label='Search']").click
     assert_selector "dialog[open] input[name='q']"
   end
+
+  test "mobile viewport exposes a scrollable main nav" do
+    visit builds_url
+    Capybara.current_session.current_window.resize_to(375, 812)
+    assert_selector "header nav[aria-label='Main'] a.gw-tab", count: 3, visible: true
+    find("header nav[aria-label='Main'] button[aria-label='Search']").click
+    assert_selector "dialog[open]"
+  ensure
+    Capybara.current_session.current_window.resize_to(1400, 1400)
+  end
 end

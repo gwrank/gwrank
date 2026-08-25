@@ -23,5 +23,15 @@
       <% end %>
     </div>
   </div>
+  <div class="md:hidden border-b border-hairline bg-ink-800/60">
+    <nav class="flex gap-1 overflow-x-auto px-3 py-2" aria-label="Main">
+      <%- main_nav_items.each do |item| %>
+        <%= link_to item[:label], item[:path],
+              class: "gw-tab whitespace-nowrap #{'gw-tab--active' if gw_nav_active?(item[:path])}" %>
+      <% end %>
+      <button type="button" data-action="search-dialog#open"
+              class="gw-tab whitespace-nowrap ml-auto" aria-label="Search">🔍</button>
+    </nav>
+  </div>
   <div class="gw-divider"></div>
 </header>
