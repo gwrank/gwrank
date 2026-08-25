@@ -30,8 +30,10 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
   test 'old tournament renders show_old without pagination' do
     old = Tournament.create!(tournament_type: 'mat', year: 2019, month: 5,
                              date: Date.new(2019, 5, 10))
+    create_match(tournament: old)
     get tournament_path(old)
     assert_response :success
     assert_select 'div.gw-pagy', count: 0
+    assert_equal 0, css_select('li[data-controller="match-builds"]').size
   end
 end
