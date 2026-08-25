@@ -95,14 +95,27 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".gw-empty"
   end
 
-  test "show renders character cards with skill bars" do
+  test "show renders compact rows with skills, attributes, notes and template popovers" do
     sign_in @owner
     get build_path(Teambuild.last)
     assert_response :success
-    assert_select "article.gw-window", minimum: 1
-    assert_select ".gw-skillbar-slot", minimum: 8
-    assert_select ".gw-skillbar-slot--elite", minimum: 1
-    assert_select "article.gw-window ul li strong", minimum: 1
+    assert_select "table.gw-table tbody tr", minimum: 1
+    assert_select ".gw-badge--mode", text: "Midline"
+    assert_select "ul li strong", minimum: 1
+    assert_select "[data-controller='template-code-popover']", minimum: 1
+    assert_select "[data-template-code-popover-target='code']", minimum: 1
     assert_select ".gw-window-header small", text: /@#{Regexp.escape(@owner.username)}/
+  end
+
+  test "hides template code trigger for characters without professions" do
+    doc = load_zcx
+    doc["id"] = "ddddddd9-0000-0000-0000-000000000002"
+    doc["characters"][0]["primaryProfession"] = 0
+    doc["characters"][0]["secondaryProfession"] = 0
+    Teambuilds::Ingest.call(player: @owner, source_uuid: doc["id"], document: doc, visibility: "public")
+    sign_in @owner
+    get build_path(Teambuild.find_by!(source_uuid: doc["id"]))
+    assert_response :success
+    assert_select "[data-controller='template-code-popover']", count: 0
   end
 end
