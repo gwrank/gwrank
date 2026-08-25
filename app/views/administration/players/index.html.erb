@@ -1,62 +1,51 @@
-<div class="content-wrap">
-  <div class="mpl-navbar-mobile-overlay"></div>
-  <div>
-    <section class="mpl-banner mpl-banner-top mpl-banner-parallax mpl-banner-small">
-      <div class="mpl-image" data-speed="0.8">
-        <%= image_tag 'background.jpg', class: 'jarallax-img' %>
-      </div>
-      <div class="mpl-banner-content mpl-box-sm">
-        <div class="container">
-          <h1 class="display-1 mb-0">Players administration</h1>
-        </div>
-      </div>
-    </section>
-    <div class="mpl-box-md">
-      <div class="container">
-        <h2>Players</h2>
-        <p> <%= pluralize @players.count, 'player' %> </p>
-        <table class="table table-striped table-responsive mb-60">
-          <thead>
-            <tr>
-              <th scope="col">Username</th>
-              <th scope="col">In-game name</th>
-              <th scope="col">Professions</th>
-              <th scope="col">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @players.each do |player| %>
-              <tr>
-                <th scope="row">
-                  <%= link_to player.username, player_path(player) %>
-                </th>
-                <td>
-                  <%= display_player_name(player, current_player) %>
-                </td>
-                <td>
-                  <% player.professions.each do |profession| %>
-                    <span class="badge badge-secondary"><%= profession.capitalize %></span>
-                  <% end %>
-                  <% if player.professions.empty? %>
-                    <span class="badge badge-warning">Without profession</span>
-                  <% end %>
-                </td>
-                <td>
-                  <% if player.is_verified? %>
-                    <%= link_to 'Remove verified badge', administration_player_unchecks_path(player), method: :post, class: 'btn btn-sm' %>
-                  <% elsif player.igname.present? && current_player&.is_admin? %>
-                    <%= link_to 'Add verified badge', administration_player_checks_path(player), method: :post, class: 'btn btn-sm btn-success' %>
-                  <% else %>
-                    <button type="button" class="btn btn-sm btn-danger disabled" data-bs-toggle="tooltip" data-bs-placement="top" title="The player need an in-game name to be verified">Add verified badge</button>
-                  <% end %>
-                  <%= link_to 'Send scrim invitation', administration_player_invitations_path(player), method: :post, class: 'btn btn-sm btn-primary' %>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
+<div class="space-y-4">
+  <div class="gw-window gw-frame">
+    <div class="gw-window-header">
+      <h1 class="gw-title text-base m-0">Players administration</h1>
+      <span class="gw-count text-sm"><%= pluralize @players.count, 'player' %></span>
     </div>
-    <%= render 'footer' %>
+
+    <div class="overflow-x-auto">
+      <table class="gw-table">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>In-game name</th>
+            <th>Professions</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @players.each do |player| %>
+            <tr>
+              <td><strong><%= link_to player.username, player_path(player), class: 'hover:text-gold-400' %></strong></td>
+              <td>
+                <%= display_player_name(player, current_player) %>
+              </td>
+              <td>
+                <% player.professions.each do |profession| %>
+                  <span class="gw-badge gw-badge--tag mr-1"><%= profession.capitalize %></span>
+                <% end %>
+                <% if player.professions.empty? %>
+                  <span class="gw-badge gw-badge--draft">Without profession</span>
+                <% end %>
+              </td>
+              <td>
+                <div class="flex flex-wrap gap-2 whitespace-nowrap">
+                  <% if player.is_verified? %>
+                    <%= link_to 'Remove verified badge', administration_player_unchecks_path(player), method: :post, class: 'gw-btn gw-btn--ghost' %>
+                  <% elsif player.igname.present? && current_player&.is_admin? %>
+                    <%= link_to 'Add verified badge', administration_player_checks_path(player), method: :post, class: 'gw-btn gw-btn--ghost' %>
+                  <% else %>
+                    <button type="button" class="gw-btn gw-btn--danger opacity-50 cursor-not-allowed" disabled title="The player need an in-game name to be verified">Add verified badge</button>
+                  <% end %>
+                  <%= link_to 'Send scrim invitation', administration_player_invitations_path(player), method: :post, class: 'gw-btn gw-btn--ghost' %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
