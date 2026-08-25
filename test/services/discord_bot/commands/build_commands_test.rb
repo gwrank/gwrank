@@ -140,7 +140,7 @@ module DiscordBot
         event = DiscordBot::Test::FakeApplicationCommandEvent.new(
           subcommand: nil, user: discord_user, options: { "code" => VALID_CODE }
         )
-        failure = Teambuilds::Ingest::Result.new(false, nil, [{ "message" => "nope" }], false, false)
+        failure = Teambuilds::Ingest::Result.new(false, nil, [{ "message" => "nope" }], false, false, false)
 
         Teambuilds::Ingest.stub(:call, failure) do
           BuildCommands.new(nil).dispatch(event)

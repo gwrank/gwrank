@@ -37,7 +37,7 @@ module DiscordBot
     private
 
     def undecodable_failure
-      Teambuilds::Ingest::Result.new(false, nil, [undecodable_error], false, false)
+      Teambuilds::Ingest::Result.new(false, nil, [undecodable_error], false, false, false)
     end
 
     def undecodable_error
