@@ -4,9 +4,7 @@ class MatchesController < ApplicationController
   before_action :ensure_player_is_moderator_and_importer, only: [:destroy]
 
   def index
-    @matches = Rails.cache.fetch("matches_index_all", expires_in: 1.hour) do
-      Match.includes(teams: [:guild, { team_players: [:profession, :secondary_profession, { team_player_skills: :skill }] }]).order(played_at: :desc)
-    end
+    @matches = Match.includes(teams: [:guild, { team_players: [:profession, :secondary_profession, { team_player_skills: :skill }] }]).order(played_at: :desc)
     
     # Get unique maps for the filter dropdown
     @unique_maps = Rails.cache.fetch("unique_maps", expires_in: 1.day) do
@@ -74,7 +72,7 @@ class MatchesController < ApplicationController
       @matches = @matches.where(id: match_ids) if match_ids.any?
     end
     
-    @pagy, @matches = pagy(@matches, limit: 4)
+    @pagy, @matches = pagy(@matches, limit: 10)
   end
 
   def show
