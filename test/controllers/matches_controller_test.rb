@@ -14,7 +14,7 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
   test 'index renders pagy nav when more than one page' do
     get matches_path
     assert_response :success
-    assert_select 'div.gw-pagy'
+    assert_select 'div.gw-pagy a', minimum: 1
   end
 
   test 'index renders remaining matches on page 2' do

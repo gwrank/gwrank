@@ -37,7 +37,8 @@ class ActiveSupport::TestCase
   end
 
   def create_guild(name: "Guild #{SecureRandom.hex(4)}")
-    Guild.create!(name: name, tag: name.gsub(/[^a-zA-Z]/, '')[0, 4].upcase)
+    tag = name.gsub(/[^a-zA-Z]/, '').upcase[0, 2] + name[-4, 4].upcase
+    Guild.create!(name: name, tag: tag)
   end
 
   def create_tournament(year: 2025, month: 6, date: Date.new(2025, 6, 15))
