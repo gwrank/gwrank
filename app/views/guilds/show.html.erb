@@ -79,7 +79,7 @@
         </section>
       <% end %>
 
-      <% if @guild.teams.any? %>
+      <% if @teams.any? %>
         <section>
           <h2 class="font-display text-gold-300 text-base mb-2">Matches</h2>
           <div class="overflow-x-auto">
@@ -91,7 +91,7 @@
                 </tr>
               </thead>
               <tbody>
-                <% @guild.teams.each do |team| %>
+                <% @teams.each do |team| %>
                   <tr>
                     <td><%= link_to team.match.tournament.title, tournament_path(team.match.tournament), class: "hover:text-gold-400" %></td>
                     <td><%= link_to team.match.title, match_path(team.match), class: "hover:text-gold-400" %></td>
@@ -100,6 +100,11 @@
               </tbody>
             </table>
           </div>
+          <% if @pagy.pages > 1 %>
+            <div class="flex justify-center pt-4">
+              <div class="gw-pagy"><%== @pagy.series_nav(:bootstrap) %></div>
+            </div>
+          <% end %>
         </section>
       <% end %>
     </div>

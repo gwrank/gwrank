@@ -14,6 +14,12 @@ class GuildsController < ApplicationController
 
   def show
     authorize @guild
+    @pagy, @teams = pagy(
+      @guild.teams.joins(:match)
+            .includes(match: [:tournament, { teams: :guild }])
+            .order('matches.played_at DESC'),
+      limit: 10
+    )
   end
 
   def new
