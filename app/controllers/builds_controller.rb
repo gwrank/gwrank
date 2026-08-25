@@ -27,7 +27,7 @@ class BuildsController < ApplicationController
 
   def build_rows
     documents = Array(@teambuild.document["characters"])
-    @teambuild.teambuild_characters.each_with_index.map do |row, position|
+    @teambuild.teambuild_characters.includes(:primary_profession, :secondary_profession).each_with_index.map do |row, position|
       character = documents[position] || {}
       skills = Array(character["skillIds"]).map { |sid| sid.zero? ? nil : Skill.find_by(skill_id: sid) }
       document_attributes = Array(character["attributes"]).select { |attribute| attribute.is_a?(Hash) }
@@ -52,5 +52,7 @@ class BuildsController < ApplicationController
       skill_ids: skills.map { |skill| skill&.template_skill_id.to_i },
       attributes: document_attributes.map { |a| [a["id"].to_i, a["points"].to_i] }
     ).call
+  rescue ArgumentError
+    nil
   end
 end
