@@ -27,7 +27,8 @@ module Teambuilds
 
     def canonical_tags
       Array(@document["tags"]).filter_map do |tag|
-        Teambuilds::Validator::ALLOWED_TAGS.find { |allowed| allowed.casecmp(tag.to_s).zero? }
+        next unless tag.is_a?(String)
+        Teambuilds::Validator::ALLOWED_TAGS.find { |allowed| allowed.casecmp(tag).zero? } || tag
       end.uniq
     end
 

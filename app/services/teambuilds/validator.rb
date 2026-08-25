@@ -28,6 +28,8 @@ module Teambuilds
 
     MAX_ROOT_CHARACTERS = 12
     ALLOWED_TAGS = %w[GvG HA RA TA AB FA JQ PvP PvE].freeze
+    MAX_TAGS = 24
+    TAG_MAX_LENGTH = 64
     SKILL_SLOTS = 8
     MAX_DEPTH = 64
     MAX_TOTAL_CHARACTERS = 512
@@ -94,15 +96,18 @@ module Teambuilds
 
     def validate_tags(tags)
       return unless tags.is_a?(Array)
-      tags.each do |tag|
-        next if allowed_tag?(tag)
-        add_error("$.tags", "forbidden_tag",
-                  %(Tag #{tag.inspect} non autorisé (autorisés : #{ALLOWED_TAGS.join(", ")})))
+      if tags.size > MAX_TAGS
+        return add_error("$.tags", "invalid_tag", "Au maximum #{MAX_TAGS} tags sont admis")
+      end
+      tags.each_with_index do |tag, i|
+        next if valid_tag?(tag)
+        add_error("$.tags[#{i}]", "invalid_tag",
+                  %(Tag invalide : chaîne non vide de #{TAG_MAX_LENGTH} caractères maximum))
       end
     end
 
-    def allowed_tag?(tag)
-      tag.is_a?(String) && ALLOWED_TAGS.any? { |allowed| allowed.casecmp(tag).zero? }
+    def valid_tag?(tag)
+      tag.is_a?(String) && tag.length <= TAG_MAX_LENGTH && !tag.strip.empty?
     end
 
     def validate_characters(characters)

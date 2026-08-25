@@ -94,21 +94,40 @@ module Teambuilds
       assert_includes errors_for(@doc).map { |e| e["code"] }, "null_array"
     end
 
-    test "rejects tags outside the closed list" do
-      @doc["tags"] = ["GvG", "meta"]
-      errors = errors_for(@doc)
-      assert_equal ["forbidden_tag"], errors.map { |e| e["code"] }
-      assert_equal "$.tags", errors.first["path"]
+    test "accepts free-form tags" do
+      @doc["tags"] = ["GvG", "meta", "à tester", "Ramstram"]
+      assert_empty errors_for(@doc)
     end
 
-    test "accepts allowed tags case-insensitively" do
+    test "accepts canonical tags case-insensitively" do
       @doc["tags"] = ["gvg", "PvE"]
       assert_empty errors_for(@doc)
     end
 
     test "rejects non-string tags" do
       @doc["tags"] = ["GvG", 42]
-      assert_includes errors_for(@doc).map { |e| e["code"] }, "forbidden_tag"
+      assert_includes errors_for(@doc).map { |e| e["code"] }, "invalid_tag"
+    end
+
+    test "rejects empty or whitespace-only tags" do
+      @doc["tags"] = [""]
+      assert_equal ["invalid_tag"], errors_for(@doc).map { |e| e["code"] }
+      @doc["tags"] = ["   "]
+      assert_equal ["invalid_tag"], errors_for(@doc).map { |e| e["code"] }
+    end
+
+    test "rejects tags over 64 characters" do
+      @doc["tags"] = ["x" * 65]
+      assert_equal ["invalid_tag"], errors_for(@doc).map { |e| e["code"] }
+      @doc["tags"] = ["x" * 64]
+      assert_empty errors_for(@doc)
+    end
+
+    test "rejects more than 24 tags" do
+      @doc["tags"] = Array.new(25) { |i| "tag#{i}" }
+      assert_equal ["invalid_tag"], errors_for(@doc).map { |e| e["code"] }
+      @doc["tags"] = Array.new(24) { |i| "tag#{i}" }
+      assert_empty errors_for(@doc)
     end
 
     test "rejects the reserved author root key" do
