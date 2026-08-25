@@ -11,11 +11,13 @@
   </head>
 
   <body class="gw-body flex flex-col">
-    <header class="flex items-center gap-3 px-4 py-2.5 bg-gradient-to-b from-[#3a2c14] to-[#171006] border-b-2 border-gold-600">
-      <strong class="font-display text-gold-300 tracking-widest">⚔ GWRANK <span class="text-[#9b8a5f] font-normal">· Admin</span></strong>
+    <header class="flex items-center gap-3 px-4 py-2.5 bg-gradient-to-b from-(--color-header-from) to-ink-800 border-b-2 border-gold-600">
+      <strong class="font-display text-gold-300 tracking-widest">⚔ GWRANK <span class="text-muted font-normal">· Admin</span></strong>
       <nav class="ml-auto flex gap-1 text-sm" aria-label="Administration">
-        <%= link_to "Players", administration_players_path, class: "gw-tab #{request.path.start_with?('/administration/players') ? 'text-gold-400 border-gold-600' : ''}" %>
-        <%= link_to "Claims", administration_character_claims_path, class: "gw-tab #{request.path.start_with?('/administration/character_claims') ? 'text-gold-400 border-gold-600' : ''}" %>
+        <% players_active = gw_nav_active?(administration_players_path) %>
+        <% claims_active = gw_nav_active?(administration_character_claims_path) %>
+        <%= link_to "Players", administration_players_path, class: "gw-tab #{'gw-tab--active' if players_active}", aria: { current: ("page" if players_active) } %>
+        <%= link_to "Claims", administration_character_claims_path, class: "gw-tab #{'gw-tab--active' if claims_active}", aria: { current: ("page" if claims_active) } %>
         <%= link_to "← Site", root_path, class: "gw-tab" %>
       </nav>
     </header>

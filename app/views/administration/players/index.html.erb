@@ -9,10 +9,10 @@
       <table class="gw-table">
         <thead>
           <tr>
-            <th>Username</th>
-            <th>In-game name</th>
-            <th>Professions</th>
-            <th>Actions</th>
+            <th scope="col">Username</th>
+            <th scope="col">In-game name</th>
+            <th scope="col">Professions</th>
+            <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -33,13 +33,15 @@
               <td>
                 <div class="flex flex-wrap gap-2 whitespace-nowrap">
                   <% if player.is_verified? %>
-                    <%= link_to 'Remove verified badge', administration_player_unchecks_path(player), method: :post, class: 'gw-btn gw-btn--ghost' %>
+                    <%= link_to 'Remove verified badge', administration_player_unchecks_path(player), data: { turbo_method: :post }, class: 'gw-btn gw-btn--ghost' %>
                   <% elsif player.igname.present? && current_player&.is_admin? %>
-                    <%= link_to 'Add verified badge', administration_player_checks_path(player), method: :post, class: 'gw-btn gw-btn--ghost' %>
+                    <%= link_to 'Add verified badge', administration_player_checks_path(player), data: { turbo_method: :post }, class: 'gw-btn gw-btn--ghost' %>
                   <% else %>
-                    <button type="button" class="gw-btn gw-btn--danger opacity-50 cursor-not-allowed" disabled title="The player need an in-game name to be verified">Add verified badge</button>
+                    <span class="inline-block cursor-not-allowed" title="The player needs an in-game name to be verified">
+                      <button type="button" class="gw-btn gw-btn--danger opacity-50" disabled>Add verified badge</button>
+                    </span>
                   <% end %>
-                  <%= link_to 'Send scrim invitation', administration_player_invitations_path(player), method: :post, class: 'gw-btn gw-btn--ghost' %>
+                  <%= link_to 'Send scrim invitation', administration_player_invitations_path(player), data: { turbo_method: :post }, class: 'gw-btn gw-btn--ghost' %>
                 </div>
               </td>
             </tr>
