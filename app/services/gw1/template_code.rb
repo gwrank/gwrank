@@ -22,19 +22,19 @@ module Gw1
       writer.(TEMPLATE_TYPE, 4)
       writer.(VERSION, 4)
       writer.(PROFESSION_WIDTH_CODE, 2)
-      writer.(@primary, 4)
-      writer.(@secondary, 4)
+      writer.(@primary, PROFESSION_WIDTH)
+      writer.(@secondary, PROFESSION_WIDTH)
 
       writer.(@attributes.size, 4)
       attr_bits = attribute_width
-      writer.(attr_bits - POINTS_WIDTH, 4)
+      writer.(attr_bits - ATTRIBUTE_ID_WIDTH_BASE, 4)
       @attributes.each do |(id, points)|
         writer.(id, attr_bits)
         writer.(points, POINTS_WIDTH)
       end
 
-      skill_bits = needed_width(@skills.max, minimum: 8)
-      writer.(skill_bits - 8, 4)
+      skill_bits = needed_width(@skills.max, minimum: SKILL_ID_WIDTH_BASE)
+      writer.(skill_bits - SKILL_ID_WIDTH_BASE, 4)
       @skills.each { |sid| writer.(sid, skill_bits) }
 
       writer.(0, 1)
@@ -49,13 +49,17 @@ module Gw1
     TEMPLATE_TYPE = 14
     VERSION = 0
     PROFESSION_WIDTH_CODE = 0
+    PROFESSION_WIDTH = 4
     POINTS_WIDTH = 4
-    private_constant :TEMPLATE_TYPE, :VERSION, :PROFESSION_WIDTH_CODE, :POINTS_WIDTH
+    ATTRIBUTE_ID_WIDTH_BASE = 4
+    SKILL_ID_WIDTH_BASE = 8
+    private_constant :TEMPLATE_TYPE, :VERSION, :PROFESSION_WIDTH_CODE, :PROFESSION_WIDTH,
+                     :POINTS_WIDTH, :ATTRIBUTE_ID_WIDTH_BASE, :SKILL_ID_WIDTH_BASE
 
     def attribute_width
       max_id = @attributes.map(&:first).max || 0
-      return 4 if max_id.zero?
-      needed_width(max_id, minimum: 4)
+      return ATTRIBUTE_ID_WIDTH_BASE if max_id.zero?
+      needed_width(max_id, minimum: ATTRIBUTE_ID_WIDTH_BASE)
     end
 
     def needed_width(value, minimum:)
