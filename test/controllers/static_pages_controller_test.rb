@@ -16,6 +16,7 @@ class StaticPagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{z_codex_download_path}']", text: /Download Z-Codex v1\.2\.3/
     assert_select "td code", text: '.zcx'
     assert_select 'body', text: /First launch/
+    assert_select 'body', text: /100% compatible with your paw\*ned² builds and teambuilds!/
   end
 
   test "GET /z-codex shows a generic button pointing at GitHub when the release is unknown" do
