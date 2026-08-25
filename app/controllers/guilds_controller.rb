@@ -1,6 +1,4 @@
 class GuildsController < ApplicationController
-  layout "gw"
-
   before_action :set_guild, only: [:show]
 
   def index

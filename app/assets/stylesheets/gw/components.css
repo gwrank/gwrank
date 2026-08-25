@@ -88,18 +88,6 @@
     color: #f5ded9 !important;
     border-color: #b06a5f;
   }
-  /* Compat : health_chart_controller.js bascule ces noms de classes bootstrap
-     sur ses boutons — on les habille en fantôme pour l'état inactif.
-     L'état actif repose sur l'absence de .btn-primary : le bouton retombe
-     alors sur le dégradé or de base .gw-btn. */
-  .gw-btn.btn-outline-primary {
-    background: none;
-    color: var(--color-parchment);
-    border-color: var(--color-border-dim);
-    box-shadow: none;
-    font-weight: 400;
-  }
-  .gw-btn.btn-primary { }
 
   /* Champs */
   .gw-input, .gw-select, .gw-textarea {

@@ -121,35 +121,30 @@ export default class extends Controller {
   }
   
   updateButtonStyles() {
-    // Remove active class from all buttons
+    // Inactive buttons fall back to the ghost variant
     if (this.hasHealthButtonTarget) {
-      this.healthButtonTarget.classList.remove('btn-primary')
-      this.healthButtonTarget.classList.add('btn-outline-primary')
+      this.healthButtonTarget.classList.add('gw-btn--ghost')
     }
     if (this.hasMoraleButtonTarget) {
-      this.moraleButtonTarget.classList.remove('btn-primary')
-      this.moraleButtonTarget.classList.add('btn-outline-primary')
+      this.moraleButtonTarget.classList.add('gw-btn--ghost')
     }
     if (this.hasTimelineButtonTarget) {
-      this.timelineButtonTarget.classList.remove('btn-primary')
-      this.timelineButtonTarget.classList.add('btn-outline-primary')
+      this.timelineButtonTarget.classList.add('gw-btn--ghost')
     }
     if (this.hasGuildLordButtonTarget) {
-      this.guildLordButtonTarget.classList.remove('btn-primary')
-      this.guildLordButtonTarget.classList.add('btn-outline-primary')
+      this.guildLordButtonTarget.classList.add('gw-btn--ghost')
     }
-    
-    // Add active class to current mode button
+
+    // Active button drops the ghost variant and uses the base gold .gw-btn
     const activeButton = {
       'health': this.healthButtonTarget,
       'morale': this.moraleButtonTarget,
       'timeline': this.timelineButtonTarget,
       'guildlord': this.guildLordButtonTarget
     }[this.currentMode]
-    
+
     if (activeButton) {
-      activeButton.classList.remove('btn-outline-primary')
-      activeButton.classList.add('btn-primary')
+      activeButton.classList.remove('gw-btn--ghost')
     }
   }
 

@@ -1,6 +1,4 @@
 class ProfilesController < ApplicationController
-  layout "gw"
-
   before_action :authenticate_player!
   before_action :set_player, only: [:edit, :update, :destroy]
 

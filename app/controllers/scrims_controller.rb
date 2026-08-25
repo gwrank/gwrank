@@ -1,6 +1,4 @@
 class ScrimsController < ApplicationController
-  layout "gw"
-
   before_action :authenticate_player!
 
   def index

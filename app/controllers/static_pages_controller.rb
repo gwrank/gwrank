@@ -1,6 +1,4 @@
 class StaticPagesController < ApplicationController
-  layout "gw"
-
   def terms
   end
 

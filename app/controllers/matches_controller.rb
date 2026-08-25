@@ -1,6 +1,4 @@
 class MatchesController < ApplicationController
-  layout "gw"
-
   before_action :authenticate_player!, only: [:new, :create, :destroy]
   before_action :set_match, only: [:destroy]
   before_action :ensure_player_is_moderator_and_importer, only: [:destroy]

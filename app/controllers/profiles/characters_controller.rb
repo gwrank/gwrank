@@ -1,6 +1,4 @@
 class Profiles::CharactersController < ApplicationController
-  layout "gw"
-
   before_action :authenticate_player!
   before_action :set_player, only: [:new, :create]
   before_action :set_character, only: [:destroy]

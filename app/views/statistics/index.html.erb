@@ -89,7 +89,7 @@
           <div class="mb-4" data-profession-nav-target="navButtons">
             <div class="flex flex-wrap gap-2 justify-start" role="tablist">
               <button type="button"
-                      class="gw-btn btn-outline-primary"
+                      class="gw-btn gw-btn--ghost"
                       data-action="click->profession-nav#selectProfession"
                       data-profession="all">
                       All Professions
@@ -98,7 +98,7 @@
                 <% @top_players_by_profession.each_with_index do |(profession_name, players), index| %>
                   <% if players.any? %>
                     <button type="button"
-                            class="gw-btn btn-outline-primary"
+                            class="gw-btn gw-btn--ghost"
                             data-action="click->profession-nav#selectProfession"
                             data-profession="<%= profession_name %>">
                             <%= profession_name %>

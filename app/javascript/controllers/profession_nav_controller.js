@@ -41,12 +41,12 @@ export default class extends Controller {
 
     // Hide all sections
     this.sections.forEach(sec => {
-      sec.classList.add('d-none')
+      sec.classList.add('hidden')
       sec.setAttribute('aria-hidden', 'true')
     })
 
     // Show selected section
-    section.classList.remove('d-none')
+    section.classList.remove('hidden')
     section.setAttribute('aria-hidden', 'false')
 
     // Update button states
@@ -61,7 +61,7 @@ export default class extends Controller {
   showAll() {
     // Show all sections
     this.sections.forEach(sec => {
-      sec.classList.remove('d-none')
+      sec.classList.remove('hidden')
       sec.setAttribute('aria-hidden', 'false')
     })
 
@@ -77,12 +77,10 @@ export default class extends Controller {
     const buttons = Array.from(this.navButtonsTarget.querySelectorAll('button'))
     buttons.forEach(btn => {
       const btnProfession = btn.dataset.profession
-      btn.classList.remove('btn-primary', 'text-white')
-      btn.classList.add('btn-outline-primary')
+      btn.classList.add('gw-btn--ghost')
 
       if (activeProfession && btnProfession === activeProfession.toLowerCase()) {
-        btn.classList.remove('btn-outline-primary')
-        btn.classList.add('btn-primary', 'text-white')
+        btn.classList.remove('gw-btn--ghost')
       }
     })
   }

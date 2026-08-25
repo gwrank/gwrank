@@ -1,6 +1,4 @@
 class PlayersController < ApplicationController
-  layout "gw"
-
   def index
     @pagy, @players = pagy(
       Player.with_igname

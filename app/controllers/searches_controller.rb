@@ -1,6 +1,4 @@
 class SearchesController < ApplicationController
-  layout "gw"
-
   def show
     @search_query = search_params[:q]
     @results = PgSearch.multisearch(@search_query)

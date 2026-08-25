@@ -1,6 +1,4 @@
 class ApiTokensController < ApplicationController
-  layout "gw"
-
   before_action :authenticate_player!
 
   def show
