@@ -1,0 +1,127 @@
+<div class="space-y-6">
+  <section class="gw-window gw-frame">
+    <div class="text-center px-6 py-10 sm:py-14 space-y-4">
+      <h1 class="font-display text-gold-300 text-4xl tracking-[0.35em] m-0">Z-CODEX</h1>
+      <p class="italic text-lg text-muted max-w-xl mx-auto m-0">
+        Team build manager for Guild Wars 1 — spiritual successor to paw*ned².
+        Compose your team, simulate its mechanics, exchange builds in game-ready formats.
+      </p>
+      <p class="font-display text-gold-500 text-xs tracking-widest uppercase space-x-2">
+        <span>Free</span><span>·</span><span>Open source (MIT)</span><span>·</span><span>Unofficial tool</span>
+      </p>
+      <div class="flex flex-wrap justify-center items-center gap-3 pt-2">
+        <% if @latest_release %>
+          <%= link_to "Download Z-Codex v#{@latest_release.version}", z_codex_download_path, class: 'gw-btn' %>
+          <span class="text-sm text-muted">Windows 10/11 · 64-bit · ~50 MB installer</span>
+        <% else %>
+          <%= link_to "Download Z-Codex", ZCodex::LatestRelease::RELEASES_PAGE_URL,
+                      target: '_blank', rel: 'noopener noreferrer', class: 'gw-btn' %>
+          <span class="text-sm text-muted">Windows 10/11 · 64-bit · ~50 MB installer · hosted on GitHub</span>
+        <% end %>
+        <%= link_to 'Source & issues on GitHub', 'https://github.com/LuxIudicium/Z-Codex',
+                    target: '_blank', rel: 'noopener noreferrer', class: 'gw-btn gw-btn--ghost' %>
+      </div>
+      <p class="font-display text-gold-400 text-base tracking-wide m-0">
+        100% compatible with your paw*ned² builds and teambuilds!
+      </p>
+    </div>
+  </section>
+
+  <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="gw-doc gw-window gw-frame p-5 flex flex-col gap-2">
+      <h3 class="m-0">🛡️ Team Composition</h3>
+      <p class="text-muted text-sm m-0">
+        Teams of 8 to 12 characters, each with 8 skills, primary and secondary professions and attributes.
+        Build a variants tree of unlimited depth, locked together. Filter the skill catalog by profession,
+        attribute, skill type and game mechanics — enchantments, adrenaline, exhaustion, resurrection,
+        armor — with detailed tooltips.
+      </p>
+    </div>
+
+    <div class="gw-doc gw-window gw-frame p-5 flex flex-col gap-2">
+      <h3 class="m-0">⚔️ Combat Simulation</h3>
+      <p class="text-muted text-sm m-0">
+        A spike calculator with cast order and life steal, damage per armor level, an armor calculator, energy
+        management — the ten conditions, the monthly flux, the effects of Ranger spirits, and much more!
+      </p>
+    </div>
+
+    <div class="gw-doc gw-window gw-frame p-5 flex flex-col gap-2">
+      <h3 class="m-0">📦 Community Builds</h3>
+      <p class="text-muted text-sm m-0">
+        ~1,460 builds and ~250 teams from the PvXwiki build packs, GW1 builds too — more to come. Dropped
+        wherever you want, in the very format Guild Wars reads itself.
+      </p>
+    </div>
+
+    <div class="gw-doc gw-window gw-frame p-5 flex flex-col gap-2">
+      <h3 class="m-0">✨ Comfort</h3>
+      <p class="text-muted text-sm m-0">
+        French and English UI switchable on the fly, light and dark themes, three icon sizes, copy-paste ready
+        build screenshots, undo/redo and a file browser.
+      </p>
+    </div>
+  </section>
+
+  <section class="grid gap-4 lg:grid-cols-2">
+    <div class="gw-doc gw-window gw-frame p-5 sm:p-6">
+      <h3 class="mt-0">Game-ready file formats</h3>
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left">
+            <th class="py-1 pr-3" scope="col">Extension</th>
+            <th class="py-1 pr-3" scope="col">Role</th>
+            <th class="py-1" scope="col">Access</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted">
+          <tr>
+            <td class="py-1 pr-3"><code>.zcx</code></td>
+            <td class="py-1 pr-3">Native format — full team, equipment, settings</td>
+            <td class="py-1">read / write</td>
+          </tr>
+          <tr>
+            <td class="py-1 pr-3"><code>.pn3</code></td>
+            <td class="py-1 pr-3">Previous native format</td>
+            <td class="py-1">read / write</td>
+          </tr>
+          <tr>
+            <td class="py-1 pr-3"><code>.pwnd</code></td>
+            <td class="py-1 pr-3">paw*ned² files</td>
+            <td class="py-1">read / write</td>
+          </tr>
+          <tr>
+            <td class="py-1 pr-3"><code>.txt</code></td>
+            <td class="py-1 pr-3">Game template codes (<code>O…</code> skills, <code>P…</code> equipment)</td>
+            <td class="py-1">read / write</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="text-sm text-muted mb-0">
+        Template codes copy-paste straight from and into Guild Wars — the same codes GWRank serves through its
+        <%= link_to 'build library', builds_path %> and REST API.
+      </p>
+    </div>
+
+    <div class="gw-doc gw-window gw-frame p-5 sm:p-6">
+      <h3 class="mt-0">First launch</h3>
+      <p>
+        An internet connection is required once: Z-Codex downloads its skill catalog (~8 MB, about five minutes)
+        directly from the public Guild Wars Wiki, at a deliberately throttled pace to stay gentle on the wiki.
+      </p>
+      <p class="mb-0">
+        After that one-time fetch, the app starts in seconds and runs fully offline. When the game updates,
+        Z-Codex detects it and offers to refresh its catalog.
+      </p>
+    </div>
+  </section>
+
+  <p class="text-center text-xs text-muted m-0">
+    Z-Codex is MIT-licensed software by P. Vincent —
+    <%= link_to 'source on GitHub', 'https://github.com/LuxIudicium/Z-Codex',
+                target: '_blank', rel: 'noopener noreferrer',
+                class: 'text-gold-400 underline hover:text-gold-300' %>.
+    Not affiliated with ArenaNet or NCSOFT; no game assets are redistributed with the software.
+    Guild Wars is a trademark of ArenaNet, LLC and NCSOFT Corporation.
+  </p>
+</div>
