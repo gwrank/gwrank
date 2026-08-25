@@ -1,70 +1,70 @@
-<div class="gw-window gw-frame">
-  <div class="gw-window-header">
-    <h1 class="gw-title text-base m-0">Hall of Heroes</h1>
-  </div>
-
-  <div class="p-6 space-y-8">
-    <section class="text-center space-y-4">
-      <h2 class="font-display text-gold-300 text-3xl tracking-wide">GWRank Discord Bot</h2>
-      <p class="text-lg text-muted max-w-2xl mx-auto">
-        Share builds, teambuilds and organize automated tournaments. Add our bot to your Discord server and start using slash commands.
+<div class="space-y-6">
+  <section class="gw-window gw-frame">
+    <div class="text-center px-6 py-10 sm:py-14 space-y-4">
+      <h1 class="font-display text-gold-300 text-4xl tracking-[0.35em] m-0">GWRANK</h1>
+      <p class="italic text-lg text-muted max-w-xl mx-auto m-0">
+        Builds, teambuilds and a Discord bot — everything your guild needs to prepare its GvG matches.
       </p>
-
-      <div class="flex flex-wrap justify-center gap-3">
+      <div class="flex flex-wrap justify-center gap-3 pt-2">
         <%= link_to 'Add Bot to Discord', 'https://discord.com/oauth2/authorize?client_id=788778440877801504', target: '_blank', rel: 'noopener noreferrer', class: 'gw-btn' %>
-        <%= link_to 'Join our Discord', 'https://discord.gg/Gjefv7GJ9g', target: '_blank', rel: 'noopener noreferrer', class: 'gw-btn gw-btn--ghost' %>
+        <%= link_to 'Browse Builds', builds_path, class: 'gw-btn gw-btn--ghost' %>
       </div>
+    </div>
+  </section>
 
-      <% if current_player %>
-        <p class="text-sm text-muted">
-          Logged in as: <strong><%= current_player.name %></strong> |
-          <%= link_to "Log out", destroy_player_session_path, data: { turbo_method: :delete } %>
-        </p>
-      <% else %>
-        <%= link_to 'Login with Discord', new_player_session_path, class: 'gw-btn' %>
-      <% end %>
-    </section>
+  <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="sm:col-span-2 lg:col-span-2 lg:row-span-2 gw-doc gw-window gw-frame p-6 sm:p-8 flex flex-col gap-3">
+      <span class="font-display text-gold-500 text-xs tracking-widest uppercase">Z-Codex Compatible</span>
+      <h2 class="m-0">📜 Build &amp; Teambuild Library</h2>
+      <p class="text-muted m-0">
+        Browse community builds and full teambuilds stored in the open Z-Codex (<code>.zcx</code>) format — professions,
+        attributes, elite skills and player assignments included. Download any teambuild and open it straight into
+        Z-Codex to iterate on your composition.
+      </p>
+      <p class="text-muted m-0">
+        Every build is versioned, tagged by game mode and strategy, and exposed through a REST API so your own tools
+        can consume it.
+      </p>
+      <p class="mt-auto m-0 space-x-4">
+        <%= link_to 'Browse the library →', builds_path %>
+        <%= link_to 'API documentation', '/api-docs' %>
+      </p>
+    </div>
 
-    <section>
-      <h2 class="font-display text-gold-300 text-xl tracking-wide text-center mb-5">Discord Bot Documentation</h2>
+    <div class="gw-doc gw-window gw-frame p-5 flex flex-col gap-2">
+      <h3 class="m-0">🤖 Discord Bot</h3>
+      <p class="text-muted m-0">
+        Share builds and teambuilds in your server with <code>/build</code> and <code>/teambuild</code>. Organize your
+        guild's daily AT and monthly mAT registrations without leaving Discord.
+      </p>
+      <p class="mt-auto m-0"><%= link_to 'Bot & Docs →', bot_path %></p>
+    </div>
 
-      <div class="grid gap-4 sm:grid-cols-2">
-        <div class="gw-doc gw-parchment rounded-md border border-gold-600/40 p-4 space-y-3">
-          <h3>Build Commands</h3>
-          <p>Display individual Guild Wars builds from template codes. Share your character builds with others.</p>
-          <%= link_to 'View Build Commands', build_doc_path, class: 'gw-btn' %>
-        </div>
+    <div class="gw-doc gw-window gw-frame p-5 flex flex-col gap-2">
+      <h3 class="m-0">⚔️ Open Scrims</h3>
+      <p class="text-muted m-0">
+        Queue up solo or as a guild, get teams formed and play structured GvG scrimmages with score tracking.
+      </p>
+      <p class="mt-auto m-0"><%= link_to 'Join the queue →', scrims_path %></p>
+    </div>
 
-        <div class="gw-doc gw-parchment rounded-md border border-gold-600/40 p-4 space-y-3">
-          <h3>Team Build Commands</h3>
-          <p>Display complete team builds from pawned2 exports. Share your team compositions and strategies.</p>
-          <%= link_to 'View Team Build Commands', teambuild_doc_path, class: 'gw-btn' %>
-        </div>
+    <div class="sm:col-span-2 lg:col-span-2 gw-doc gw-window gw-frame p-5 flex flex-col gap-2">
+      <h3 class="m-0">🏆 Tournament Archives</h3>
+      <p class="text-muted m-0">
+        Years of Automated Tournament history — brackets, matches, rosters and ratings preserved and searchable.
+      </p>
+      <p class="mt-auto m-0"><%= link_to 'Explore the archives →', tournaments_path %></p>
+    </div>
 
-        <div class="gw-doc gw-parchment rounded-md border border-gold-600/40 p-4 space-y-3">
-          <h3>Automated Tournament</h3>
-          <p>Daily AT queue management and scheduling. Organize your daily automated tournaments.</p>
-          <%= link_to 'View AT Commands', at_doc_path, class: 'gw-btn' %>
-        </div>
-
-        <div class="gw-doc gw-parchment rounded-md border border-gold-600/40 p-4 space-y-3">
-          <h3>Monthly AT</h3>
-          <p>Monthly Automated Tournament scheduling and registration. Organize your monthly tournaments.</p>
-          <%= link_to 'View MAT Commands', mat_doc_path, class: 'gw-btn' %>
-        </div>
-      </div>
-    </section>
-
-    <section class="text-center">
-      <h2 class="font-display text-gold-300 text-xl tracking-wide mb-4">How to Use the Bot</h2>
-      <ol class="list-decimal list-inside text-start inline-block space-y-1">
-        <li>Click "Add Bot to Discord" above to add the bot to your server</li>
-        <li>Ensure the bot has the necessary permissions</li>
-        <li>Use <code>/build</code> to share your character builds</li>
-        <li>Use <code>/teambuild</code> to share your team compositions</li>
-        <li>Use <code>/at</code> and <code>/mat</code> commands to organize tournaments</li>
-        <li>Explore all commands using the documentation links above</li>
-      </ol>
-    </section>
-  </div>
+    <div class="gw-doc gw-window gw-frame p-5 flex flex-col gap-2">
+      <h3 class="m-0">📖 Documentation</h3>
+      <ul class="list-none m-0 p-0 space-y-1 text-sm text-muted">
+        <li><code>/build</code> — share single builds</li>
+        <li><code>/teambuild</code> — pawned2 teambuilds</li>
+        <li><code>/at</code> · <code>/mat</code> — tournaments</li>
+        <li><code>/scrim</code> — scrim commands</li>
+      </ul>
+      <p class="mt-auto m-0"><%= link_to 'All commands →', bot_path %></p>
+    </div>
+  </section>
 </div>

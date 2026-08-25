@@ -1,25 +1,17 @@
 require "test_helper"
 
 class HomeControllerTest < ActionDispatch::IntegrationTest
-  test "shows the current queue count and a decided scrim's result" do
-    create_player.registrations.create!(registered_at: Time.current)
-
-    team_a = Team.create!
-    team_b = Team.create!
-    Scrim.create!(team_a: team_a, team_b: team_b, team_a_wins: 2, team_b_wins: 0, winner_team_id: team_a.id)
-
+  test "renders the showcase homepage" do
     get root_path
 
     assert_response :success
-    assert_select 'body', text: /1\/16 registered/
-    assert_select 'body', text: /2-0/
-  end
-
-  test "renders cleanly with an empty queue and no decided scrims" do
-    get root_path
-
-    assert_response :success
-    assert_select 'body', text: /0\/16 registered/
-    assert_select 'body', text: /0 scrims played/
+    assert_select 'body', text: /Builds, teambuilds and a Discord bot — everything your guild needs to prepare its GvG matches\./
+    assert_select "a[href='https://discord.com/oauth2/authorize?client_id=788778440877801504']", text: 'Add Bot to Discord'
+    assert_select "a[href='/builds']", text: 'Browse Builds'
+    assert_select 'body', text: /Build & Teambuild Library/
+    assert_select 'body', text: /Discord Bot/
+    assert_select 'body', text: /Open Scrims/
+    assert_select 'body', text: /Tournament Archives/
+    assert_select 'body', text: /Documentation/
   end
 end
