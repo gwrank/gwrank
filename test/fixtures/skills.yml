@@ -34,7 +34,7 @@ mist_form:
 water_attunement:
   skill_id: 1010
   template_skill_id: 1010
-  name: Water Attunement Example
+  name: Water Attunement
   skill_type: Enchantment Spell
   is_elite: false
   profession: elementalist
@@ -52,7 +52,7 @@ trappers_focus:
 resurrection_signet:
   skill_id: 1
   template_skill_id: 1
-  name: Resurrection Signet Example
+  name: Resurrection Signet
   skill_type: Elite Spell
   is_elite: true
   profession: monk

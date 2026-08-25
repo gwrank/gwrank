@@ -100,8 +100,10 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     get build_path(Teambuild.last)
     assert_response :success
     assert_select "table.gw-table tbody tr", minimum: 1
-    assert_select ".gw-badge--mode", text: "Midline"
+    assert_select "tbody img[width='32']", minimum: 8
     assert_select "ul li strong", minimum: 1
+    assert_select "tbody p.text-note", text: /Élémentaliste/
+    assert_select "tbody .gw-badge--mode", text: "Midline"
     assert_select "[data-controller='template-code-popover']", minimum: 1
     assert_select "[data-template-code-popover-target='code']", minimum: 1
     assert_select ".gw-window-header small", text: /@#{Regexp.escape(@owner.username)}/

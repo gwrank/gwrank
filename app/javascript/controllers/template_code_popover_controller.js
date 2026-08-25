@@ -19,8 +19,27 @@ export default class extends Controller {
 
   toggle(event) {
     event.stopPropagation()
-    const hidden = this.cardTarget.classList.toggle("hidden")
-    this.syncExpanded(!hidden)
+    if (this.cardTarget.classList.contains("hidden")) {
+      this.show()
+      this.syncExpanded(true)
+    } else {
+      this.hide()
+    }
+  }
+
+  show() {
+    const card = this.cardTarget
+    card.classList.remove("hidden")
+    const rect = this.triggerTarget.getBoundingClientRect()
+    const width = card.offsetWidth || 288
+    const height = card.offsetHeight
+    card.style.position = "fixed"
+    card.style.top = `${rect.bottom + 8}px`
+    if (window.innerHeight - rect.bottom < height + 16) {
+      card.style.top = `${Math.max(8, rect.top - height - 8)}px`
+    }
+    card.style.left = `${Math.max(8, Math.min(rect.right - width, window.innerWidth - width - 8))}px`
+    card.style.right = "auto"
   }
 
   async copy(event) {
@@ -64,6 +83,10 @@ export default class extends Controller {
 
   hide() {
     this.cardTarget.classList.add("hidden")
+    this.cardTarget.style.position = ""
+    this.cardTarget.style.top = ""
+    this.cardTarget.style.left = ""
+    this.cardTarget.style.right = ""
     this.syncExpanded(false)
   }
 
