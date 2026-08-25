@@ -322,6 +322,43 @@ module Api::V1
       assert_empty response.parsed_body["teambuilds"]
     end
 
+    test "updated_since filters index and export" do
+      old_doc = JSON.parse(@document.to_json)
+      old_doc["id"] = "eeeeeee4-0000-0000-0000-000000000001"
+      old_doc["name"] = "Old Split"
+      put_doc(@other, old_doc, visibility: "public")
+      Teambuild.find_by(source_uuid: old_doc["id"]).update_column(:updated_at, 2.hours.ago)
+
+      fresh_doc = JSON.parse(@document.to_json)
+      fresh_doc["id"] = "eeeeeee4-0000-0000-0000-000000000002"
+      fresh_doc["name"] = "Fresh Split"
+      put_doc(@other, fresh_doc, visibility: "public")
+
+      cutoff = 1.hour.ago.iso8601
+
+      get api_v1_teambuilds_path(updated_since: cutoff), headers: auth_headers(@owner)
+      names = response.parsed_body["teambuilds"].map { |t| t["name"] }
+      assert_includes names, "Fresh Split"
+      assert_not_includes names, "Old Split"
+
+      get export_api_v1_teambuilds_path(updated_since: cutoff), headers: auth_headers(@owner)
+      ids = response.parsed_body["teambuilds"].map { |t| t["sourceId"] }
+      assert_includes ids, "eeeeeee4-0000-0000-0000-000000000002"
+      assert_not_includes ids, old_doc["id"]
+    end
+
+    test "updated_since rejects malformed and blank values with 400" do
+      get api_v1_teambuilds_path(updated_since: "yesterday"), headers: auth_headers(@owner)
+      assert_response :bad_request
+      assert_equal "invalid_updated_since", response.parsed_body["errors"].sole["code"]
+
+      get export_api_v1_teambuilds_path(updated_since: ""), headers: auth_headers(@owner)
+      assert_response :bad_request
+
+      get api_v1_teambuilds_path, headers: auth_headers(@owner)
+      assert_response :success
+    end
+
     test "export requires a token" do
       get export_api_v1_teambuilds_path
       assert_response :unauthorized

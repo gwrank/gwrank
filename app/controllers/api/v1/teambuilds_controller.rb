@@ -1,6 +1,7 @@
 class Api::V1::TeambuildsController < ApplicationController
   skip_before_action :verify_authenticity_token
   before_action :verify_api_token
+  before_action :check_updated_since, only: %i[index export]
 
   rescue_from ActionDispatch::Http::Parameters::ParseError do
     render_malformed_json
@@ -10,6 +11,8 @@ class Api::V1::TeambuildsController < ApplicationController
   PER_PAGE_MAX = 100
 
   def index
+    return if performed?
+
     relation = filtered(Teambuild.visible_to(@player))
     total_count = relation.distinct.count
     records = relation.includes(:player, teambuild_characters: [:primary_profession, :secondary_profession, :elite_skill])
@@ -23,6 +26,8 @@ class Api::V1::TeambuildsController < ApplicationController
   end
 
   def export
+    return if performed?
+
     records = filtered(Teambuild.visible_to(@player))
               .includes(:player, teambuild_characters: [:primary_profession, :secondary_profession, :elite_skill])
               .order(updated_at: :desc)
@@ -92,6 +97,20 @@ class Api::V1::TeambuildsController < ApplicationController
     end
   end
 
+  def check_updated_since
+    return unless request.query_parameters.key?("updated_since")
+
+    @updated_since =
+      begin
+        Time.iso8601(params[:updated_since].to_s)
+      rescue ArgumentError
+        render json: { errors: [{ "path" => "$", "code" => "invalid_updated_since",
+                                  "message" => "updated_since doit être une date-heure ISO 8601" }] },
+               status: :bad_request
+        nil
+      end
+  end
+
   def parse_document
     JSON.parse(request.raw_post)
   rescue JSON::ParserError
@@ -140,6 +159,7 @@ class Api::V1::TeambuildsController < ApplicationController
     relation = relation.with_game_mode(params[:game_mode]) if params[:game_mode].present?
     relation = apply_player_count_range(relation)
     relation = relation.with_status(params[:status]) if Teambuild::STATUSES.include?(params[:status])
+    relation = relation.with_updated_since(@updated_since) if @updated_since
     relation = relation.owned_by(@player) if params[:visibility] == "mine"
     relation
   end

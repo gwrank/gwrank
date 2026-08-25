@@ -67,6 +67,7 @@ class Teambuild < ApplicationRecord
   end
   scope :with_campaign, ->(name) { joins(teambuild_characters: :elite_skill).where(skills: { campaign: name }).distinct }
   scope :with_game_mode, ->(mode) { where(game_mode: mode) }
+  scope :with_updated_since, ->(time) { where(updated_at: time..) }
 
   def visible_to?(player)
     visibility == "public" || player_id == player&.id
