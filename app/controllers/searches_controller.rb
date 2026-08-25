@@ -24,6 +24,12 @@ class SearchesController < ApplicationController
       @guilds = @guilds.uniq
       @characters = Character.whose_igname_starts_with(@search_query)
       @players = Player.whose_igname_starts_with(@search_query)
+      @match_entries_pagy, @match_entries = pagy(
+        TeamPlayer.where(character_id: @characters).joins(team: :match)
+                  .includes(:character, { team: { match: [{ teams: :guild }] } })
+                  .order('matches.played_at DESC'),
+        limit: 10
+      )
     end
   end
 

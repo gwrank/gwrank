@@ -45,25 +45,28 @@
         </section>
       <% end %>
 
-      <% if @characters.any? %>
+      <% if @match_entries.any? %>
         <section>
           <h2 class="font-display text-gold-300 text-base mb-2">Matches with player</h2>
           <ul class="list-none m-0 p-0">
-            <% @characters.each do |character| %>
-              <% character.team_players.each do |team_player| %>
-                <li>
-                  <%= link_to match_path(team_player.team.match), class: "gw-row" do %>
-                    <span class="flex-1 min-w-0 font-display text-gold-300 text-base leading-snug truncate"><%= team_player.team.match.title %></span>
-                    <span class="shrink-0 text-sm text-muted"><%= display_character_name(character, current_player) %></span>
-                  <% end %>
-                </li>
-              <% end %>
+            <% @match_entries.each do |entry| %>
+              <li>
+                <%= link_to match_path(entry.team.match), class: "gw-row" do %>
+                  <span class="flex-1 min-w-0 font-display text-gold-300 text-base leading-snug truncate"><%= entry.team.match.title %></span>
+                  <span class="shrink-0 text-sm text-muted"><%= display_character_name(entry.character, current_player) %></span>
+                <% end %>
+              </li>
             <% end %>
           </ul>
+          <% if @match_entries_pagy.pages > 1 %>
+            <div class="flex justify-center pt-4">
+              <div class="gw-pagy"><%== @match_entries_pagy.series_nav(:bootstrap) %></div>
+            </div>
+          <% end %>
         </section>
       <% end %>
 
-      <% if @guilds.blank? && @players.blank? && @characters.blank? %>
+      <% if @guilds.blank? && @players.blank? && @match_entries.blank? %>
         <p class="gw-empty">No results found.</p>
       <% end %>
     </div>
