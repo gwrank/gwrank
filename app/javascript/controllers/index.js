@@ -10,6 +10,9 @@ application.register("health-chart", HealthChartController)
 import MatchBuildsController from "./match_builds_controller"
 application.register("match-builds", MatchBuildsController)
 
+import Popover from "@stimulus-components/popover"
+application.register("popover", Popover)
+
 import ProfessionNavController from "./profession_nav_controller"
 application.register("profession-nav", ProfessionNavController)
 
