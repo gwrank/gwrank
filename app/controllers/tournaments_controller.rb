@@ -31,6 +31,14 @@ class TournamentsController < ApplicationController
   def show
     @tournament = Tournament.friendly.find(params[:id])
     @comment = Comment.new
-    render :show_old if @tournament.year.to_i < 2020
+    return render :show_old if @tournament.year.to_i < 2020
+
+    @pagy, @matches = pagy(
+      @tournament.matches.includes(
+        teams: [:guild, { team_players: [:profession, :secondary_profession,
+                                         { team_player_skills: :skill }] }]
+      ).order(round: :desc, number_on_round: :desc),
+      limit: 10
+    )
   end
 end

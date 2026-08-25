@@ -8,12 +8,17 @@
       <% end %>
     </div>
 
-    <% if @tournament.matches.any? %>
+    <% if @matches.any? %>
       <ul class="list-none m-0 p-0">
-        <% @tournament.matches.order(round: :desc, number_on_round: :desc).each do |match| %>
+        <% @matches.each do |match| %>
           <%= render "matches/match", match: match %>
         <% end %>
       </ul>
+      <% if @pagy.pages > 1 %>
+        <div class="flex justify-center p-4">
+          <div class="gw-pagy"><%== @pagy.series_nav(:bootstrap) %></div>
+        </div>
+      <% end %>
     <% else %>
       <p class="gw-empty">No matches recorded for this tournament.</p>
     <% end %>
