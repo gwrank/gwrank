@@ -27,6 +27,10 @@ class DocumentationController < ApplicationController
   def teambuild
     render :teambuild
   end
+
+  def bot
+    render :bot
+  end
   
   private
   

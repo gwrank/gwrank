@@ -1,0 +1,67 @@
+<div class="space-y-4">
+  <div class="gw-window gw-frame p-6 leading-relaxed">
+    <%= render 'documentation/breadcrumb', page: 'Discord Bot' %>
+
+    <h1 class="font-display text-gold-300 text-2xl tracking-wide m-0 mt-3">GWRank Discord Bot</h1>
+    <p class="text-muted mt-1 mb-0">Share builds and organize tournaments from your Discord server</p>
+
+    <div class="flex gap-6 mt-6">
+      <%= render 'documentation/sidebar' %>
+      <div class="flex-1 min-w-0 gw-doc space-y-8">
+
+        <section class="text-center space-y-4">
+          <p class="text-muted max-w-2xl mx-auto">
+            Share builds, teambuilds and organize automated tournaments. Add our bot to your Discord server and start using slash commands.
+          </p>
+          <div class="flex flex-wrap justify-center gap-3">
+            <%= link_to 'Add Bot to Discord', 'https://discord.com/oauth2/authorize?client_id=788778440877801504', target: '_blank', rel: 'noopener noreferrer', class: 'gw-btn' %>
+            <%= link_to 'Join our Discord', 'https://discord.gg/jqShPZBkcj', target: '_blank', rel: 'noopener noreferrer', class: 'gw-btn gw-btn--ghost' %>
+          </div>
+        </section>
+
+        <section>
+          <h2>Command Documentation</h2>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div class="gw-doc gw-parchment rounded-md border border-gold-600/40 p-4 space-y-3">
+              <h3>Build Commands</h3>
+              <p>Display individual Guild Wars builds from template codes. Share your character builds with others.</p>
+              <%= link_to 'View Build Commands', build_doc_path, class: 'gw-btn' %>
+            </div>
+
+            <div class="gw-doc gw-parchment rounded-md border border-gold-600/40 p-4 space-y-3">
+              <h3>Team Build Commands</h3>
+              <p>Display complete team builds from pawned2 exports. Share your team compositions and strategies.</p>
+              <%= link_to 'View Team Build Commands', teambuild_doc_path, class: 'gw-btn' %>
+            </div>
+
+            <div class="gw-doc gw-parchment rounded-md border border-gold-600/40 p-4 space-y-3">
+              <h3>Automated Tournament</h3>
+              <p>Daily AT queue management and scheduling. Organize your daily automated tournaments.</p>
+              <%= link_to 'View AT Commands', at_doc_path, class: 'gw-btn' %>
+            </div>
+
+            <div class="gw-doc gw-parchment rounded-md border border-gold-600/40 p-4 space-y-3">
+              <h3>Monthly AT</h3>
+              <p>Monthly Automated Tournament scheduling and registration. Organize your monthly tournaments.</p>
+              <%= link_to 'View MAT Commands', mat_doc_path, class: 'gw-btn' %>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2>How to Use the Bot</h2>
+          <ol class="list-decimal list-inside space-y-1">
+            <li>Click "Add Bot to Discord" above to add the bot to your server</li>
+            <li>Ensure the bot has the necessary permissions</li>
+            <li>Use <code>/build</code> to share your character builds</li>
+            <li>Use <code>/teambuild</code> to share your team compositions</li>
+            <li>Use <code>/at</code> and <code>/mat</code> commands to organize tournaments</li>
+            <li>Explore all commands using the documentation links above</li>
+          </ol>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</div>
