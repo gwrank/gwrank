@@ -8,9 +8,11 @@ export default class extends Controller {
     this.boundKeydown = this.keydown.bind(this)
     document.addEventListener("click", this.boundOutsideClick)
     document.addEventListener("keydown", this.boundKeydown)
+    this.hide()
   }
 
   disconnect() {
+    clearTimeout(this.resetTimer)
     document.removeEventListener("click", this.boundOutsideClick)
     document.removeEventListener("keydown", this.boundKeydown)
   }
@@ -21,10 +23,11 @@ export default class extends Controller {
   }
 
   async copy(event) {
+    const button = event.currentTarget
     const code = this.codeTarget.textContent.trim()
     try {
       await navigator.clipboard.writeText(code)
-      this.flashCopied(event.currentTarget)
+      this.flashCopied(button)
     } catch {
       this.selectCode()
     }
