@@ -28,7 +28,6 @@ gem 'ruby-vips'
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.4', require: false
 
-gem 'bootstrap', '~> 5.3.8'
 gem 'devise'
 gem 'discordrb', github: 'shardlab/discordrb'
 gem 'friendly_id'
@@ -36,7 +35,6 @@ gem 'hotwire-rails'
 gem 'httparty'
 gem 'image_processing', '~> 1.2'
 gem 'ip_anonymizer'
-gem 'jquery-rails'
 gem 'net-imap', require: false
 gem 'net-pop', require: false
 gem 'net-smtp', require: false

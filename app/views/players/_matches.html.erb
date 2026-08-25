@@ -1,9 +1,13 @@
-<h2>Matches</h2>
-<div class="cyberpress-matches">
-  <ul class="cyberpress-matchs-archive" data-sr="matches" data-sr-duration="1000">
+<section>
+  <h2 class="font-display text-gold-300 text-base mb-2">Matches</h2>
+  <ul class="list-none m-0 p-0 border-t border-hairline">
     <% teams.each do |team| %>
       <%= render "matches/match", match: team.match %>
     <% end %>
   </ul>
-  <%== pagy.series_nav(:bootstrap) %>
-</div>
+  <% if pagy.pages > 1 %>
+    <div class="flex justify-center pt-4">
+      <div class="gw-pagy"><%== pagy.series_nav(:bootstrap) %></div>
+    </div>
+  <% end %>
+</section>

@@ -1,0 +1,5 @@
+<%# locals: (teambuild:) %>
+<% if teambuild.status == "draft" %><span class="gw-badge gw-badge--draft">Draft</span><% end %>
+<% if teambuild.visibility != "public" %><span class="gw-badge gw-badge--private"><%= teambuild.visibility %></span><% end %>
+<span class="gw-badge gw-badge--mode"><%= teambuild.game_mode.presence || "?" %></span>
+<% teambuild.tags.each do |tag| %><span class="gw-badge gw-badge--tag"><%= tag %></span><% end %>

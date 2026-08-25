@@ -1,29 +1,18 @@
-<h2>Sign up</h2>
-
-<%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+<%= render "application/gw_card", title: "Create account" do %>
   <%= render "devise/shared/error_messages", resource: resource %>
-
-  <div class="field">
-    <%= f.label :email %><br>
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
-  </div>
-
-  <div class="field">
-    <%= f.label :password %>
-    <% if @minimum_password_length %>
-    <em>(<%= @minimum_password_length %> characters minimum)</em>
-    <% end %><br>
-    <%= f.password_field :password, autocomplete: "new-password" %>
-  </div>
-
-  <div class="field">
-    <%= f.label :password_confirmation %><br>
-    <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
-  </div>
-
-  <div class="actions">
-    <%= f.submit "Sign up" %>
-  </div>
+  <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+    <div class="space-y-3">
+      <%= f.label :email, class: "block text-sm text-parchment" %>
+      <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "gw-input" %>
+      <%= f.label :password, class: "block text-sm text-parchment" %>
+      <% if @minimum_password_length %>
+        <em class="block text-xs text-muted">(<%= @minimum_password_length %> characters minimum)</em>
+      <% end %>
+      <%= f.password_field :password, autocomplete: "new-password", class: "gw-input" %>
+      <%= f.label :password_confirmation, class: "block text-sm text-parchment" %>
+      <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "gw-input" %>
+    </div>
+    <%= f.submit "Sign up", class: "gw-btn mt-4 w-full" %>
+  <% end %>
+  <%= render "devise/shared/links" %>
 <% end %>
-
-<%= render "devise/shared/links" %>

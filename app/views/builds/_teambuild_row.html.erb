@@ -1,23 +1,14 @@
-<a class="gw-row" href="<%= build_path(teambuild) %>">
-  <span class="gw-row-profs" aria-hidden="true">
+<a class="gw-row flex-wrap sm:flex-nowrap" href="<%= build_path(teambuild) %>">
+  <span class="flex shrink-0 -space-x-1.5" aria-hidden="true">
     <% teambuild.teambuild_characters.first(8).each do |character| %>
-      <span class="gw-prof-icon"><%= character.primary_profession&.html_image_simple(size: 24) %></span>
+      <span class="gw-prof-chip w-6 h-6"><%= character.primary_profession&.html_image_simple(size: 24) %></span>
     <% end %>
   </span>
-  <span class="gw-row-main">
-    <span class="gw-row-name"><%= teambuild.name.presence || "(unnamed)" %></span>
-    <span class="gw-row-badges">
-      <% if teambuild.status == "draft" %>
-        <span class="badge gw-badge-draft">Draft</span>
-      <% end %>
-      <% if teambuild.visibility != "public" %>
-        <span class="badge gw-badge-visibility"><%= teambuild.visibility %></span>
-      <% end %>
-      <span class="badge gw-badge-mode"><%= teambuild.game_mode.presence || "?" %></span>
-      <% teambuild.tags.each do |tag| %>
-        <span class="badge gw-badge-tag"><%= tag %></span>
-      <% end %>
+  <span class="flex-1 min-w-0">
+    <span class="block text-gold-400 font-semibold truncate"><%= teambuild.name.presence || "(unnamed)" %></span>
+    <span class="flex flex-wrap gap-1 mt-1">
+      <%= render "badges", teambuild: teambuild %>
     </span>
   </span>
-  <span class="gw-row-meta">by @<%= teambuild.player&.username || "unknown" %> · updated <%= teambuild.updated_at.strftime("%d/%m/%Y") %></span>
+  <span class="text-muted text-xs whitespace-nowrap basis-full sm:basis-auto">by @<%= teambuild.player&.username || "unknown" %> · updated <%= teambuild.updated_at.strftime("%d/%m/%Y") %></span>
 </a>

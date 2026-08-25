@@ -1,20 +1,17 @@
-<div class="container mt-4">
-  <div class="gw-window">
-    <div class="gw-window-header">
-      <h1 class="gw-title">Build Library <span class="gw-count"><%= @teambuilds.size %> builds</span></h1>
-      <%= form_with url: builds_path, method: :get, local: true, class: "gw-search" do %>
-        <%= text_field_tag :q, params[:q], class: "gw-search-input", placeholder: "Team build name…" %>
-        <button class="gw-btn" type="submit">Search</button>
-      <% end %>
-    </div>
-    <div class="gw-list">
-      <% if @teambuilds.any? %>
-        <%= render partial: "teambuild_row", collection: @teambuilds, as: :teambuild %>
-      <% else %>
-        <p class="gw-empty">
-          No builds found.<% if params[:q].present? %> No results for “<%= params[:q] %>”.<% end %>
-        </p>
-      <% end %>
-    </div>
+<div class="gw-window gw-frame">
+  <%= render "application/gw_tabs", tabs: [["Build Library", builds_path]] %>
+  <div class="flex gap-2 items-center px-4 py-3 border-b border-hairline">
+    <%= form_with url: builds_path, method: :get, class: "flex flex-1 gap-2" do %>
+      <%= text_field_tag :q, params[:q], class: "gw-input", placeholder: "Team build name…" %>
+      <button class="gw-btn" type="submit">Search</button>
+    <% end %>
+  </div>
+  <% if @teambuilds.any? %>
+    <%= render partial: "teambuild_row", collection: @teambuilds, as: :teambuild %>
+  <% else %>
+    <p class="gw-empty">No builds found.<% if params[:q].present? %> No results for “<%= params[:q] %>”.<% end %></p>
+  <% end %>
+  <div class="flex items-center px-4 py-3">
+    <span class="text-sm text-muted"><%= @teambuilds.size %> builds</span>
   </div>
 </div>

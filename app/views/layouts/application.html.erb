@@ -2,19 +2,21 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>GWRank.com</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
   </head>
 
-  <body>
-    <%= render 'navbar' %>
-    <%= render 'navbar_mobile' %>
-    <%= yield %>
-    <%= render 'popup_search' %>
+  <body class="gw-body flex flex-col" data-controller="search-dialog">
+    <%= render "application/gw_topbar" %>
+    <%= render "application/gw_flash" %>
+    <main class="flex-1 w-full max-w-6xl mx-auto px-4 py-5">
+      <%= yield %>
+    </main>
+    <%= render "application/gw_footer" %>
+    <%= render "application/gw_search_dialog" %>
   </body>
 </html>

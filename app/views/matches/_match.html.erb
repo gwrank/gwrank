@@ -1,77 +1,63 @@
-<li class="cyberpress-match cyberpress-match-compact" data-sr-item="matches" data-controller="match-builds" data-match-builds-match-id-value="<%= match.id %>">
-  <%= link_to match_path(match) do %>
-    <div class="cyberpress-match-header">
-      <div class="cyberpress-match-meta">
-        <span class="cyberpress-match-round"><%= match.round_text %></span>
-        <% if match.tournament&.tournament_type.present? %>
-          <span class="cyberpress-match-tournament-type"><%= match.tournament.tournament_type.upcase %></span>
+<li class="relative list-none m-0 p-0" data-controller="match-builds" data-match-builds-match-id-value="<%= match.id %>">
+  <%= link_to match_path(match), class: "gw-row" do %>
+    <span class="flex-1 min-w-0">
+      <span class="block font-display text-gold-300 text-base leading-snug truncate">
+        <% if match.teams.first.rank %>
+          <span class="text-muted">#<%= match.teams.first.rank %></span>
         <% end %>
-        <span class="cyberpress-match-date"><%= match.played_at&.to_date %></span>
-      </div>
-    </div>
-    <div class="cyberpress-match-participants">
-      <div class="cyberpress-match-participant">
-        <h3 class="cyberpress-match-participant-title">
-          <% if match.teams.first.rank %>
-            <span class="guild-rank">#<%= match.teams.first.rank %></span>
-          <% end %>
-          <%= match.teams.first.guild.name_with_tag %>
-          <% if match.winner_team == match.teams.first %>
-            <span style="color: #ffc107; font-size: 1.2rem;">🏆</span>
-          <% end %>
-        </h3>
-        <div class="cyberpress-match-professions" data-action="mouseenter->match-builds#show mouseleave->match-builds#hide">
-          <% match.teams.first.team_players.order(:position).each do |team_player| %>
-            <%= team_player.profession.html_image.html_safe %>
-          <% end %>
-        </div>
-      </div>
-      <div class="cyberpress-match-vs">
-        <span>VS</span>
-      </div>
-      <div class="cyberpress-match-participant cyberpress-match-participant-right">
-        <h3 class="cyberpress-match-participant-title">
-          <% if match.teams.second.rank.present? %>
-            <span class="guild-rank">#<%= match.teams.second.rank %></span>
-          <% end %>
-          <%= match.teams.second.guild.name_with_tag %>
-          <% if match.winner_team == match.teams.second %>
-            <span style="color: #ffc107; font-size: 1.2rem;">🏆</span>
-          <% end %>
-        </h3>
-        <div class="cyberpress-match-professions" data-action="mouseenter->match-builds#show mouseleave->match-builds#hide">
-          <% match.teams.second.team_players.order(:position).each do |team_player| %>
-            <%= team_player.profession.html_image.html_safe %>
-          <% end %>
-        </div>
-      </div>
-    </div>
+        <%= match.teams.first.guild.name_with_tag %>
+        <% if match.winner_team == match.teams.first %>
+          <span title="Winner">🏆</span>
+        <% end %>
+        <span class="text-muted px-1 text-xs">VS</span>
+        <% if match.teams.second.rank.present? %>
+          <span class="text-muted">#<%= match.teams.second.rank %></span>
+        <% end %>
+        <%= match.teams.second.guild.name_with_tag %>
+        <% if match.winner_team == match.teams.second %>
+          <span title="Winner">🏆</span>
+        <% end %>
+      </span>
+      <span class="flex flex-wrap items-center gap-2 mt-1 text-xs text-muted">
+        <span><%= match.round_text %></span>
+        <% if match.tournament&.tournament_type.present? %>
+          <span class="gw-badge gw-badge--tag"><%= match.tournament.tournament_type.upcase %></span>
+        <% end %>
+        <span><%= match.played_at&.to_date %></span>
+      </span>
+    </span>
+    <span class="flex shrink-0 -space-x-1.5" aria-hidden="true"
+          data-action="mouseenter->match-builds#show mouseleave->match-builds#hide">
+      <% match.teams.first.team_players.order(:position).each do |team_player| %>
+        <span class="gw-prof-chip w-6 h-6"><%= team_player.profession.html_image_simple(size: 24) %></span>
+      <% end %>
+      <span class="w-2"></span>
+      <% match.teams.second.team_players.order(:position).each do |team_player| %>
+        <span class="gw-prof-chip w-6 h-6"><%= team_player.profession.html_image_simple(size: 24) %></span>
+      <% end %>
+    </span>
   <% end %>
 
   <!-- Builds popup -->
-  <div class="match-builds-popup" data-match-builds-target="popup" style="display: none;">
-    <div class="match-builds-popup-content">
-      <div class="match-builds-teams">
-        <% match.teams.each do |team| %>
-          <div class="match-builds-team">
-            <h4 class="match-builds-team-name"><%= team.guild.name_with_tag %></h4>
-            <div class="match-builds-players">
-              <% team.team_players.order(:position).each do |team_player| %>
-                <div class="match-builds-player">
-                  <div class="match-builds-player-header">
-                    <%= team_player.profession.html_image_simple.html_safe %>
-                    <%= team_player.secondary_profession.html_image_simple.html_safe if team_player.secondary_profession %>
-                    <span class="match-builds-player-name"><%= display_team_player_name(team_player, current_player) %></span>
-                  </div>
-                  <div class="match-builds-player-skills">
-                    <%= team_player.html_skills_simple.html_safe %>
-                  </div>
+  <div class="match-builds-popup absolute left-0 top-full z-40 w-full" data-match-builds-target="popup" style="display: none;">
+    <div class="gw-window gw-frame p-4 grid gap-4 sm:grid-cols-2">
+      <% match.teams.each do |team| %>
+        <div>
+          <h4 class="font-display text-gold-300 text-sm mb-2"><%= team.guild.name_with_tag %></h4>
+          <div class="grid gap-3">
+            <% team.team_players.order(:position).each do |team_player| %>
+              <div>
+                <div class="flex items-center gap-1">
+                  <%= team_player.profession.html_image_simple.html_safe %>
+                  <%= team_player.secondary_profession.html_image_simple.html_safe if team_player.secondary_profession %>
+                  <span class="text-parchment text-sm"><%= display_team_player_name(team_player, current_player) %></span>
                 </div>
-              <% end %>
-            </div>
+                <div class="mt-1"><%= team_player.html_skills_simple.html_safe %></div>
+              </div>
+            <% end %>
           </div>
-        <% end %>
-      </div>
+        </div>
+      <% end %>
     </div>
   </div>
 </li>

@@ -57,24 +57,23 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     draft = Teambuild.find_by(source_uuid: doc["id"])
 
     get builds_path
-    assert_select ".badge", text: "Draft", count: 1
+    assert_select ".gw-badge--draft", text: "Draft", count: 1
 
     get build_path(draft)
-    assert_select ".badge", text: "Draft", count: 1
+    assert_select ".gw-badge--draft", text: "Draft", count: 1
   end
 
   test "index renders the GW window structure" do
     sign_in @owner
     get builds_path
     assert_response :success
-    assert_select ".gw-window", count: 1
+    assert_select "main .gw-window", count: 1
     assert_select ".gw-row", count: 1
-    assert_select ".gw-badge-mode", text: "PvP"
-    assert_select ".gw-badge-tag", text: "GvG"
-    assert_select ".gw-prof-icon img", minimum: 1
-    assert_select ".gw-prof-more", count: 0
+    assert_select ".gw-badge--mode", text: "PvP"
+    assert_select ".gw-badge--tag", text: "GvG"
+    assert_select ".gw-row img", minimum: 1
     assert_select ".gw-topbar"
-    assert_select ".gw-row-meta", text: /@#{Regexp.escape(@owner.username)}/
+    assert_select ".gw-row", text: /@#{Regexp.escape(@owner.username)}/
   end
 
   test "index renders all eight profession icons on one row" do
@@ -84,11 +83,9 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     get builds_path
     assert_response :success
     assert_select ".gw-row", text: /Eight Man Test/ do
-      assert_select ".gw-prof-icon img", count: 8
+      assert_select "img", count: 8
     end
-    assert_select ".gw-prof-more", count: 0
-    assert_select ".gw-row-meta", text: /updated \d{2}\/\d{2}\/\d{4}/
-    assert_select ".gw-row-meta", text: /persos/, count: 0
+    assert_select ".gw-row", text: /updated \d{2}\/\d{2}\/\d{4}/
   end
 
   test "index shows an empty state when nothing matches" do
@@ -102,10 +99,10 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     sign_in @owner
     get build_path(Teambuild.last)
     assert_response :success
-    assert_select ".gw-character-card", minimum: 1
+    assert_select "article.gw-window", minimum: 1
     assert_select ".gw-skillbar-slot", minimum: 8
     assert_select ".gw-skillbar-slot--elite", minimum: 1
-    assert_select ".gw-attribute-points", minimum: 1
-    assert_select ".gw-author", text: /@#{Regexp.escape(@owner.username)}/
+    assert_select "article.gw-window ul li strong", minimum: 1
+    assert_select ".gw-window-header small", text: /@#{Regexp.escape(@owner.username)}/
   end
 end

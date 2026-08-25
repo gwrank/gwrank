@@ -1,74 +1,53 @@
-<div class="content-wrap">
-  <div class="mpl-navbar-mobile-overlay"></div>
-  <div>
+<div class="space-y-4">
+  <div class="gw-window gw-frame p-6 leading-relaxed">
     <%= render 'documentation/breadcrumb', page: 'Team Build Commands' %>
-    
-    <section class="mpl-banner mpl-banner-top mpl-banner-small">
-      <div class="mpl-image" data-speed="0.8">
-        <%= image_tag 'background.jpg', class: 'jarallax-img' %>
-      </div>
-      <div class="mpl-banner-content mpl-box-sm">
-        <div class="container">
-          <h1 class="display-1 mb-0">Team Build Commands</h1>
-          <p class="lead">Show Guild Wars team builds from pawned2 exports</p>
+
+    <h1 class="font-display text-gold-300 text-2xl tracking-wide m-0 mt-3">Team Build Commands</h1>
+    <p class="text-muted mt-1 mb-0">Show Guild Wars team builds from pawned2 exports</p>
+
+    <div class="flex gap-6 mt-6">
+      <%= render 'documentation/sidebar' %>
+      <div class="flex-1 min-w-0 gw-doc">
+        <h2>Command Reference</h2>
+
+        <div class="mb-5 space-y-1">
+          <h3>/teambuild</h3>
+          <p class="m-0"><strong>Description:</strong> Show a team build from a pawned2 export</p>
+          <p class="m-0"><strong>Usage:</strong> <code>/teambuild &lt;code&gt; [--verbose]</code></p>
+          <p class="m-0"><strong>Parameters:</strong></p>
+          <ul>
+            <li><code>code</code> (required): The pawned2 team build text</li>
+            <li><code>verbose</code> (optional): Show skill names for each player</li>
+          </ul>
+          <p class="m-0"><strong>Example:</strong> <code>/teambuild &lt;paste pawned2 export here&gt;</code></p>
+          <p class="m-0"><strong>Response (compact):</strong> Single embed with grid image showing all 8 players' builds</p>
+          <p class="m-0"><strong>Response (verbose):</strong> Multiple embeds, one per player with skill details</p>
         </div>
-      </div>
-    </section>
-    
-    <div class="mpl-box-md">
-      <div class="container">
-        <div class="row hgap-lg vgap-lg">
-          <div class="col-lg mpl-content">
-            <article class="mpl-post">
-              <h2>Command Reference</h2>
-              
-              <div class="mb-4">
-                <h3>/teambuild</h3>
-                <p><strong>Description:</strong> Show a team build from a pawned2 export</p>
-                <p><strong>Usage:</strong> <code>/teambuild &lt;code&gt; [--verbose]</code></p>
-                <p><strong>Parameters:</strong></p>
-                <ul>
-                  <li><code>code</code> (required): The pawned2 team build text</li>
-                  <li><code>verbose</code> (optional): Show skill names for each player</li>
-                </ul>
-                <p><strong>Example:</strong> <code>/teambuild &lt;paste pawned2 export here&gt;</code></p>
-                <p><strong>Response (compact):</strong> Single embed with grid image showing all 8 players' builds</p>
-                <p><strong>Response (verbose):</strong> Multiple embeds, one per player with skill details</p>
-              </div>
-              
-              <div class="mt-5">
-                <h2>How to Get a pawned2 Export</h2>
-                <ol>
-                  <li>Open your team build</li>
-                  <li>Click "Edit", "Copy", "Template Code"</li>
-                  <li>Paste the text in Discord with <code>/teambuild &lt;text&gt;</code></li>
-                </ol>
-              </div>
-              
-              <div class="mt-5">
-                <h2>Limitations</h2>
-                <ul>
-                  <li>Maximum 8 players per team</li>
-                  <li>Invalid codes will show an error message</li>
-                </ul>
-              </div>
-              
-              <div class="mt-5">
-                <h2>Related Commands</h2>
-                <ul>
-                  <li><%= link_to '/build', build_doc_path %> - For individual builds</li>
-                </ul>
-              </div>
-            </article>
-          </div>
-          
-          <div class="col-auto-lg mpl-sidebar">
-            <%= render 'documentation/sidebar' %>
-          </div>
+
+        <div class="mt-8">
+          <h2>How to Get a pawned2 Export</h2>
+          <ol>
+            <li>Open your team build</li>
+            <li>Click "Edit", "Copy", "Template Code"</li>
+            <li>Paste the text in Discord with <code>/teambuild &lt;text&gt;</code></li>
+          </ol>
+        </div>
+
+        <div class="mt-8">
+          <h2>Limitations</h2>
+          <ul>
+            <li>Maximum 8 players per team</li>
+            <li>Invalid codes will show an error message</li>
+          </ul>
+        </div>
+
+        <div class="mt-8">
+          <h2>Related Commands</h2>
+          <ul>
+            <li><%= link_to '/build', build_doc_path %> - For individual builds</li>
+          </ul>
         </div>
       </div>
     </div>
-    
-    <%= render 'footer' %>
   </div>
 </div>

@@ -2,18 +2,28 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>GWRank.com</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>GWRank · Administration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
   </head>
 
-  <body>
-    <%= render 'navbar' %>
-    <%= render 'navbar_mobile' %>
-    <%= yield %>
+  <body class="gw-body flex flex-col">
+    <header class="flex items-center gap-3 px-4 py-2.5 bg-gradient-to-b from-(--color-header-from) to-ink-800 border-b-2 border-gold-600">
+      <strong class="font-display text-gold-300 tracking-widest">⚔ GWRANK <span class="text-muted font-normal">· Admin</span></strong>
+      <nav class="ml-auto flex gap-1 text-sm" aria-label="Administration">
+        <% players_active = gw_nav_active?(administration_players_path) %>
+        <% claims_active = gw_nav_active?(administration_character_claims_path) %>
+        <%= link_to "Players", administration_players_path, class: "gw-tab #{'gw-tab--active' if players_active}", aria: { current: ("page" if players_active) } %>
+        <%= link_to "Claims", administration_character_claims_path, class: "gw-tab #{'gw-tab--active' if claims_active}", aria: { current: ("page" if claims_active) } %>
+        <%= link_to "← Site", root_path, class: "gw-tab" %>
+      </nav>
+    </header>
+    <%= render "application/gw_flash" %>
+    <main class="flex-1 w-full max-w-6xl mx-auto px-4 py-5">
+      <%= yield %>
+    </main>
   </body>
 </html>

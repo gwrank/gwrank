@@ -1,67 +1,48 @@
-<div class="tournament-filters mb-50">
-  <%= form_with url: tournaments_path, method: :get, class: "row g-3" do |form| %>
-    <div class="col-md-2">
-      <%= form.label :date_from, "From", class: "form-label" %>
-      <%= form.date_field :date_from, value: params[:date_from], class: "form-control" %>
-    </div>
-    <div class="col-md-2">
-      <%= form.label :date_to, "To", class: "form-label" %>
-      <%= form.date_field :date_to, value: params[:date_to], class: "form-control" %>
-    </div>
-    <div class="col-md-2">
-      <%= form.label :tournament_type, "Tournament Type", class: "form-label" %>
-      <%= form.select :tournament_type, options_for_select([['All', ''], ['mAT', 'mat'], ['AT', 'at']], params[:tournament_type]), {}, class: "form-control" %>
-    </div>
-    <div class="col-md-2">
-      <%= form.label :flux_year, "Year", class: "form-label" %>
-      <%= form.select :flux_year, 
-        options_for_select(
-          (Match.oldest_year..Date.current.year).to_a.reverse.map { |year| [year, year] },
-          params[:flux_year] || Date.current.year
-        ), 
-        {}, 
-        class: "form-control" %>
-    </div>
-    <div class="col-md-2">
-      <%= form.label :flux_month, "Month/Flux", class: "form-label" %>
-      <%= form.select :flux_month, 
-        options_for_select(
-          [['January - Odran\'s Razor', '1'],
-           ['February - Amateur Hour', '2'],
-           ['March - Hidden Talent', '3'],
-           ['April - There Can Be Only One', '4'],
-           ['May - Meek Shall Inherit', '5'],
-           ['June - Jack of All Trades', '6'],
-           ['July - Chain Combo', '7'],
-           ['August - Xinrae\'s Revenge', '8'],
-           ['September - Like a Boss (and The Boss)', '9'],
-           ['October - Minion Apocalypse', '10'],
-           ['November - All In', '11'],
-           ['December - Parting Gift (and Gift of Battle)', '12']],
-          params[:flux_month]
-        ), 
-        { prompt: 'Select Month' }, 
-        class: "form-control" %>
-    </div>
-    <div class="col-md-1 d-flex align-items-end">
-      <%= form.button "Filter", class: "btn btn-md" %>
-    </div>
-  <% end %>
-</div>
-
-<script>
-  // Enable/disable region dropdown based on tournament type selection
-  document.addEventListener('DOMContentLoaded', function() {
-    const tournamentTypeSelect = document.querySelector('select[name="tournament_type"]');
-    const regionSelect = document.querySelector('select[name="tournament_region"]');
-    
-    if (tournamentTypeSelect && regionSelect) {
-      tournamentTypeSelect.addEventListener('change', function() {
-        regionSelect.disabled = this.value !== 'at';
-        if (this.value !== 'at') {
-          regionSelect.value = '';
-        }
-      });
-    }
-  });
-</script>
+<%= form_with url: tournaments_path, method: :get, class: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end" do |form| %>
+  <div>
+    <%= form.label :date_from, "From", class: "block text-sm text-muted mb-1" %>
+    <%= form.date_field :date_from, value: params[:date_from], class: "gw-input" %>
+  </div>
+  <div>
+    <%= form.label :date_to, "To", class: "block text-sm text-muted mb-1" %>
+    <%= form.date_field :date_to, value: params[:date_to], class: "gw-input" %>
+  </div>
+  <div>
+    <%= form.label :tournament_type, "Tournament Type", class: "block text-sm text-muted mb-1" %>
+    <%= form.select :tournament_type, options_for_select([['All', ''], ['mAT', 'mat'], ['AT', 'at']], params[:tournament_type]), {}, class: "gw-select" %>
+  </div>
+  <div>
+    <%= form.label :flux_year, "Year", class: "block text-sm text-muted mb-1" %>
+    <%= form.select :flux_year,
+      options_for_select(
+        (Match.oldest_year..Date.current.year).to_a.reverse.map { |year| [year, year] },
+        params[:flux_year] || Date.current.year
+      ),
+      {},
+      class: "gw-select" %>
+  </div>
+  <div>
+    <%= form.label :flux_month, "Month/Flux", class: "block text-sm text-muted mb-1" %>
+    <%= form.select :flux_month,
+      options_for_select(
+        [['January - Odran\'s Razor', '1'],
+         ['February - Amateur Hour', '2'],
+         ['March - Hidden Talent', '3'],
+         ['April - There Can Be Only One', '4'],
+         ['May - Meek Shall Inherit', '5'],
+         ['June - Jack of All Trades', '6'],
+         ['July - Chain Combo', '7'],
+         ['August - Xinrae\'s Revenge', '8'],
+         ['September - Like a Boss (and The Boss)', '9'],
+         ['October - Minion Apocalypse', '10'],
+         ['November - All In', '11'],
+         ['December - Parting Gift (and Gift of Battle)', '12']],
+        params[:flux_month]
+      ),
+      { prompt: 'Select Month' },
+      class: "gw-select" %>
+  </div>
+  <div>
+    <%= form.button "Filter", class: "gw-btn" %>
+  </div>
+<% end %>

@@ -1,0 +1,63 @@
+/* Polices auto-hébergées (fichiers latin .woff2 dans app/assets/fonts).
+   INVARIANT : les url() ci-dessous sont résolues par Tailwind relativement à
+   gw/tokens.css puis re-préfixées "./gw/", ce qui doit correspondre au chemin
+   logique Propshaft "gw/<fichier>" sous la racine app/assets/fonts. Renommer
+   l'un des deux dossiers casse les cinq @font-face. */
+@font-face {
+  font-family: "Cinzel";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("cinzel-latin-500-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Cinzel";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("cinzel-latin-700-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "EB Garamond";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("eb-garamond-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "EB Garamond";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("eb-garamond-latin-400-italic.woff2") format("woff2");
+}
+@font-face {
+  font-family: "EB Garamond";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("eb-garamond-latin-600-normal.woff2") format("woff2");
+}
+
+:root {
+  /* Couleurs dérivées, utilisées par les composants GW */
+  --color-gold-bright: #cd9219;
+  --color-header-from: #3a2c14;
+  --color-border-dim: #7a5f28;
+  --color-border-faint: #5a4520;
+  --color-row-border: #20170a;
+}
+
+/* Base commune au thème GW */
+body.gw-body {
+  font-family: var(--font-body);
+  background:
+    radial-gradient(1200px 500px at 50% -100px, var(--color-ink-700), var(--color-ink-900) 60%),
+    var(--color-ink-900);
+  color: var(--color-parchment);
+  min-height: 100vh;
+}
+
+@layer base {
+  h1, h2, h3, .font-display { font-family: var(--font-display); }
+}

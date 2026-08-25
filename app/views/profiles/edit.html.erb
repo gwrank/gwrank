@@ -1,142 +1,39 @@
-<section class="mpl-banner mpl-banner-top mpl-banner-parallax">
-  <div class="mpl-banner-content mpl-box-sm">
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-          <div class="mpl-content">
-            <h1 data-sr-item="sign" style="visibility: visible;">Edit Profile</h1>
+<%= render "application/gw_card", title: "Edit Profile" do %>
+  <%= link_to 'My API token', api_token_path, class: 'gw-btn' %>
 
-            <% if flash[:notice] %>
-              <div class="alert alert-success mb-3"><%= flash[:notice] %></div>
-            <% end %>
-            <% if flash[:alert] %>
-              <div class="alert alert-danger mb-3"><%= flash[:alert] %></div>
-            <% end %>
+  <%= form_with model: @player, url: profile_path do |form| %>
+    <div class="space-y-3">
+      <h2 class="text-sm font-bold text-gold-300 m-0">In-game characters</h2>
+      <%= link_to 'Add new character', new_profile_character_path, class: 'gw-btn gw-btn--ghost' %>
+      <%= form.label :igname, 'Main in-game name', class: 'block text-sm text-parchment' %>
+      <%= form.text_field :igname, class: 'gw-input' %>
+      <% @player.characters.each do |character| %>
+        <p class="flex items-center justify-between gap-2 m-0">
+          <span><%= character.igname %></span>
+          <%= link_to 'Unlink', profile_character_path(character), data: { turbo_method: :delete }, class: 'gw-btn gw-btn--ghost' %>
+        </p>
+      <% end %>
 
-            <div class="row">
-              <%= link_to 'My API token', api_token_path, class: 'btn btn-md btn-success' %>
-            </div>
-            <%= form_with model: @player, url: profile_path do |form| %>
-              <div class="mpl-snippet-fill">
-                <h2>In-game characters</h2>
-                <%= link_to 'Add new character', new_profile_character_path, class: 'btn btn-sm btn-success' %>
-                <div class="row hgap-sm vgap-sm">
-                  <div class="col-12">
-                    <%= form.label :igname, 'Main in-game name' %>
-                    <%= form.text_field :igname, class: 'form-control' %><span class="form-control-bg"></span>
-                  </div>
-                  <div class="col-12">
-                    <% @player.characters.each do |character| %>
-                      <p>
-                      <%= character.igname %>
-                      <%= link_to 'Unlink', profile_character_path(character), data: { turbo_method: :delete }, class: 'float-right btn btn-sm btn-danger' %>
-                      </p>
-                    <% end %>
-                  </div>
-                </div>
-              </div>
-              <div class="mpl-snippet-fill">
-                <h2>Guild</h2>
-                <%= link_to 'Add new guild', new_profile_character_path, class: 'btn btn-sm btn-success' %>
-                <div class="row hgap-sm vgap-sm">
-                  <div class="col-12">
-                    <%= form.label :igname, 'Current guild' %>
-                    <%= form.select :guild_id, options_from_collection_for_select(@guilds, :id, :name_with_tag, @player.guild_id), { include_blank: true }, class: 'form-control' %><span class="form-control-bg"></span>
-                  </div>
-                </div>
-              </div>
-              <div class="mpl-snippet-fill">
-                <h2>Professions</h2>
-                <div class="row hgap-sm vgap-sm">
-                  <div class="col-12">
-                    <div class="custom-control custom-checkbox">
-                      <%= form.check_box :is_warrior, class: 'custom-control-input' %>
-                      <%= form.label :is_warrior, 'Warrior', class: 'custom-control-label' %>
-                    </div>
-                  </div>
-                  <div class="col-12">
-                    <div class="custom-control custom-checkbox">
-                      <%= form.check_box :is_ranger, class: 'custom-control-input' %>
-                      <%= form.label :is_ranger, 'Ranger', class: 'custom-control-label' %>
-                    </div>
-                  </div>
-                  <div class="col-12">
-                    <div class="custom-control custom-checkbox">
-                      <%= form.check_box :is_monk, class: 'custom-control-input' %>
-                      <%= form.label :is_monk, 'Monk', class: 'custom-control-label' %>
-                    </div>
-                  </div>
-                  <div class="col-12">
-                    <div class="custom-control custom-checkbox">
-                      <%= form.check_box :is_necromancer, class: 'custom-control-input' %>
-                      <%= form.label :is_necromancer, 'Necromancer', class: 'custom-control-label' %>
-                    </div>
-                  </div>
-                  <div class="col-12">
-                    <div class="custom-control custom-checkbox">
-                      <%= form.check_box :is_mesmer, class: 'custom-control-input' %>
-                      <%= form.label :is_mesmer, 'Mesmer', class: 'custom-control-label' %>
-                    </div>
-                  </div>
-                  <div class="col-12">
-                    <div class="custom-control custom-checkbox">
-                      <%= form.check_box :is_elementalist, class: 'custom-control-input' %>
-                      <%= form.label :is_elementalist, 'Elementalist', class: 'custom-control-label' %>
-                    </div>
-                  </div>
-                  <div class="col-12">
-                    <div class="custom-control custom-checkbox">
-                      <%= form.check_box :is_assassin, class: 'custom-control-input' %>
-                      <%= form.label :is_assassin, 'Assassin', class: 'custom-control-label' %>
-                    </div>
-                  </div>
-                  <div class="col-12">
-                    <div class="custom-control custom-checkbox">
-                      <%= form.check_box :is_ritualist, class: 'custom-control-input' %>
-                      <%= form.label :is_ritualist, 'Ritualist', class: 'custom-control-label' %>
-                    </div>
-                  </div>
-                  <div class="col-12">
-                    <div class="custom-control custom-checkbox">
-                      <%= form.check_box :is_paragon, class: 'custom-control-input' %>
-                      <%= form.label :is_paragon, 'Paragon', class: 'custom-control-label' %>
-                    </div>
-                  </div>
-                  <div class="col-12">
-                    <div class="custom-control custom-checkbox">
-                      <%= form.check_box :is_dervish, class: 'custom-control-input' %>
-                      <%= form.label :is_dervish, 'Dervish', class: 'custom-control-label' %>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="mpl-snippet-fill">
-                <h2>Streaming</h2>
-                <div class="row hgap-sm vgap-sm">
-                  <div class="col-12">
-                    <%= form.label :twitch_username, 'Twitch username' %>
-                    <%= form.text_field :twitch_username, class: 'form-control' %><span class="form-control-bg"></span>
-                  </div>
-                </div>
-              </div>
-              <div class="mpl-snippet-fill">
-                <div class="row hgap-sm vgap-sm">
-                  <div class="col-12">
-                    <%= form.button 'Submit', class: 'btn btn-md btn-success' %>
-                  </div>
-                </div>
-              </div>
-            <% end %>
-            <div class="mpl-snippet-fill">
-              <div class="row hgap-sm vgap-sm">
-                <div class="col-12">
-                  <%= button_to 'Delete my account', profile_path, method: :delete, data: { turbo_confirm: "Are you sure?" }, class: 'btn btn-md btn-danger' %>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <h2 class="text-sm font-bold text-gold-300 m-0">Guild</h2>
+      <%= link_to 'Add new guild', new_profile_character_path, class: 'gw-btn gw-btn--ghost' %>
+      <%= form.label :guild_id, 'Current guild', class: 'block text-sm text-parchment' %>
+      <%= form.select :guild_id, options_from_collection_for_select(@guilds, :id, :name_with_tag, @player.guild_id), { include_blank: true }, class: 'gw-input' %>
+
+      <h2 class="text-sm font-bold text-gold-300 m-0">Professions</h2>
+      <% { is_warrior: 'Warrior', is_ranger: 'Ranger', is_monk: 'Monk', is_necromancer: 'Necromancer',
+           is_mesmer: 'Mesmer', is_elementalist: 'Elementalist', is_assassin: 'Assassin',
+           is_ritualist: 'Ritualist', is_paragon: 'Paragon', is_dervish: 'Dervish' }.each do |attr, label| %>
+        <label class="flex items-center gap-2 text-sm text-parchment">
+          <%= form.check_box attr %> <%= label %>
+        </label>
+      <% end %>
+
+      <h2 class="text-sm font-bold text-gold-300 m-0">Streaming</h2>
+      <%= form.label :twitch_username, 'Twitch username', class: 'block text-sm text-parchment' %>
+      <%= form.text_field :twitch_username, class: 'gw-input' %>
     </div>
-  </div>
-</section>
+    <%= form.button 'Submit', class: 'gw-btn mt-4 w-full' %>
+  <% end %>
+
+  <%= button_to 'Delete my account', profile_path, method: :delete, data: { turbo_confirm: "Are you sure?" }, class: 'gw-btn gw-btn--danger w-full' %>
+<% end %>
