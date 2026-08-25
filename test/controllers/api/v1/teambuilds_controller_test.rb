@@ -83,6 +83,20 @@ module Api::V1
       assert_equal "Water Magic", character["dominantAttribute"]
     end
 
+    test "summaries expose documentHash and show sets a strong ETag" do
+      hash = Teambuild.last.document_hash
+
+      get api_v1_teambuilds_path, headers: auth_headers(@owner)
+      assert_equal hash, response.parsed_body["teambuilds"].sole["documentHash"]
+
+      get export_api_v1_teambuilds_path, headers: auth_headers(@owner)
+      assert_equal hash, response.parsed_body["teambuilds"].sole["documentHash"]
+
+      get api_v1_teambuild_path(@document["id"]), headers: auth_headers(@owner)
+      assert_response :success
+      assert_equal %("#{hash}"), response.headers["ETag"]
+    end
+
     test "upsert creates then no-op then replaces" do
       fresh = JSON.parse(@document.to_json)
       fresh["id"] = "eeeeeee1-0000-0000-0000-000000000001"

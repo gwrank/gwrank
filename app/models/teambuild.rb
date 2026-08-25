@@ -85,7 +85,8 @@ class Teambuild < ApplicationRecord
       status: status,
       characters: teambuild_characters.map(&:summary),
       createdAt: created_at,
-      updatedAt: updated_at
+      updatedAt: updated_at,
+      documentHash: document_hash
     }
   end
 

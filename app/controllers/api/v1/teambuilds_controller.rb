@@ -35,6 +35,7 @@ class Api::V1::TeambuildsController < ApplicationController
     return head :not_found if teambuild.nil?
     return head :forbidden unless teambuild.visible_to?(@player)
 
+    response.set_header("ETag", %("#{teambuild.document_hash}"))
     render json: teambuild.document.merge(author: teambuild.player&.username)
   end
 
