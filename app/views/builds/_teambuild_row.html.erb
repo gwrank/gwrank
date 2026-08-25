@@ -1,4 +1,4 @@
-<a class="gw-row" href="<%= build_path(teambuild) %>">
+<a class="gw-row flex-wrap sm:flex-nowrap" href="<%= build_path(teambuild) %>">
   <span class="flex shrink-0 -space-x-1.5" aria-hidden="true">
     <% teambuild.teambuild_characters.first(8).each do |character| %>
       <span class="gw-prof-chip w-6 h-6"><%= character.primary_profession&.html_image_simple(size: 24) %></span>
@@ -10,5 +10,5 @@
       <%= render "badges", teambuild: teambuild %>
     </span>
   </span>
-  <span class="text-muted text-xs whitespace-nowrap shrink-0">by @<%= teambuild.player&.username || "unknown" %> · updated <%= teambuild.updated_at.strftime("%d/%m/%Y") %></span>
+  <span class="text-muted text-xs whitespace-nowrap basis-full sm:basis-auto">by @<%= teambuild.player&.username || "unknown" %> · updated <%= teambuild.updated_at.strftime("%d/%m/%Y") %></span>
 </a>
