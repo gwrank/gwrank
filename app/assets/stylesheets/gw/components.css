@@ -171,8 +171,12 @@
   .gw-flash--notice { background: #141f0e; border: 1px solid #4a6b2a; color: #b8d98a; }
   .gw-flash--alert { background: #24100d; border: 1px solid #6b2a2a; color: #d98a8a; }
 
-  /* Pagination (markup Pagy habillé) */
+  /* Pagination (markup Pagy habillé — gère nav>a et ul.pagination>li>a de la série bootstrap) */
   .gw-pagy { display: flex; gap: 4px; flex-wrap: wrap; }
+  .gw-pagy ul {
+    display: flex; gap: 4px; flex-wrap: wrap;
+    padding: 0; margin: 0; list-style: none;
+  }
   .gw-pagy a, .gw-pagy span {
     min-width: 28px; height: 28px;
     display: inline-flex; align-items: center; justify-content: center;
