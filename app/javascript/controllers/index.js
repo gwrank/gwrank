@@ -10,14 +10,14 @@ application.register("health-chart", HealthChartController)
 import MatchBuildsController from "./match_builds_controller"
 application.register("match-builds", MatchBuildsController)
 
-import Popover from "@stimulus-components/popover"
-application.register("popover", Popover)
-
 import ProfessionNavController from "./profession_nav_controller"
 application.register("profession-nav", ProfessionNavController)
 
 import SearchDialogController from "./search_dialog_controller"
 application.register("search-dialog", SearchDialogController)
+
+import TemplateCodePopoverController from "./template_code_popover_controller"
+application.register("template-code-popover", TemplateCodePopoverController)
 
 import TooltipController from "./tooltip_controller"
 application.register("tooltip", TooltipController)
