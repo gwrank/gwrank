@@ -60,6 +60,7 @@ Rails.application.routes.draw do
   get '/scrim', to: 'documentation#scrim', as: :scrim_doc
   get '/build', to: 'documentation#build', as: :build_doc
   get '/teambuild', to: 'documentation#teambuild', as: :teambuild_doc
+  get '/bot', to: 'documentation#bot', as: :bot
 
   root to: 'home#index'
 end

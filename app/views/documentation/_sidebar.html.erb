@@ -3,6 +3,7 @@
     <div>
       <h3 class="font-display text-gold-300 text-xs tracking-wider uppercase mb-2">Documentation</h3>
       <ul class="list-none m-0 p-0 space-y-1 text-sm">
+        <li><%= link_to 'Discord Bot', bot_path, class: "block border-l-2 pl-3 py-1 #{current_page?(bot_path) ? 'border-gold-500 text-gold-400' : 'border-hairline text-muted hover:text-parchment'}" %></li>
         <li><%= link_to 'Player Commands', player_doc_path, class: "block border-l-2 pl-3 py-1 #{current_page?(player_doc_path) ? 'border-gold-500 text-gold-400' : 'border-hairline text-muted hover:text-parchment'}" %></li>
         <li><%= link_to 'AT Commands', at_doc_path, class: "block border-l-2 pl-3 py-1 #{current_page?(at_doc_path) ? 'border-gold-500 text-gold-400' : 'border-hairline text-muted hover:text-parchment'}" %></li>
         <li><%= link_to 'Monthly AT Commands', mat_doc_path, class: "block border-l-2 pl-3 py-1 #{current_page?(mat_doc_path) ? 'border-gold-500 text-gold-400' : 'border-hairline text-muted hover:text-parchment'}" %></li>
