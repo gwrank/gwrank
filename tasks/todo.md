@@ -41,3 +41,34 @@ Vérifié : suite complète 253 runs (seules les 3 failures scrims préexistante
 Écart assumé vs spec : `updated_since=` vide → ignoré plutôt que 400 (rswag émet des vides ; un vide signifie « pas de filtre »). Spec design mise à jour.
 
 Reste : réponse à Philippe (point 1 auteur déjà livré par 7d114fd1, à déployer).
+
+---
+
+# Investigation « builds équipe 2 identiques à l'équipe 1 » (/matches/:id)
+
+## Statut : ENQUÊTE TERMINÉE — corruption de données, pas un bug de rendu
+
+## Constats
+
+1. **Le rendu est correct.** Nouveau test `show renders distinct builds for second team when served from cache`
+   (matches_controller_test) : deux équipes avec builds distincts → sections distinctes, y compris via le chemin
+   `Rails.cache.fetch` marshalé. Échantillon de ~130 pages de prod : les équipes sont bien distinctes partout.
+2. **Le match signalé** (`2026-1-mat-3e1892c2…`, LaG vs Bad Drauf, id 1360) : les codes template des 16 joueurs
+   (popovers) montrent T2 = T1 exactement (6/8 codes identiques octet pour octet, 8/8 ensembles de skills identiques).
+3. **Preuve d'impossibilité in-game** dans le même lot : p.ex. « fist vs Bad Drauf » — un Elementalist/Necromancer
+   (code décodé prim=6 sec=4) porte une barre 100% Dervish (Avatar of Lyssa, Mirage Cloak, Aura Slicer…) ;
+   ailleurs Warrior/Assassin avec du Fire Magic élémentaliste. Physiquement impossible ⇒ données corrompues.
+4. **Périmètre** : tournoi `2026-1-mat` — 46 matchs sur 50 scannés contiennent des combos prof↔skills impossibles ;
+   les 5 matchs sans section stats (`json` vide) appartiennent tous à ce tournoi. Aucun autre tournoi affecté
+   (miroirs ≤ 4/8 = méta copiée légitime, builds internes cohérents).
+5. **Origine** : ce lot a été importé hors du code actuel. `Match.import!` (depuis 331630c6, 20/02/2026) stocke
+   toujours `match.json` ou échoue ; ces matchs (joués le 17/01/2026) ont `json` vide ⇒ import one-off antérieur
+   au code versionné, qui a dupliqué/mélangé les barres entre les deux parties.
+
+## Reste à faire (décision produit)
+
+- [ ] Récupérer les fichiers sources Tolkano/observer du mAT janvier 2026 et ré-importer les ~50 matchs du tournoi
+      (les données actuelles ne permettent pas de reconstruire les vraies builds).
+- [ ] À défaut : supprimer les matchs du tournoi 2026-1-mat ou masquer leurs builds.
+- [ ] Optionnel : garde-fou à l'import dans `Match.import!` (cohérence skill↔profession) — d'abord fiabiliser
+      `Skill.profession_id` en base locale (Jagged Strike=Ritualist ?! snapshot dev obsolète ; la prod semble saine).

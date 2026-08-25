@@ -1,6 +1,9 @@
 <div class="space-y-4">
   <div class="gw-window gw-frame">
-    <%= render "application/gw_tabs", tabs: [["Tournaments", tournaments_path], [@match.tournament.title, tournament_path(@match.tournament)], [@match.title, nil]] %>
+    <% tabs = [["Tournaments", tournaments_path]] %>
+    <% tabs << [@match.tournament.title, tournament_path(@match.tournament)] if @match.tournament %>
+    <% tabs << [@match.title, nil] %>
+    <%= render "application/gw_tabs", tabs: tabs %>
     <div class="gw-window-header">
       <h1 class="gw-title text-base m-0"><%= @match.title %></h1>
       <% if current_player&.is_moderator? && @match.imported_by.eql?(current_player) %>
@@ -28,7 +31,7 @@
             <p class="text-sm m-0 mt-1"><%= link_to 'Guild details', guild_path(@match.teams.first.guild), class: 'text-muted hover:text-gold-400' %></p>
           </div>
           <div class="text-center font-display text-gold-300">
-            <div class="text-xs text-muted"><%= @match.round_text %> · <%= @match.tournament.date %></div>
+            <div class="text-xs text-muted"><%= @match.round_text %> · <%= @match.tournament&.date %></div>
             <div class="text-2xl tracking-widest">VS</div>
           </div>
           <div class="text-center sm:text-right">
@@ -64,7 +67,7 @@
           <div class="overflow-x-auto">
             <table class="gw-table">
               <tbody>
-                <% @match.teams.second.team_players.order(position: :asc).each do |team_player| %>
+                <% @match.teams.second.team_players.includes(character: [ :player ], profession: [], secondary_profession: [], team_player_skills: [ :skill ], team_player_stats: []).order(position: :asc).each do |team_player| %>
                   <%= render 'team_player', team_player: team_player %>
                 <% end %>
               </tbody>
