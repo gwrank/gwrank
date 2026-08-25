@@ -13,6 +13,8 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_select 'body', text: /Open Scrims/
     assert_select 'body', text: /Tournament Archives/
     assert_select 'body', text: /Documentation/
+    assert_select "a[href='/z-codex']", text: 'Z-Codex Compatible'
+    assert_select "a[href='/z-codex']", text: /Get Z-Codex/
   end
 
   test "top navigation shows Builds, Bot & Docs and Archives" do
