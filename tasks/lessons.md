@@ -34,3 +34,7 @@
 ## 2026-08-25 — git add -A avale les fichiers en cours de debug
 - Un `git add -A` a commité un logger de diagnostic temporaire dans un commit de polish sans rapport.
 - Règle : commits toujours par fichiers ciblés (`git add <chemins>`) dès qu'un fichier hors périmètre est modifié dans le worktree ; `git status` avant chaque commit.
+
+## 2026-08-25 — Copie marketing paraphrasée depuis la doc = corrections factuelles
+- La copie de la landing page Z-Codex, résumée depuis le README du projet, a été corrigée par l'utilisateur : « 8 personnages » → 8 à 12 ; arbre de variantes à profondeur illimitée (pas juste « organized in trees ») ; « spike calculator » comme outil nommé ; sources communautaires élargies (GW1 builds, more to come) ; filtres du catalogue par Skill Type et surtout Mechanics omis.
+- Règles : (1) toute affirmation produit visible par l'utilisateur se cite au plus près de la source ou se fait valider mot pour mot AVANT commit — ne jamais paraphraser de mémoire ; (2) en cas de doute sur un terme utilisateur (« pike » → spike), le dire explicitement dans le résumé plutôt que d'assumer en silence ; (3) les listes de capacités (« filterable catalog ») doivent reprendre LES critères nommés par la doc/source, pas un générique.
