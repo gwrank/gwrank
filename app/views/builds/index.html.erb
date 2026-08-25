@@ -1,6 +1,6 @@
 <div class="gw-window gw-frame">
   <%= render "application/gw_tabs", tabs: [["Build Library", builds_path]] %>
-  <div class="flex gap-2 items-center px-4 py-3 border-b border-[#2b2010]">
+  <div class="flex gap-2 items-center px-4 py-3 border-b border-hairline">
     <%= form_with url: builds_path, method: :get, class: "flex flex-1 gap-2" do %>
       <%= text_field_tag :q, params[:q], class: "gw-input", placeholder: "Team build name…" %>
       <button class="gw-btn" type="submit">Search</button>

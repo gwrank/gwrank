@@ -77,7 +77,7 @@
       <% if @tournament.matches.any? %>
         <section>
           <h2 class="font-display text-gold-300 text-base mb-2">Matches</h2>
-          <ul class="list-none m-0 p-0 border-t border-[#2b2010]">
+          <ul class="list-none m-0 p-0 border-t border-hairline">
             <% @tournament.matches.order(round: :desc).order(number_on_round: :desc).each do |match| %>
               <li class="border-b border-seam py-2 flex flex-wrap items-center gap-x-3 gap-y-1">
                 <span class="font-display text-gold-300">
