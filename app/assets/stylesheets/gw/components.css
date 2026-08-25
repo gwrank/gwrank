@@ -84,7 +84,9 @@
     border-color: #b06a5f;
   }
   /* Compat : health_chart_controller.js bascule ces noms de classes bootstrap
-     sur ses boutons — on les habille en fantôme pour l'état inactif. */
+     sur ses boutons — on les habille en fantôme pour l'état inactif.
+     L'état actif repose sur l'absence de .btn-primary : le bouton retombe
+     alors sur le dégradé or de base .gw-btn. */
   .gw-btn.btn-outline-primary {
     background: none;
     color: var(--color-parchment);
@@ -92,6 +94,7 @@
     box-shadow: none;
     font-weight: 400;
   }
+  .gw-btn.btn-primary { }
 
   /* Champs */
   .gw-input, .gw-select, .gw-textarea {
@@ -237,6 +240,10 @@
     outline: 2px solid var(--color-gold-500);
     outline-offset: 2px;
   }
+
+  /* Marqueur de repli dans les <summary> : pointe à droite fermé, pivoté vers le bas ouvert */
+  details > summary .collapse-icon { display: inline-block; transition: transform .15s ease; }
+  details[open] > summary .collapse-icon { transform: rotate(90deg); }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition: none !important; animation: none !important; }

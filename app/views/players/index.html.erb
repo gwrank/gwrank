@@ -5,7 +5,7 @@
       <h1 class="gw-title text-base m-0">Players</h1>
       <span class="gw-count text-sm"><%= @pagy.count %> ranked</span>
     </div>
-    <div class="p-4 border-b border-[#2b2010]">
+    <div class="p-4 border-b border-hairline">
       <%= render "searches/form", search_query: '' %>
     </div>
 
@@ -23,9 +23,9 @@
             </thead>
             <tbody>
               <% @players.each_with_index do |player, index| %>
-                <% cache player do %>
-                  <tr>
-                    <td class="text-muted"><%= index + 1 %></td>
+                <tr>
+                  <td class="text-muted"><%= @pagy.offset + index + 1 %></td>
+                  <% cache player do %>
                     <td>
                       <strong><%= link_to display_player_name(player, current_player), player_path(player), class: "hover:text-gold-400" %></strong>
                       <% if player.is_verified? %>
@@ -40,8 +40,8 @@
                         <span class="text-muted">—</span>
                       <% end %>
                     </td>
-                  </tr>
-                <% end %>
+                  <% end %>
+                </tr>
               <% end %>
             </tbody>
           </table>

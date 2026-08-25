@@ -49,23 +49,27 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <section>
           <h2 class="font-display text-gold-300 text-sm mb-2"><%= @match.teams.first.guild.name_with_tag %></h2>
-          <table class="gw-table">
-            <tbody>
-              <% @match.teams.first.team_players.includes(character: [ :player ], profession: [], secondary_profession: [], team_player_skills: [ :skill ], team_player_stats: []).order(position: :asc).each do |team_player| %>
-                <%= render 'team_player', team_player: team_player %>
-              <% end %>
-            </tbody>
-          </table>
+          <div class="overflow-x-auto">
+            <table class="gw-table">
+              <tbody>
+                <% @match.teams.first.team_players.includes(character: [ :player ], profession: [], secondary_profession: [], team_player_skills: [ :skill ], team_player_stats: []).order(position: :asc).each do |team_player| %>
+                  <%= render 'team_player', team_player: team_player %>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
         </section>
         <section>
           <h2 class="font-display text-gold-300 text-sm mb-2"><%= @match.teams.second.guild.name_with_tag %></h2>
-          <table class="gw-table">
-            <tbody>
-              <% @match.teams.second.team_players.order(position: :asc).each do |team_player| %>
-                <%= render 'team_player', team_player: team_player %>
-              <% end %>
-            </tbody>
-          </table>
+          <div class="overflow-x-auto">
+            <table class="gw-table">
+              <tbody>
+                <% @match.teams.second.team_players.order(position: :asc).each do |team_player| %>
+                  <%= render 'team_player', team_player: team_player %>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
         </section>
       </div>
 

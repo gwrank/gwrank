@@ -15,54 +15,58 @@
       <% if @tournament.tournament_results.swiss_rounds_results.any? %>
         <section>
           <h2 class="font-display text-gold-300 text-base mb-2">Swiss rounds results</h2>
-          <table class="gw-table">
-            <thead>
-              <tr>
-                <th scope="col">Position</th>
-                <th scope="col">Guild name</th>
-                <th scope="col">Guild tag</th>
-                <th scope="col">Region</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% @tournament.tournament_results.includes(:guild).swiss_rounds_results.order(position: :asc).each do |tournament_result| %>
+          <div class="overflow-x-auto">
+            <table class="gw-table">
+              <thead>
                 <tr>
-                  <td><%= tournament_result.position %></td>
-                  <td><%= link_to tournament_result.guild.name, guild_path(tournament_result.guild), class: "hover:text-gold-400" %></td>
-                  <td><%= tournament_result.guild.tag %></td>
-                  <td><%= tournament_result.guild.region %></td>
+                  <th scope="col">Position</th>
+                  <th scope="col">Guild name</th>
+                  <th scope="col">Guild tag</th>
+                  <th scope="col">Region</th>
                 </tr>
-              <% end %>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                <% @tournament.tournament_results.includes(:guild).swiss_rounds_results.order(position: :asc).each do |tournament_result| %>
+                  <tr>
+                    <td><%= tournament_result.position %></td>
+                    <td><%= link_to tournament_result.guild.name, guild_path(tournament_result.guild), class: "hover:text-gold-400" %></td>
+                    <td><%= tournament_result.guild.tag %></td>
+                    <td><%= tournament_result.guild.region %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
         </section>
       <% end %>
 
       <% if @tournament.tournament_results.final_standings.any? %>
         <section>
           <h2 class="font-display text-gold-300 text-base mb-2">Final standings</h2>
-          <table class="gw-table">
-            <thead>
-              <tr>
-                <th scope="col">Position</th>
-                <th scope="col">Trim</th>
-                <th scope="col">Guild name</th>
-                <th scope="col">Guild tag</th>
-                <th scope="col">Region</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% @tournament.tournament_results.includes(:guild).final_standings.order(position: :asc).each do |tournament_result| %>
+          <div class="overflow-x-auto">
+            <table class="gw-table">
+              <thead>
                 <tr>
-                  <td><%= tournament_result.position %></td>
-                  <td><%= tournament_result.trim_text %></td>
-                  <td><%= link_to tournament_result.guild.name, guild_path(tournament_result.guild), class: "hover:text-gold-400" %></td>
-                  <td><%= tournament_result.guild.tag %></td>
-                  <td><%= tournament_result.guild.region %></td>
+                  <th scope="col">Position</th>
+                  <th scope="col">Trim</th>
+                  <th scope="col">Guild name</th>
+                  <th scope="col">Guild tag</th>
+                  <th scope="col">Region</th>
                 </tr>
-              <% end %>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                <% @tournament.tournament_results.includes(:guild).final_standings.order(position: :asc).each do |tournament_result| %>
+                  <tr>
+                    <td><%= tournament_result.position %></td>
+                    <td><%= tournament_result.trim_text %></td>
+                    <td><%= link_to tournament_result.guild.name, guild_path(tournament_result.guild), class: "hover:text-gold-400" %></td>
+                    <td><%= tournament_result.guild.tag %></td>
+                    <td><%= tournament_result.guild.region %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
         </section>
       <% end %>
 
@@ -75,7 +79,7 @@
           <h2 class="font-display text-gold-300 text-base mb-2">Matches</h2>
           <ul class="list-none m-0 p-0 border-t border-[#2b2010]">
             <% @tournament.matches.order(round: :desc).order(number_on_round: :desc).each do |match| %>
-              <li class="border-b border-[#20170a] py-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <li class="border-b border-seam py-2 flex flex-wrap items-center gap-x-3 gap-y-1">
                 <span class="font-display text-gold-300">
                   <%= link_to match.teams.first.guild.name_with_tag, match_path(match), class: "hover:text-gold-400" %>
                   <span class="text-muted px-1 text-xs">VS</span>

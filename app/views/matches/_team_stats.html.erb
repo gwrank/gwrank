@@ -4,11 +4,12 @@
 
 <div class="mb-3">
   <label class="flex items-center gap-2 text-sm" for="excludeNpcToggle-<%= team_index %>">
-    <input type="checkbox" id="excludeNpcToggle-<%= team_index %>" checked class="accent-[#c9a959]">
+    <input type="checkbox" id="excludeNpcToggle-<%= team_index %>" checked class="accent-gold-500">
     <strong>Include NPC Damage in Stats</strong>
   </label>
 </div>
 
+<div class="overflow-x-auto">
 <table class="gw-table table-stats" data-team-index="<%= team_index %>">
   <thead>
     <tr>
@@ -47,7 +48,7 @@
         total_damage_dealt = stats["total_damage_dealt"] || 0
         total_damage_received = stats["total_damage_received"] || 0
       %>
-      <tr class="player-row cursor-pointer" data-agent-id="<%= player_stat[:agent_id] %>">
+      <tr class="player-row cursor-pointer" role="button" tabindex="0" aria-expanded="false" data-agent-id="<%= player_stat[:agent_id] %>">
         <td class="text-center expand-icon">▶</td>
         <% team_player = @match.team_players.find_by(igname: player_stat[:name]) %>
         <td><strong><%= display_team_player_name(team_player, current_player) %></strong></td>
@@ -80,7 +81,7 @@
         <td colspan="9">
           <div class="p-3 grid grid-cols-1 md:grid-cols-2 gap-3">
             <details open>
-              <summary class="cursor-pointer select-none font-display text-gold-300 text-sm mb-2"><span class="collapse-icon">▼</span> Damage (Opponents)</summary>
+              <summary class="cursor-pointer select-none font-display text-gold-300 text-sm mb-2"><span class="collapse-icon">▶</span> Damage (Opponents)</summary>
               <table class="gw-table">
                 <thead>
                   <tr>
@@ -125,7 +126,7 @@
             </details>
 
             <details open>
-              <summary class="cursor-pointer select-none font-display text-gold-300 text-sm mb-2"><span class="collapse-icon">▼</span> Healing (Allies)</summary>
+              <summary class="cursor-pointer select-none font-display text-gold-300 text-sm mb-2"><span class="collapse-icon">▶</span> Healing (Allies)</summary>
               <table class="gw-table">
                 <thead>
                   <tr>
@@ -168,7 +169,7 @@
             </details>
 
             <details open class="md:col-span-2">
-              <summary class="cursor-pointer select-none font-display text-gold-300 text-sm mb-2"><span class="collapse-icon">▼</span> Damage (NPCs)</summary>
+              <summary class="cursor-pointer select-none font-display text-gold-300 text-sm mb-2"><span class="collapse-icon">▶</span> Damage (NPCs)</summary>
               <table class="gw-table">
                 <thead>
                   <tr>
@@ -215,7 +216,7 @@
             </details>
 
             <details open class="md:col-span-2">
-              <summary class="cursor-pointer select-none font-display text-gold-300 text-sm mb-2"><span class="collapse-icon">▼</span> Spells Cast</summary>
+              <summary class="cursor-pointer select-none font-display text-gold-300 text-sm mb-2"><span class="collapse-icon">▶</span> Spells Cast</summary>
               <table class="gw-table">
                 <thead>
                   <tr>
@@ -240,7 +241,7 @@
                           <%= skill.html_image.html_safe %>
                           <%= skill.name %>
                         <% else %>
-                          Unknown (#{skill_id})
+                          Unknown (<%= skill_id %>)
                         <% end %>
                       </td>
                       <td class="text-right text-amber-300"><%= skill_data["stopped"] || 0 %></td>
@@ -271,6 +272,7 @@
     <% end %>
   </tbody>
 </table>
+</div>
 
 <div class="stats-legend mt-3 mb-5 p-3 rounded border border-gold-600/40 bg-black/30 w-full">
   <h6 class="mb-2"><strong>Legend</strong></h6>
@@ -308,15 +310,24 @@
         const agentId = this.getAttribute('data-agent-id');
         const detailsRow = document.getElementById('details-' + agentId);
         const expandIcon = this.querySelector('.expand-icon');
-        
+
         if (detailsRow.style.display === 'none' || detailsRow.style.display === '') {
           detailsRow.style.display = 'table-row';
           this.classList.add('table-active');
+          this.setAttribute('aria-expanded', 'true');
           if (expandIcon) expandIcon.innerHTML = '▼';
         } else {
           detailsRow.style.display = 'none';
           this.classList.remove('table-active');
+          this.setAttribute('aria-expanded', 'false');
           if (expandIcon) expandIcon.innerHTML = '▶';
+        }
+      });
+
+      newRow.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          this.click();
         }
       });
     });

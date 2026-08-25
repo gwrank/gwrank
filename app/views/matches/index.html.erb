@@ -7,10 +7,10 @@
       <%= link_to 'Add a Match', new_match_path, class: 'gw-btn ml-auto' %>
     </div>
 
-    <details class="border-b border-[#2b2010]">
+    <% active_filters = params[:opponent].present? || params[:date_from].present? || params[:date_to].present? || params[:tournament_type].present? || params[:flux_month].present? || params[:map_id].present? %>
+    <details class="border-b border-hairline" <%= 'open' if active_filters %>>
       <summary class="gw-window-header cursor-pointer select-none list-none">
         <span class="gw-title text-xs">Filters</span>
-        <% active_filters = params[:opponent].present? || params[:date_from].present? || params[:date_to].present? || params[:tournament_type].present? || params[:flux_month].present? || params[:map_id].present? %>
         <span class="text-muted text-xs"><%= active_filters ? "· active" : "· none" %></span>
       </summary>
       <div class="p-4">

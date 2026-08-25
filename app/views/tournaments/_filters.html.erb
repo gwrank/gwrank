@@ -46,20 +46,3 @@
     <%= form.button "Filter", class: "gw-btn" %>
   </div>
 <% end %>
-
-<script>
-  // Enable/disable region dropdown based on tournament type selection
-  document.addEventListener('DOMContentLoaded', function() {
-    const tournamentTypeSelect = document.querySelector('select[name="tournament_type"]');
-    const regionSelect = document.querySelector('select[name="tournament_region"]');
-
-    if (tournamentTypeSelect && regionSelect) {
-      tournamentTypeSelect.addEventListener('change', function() {
-        regionSelect.disabled = this.value !== 'at';
-        if (this.value !== 'at') {
-          regionSelect.value = '';
-        }
-      });
-    }
-  });
-</script>

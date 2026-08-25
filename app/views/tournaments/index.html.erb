@@ -6,7 +6,7 @@
       <span class="gw-count text-sm"><%= @pagy.count %> tournaments</span>
     </div>
 
-    <details class="border-b border-[#2b2010]" <%= 'open' if params[:date_from].present? || params[:date_to].present? || params[:tournament_type].present? || params[:flux_month].present? %>>
+    <details class="border-b border-hairline" <%= 'open' if params[:date_from].present? || params[:date_to].present? || params[:tournament_type].present? || params[:flux_month].present? %>>
       <summary class="gw-window-header cursor-pointer select-none list-none">
         <span class="gw-title text-xs">Filters</span>
         <% active_filters = params[:date_from].present? || params[:date_to].present? || params[:tournament_type].present? || params[:flux_month].present? %>

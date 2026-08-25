@@ -2,7 +2,7 @@
   <div class="gw-window gw-frame">
     <%= render "application/gw_tabs", tabs: [["Players", players_path], [display_player_name(@player, current_player), nil]] %>
     <div class="gw-window-header">
-      <span class="gw-prof-chip w-9 h-9 shrink-0 items-center justify-center font-display text-gold-300 text-base bg-[#241a09]" aria-hidden="true"><%= display_player_name(@player, current_player).first.upcase %></span>
+      <span class="gw-prof-chip w-9 h-9 shrink-0 items-center justify-center font-display text-gold-300 text-base bg-ink-700" aria-hidden="true"><%= display_player_name(@player, current_player).first.upcase %></span>
       <h1 class="font-display text-gold-300 text-lg m-0 tracking-wide"><%= display_player_name(@player, current_player) %></h1>
       <% if @player.is_verified? %>
         <span class="gw-badge gw-badge--mode">Verified</span>
