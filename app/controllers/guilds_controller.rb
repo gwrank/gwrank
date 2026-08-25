@@ -17,7 +17,7 @@ class GuildsController < ApplicationController
     @pagy, @teams = pagy(
       @guild.teams.joins(:match)
             .includes(match: [:tournament, { teams: :guild }])
-            .order('matches.played_at DESC'),
+            .order('matches.played_at DESC, teams.id DESC'),
       limit: 10
     )
   end

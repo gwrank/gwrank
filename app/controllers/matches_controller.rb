@@ -4,7 +4,7 @@ class MatchesController < ApplicationController
   before_action :ensure_player_is_moderator_and_importer, only: [:destroy]
 
   def index
-    @matches = Match.includes(teams: [:guild, { team_players: [:profession, :secondary_profession, { team_player_skills: :skill }] }]).order(played_at: :desc)
+    @matches = Match.includes(:winner_team, teams: [:guild, { team_players: [:profession, :secondary_profession, { team_player_skills: :skill }] }]).order(played_at: :desc)
     
     # Get unique maps for the filter dropdown
     @unique_maps = Rails.cache.fetch("unique_maps", expires_in: 1.day) do

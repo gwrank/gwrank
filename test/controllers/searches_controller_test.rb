@@ -41,4 +41,12 @@ class SearchesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select 'p.gw-empty'
   end
+
+  test 'characters without joinable matches render empty state' do
+    create_character(igname: 'Ghost One')
+    create_character(igname: 'Ghost Two')
+    get search_path, params: { q: 'Ghost' }
+    assert_response :success
+    assert_select 'p.gw-empty'
+  end
 end

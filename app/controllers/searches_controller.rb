@@ -26,8 +26,8 @@ class SearchesController < ApplicationController
       @players = Player.whose_igname_starts_with(@search_query)
       @match_entries_pagy, @match_entries = pagy(
         TeamPlayer.where(character_id: @characters).joins(team: :match)
-                  .includes(:character, { team: { match: [{ teams: :guild }] } })
-                  .order('matches.played_at DESC'),
+                  .includes({ character: :player }, { team: { match: [{ teams: :guild }] } })
+                  .order('matches.played_at DESC, team_players.id DESC'),
         limit: 10
       )
     end

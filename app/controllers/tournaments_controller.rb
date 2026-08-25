@@ -35,9 +35,10 @@ class TournamentsController < ApplicationController
 
     @pagy, @matches = pagy(
       @tournament.matches.includes(
+        :winner_team,
         teams: [:guild, { team_players: [:profession, :secondary_profession,
                                          { team_player_skills: :skill }] }]
-      ).order(round: :desc, number_on_round: :desc),
+      ).order(round: :desc, number_on_round: :desc, id: :desc),
       limit: 10
     )
   end
