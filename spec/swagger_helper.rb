@@ -16,9 +16,9 @@ RSpec.configure do |config|
         title: 'GWRank Teambuilds API',
         version: '1.0.0',
         description: <<~DESC.squish
-          Bibliothèque de teambuilds GWRank pour Z-Codex. Le payload est un document .zcx tel que défini
-          normativement par docs/zcx_format.md (Z-Codex 1.2.0, version 18). Les clés sont strictement camelCase.
-          Les skillId inconnus du catalogue sont préservés tels quels (jamais normalisés à 0).
+          The GWRank teambuild library API for Z-Codex. The payload is a .zcx document as normatively
+          defined by docs/zcx_format.md (Z-Codex 1.2.0, version 18). Keys are strictly camelCase.
+          Skill ids unknown to the catalog are preserved as-is (never normalized to zero).
         DESC
       },
       servers: [{ url: 'https://gwrank.com' }],
@@ -29,10 +29,10 @@ RSpec.configure do |config|
           bearerAuth: { type: :http, scheme: :bearer, bearerFormat: 'JWT', description: 'players.api_token' }
         },
         responses: {
-          Unauthorized: { description: 'Token absent ou invalide' },
-          Forbidden: { description: "Build privé d'autrui ou écriture non autorisée" },
+          Unauthorized: { description: 'Missing or invalid token' },
+          Forbidden: { description: "Someone else's private build, or unauthorized write" },
           BadRequest: {
-            description: 'JSON malformé ou identifiant invalide',
+            description: 'Malformed JSON or invalid identifier',
             content: {
               'application/json' => {
                 schema: { '$ref': '#/components/schemas/ErrorList' }
@@ -40,7 +40,7 @@ RSpec.configure do |config|
             }
           },
           Invalid: {
-            description: 'Violation des règles du format (cf. docs/zcx_format.md §11)',
+            description: 'Format rule violation (see docs/zcx_format.md §11)',
             content: {
               'application/json' => {
                 schema: { '$ref': '#/components/schemas/ErrorList' }
@@ -94,7 +94,7 @@ RSpec.configure do |config|
               id: { type: :integer },
               sourceId: { type: :string, format: :uuid },
               name: { type: :string },
-              author: { type: :string, description: "Nom d'utilisateur du propriétaire (@username sans @)" },
+              author: { type: :string, description: "Owner account name (@username without the @)" },
               tags: { type: :array, items: { type: :string } },
               gameMode: { type: :string },
               playerCount: { type: :integer },
@@ -136,12 +136,12 @@ RSpec.configure do |config|
             type: :object,
             additionalProperties: true,
             description: <<~DESC.squish,
-              Document .zcx complet — cf. docs/zcx_format.md comme référence normative.
-              Champs connus typés ci-dessous ; tout champ supplémentaire est toléré
-              et préservé tel quel (versions futures du format).
+              The complete .zcx document — see docs/zcx_format.md as the normative reference.
+              Known fields are typed below; any extra field is tolerated and preserved verbatim
+              (future versions of the format).
             DESC
             properties: {
-              version: { type: :integer, description: 'Informatif, jamais routé' },
+              version: { type: :integer, description: 'Informative, never routed' },
               id: { type: :string, format: :uuid },
               name: { type: :string },
               tags: {
@@ -185,7 +185,7 @@ RSpec.configure do |config|
                 minItems: 8,
                 maxItems: 8,
                 items: { type: :integer },
-                description: 'Emplacements 0-7 ; 0 = vide. Ids officiels GW1, inconnus tolérés.'
+                description: 'Slots 0-7; 0 = empty. Official GW1 ids, unknown ones tolerated.'
               },
               attributes: {
                 type: :array,
@@ -197,7 +197,7 @@ RSpec.configure do |config|
                   },
                   required: %w[id points]
                 },
-                description: "ids uniques au sein d'un même personnage (sinon rejet 422)"
+                 description: "ids unique within a single character (otherwise rejected with 422)"
               },
               titleRanks: { type: :object, additionalProperties: { type: :integer } },
               equipment: { type: [:object, 'null'], additionalProperties: true },
@@ -210,7 +210,7 @@ RSpec.configure do |config|
         },
         examples: {
           GvgSplit: {
-            summary: 'Teambuild mono-personnage avec variante/cadenas/spike (format §12)',
+            summary: 'Single-character teambuild with variant/lock/spike (format §12)',
             value: {
               version: 18,
               id: '0f6a2f6c-9a1e-4b7d-9c3a-5f0e2b8c1d44',
@@ -247,7 +247,7 @@ RSpec.configure do |config|
                     ],
                     activeSet: 0
                   },
-                  notes: 'Élémentaliste eau & dégén.',
+                  notes: 'Water elementalist & degeneration.',
                   durationBoostersEnabled: false,
                   activeAttributeBoosts: [],
                   variants: []

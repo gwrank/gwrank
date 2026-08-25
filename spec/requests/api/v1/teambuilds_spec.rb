@@ -17,24 +17,24 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
       visibility: visibility,
       status: status
     )
-    raise "seed ingest a échoué : #{result.errors.inspect}" unless result.ok?
+    raise "seed ingest failed: #{result.errors.inspect}" unless result.ok?
   end
 
   path '/api/v1/teambuilds' do
-    get 'Rechercher des teambuilds' do
+    get 'Search teambuilds' do
       produces 'application/json'
       description <<~DESC.squish
-        Liste paginée de résumés de tout ce que l'appelant peut voir :
-        publics + les siens, drafts publics compris.
+        Paginated list of summaries of everything the caller can see:
+        publics + their own, including others' public drafts.
       DESC
 
-      parameter name: :q, in: :query, schema: { type: :string }, description: 'Nom, insensible à la casse'
+      parameter name: :q, in: :query, schema: { type: :string }, description: 'Name, case-insensitive'
       parameter name: 'tags[]', in: :query, getter: :tag_filters,
-                schema: { type: :array, items: { type: :string } }, description: 'Recouvrement'
+                schema: { type: :array, items: { type: :string } }, description: 'Array overlap'
       parameter name: :profession_id, in: :query, schema: { type: :integer },
-                description: 'Code de profession GW1 officiel (0–10)'
+                description: 'Official GW1 profession code (0-10)'
       parameter name: :elite_skill_id, in: :query, schema: { type: :integer },
-                description: 'SkillId GW1 officiel'
+                description: 'Official GW1 skill id'
       parameter name: :campaign, in: :query, schema: { type: :string }
       parameter name: :game_mode, in: :query, schema: { type: :string, enum: ['All', 'PvE', 'PvP', ''] }
       parameter name: :player_count_min, in: :query, schema: { type: :integer, minimum: 1 }
@@ -64,7 +64,7 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
       let(:per_page) { 25 }
       let(:updated_since) { nil }
 
-      response(200, 'Liste paginée de résumés') do
+      response(200, 'Paginated list of summaries') do
         before do
           @owner = create_api_player
           @other = create_api_player
@@ -89,7 +89,7 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
         end
       end
 
-      response(401, 'Token absent ou invalide') do
+      response(401, 'Missing or invalid token') do
         let(:Authorization) { '' }
         run_test!
       end
@@ -109,12 +109,12 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
   end
 
   path '/api/v1/teambuilds/export' do
-    get 'Exporter tous les teambuilds visibles en un appel' do
+    get 'Export all visible teambuilds in one call' do
       produces 'application/json'
       description <<~DESC.squish
-        Résumés enrichis du document .zcx intégral pour tout ce que l'appelant
-        peut voir : publics + les siens, drafts publics compris (filtrables via
-        status). Réponse unique, sans pagination.
+        Enriched summaries carrying the complete .zcx document for everything the caller
+        can see: publics + their own, including public drafts (filterable via status).
+        Single response, no pagination.
       DESC
 
       parameter name: :status, in: :query, schema: { type: :string, enum: %w[draft published] }
@@ -126,7 +126,7 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
       let(:status) { nil }
       let(:updated_since) { nil }
 
-      response(200, 'Liste complète des teambuilds visibles') do
+      response(200, 'Every visible teambuild') do
         before do
           @owner = create_api_player
           @other = create_api_player
@@ -152,7 +152,7 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
         end
       end
 
-      response(401, 'Token absent ou invalide') do
+      response(401, 'Missing or invalid token') do
         let(:Authorization) { '' }
         run_test!
       end
@@ -172,22 +172,22 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
   end
 
   path '/api/v1/teambuilds/{id}' do
-    get 'Récupérer un teambuild complet' do
+    get 'Fetch one full teambuild' do
       produces 'application/json'
       description <<~DESC.squish
-        Renvoie le document .zcx stocké, intact, fusionné avec une clé racine
-        author (nom du compte propriétaire). Accepte l'id serveur ou le
-        source_uuid (l'id du .zcx). L'ordre des clés peut différer de
-        l'original ; le contenu sémantique est identique.
+        Returns the stored .zcx document, intact, merged with a root-level author key
+        (owner account name). Accepts the server id or the source_uuid (the .zcx id).
+        Key order may differ from the original; semantic content is identical. Responds
+        with a strong ETag header equal to the quoted documentHash.
       DESC
 
       parameter name: :id, in: :path, required: true, schema: { type: :string },
-                description: 'Id serveur ou source_uuid canonique minuscule'
+                description: 'Server id or lowercase canonical source_uuid'
 
       let(:Authorization) { "Bearer #{@owner.api_token}" }
       let(:id) { zcx['id'] }
 
-      response(200, 'Document .zcx complet') do
+      response(200, 'Complete .zcx document') do
         before do
           @owner = create_api_player
           seed_build(@owner, zcx)
@@ -207,7 +207,7 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
             {
               type: :object,
               properties: {
-                author: { type: :string, description: "Nom d'utilisateur du propriétaire (@username sans @)" }
+                author: { type: :string, description: "Owner account name (@username without the @)" }
               }
             }
           ]
@@ -220,13 +220,13 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
         end
       end
 
-      response(404, 'Introuvable') do
+      response(404, 'Not found') do
         let(:id) { 'ccccccc1-0000-0000-0000-000000000001' }
         before { @owner = create_api_player }
         run_test!
       end
 
-      response(403, "Build privé d'autrui ou écriture non autorisée") do
+      response(403, "Someone else's private build, or unauthorized write") do
         before do
           @other = create_api_player
           seed_build(create_api_player, zcx)
@@ -235,13 +235,13 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
         run_test!
       end
 
-      response(401, 'Token absent ou invalide') do
+      response(401, 'Missing or invalid token') do
         let(:Authorization) { '' }
         run_test!
       end
     end
 
-    put 'Créer ou remplacer un teambuild (sync fichier par fichier)' do
+    put 'Create or replace a teambuild (file-by-file sync)' do
       produces 'application/json'
       consumes 'application/json'
       description <<~DESC.squish
@@ -265,12 +265,12 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
                 schema: { type: :string, enum: %w[private public], default: 'private' }
       parameter name: :status, in: :query,
                 schema: { type: :string, enum: %w[draft published], default: 'published' },
-                description: 'Statut conservé si absent'
+                description: 'Status kept as-is when omitted'
       parameter name: :document, in: :body, required: true,
                 schema: { '$ref': '#/components/schemas/ZcxDocument' },
-                description: 'Document .zcx brut'
+                description: 'Raw .zcx document'
       request_body_example value: { '$ref': '#/components/examples/GvgSplit' },
-                           summary: 'Teambuild mono-personnage avec variante/cadenas/spike (format §12)',
+                           summary: 'Single-character teambuild with variant/lock/spike (format §12)',
                            name: :gvgSplit
 
       let(:Authorization) { "Bearer #{@owner.api_token}" }
@@ -280,7 +280,7 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
       let(:status) { nil }
       let(:if_match) { nil }
 
-      response(201, 'Créé') do
+      response(201, 'Created') do
         before { @owner = create_api_player }
 
         schema({ '$ref': '#/components/schemas/UpsertResult' })
@@ -292,7 +292,7 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
         end
       end
 
-      response(200, 'Remplacé ou inchangé (voir created/changed)') do
+      response(200, 'Replaced or unchanged (see created/changed)') do
         before do
           @owner = create_api_player
           seed_build(@owner, zcx_variant(id))
@@ -326,7 +326,7 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
         end
       end
 
-      response(400, 'JSON malformé ou identifiant invalide') do
+      response(400, 'Malformed JSON or invalid identifier') do
         let(:id) { 'not-a-uuid' }
         before { @owner = create_api_player }
 
@@ -338,8 +338,8 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
         end
       end
 
-      response(422, 'Violation des règles du format (cf. docs/zcx_format.md §11)') do
-        let(:document) { zcx_variant(id, author: 'auteur-spoofé') }
+      response(422, 'Format rule violation (see docs/zcx_format.md §11)') do
+        let(:document) { zcx_variant(id, author: 'spoofed-author') }
         before { @owner = create_api_player }
 
         schema({ '$ref': '#/components/schemas/ErrorList' })
@@ -350,20 +350,20 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
         end
       end
 
-      response(401, 'Token absent ou invalide') do
+      response(401, 'Missing or invalid token') do
         let(:Authorization) { '' }
         run_test!
       end
     end
 
-    delete 'Supprimer un de ses teambuilds' do
+    delete 'Delete one of your own teambuilds' do
       parameter name: :id, in: :path, required: true, schema: { type: :string },
-                description: 'Id serveur ou source_uuid canonique minuscule'
+                description: 'Server id or lowercase canonical source_uuid'
 
       let(:Authorization) { "Bearer #{@owner.api_token}" }
       let(:id) { zcx['id'] }
 
-      response(204, 'Supprimé') do
+      response(204, 'Deleted') do
         before do
           @owner = create_api_player
           seed_build(@owner, zcx)
@@ -374,7 +374,7 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
         end
       end
 
-      response(403, "Build privé d'autrui ou écriture non autorisée") do
+      response(403, "Someone else's private build, or unauthorized write") do
         before do
           seed_build(create_api_player, zcx)
           @other = create_api_player
@@ -386,13 +386,13 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
         end
       end
 
-      response(404, 'Introuvable') do
+      response(404, 'Not found') do
         let(:id) { 'ccccccc1-0000-0000-0000-000000000002' }
         before { @owner = create_api_player }
         run_test!
       end
 
-      response(401, 'Token absent ou invalide') do
+      response(401, 'Missing or invalid token') do
         let(:Authorization) { '' }
         run_test!
       end

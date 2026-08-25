@@ -3,10 +3,10 @@ openapi: 3.1.0
 info:
   title: GWRank Teambuilds API
   version: 1.0.0
-  description: Bibliothèque de teambuilds GWRank pour Z-Codex. Le payload est un document
-    .zcx tel que défini normativement par docs/zcx_format.md (Z-Codex 1.2.0, version
-    18). Les clés sont strictement camelCase. Les skillId inconnus du catalogue sont
-    préservés tels quels (jamais normalisés à 0).
+  description: The GWRank teambuild library API for Z-Codex. The payload is a .zcx
+    document as normatively defined by docs/zcx_format.md (Z-Codex 1.2.0, version
+    18). Keys are strictly camelCase. Skill ids unknown to the catalog are preserved
+    as-is (never normalized to zero).
 servers:
 - url: https://gwrank.com
 security:
@@ -14,32 +14,32 @@ security:
 paths:
   "/api/v1/teambuilds":
     get:
-      summary: Rechercher des teambuilds
-      description: 'Liste paginée de résumés de tout ce que l''appelant peut voir
-        : publics + les siens, drafts publics compris.'
+      summary: Search teambuilds
+      description: 'Paginated list of summaries of everything the caller can see:
+        publics + their own, including others'' public drafts.'
       parameters:
       - name: q
         in: query
         schema:
           type: string
-        description: Nom, insensible à la casse
+        description: Name, case-insensitive
       - name: tags[]
         in: query
         schema:
           type: array
           items:
             type: string
-        description: Recouvrement
+        description: Array overlap
       - name: profession_id
         in: query
         schema:
           type: integer
-        description: Code de profession GW1 officiel (0–10)
+        description: Official GW1 profession code (0-10)
       - name: elite_skill_id
         in: query
         schema:
           type: integer
-        description: SkillId GW1 officiel
+        description: Official GW1 skill id
       - name: campaign
         in: query
         schema:
@@ -104,7 +104,7 @@ paths:
         description: ISO 8601 instant; only builds updated at or after it are returned
       responses:
         '200':
-          description: Liste paginée de résumés
+          description: Paginated list of summaries
           content:
             application/json:
               schema:
@@ -117,7 +117,7 @@ paths:
                   pagination:
                     "$ref": "#/components/schemas/Pagination"
         '401':
-          description: Token absent ou invalide
+          description: Missing or invalid token
         '400':
           description: Malformed updated_since
           content:
@@ -126,10 +126,10 @@ paths:
                 "$ref": "#/components/schemas/ErrorList"
   "/api/v1/teambuilds/export":
     get:
-      summary: Exporter tous les teambuilds visibles en un appel
-      description: 'Résumés enrichis du document .zcx intégral pour tout ce que l''appelant
-        peut voir : publics + les siens, drafts publics compris (filtrables via status).
-        Réponse unique, sans pagination.'
+      summary: Export all visible teambuilds in one call
+      description: 'Enriched summaries carrying the complete .zcx document for everything
+        the caller can see: publics + their own, including public drafts (filterable
+        via status). Single response, no pagination.'
       parameters:
       - name: status
         in: query
@@ -147,7 +147,7 @@ paths:
         description: ISO 8601 instant; only builds updated at or after it are returned
       responses:
         '200':
-          description: Liste complète des teambuilds visibles
+          description: Every visible teambuild
           content:
             application/json:
               schema:
@@ -158,7 +158,7 @@ paths:
                     items:
                       "$ref": "#/components/schemas/TeambuildExport"
         '401':
-          description: Token absent ou invalide
+          description: Missing or invalid token
         '400':
           description: Malformed updated_since
           content:
@@ -167,21 +167,21 @@ paths:
                 "$ref": "#/components/schemas/ErrorList"
   "/api/v1/teambuilds/{id}":
     get:
-      summary: Récupérer un teambuild complet
-      description: Renvoie le document .zcx stocké, intact, fusionné avec une clé
-        racine author (nom du compte propriétaire). Accepte l'id serveur ou le source_uuid
-        (l'id du .zcx). L'ordre des clés peut différer de l'original ; le contenu
-        sémantique est identique.
+      summary: Fetch one full teambuild
+      description: Returns the stored .zcx document, intact, merged with a root-level
+        author key (owner account name). Accepts the server id or the source_uuid
+        (the .zcx id). Key order may differ from the original; semantic content is
+        identical. Responds with a strong ETag header equal to the quoted documentHash.
       parameters:
       - name: id
         in: path
         required: true
         schema:
           type: string
-        description: Id serveur ou source_uuid canonique minuscule
+        description: Server id or lowercase canonical source_uuid
       responses:
         '200':
-          description: Document .zcx complet
+          description: Complete .zcx document
           content:
             application/json:
               examples:
@@ -195,8 +195,7 @@ paths:
                   properties:
                     author:
                       type: string
-                      description: Nom d'utilisateur du propriétaire (@username sans
-                        @)
+                      description: Owner account name (@username without the @)
           headers:
             ETag:
               description: 'Strong entity tag: quoted SHA-256 document hash. Use it
@@ -204,13 +203,13 @@ paths:
               schema:
                 type: string
         '404':
-          description: Introuvable
+          description: Not found
         '403':
-          description: Build privé d'autrui ou écriture non autorisée
+          description: Someone else's private build, or unauthorized write
         '401':
-          description: Token absent ou invalide
+          description: Missing or invalid token
     put:
-      summary: Créer ou remplacer un teambuild (sync fichier par fichier)
+      summary: Create or replace a teambuild (file-by-file sync)
       description: 'Body is the raw .zcx document. Idempotent upsert keyed by (owner,
         source_uuid): create when absent; no-op when the content hash (updatedAt excluded)
         is unchanged; full replace otherwise. Only the lowercase canonical source_uuid
@@ -252,16 +251,16 @@ paths:
           - draft
           - published
           default: published
-        description: Statut conservé si absent
+        description: Status kept as-is when omitted
       responses:
         '201':
-          description: Créé
+          description: Created
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/UpsertResult"
         '200':
-          description: Remplacé ou inchangé (voir created/changed)
+          description: Replaced or unchanged (see created/changed)
           content:
             application/json:
               schema:
@@ -273,19 +272,19 @@ paths:
               schema:
                 "$ref": "#/components/schemas/ErrorList"
         '400':
-          description: JSON malformé ou identifiant invalide
+          description: Malformed JSON or invalid identifier
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/ErrorList"
         '422':
-          description: Violation des règles du format (cf. docs/zcx_format.md §11)
+          description: Format rule violation (see docs/zcx_format.md §11)
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/ErrorList"
         '401':
-          description: Token absent ou invalide
+          description: Missing or invalid token
       requestBody:
         content:
           application/json:
@@ -293,30 +292,30 @@ paths:
               "$ref": "#/components/schemas/ZcxDocument"
             examples:
               gvgSplit:
-                summary: Teambuild mono-personnage avec variante/cadenas/spike (format
+                summary: Single-character teambuild with variant/lock/spike (format
                   §12)
                 value:
                   "$ref": "#/components/examples/GvgSplit"
         required: true
-        description: Document .zcx brut
+        description: Raw .zcx document
     delete:
-      summary: Supprimer un de ses teambuilds
+      summary: Delete one of your own teambuilds
       parameters:
       - name: id
         in: path
         required: true
         schema:
           type: string
-        description: Id serveur ou source_uuid canonique minuscule
+        description: Server id or lowercase canonical source_uuid
       responses:
         '204':
-          description: Supprimé
+          description: Deleted
         '403':
-          description: Build privé d'autrui ou écriture non autorisée
+          description: Someone else's private build, or unauthorized write
         '404':
-          description: Introuvable
+          description: Not found
         '401':
-          description: Token absent ou invalide
+          description: Missing or invalid token
 components:
   securitySchemes:
     bearerAuth:
@@ -326,17 +325,17 @@ components:
       description: players.api_token
   responses:
     Unauthorized:
-      description: Token absent ou invalide
+      description: Missing or invalid token
     Forbidden:
-      description: Build privé d'autrui ou écriture non autorisée
+      description: Someone else's private build, or unauthorized write
     BadRequest:
-      description: JSON malformé ou identifiant invalide
+      description: Malformed JSON or invalid identifier
       content:
         application/json:
           schema:
             "$ref": "#/components/schemas/ErrorList"
     Invalid:
-      description: Violation des règles du format (cf. docs/zcx_format.md §11)
+      description: Format rule violation (see docs/zcx_format.md §11)
       content:
         application/json:
           schema:
@@ -418,7 +417,7 @@ components:
           type: string
         author:
           type: string
-          description: Nom d'utilisateur du propriétaire (@username sans @)
+          description: Owner account name (@username without the @)
         tags:
           type: array
           items:
@@ -470,13 +469,13 @@ components:
     ZcxDocument:
       type: object
       additionalProperties: true
-      description: Document .zcx complet — cf. docs/zcx_format.md comme référence
-        normative. Champs connus typés ci-dessous ; tout champ supplémentaire est
-        toléré et préservé tel quel (versions futures du format).
+      description: The complete .zcx document — see docs/zcx_format.md as the normative
+        reference. Known fields are typed below; any extra field is tolerated and
+        preserved verbatim (future versions of the format).
       properties:
         version:
           type: integer
-          description: Informatif, jamais routé
+          description: Informative, never routed
         id:
           type: string
           format: uuid
@@ -577,7 +576,7 @@ components:
           maxItems: 8
           items:
             type: integer
-          description: Emplacements 0-7 ; 0 = vide. Ids officiels GW1, inconnus tolérés.
+          description: Slots 0-7; 0 = empty. Official GW1 ids, unknown ones tolerated.
         attributes:
           type: array
           items:
@@ -590,7 +589,8 @@ components:
             required:
             - id
             - points
-          description: ids uniques au sein d'un même personnage (sinon rejet 422)
+          description: ids unique within a single character (otherwise rejected with
+            422)
         titleRanks:
           type: object
           additionalProperties:
@@ -614,7 +614,7 @@ components:
             "$ref": "#/components/schemas/ZcxCharacter"
   examples:
     GvgSplit:
-      summary: Teambuild mono-personnage avec variante/cadenas/spike (format §12)
+      summary: Single-character teambuild with variant/lock/spike (format §12)
       value:
         version: 18
         id: 0f6a2f6c-9a1e-4b7d-9c3a-5f0e2b8c1d44
@@ -670,7 +670,7 @@ components:
                 dye: 0
                 modifierIds: []
             activeSet: 0
-          notes: Élémentaliste eau & dégén.
+          notes: Water elementalist & degeneration.
           durationBoostersEnabled: false
           activeAttributeBoosts: []
           variants: []
