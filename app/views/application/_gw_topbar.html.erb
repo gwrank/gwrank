@@ -10,7 +10,7 @@
         <%= link_to item[:label], item[:path],
               class: "gw-tab #{'gw-tab--active' if active}" %>
       <%- end %>
-      <button type="button" data-controller="search-dialog" data-action="search-dialog#open"
+      <button type="button" data-action="search-dialog#open"
               class="ml-2 text-parchment/80 hover:text-gold-400" aria-label="Search">🔍</button>
     </nav>
     <div class="ml-auto md:ml-0 flex items-center gap-2">

@@ -7,4 +7,11 @@ class GwChromeTest < ApplicationSystemTestCase
     assert_selector ".gw-window"
     assert_no_selector ".mpl-navbar"
   end
+
+  test "topbar search button opens the search dialog" do
+    visit builds_url
+    assert_no_selector "dialog[open]"
+    find("button[aria-label='Search']").click
+    assert_selector "dialog[open] input[name='q']"
+  end
 end
