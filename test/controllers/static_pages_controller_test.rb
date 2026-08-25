@@ -13,7 +13,7 @@ class StaticPagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select 'body', text: /Team build manager for Guild Wars 1/
-    assert_select "a[href='/z-codex/download']", text: /Download Z-Codex v1\.2\.3/
+    assert_select "a[href='#{z_codex_download_path}']", text: /Download Z-Codex v1\.2\.3/
     assert_select "td code", text: '.zcx'
     assert_select 'body', text: /First launch/
   end

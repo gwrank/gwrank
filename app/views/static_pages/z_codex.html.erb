@@ -64,9 +64,9 @@
       <table class="w-full text-sm">
         <thead>
           <tr class="text-left">
-            <th class="py-1 pr-3">Extension</th>
-            <th class="py-1 pr-3">Role</th>
-            <th class="py-1">Access</th>
+            <th class="py-1 pr-3" scope="col">Extension</th>
+            <th class="py-1 pr-3" scope="col">Role</th>
+            <th class="py-1" scope="col">Access</th>
           </tr>
         </thead>
         <tbody class="text-muted">
@@ -114,7 +114,8 @@
   <p class="text-center text-xs text-muted m-0">
     Z-Codex is MIT-licensed software by P. Vincent —
     <%= link_to 'source on GitHub', 'https://github.com/LuxIudicium/Z-Codex',
-                target: '_blank', rel: 'noopener noreferrer' %>.
+                target: '_blank', rel: 'noopener noreferrer',
+                class: 'text-gold-400 underline hover:text-gold-300' %>.
     Not affiliated with ArenaNet or NCSOFT; no game assets are redistributed with the software.
     Guild Wars is a trademark of ArenaNet, LLC and NCSOFT Corporation.
   </p>
