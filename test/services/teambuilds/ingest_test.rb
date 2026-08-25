@@ -115,5 +115,25 @@ module Teambuilds
       ingest(@doc, status: "brouillon")
       assert_equal "draft", @owner.teambuilds.sole.reload.status
     end
+
+    test "flags precondition_failed on a stale If-Match" do
+      ingest(@doc)
+      result = Ingest.call(
+        player: @owner, source_uuid: @doc["id"],
+        document: JSON.parse(@doc.to_json).merge("name" => "x"),
+        if_match: "0" * 64
+      )
+      assert_not result.ok?
+      assert result.precondition_failed?
+    end
+
+    test "accepts a matching If-Match and star" do
+      ingest(@doc)
+      hash = @owner.teambuilds.sole.document_hash
+      result = Ingest.call(player: @owner, source_uuid: @doc["id"], document: @doc, if_match: hash)
+      assert result.ok?
+      result = Ingest.call(player: @owner, source_uuid: @doc["id"], document: @doc, if_match: "*")
+      assert result.ok?
+    end
   end
 end

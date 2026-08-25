@@ -51,7 +51,8 @@ class Api::V1::TeambuildsController < ApplicationController
         source_uuid: source_uuid_param,
         document: document,
         visibility: params[:visibility],
-        status: params[:status]
+        status: params[:status],
+        if_match: if_match_param
       )
     rescue ActiveRecord::RecordNotUnique
       Teambuilds::Ingest.call(
@@ -59,13 +60,16 @@ class Api::V1::TeambuildsController < ApplicationController
         source_uuid: source_uuid_param,
         document: document,
         visibility: params[:visibility],
-        status: params[:status]
+        status: params[:status],
+        if_match: if_match_param
       )
     end
 
     if result.ok?
       payload = result.teambuild.summary.merge(created: result.created?, changed: result.changed?)
       render json: payload, status: result.created? ? :created : :ok
+    elsif result.precondition_failed?
+      render json: { errors: result.errors }, status: :precondition_failed
     else
       render json: { errors: result.errors }, status: :unprocessable_entity
     end
@@ -112,6 +116,10 @@ class Api::V1::TeambuildsController < ApplicationController
     render json: { errors: [{ "path" => "$", "code" => "invalid_source_uuid",
                               "message" => "L'identifiant doit être un UUID canonique minuscule" }] },
            status: :bad_request
+  end
+
+  def if_match_param
+    request.headers["If-Match"].presence
   end
 
   def resolve_teambuild(value)

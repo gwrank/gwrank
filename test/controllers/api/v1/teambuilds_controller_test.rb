@@ -13,11 +13,13 @@ module Api::V1
       auth_headers(player).merge("Content-Type" => "application/json")
     end
 
-    def put_doc(player, doc, visibility: nil, status: nil)
+    def put_doc(player, doc, visibility: nil, status: nil, if_match: nil)
       query = { visibility: visibility, status: status }.compact
       path = api_v1_teambuild_path(doc["id"])
       path += "?#{query.to_query}" unless query.empty?
-      put path, params: doc.to_json, headers: json_headers(player)
+      headers = json_headers(player)
+      headers["If-Match"] = if_match if if_match
+      put path, params: doc.to_json, headers: headers
     end
 
     test "requires a token" do
@@ -206,6 +208,44 @@ module Api::V1
         assert_includes codes, expected_code
       end
       assert_equal 1, Teambuild.count
+    end
+
+    test "upsert honors If-Match optimistic locking" do
+      etag = %("#{Teambuild.last.document_hash}")
+
+      put_doc(@owner, @document, if_match: etag)
+      assert_response :success
+
+      changed = JSON.parse(@document.to_json)
+      changed["name"] = "GvG Split v3"
+      put_doc(@owner, changed, if_match: etag)
+      assert_response :success
+      new_etag = Teambuild.last.reload.document_hash
+      assert_not_equal etag.delete('"'), new_etag
+
+      put_doc(@owner, @document, if_match: etag)
+      assert_response :precondition_failed
+      codes = response.parsed_body["errors"].map { |error| error["code"] }
+      assert_includes codes, "precondition_failed"
+
+      put_doc(@owner, changed, if_match: new_etag)
+      assert_response :success
+    end
+
+    test "upsert If-Match tolerates unquoted values and star on existing builds" do
+      put_doc(@owner, @document, if_match: Teambuild.last.document_hash)
+      assert_response :success
+
+      put_doc(@owner, @document, if_match: "*")
+      assert_response :success
+    end
+
+    test "upsert rejects If-Match when the build does not exist yet" do
+      fresh = JSON.parse(@document.to_json)
+      fresh["id"] = "eeeeeee3-0000-0000-0000-000000000001"
+      put_doc(@owner, fresh, if_match: "*")
+      assert_response :precondition_failed
+      assert_nil Teambuild.find_by(source_uuid: fresh["id"])
     end
 
     test "destroy allows only the owner" do
