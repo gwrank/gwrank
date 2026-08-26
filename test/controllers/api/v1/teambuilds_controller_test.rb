@@ -171,6 +171,34 @@ module Api::V1
       assert_equal ["GvG", "PvE"], mine["tags"]
     end
 
+    test "upsert rejects tags outside the closed list" do
+      doc = JSON.parse(@document.to_json)
+      doc["id"] = "ccccccc1-0000-0000-0000-000000000001"
+      doc["tags"] << "CustomTag"
+      put_doc(@owner, doc)
+      assert_response :unprocessable_entity
+      error = response.parsed_body["errors"].find { |e| e["code"] == "invalid_tag" }
+      assert_includes error["message"], "CustomTag"
+      assert_not Teambuild.exists?(source_uuid: doc["id"])
+    end
+
+    test "upsert normalizes tag case against active slugs" do
+      doc = JSON.parse(@document.to_json)
+      doc["id"] = "ccccccc1-0000-0000-0000-000000000002"
+      doc["tags"] = ["gvg"]
+      put_doc(@owner, doc)
+      assert_response :created
+      assert_equal ["GvG"], Teambuild.find_by(source_uuid: doc["id"]).tags
+    end
+
+    test "closed list applies to drafts too" do
+      doc = JSON.parse(@document.to_json)
+      doc["id"] = "ccccccc1-0000-0000-0000-000000000003"
+      doc["tags"] = ["Nope"]
+      put_doc(@owner, doc, status: "draft")
+      assert_response :unprocessable_entity
+    end
+
     test "index ignores invalid status filters" do
       get api_v1_teambuilds_path(status: "brouillon"), headers: auth_headers(@owner)
       assert_response :success
