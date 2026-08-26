@@ -1,0 +1,13 @@
+_fixture:
+  model_class: TeambuildTag
+
+gvg: { name: "GvG", slug: "gvg", position: 1, active: true }
+ha: { name: "HA", slug: "ha", position: 2, active: true }
+ra: { name: "RA", slug: "ra", position: 3, active: true }
+ta: { name: "TA", slug: "ta", position: 4, active: true }
+ab: { name: "AB", slug: "ab", position: 5, active: true }
+fa: { name: "FA", slug: "fa", position: 6, active: true }
+jq: { name: "JQ", slug: "jq", position: 7, active: true }
+pvp: { name: "PvP", slug: "pvp", position: 8, active: true }
+pve: { name: "PvE", slug: "pve", position: 9, active: true }
+legacy: { name: "Legacy", slug: "legacy", position: 10, active: false }
