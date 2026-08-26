@@ -39,3 +39,8 @@
 - La copie de la landing page Z-Codex, résumée depuis le README du projet, a été corrigée par l'utilisateur : « 8 personnages » → 8 à 12 ; arbre de variantes à profondeur illimitée (pas juste « organized in trees ») ; « spike calculator » comme outil nommé ; sources communautaires élargies (GW1 builds, more to come) ; filtres du catalogue par Skill Type et surtout Mechanics omis.
 - Règles : (1) toute affirmation produit visible par l'utilisateur se cite au plus près de la source ou se fait valider mot pour mot AVANT commit — ne jamais paraphraser de mémoire ; (2) en cas de doute sur un terme utilisateur (« pike » → spike), le dire explicitement dans le résumé plutôt que d'assumer en silence ; (3) les listes de capacités (« filterable catalog ») doivent reprendre LES critères nommés par la doc/source, pas un générique.
 - Complément du jour : ne pas fusionner deux features distinctes en une seule formule (« the ten conditions of the monthly flux cycle ») — garder les concepts séparés comme dans la source, et laisser la liste ouverte (« … and much more! ») quand le produit couvre plus que l'énumération.
+
+## 2026-08-26 — Environnement tests & preuves HTTP
+
+- PostgreSQL tourne uniquement via docker (`docker start <projet>-db-1`, port 5432, postgres/postgres). Sans `DATABASE_HOST=localhost DATABASE_USER=postgres DATABASE_PASSWORD=postgres`, Rails tente les sockets et échoue. Règle : vérifier `docker ps` avant toute commande Rails ; préfixer systématiquement ces trois variables.
+- Pour prouver un endpoint en local : serveur dev (`bin/rails server -p PORT` + curl) plutôt que `Rack::MockRequest` — ce dernier bute sur Host Authorization (403 HTML pour example.org) puis IPAddr quirks. Coût : 3 allers-retours perdus.

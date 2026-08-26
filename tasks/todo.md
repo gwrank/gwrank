@@ -1,3 +1,46 @@
+# Synchro incrémentale /teambuilds : signaler les suppressions (tombstones)
+
+## Statut : TERMINÉ — non commité (validation utilisateur en cours)
+
+## Cause racine
+
+Suppressions physiques (API `destroy!` + cascade `dependent: :destroy` du compte Player),
+aucun tombstone ; `updated_since` filtre les lignes vivantes uniquement → les suppressions
+sont invisibles pour la synchro incrémentale (fantômes chez Z-Codex).
+
+## Approche retenue : table de tombstones (pas de soft-delete)
+
+Soft-delete écarté : contaminerait chaque requête, exigerait un index unique partiel et des
+règles de résurrection. La table annexe garde `teambuilds` intacte.
+
+- [x] Migration `teambuild_deletions` : `player_id` FK **nullify** (les tombstones publics
+      survivent à la suppression de compte), `source_uuid`, `visibility`, `deleted_at`, timestamps ;
+      index sur `deleted_at` et `(player_id, source_uuid)`
+- [x] Modèle `TeambuildDeletion` : scopes `visible_to(player)` (public OU à soi — règle
+      `visible_to` d'avant suppression), `deleted_since(time)`
+- [x] `Teambuild#after_destroy` → écrit la tombstone (couvre API ET cascade compte)
+- [x] `Teambuilds::Ingest` : (re)création d'un uuid → purge des tombstones correspondantes
+- [x] Contrôleur index/export : si `updated_since` présent → `deletions: [{sourceId, deletedAt}]`
+- [x] Swagger : schéma `TeambuildDeletion` + descriptions, YAML régénéré (rswag)
+- [x] Tests rswag : propre build supprimé → listé ; public d'autrui supprimé → listé ;
+      privé d'autrui supprimé → absent
+- [x] Tests minitest modèle : tombstone au destroy, purge au re-ingest, cascade player,
+      scope deleted_since
+
+## Vérification
+
+- rspec 25/25 (2 nouveaux exemples updated_since) ; minitest 281 runs, seules les 3
+  failures Scrims préexistantes sur main ; YAML OpenAPI régénéré.
+- Preuve HTTP réelle (serveur dev + curl) : re-création post-suppression → build dans
+  `teambuilds` ET tombstone purgée du flux ; public d'autrui supprimé → listé avec
+  `deletedAt` ; privé d'autrui → absent (pas de fuite) ; sans `updated_since` → pas de clé
+  `deletions` (contrat inchangé).
+
+Décisions : tombstones conservés sans limite de durée (lignes minuscules, synchro correcte
+même après un an) ; pas de pagination sur `deletions`.
+
+---
+
 # Refonte UI « Client GW fidèle » — Suivi
 
 ## Statut : TERMINÉ (branche `redesign/gw-ui`, en attente de revue visuelle + merge)
@@ -72,3 +115,62 @@ Reste : réponse à Philippe (point 1 auteur déjà livré par 7d114fd1, à dép
 - [ ] À défaut : supprimer les matchs du tournoi 2026-1-mat ou masquer leurs builds.
 - [ ] Optionnel : garde-fou à l'import dans `Match.import!` (cohérence skill↔profession) — d'abord fiabiliser
       `Skill.profession_id` en base locale (Jagged Strike=Ritualist ?! snapshot dev obsolète ; la prod semble saine).
+
+---
+
+# Fix API « visibility=public / visibility=all ne filtrent rien » (GET /api/v1/teambuilds)
+
+## Statut : TERMINÉ
+
+## Cause racine
+
+`filtered()` dans `app/controllers/api/v1/teambuilds_controller.rb` ne traitait que
+`visibility=mine` ; `public` et `all` étaient ignorés silencieusement → la relation de base
+`Teambuild.visible_to(@player)` (publics + les siens) était renvoyée telle quelle, avec un 200.
+Pas de fuite de données : les privés d'autrui n'étaient jamais exposés.
+
+## Correctif
+
+- `visibility=public` → scope `publicly_visible` ; `all`/nil/inconnu → défaut (tout le visible),
+  convention tolérante du contrôleur (comme `status`/`sort`). 2 lignes ajoutées.
+- Contrat Swagger mis à jour (enum `all|mine|public` + description), YAML régénéré via
+  `rake rswag:specs:swaggerize`.
+- 3 nouveaux exemples rswag (public/all/mine) ; l'exemple générique 200 déplacé en dernier
+  (rswag : la dernière réponse 200 définie écrase la description documentée).
+
+## Vérification
+
+- rswag 23 exemples : les 4 cas visibility verts ; ne restent que 2 échecs delete préexistants
+  sur main (instables selon l'ordre d'exécution — isolation de données entre exemples, à traiter à part).
+- Minitest 275 runs / 3 failures = échecs Scrims préexistants documentés, non liés.
+
+---
+
+# Redesign « /builds/:id en lignes compactes style match » + popover template partagé
+
+## Statut : TERMINÉ — fusionné sur main (ca37f2f9)
+
+- Spec : docs/superpowers/specs/2026-08-25-build-show-redesign-design.md
+- Plan : docs/superpowers/plans/2026-08-25-build-show-redesign.md
+- 14 commits (branche build-show-redesign, travail en worktree, revue spec + qualité par tâche)
+
+## Livré
+
+1. `Gw1::TemplateCode` (app/services/gw1/template_code.rb) : encodeur GW complet AVEC attributs,
+   vecteurs dorés vérifiés contre le format wiki + décodeur réel `GW::TemplateReader`.
+   `TeamPlayer#template_code` délègue désormais (codes plus courts, même décodage).
+2. Popover riche click-to-open (`template-code-popover` stimulus + partial partagé) rendu par
+   /builds/:id ET /matches/:id ; copie presse-papiers avec fallback sélection ; position fixed
+   (échappe aux `overflow-x-auto`) ; a11y aria-expanded + refocus Escape.
+3. /builds/:id : tableau plein largeur d'une ligne par personnage (nom, badge assignment, chips
+   profs, skills 4+4 32px, pills attributs, note italique). Cartes supprimées.
+4. Tests : encodeur (vecteurs wiki), builds show (lignes, popover, cas sans profs), match show
+   (popover ×2 + garde anti-fuite igname anonyme).
+
+## Revue finale
+
+READY TO MERGE — aucun blocant. Notes polish pour plus tard :
+- Dépôt npm mort `@stimulus-components/popover` (package.json) → `yarn remove` possible.
+- Popover : position recalculée seulement à l'ouverture (scroll pendant ouvert = décalé).
+- `TeamPlayer#template_code` peut lever ArgumentError sur données pathologiques (côté builds
+  secouru vers nil ; côté matches non, mais inatteignable en pratique).
