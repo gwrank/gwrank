@@ -18,6 +18,8 @@
         <% claims_active = gw_nav_active?(administration_character_claims_path) %>
         <%= link_to "Players", administration_players_path, class: "gw-tab #{'gw-tab--active' if players_active}", aria: { current: ("page" if players_active) } %>
         <%= link_to "Claims", administration_character_claims_path, class: "gw-tab #{'gw-tab--active' if claims_active}", aria: { current: ("page" if claims_active) } %>
+        <% tags_active = gw_nav_active?(administration_teambuild_tags_path) %>
+        <%= link_to "Tags", administration_teambuild_tags_path, class: "gw-tab #{'gw-tab--active' if tags_active}", aria: { current: ("page" if tags_active) } %>
         <%= link_to "← Site", root_path, class: "gw-tab" %>
       </nav>
     </header>

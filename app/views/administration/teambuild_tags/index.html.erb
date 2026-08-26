@@ -1,0 +1,35 @@
+<div class="space-y-4">
+  <div class="gw-window gw-frame">
+    <div class="gw-window-header">
+      <h1 class="gw-title text-base m-0">Teambuild tags</h1>
+      <span class="gw-count text-sm"><%= pluralize @team_build_tags.count, 'tag' %></span>
+    </div>
+
+    <%= form_with model: @team_build_tag, url: administration_teambuild_tags_path, class: "flex flex-wrap gap-2 items-end py-3 border-b border-gold-600" do |form| %>
+      <div>
+        <%= form.label :name, 'New tag name', class: 'block text-sm text-parchment' %>
+        <%= form.text_field :name, class: 'gw-input' %>
+      </div>
+      <%= form.submit 'Add tag', class: 'gw-btn mt-1' %>
+    <% end %>
+
+    <div class="divide-y">
+      <% @team_build_tags.each do |tag| %>
+        <%= form_with model: tag, url: administration_teambuild_tag_path(tag), class: "flex flex-wrap gap-3 items-center py-2" do |form| %>
+          <%= form.text_field :name, class: 'gw-input w-40' %>
+          <code class="text-muted"><%= tag.slug %></code>
+          <%= form.number_field :position, min: 0, class: 'gw-input w-20' %>
+          <label class="flex items-center gap-1 text-sm text-parchment">
+            <%= form.check_box :active %> Active
+          </label>
+          <%= form.submit 'Save', class: 'gw-btn gw-btn--ghost' %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <p class="text-sm text-muted pt-2">
+      Deactivating a tag hides it from <code>GET /api/v1/tags</code> and blocks it on new publications;
+      existing builds keep their historical tags.
+    </p>
+  </div>
+</div>
