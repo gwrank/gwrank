@@ -44,3 +44,9 @@
 
 - PostgreSQL tourne uniquement via docker (`docker start <projet>-db-1`, port 5432, postgres/postgres). Sans `DATABASE_HOST=localhost DATABASE_USER=postgres DATABASE_PASSWORD=postgres`, Rails tente les sockets et échoue. Règle : vérifier `docker ps` avant toute commande Rails ; préfixer systématiquement ces trois variables.
 - Pour prouver un endpoint en local : serveur dev (`bin/rails server -p PORT` + curl) plutôt que `Rack::MockRequest` — ce dernier bute sur Host Authorization (403 HTML pour example.org) puis IPAddr quirks. Coût : 3 allers-retours perdus.
+
+## 2026-08-26 — Compositions de variantes (worktree & assets)
+
+- Un worktree neuf échoue massivement aux tests tant que les artefacts JS/CSS ne sont pas buildés (`app/assets/builds/*` est gitigné) : `application.js missing` en controller tests, Tailwind absent en system tests (navs dupliquées visibles). Règle : après création d'un worktree, lancer `yarn install && yarn build && yarn build:css` (chemin yarn absolu) AVANT la baseline, et s'attendre à un `build:css` silencieux qui produit zéro fichier si postcss n'a pas de node_modules.
+- `Skill#html_image_simple` rescues `Propshaft::MissingAssetError` → `''` : une fixture skill sans image correspondante réduit le nombre d'imgs rendues et rend toute assertion `img[title=…]` impossible. Règle : chaque nouveau skill en fixture exige un JPEG placeholder dans `app/assets/images/skills/` au nom dérivé de `Skill#filename`.
+- Les skills partagés entre fixtures et vrais builds (ex. 1011/919 dans gvg_split) : ajouter la fixture skill SANS son asset casse des tests préexistants — vérifier le croisement avant.
