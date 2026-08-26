@@ -174,3 +174,78 @@ READY TO MERGE — aucun blocant. Notes polish pour plus tard :
 - Popover : position recalculée seulement à l'ouverture (scroll pendant ouvert = décalé).
 - `TeamPlayer#template_code` peut lever ArgumentError sur données pathologiques (côté builds
   secouru vers nil ; côté matches non, mais inatteignable en pratique).
+
+---
+
+# Fix : ordre des skills instable sur /matches/:id (« mauvais skills »)
+
+## Statut : EN COURS
+
+## Cause racine (prouvée)
+
+`TeamPlayer#html_skills` (app/models/team_player.rb:98) attribue les slots de la barre de
+build en itérant `team_player_skills.includes(...)` SANS `ORDER BY` → l'ordre retourné par
+PostgreSQL (heap) change après les UPDATE, et la méthode réécrit `position` en base À CHAQUE
+rendu de vue. Combiné au fragment cache `<% cache @match do %>` : chaque re-render fige un
+ordre différent. Preuves : 3 timestamps de mutation distincts (11:21/11:23/11:28) avec des
+positions différentes ; HTML servi ≠ état DB ; builds identiques affichés dans des ordres
+différents (rangées 2 vs 9 du match f6c20e0c).
+
+- [x] Test régression : ordre déterministe (elite→1, primaires par id, secondaire après,
+      rez→8) + stabilité après churn heap (touch) + tie-break sur doublons de position
+- [x] Fix : réécriture de `html_skills` (partition déterministe en mémoire, écriture compacte
+      unique 1..n via `build_bar_ordered_skills`) ; tie-break `position: :asc, id: :asc` sur
+      html_skills_simple et template_code
+- [x] Tests minitest verts (3 runs / 4 assertions) ; suite models+controllers : 130 runs,
+      seuls les 3 échecs Scrims préexistants documentés (prouvés par stash)
+- [x] Preuve HTTP : 3 rendus consécutifs (cache purgé par redémarrage) → md5 des ordres
+      identiques ; builds identiques → affichages identiques ; positions DB compactes 1..8
+
+## Cause racine complétée (trace UPDATE instrumentée)
+
+L'ancien algorithme avait 4 défauts cumulés : (1) itération sans ORDER BY → dépendante du
+heap PG ; (2) position temporaire assignée en boucle 1 PUIS écrasée par les buckets
+secondaire/autre — l'élite perdait son slot 1 si hors profession primaire, le rez son slot 8 ;
+(3) `i += 1` inconditionnel cumulant des trous à chaque rendu → gonflement non borné des
+positions (valeurs 10/11 observées) ; (4) écritures en base pendant le rendu + fragment cache
+= chaque re-render figeait un ordre différent.
+
+## Incidents de session
+
+- Une autre session a mergé `feature/team-build-tags` DANS ce worktree pendant le travail :
+  mes premières éditions du modèle ont été écrasées (fichier restauré à 13:43). Détection via
+  md5 avant/après runs + `git log` (branche passée de « à jour » à « +10 commits »).
+  Le correctif a été ré-appliqué et vérifié stable ensuite.
+- Mes runners de diagnostic ont pollué le match de dév (2 faux team_players + un match
+  orphelin sans imported_at/json) — nettoyés (`TeamPlayer.where(igname: nil)` ciblé + match
+  orphelin détruit après vérification qu'il s'agissait bien d'un artefact).
+
+---
+
+# Fix 2 : skills mal nommés (« Life Siphon » sur un Mesmer) + placeholder transparent
+
+## Statut : TERMINÉ — non commité
+
+## Cause racine
+
+`data/code_skills.txt` contient un bloc ~1000+ au numérotage fictif (ordre wiki, pas game IDs)
+→ `skills:import` a créé 118 lignes fausses. L'observer émet de VRAIS game IDs
+(gw-skilldata : 1043=Dash/Assassin/Factions), donc `find_by(skill_id:)` tombait sur les
+lignes au nom faux → affichage impossible en jeu (ex. Necro skill sur Mesmer/Assassin).
+
+## Livré
+
+- [x] `skills:repair_from_source` (rake, idempotent) : supprime les skill_id absents du jeu
+      après re-pointement défensif, renomme vers desc.json — 68 renommées, 50 supprimées,
+      audit final : 0 mismatch / 1514
+- [x] Enrichissements relancés (import_informations, update_for_template_codes nil-safé,
+      update_campaigns) ; icônes des noms corrigés présentes dans les assets
+- [x] Placeholder inconnu : `transparent.png` 64×64 RGBA généré, utilisé par html_skills et
+      html_skills_simple (le slot reste hoverable « Unknown », layout inchangé)
+
+## Vérification
+
+- Match c9a50317 Character #12 (Mesmer/Assassin) : Dash remplace Life Siphon ✓ ;
+  Necro/Assassin : Life Siphon (109) + Dash légitimes ✓
+- Rendus frais vs cache : ordres identiques ; rangée 7 skills = 8 slots dont 1 transparent
+- Tests : team_player_test 3/3 vert ; suite 130 runs = seuls les 3 échecs Scrims préexistants

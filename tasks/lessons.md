@@ -50,3 +50,24 @@
 - Un worktree neuf échoue massivement aux tests tant que les artefacts JS/CSS ne sont pas buildés (`app/assets/builds/*` est gitigné) : `application.js missing` en controller tests, Tailwind absent en system tests (navs dupliquées visibles). Règle : après création d'un worktree, lancer `yarn install && yarn build && yarn build:css` (chemin yarn absolu) AVANT la baseline, et s'attendre à un `build:css` silencieux qui produit zéro fichier si postcss n'a pas de node_modules.
 - `Skill#html_image_simple` rescues `Propshaft::MissingAssetError` → `''` : une fixture skill sans image correspondante réduit le nombre d'imgs rendues et rend toute assertion `img[title=…]` impossible. Règle : chaque nouveau skill en fixture exige un JPEG placeholder dans `app/assets/images/skills/` au nom dérivé de `Skill#filename`.
 - Les skills partagés entre fixtures et vrais builds (ex. 1011/919 dans gvg_split) : ajouter la fixture skill SANS son asset casse des tests préexistants — vérifier le croisement avant.
+
+## 2026-08-26 — Éditions écrasées par un merge concurrent dans le même worktree
+
+- Une autre session a mergé une branche DANS ce répertoire pendant que je travaillais : mes
+  éditions non commitées de `team_player.rb` ont été restaurées à l'ancien état, et les tests
+  « verts » observés venaient en réalité des changements de données de test, pas du modèle.
+- Règles : (1) après chaque édition de fichier, vérifier la persistance (md5/grep) AVANT de
+  conclure ; (2) refaire `git log`/`git status` si un comportement contredit le code lu —
+  une branche « à jour » passée « +N commits » = travail concurrent ; (3) quand l'arithmétique
+  des positions est impossible avec le source lu, douter du SOURCE EXÉCUTÉ (tracer
+  `instance_method(:x).source_location`), pas seulement du fichier.
+
+## 2026-08-26 — code_skills.txt : numérotage wiki ≠ game IDs
+
+- Le bloc 1000+ de data/code_skills.txt est un numérotage de liste wiki, PAS les IDs jeu ;
+  l'observer/GWCA émet les vrais game IDs (source de vérité : data/skills/desc.json +
+  data.json de build-wars/gw-skilldata).
+- Règles : (1) toute correspondance de skills se fait par skill_id validé contre
+  gw-skilldata, jamais par nom ni par une liste maison non alignée ; (2) un doublon de nom
+  avec deux game_ids différents = signal d'alarme immédiat ; (3) pour auditer :
+  `rake skills:repair_from_source` (idempotent) puis recompter les mismatches.
