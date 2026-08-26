@@ -7,7 +7,30 @@
     <%= link_to "Download .zcx", download_build_path(@teambuild), class: "gw-btn ml-auto" %>
   </div>
 
-  <% if @compositions.any? %>
+  <% if @compositions.many? %>
+    <div data-controller="variant-tabs">
+      <div class="gw-tabs mb-[-1px]" data-variant-tabs-target="buttons">
+        <% @compositions.each do |composition| %>
+          <button type="button"
+                  class="gw-tab cursor-pointer"
+                  data-variant-tabs-target="tab"
+                  data-composition-id="<%= composition[:id] %>"
+                  aria-selected="false"
+                  data-action="variant-tabs#select">
+            <span class="mr-1.5 inline-block h-2 w-2 rounded-full align-middle" style="background-color: <%= composition[:color] %>"></span>Composition <%= composition[:index] %>
+          </button>
+        <% end %>
+      </div>
+      <% @compositions.each_with_index do |composition, i| %>
+        <div data-variant-tabs-target="panel"
+             data-composition-id="<%= composition[:id] %>"
+             aria-hidden="<%= i.zero? ? "false" : "true" %>"
+             class="<%= "hidden" unless i.zero? %>">
+          <%= render "build_table", rows: composition[:rows] %>
+        </div>
+      <% end %>
+    </div>
+  <% elsif @compositions.one? %>
     <%= render "build_table", rows: @compositions.first[:rows] %>
   <% else %>
     <p class="gw-empty">This build has no characters.</p>

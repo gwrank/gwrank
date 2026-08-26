@@ -135,7 +135,7 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-controller='template-code-popover']", count: 0
   end
 
-  test "show resolves locked variants to their own full build" do
+  test "show renders one locked composition panel per resolvable lock" do
     doc = load_zcx("variants_with_locks")
     Teambuilds::Ingest.call(player: @owner, source_uuid: doc["id"], document: doc, visibility: "private")
 
@@ -143,8 +143,13 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     get build_path(Teambuild.find_by!(source_uuid: doc["id"]))
     assert_response :success
 
-    assert_select "table.gw-table tbody tr td strong", text: "One Mid"
-    assert_select "table.gw-table img[title='Example Ward']"
-    assert_select "table.gw-table tbody tr", count: 2
+    assert_select "[data-variant-tabs-target='tab']", count: 2
+    assert_select "[data-variant-tabs-target='panel']", count: 2
+
+    assert_select "div[data-composition-id='composition-1'] tbody tr td strong", text: "One Mid"
+    assert_select "div[data-composition-id='composition-1'] img[title='Example Ward']"
+    assert_select "div[data-composition-id='composition-2'] tbody tr td strong", text: "One Deep"
+    assert_select "div[data-composition-id=\"composition-2\"] img[title=\"Trapper's Focus Example\"]"
+    assert_select "div[data-composition-id='composition-2'] tbody tr", count: 2
   end
 end
