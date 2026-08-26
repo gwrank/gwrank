@@ -7,16 +7,8 @@
     <%= link_to "Download .zcx", download_build_path(@teambuild), class: "gw-btn ml-auto" %>
   </div>
 
-  <% if @rows.any? %>
-    <div class="overflow-x-auto">
-      <table class="gw-table">
-        <tbody>
-          <% @rows.each do |row| %>
-            <%= render "character_row", row: row %>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
+  <% if @compositions.any? %>
+    <%= render "build_table", rows: @compositions.first[:rows] %>
   <% else %>
     <p class="gw-empty">This build has no characters.</p>
   <% end %>

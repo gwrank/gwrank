@@ -1,0 +1,10 @@
+<%# locals: (rows:) %>
+<div class="overflow-x-auto">
+  <table class="gw-table">
+    <tbody>
+      <% rows.each do |row| %>
+        <%= render "character_row", row: row %>
+      <% end %>
+    </tbody>
+  </table>
+</div>
