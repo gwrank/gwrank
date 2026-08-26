@@ -8,6 +8,7 @@ module Teambuilds
   # référencée. Sans locks, une seule composition contenant les racines.
   class Compositions
     Entry = Data.define(:uuid, :node, :depth)
+    Lock = Data.define(:node, :index)
 
     def self.of(document)
       new(document).call
@@ -19,9 +20,9 @@ module Teambuilds
 
     def call
       return [] if buckets.empty?
-      return [base_composition] if valid_locks.empty?
 
-      valid_locks.filter_map { |lock| locked_composition(lock) }
+      compositions = valid_locks.map { |lock| locked_composition(lock) }.compact
+      compositions.empty? ? [base_composition] : compositions
     end
 
     private
@@ -52,7 +53,10 @@ module Teambuilds
     def valid_locks
       @valid_locks ||= Array(@document["locks"])
                        .select { |lock| lock.is_a?(Hash) && lock["memberIds"].is_a?(Array) }
-                       .sort_by { |lock| lock["index"].to_i }
+                       .each_with_object({}) do |lock, seen|
+                         seen[lock["index"].to_i] ||= Lock.new(lock, lock["index"].to_i)
+                       end.values
+                       .sort_by(&:index)
     end
 
     def base_composition
@@ -61,12 +65,12 @@ module Teambuilds
     end
 
     def locked_composition(lock)
-      members = lock["memberIds"].filter_map { |id| registry[id] if id.is_a?(String) && id.present? }
+      members = lock.node["memberIds"].filter_map { |id| registry[id] if id.is_a?(String) && id.present? }
       return nil if members.empty?
 
-      { id: "composition-#{lock["index"]}",
-        index: lock["index"],
-        color: lock["color"],
+      { id: "composition-#{lock.index}",
+        index: lock.index,
+        color: lock.node["color"],
         characters: buckets.map { |bucket| resolve_node(bucket, members) } }
     end
 

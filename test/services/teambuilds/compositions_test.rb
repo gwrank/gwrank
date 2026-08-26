@@ -140,5 +140,32 @@ module Teambuilds
 
       assert_equal [anonymous, referenced], compositions.first[:characters]
     end
+
+    test "falls back to base when every lock is unresolvable" do
+      root = character("aaaaaaaa-0000-0000-0000-000000000001", name: "Root")
+      dead = { "index" => 1, "color" => "#43A047",
+               "memberIds" => ["dddddddd-0000-0000-0000-000000000001"] }
+
+      compositions = Compositions.of(document([root], locks: [dead]))
+
+      assert_equal 1, compositions.size
+      assert_nil compositions.first[:id]
+      assert_equal [root], compositions.first[:characters]
+    end
+
+    test "normalizes string indexes and keeps the first lock per index" do
+      root = character("aaaaaaaa-0000-0000-0000-000000000001", name: "Root")
+      locks = [
+        { "index" => "1", "color" => "#E53935", "memberIds" => [root["id"]] },
+        { "index" => 1, "color" => "#000000", "memberIds" => [] },
+        { "index" => 2, "color" => "#1E88E5", "memberIds" => [root["id"]] }
+      ]
+
+      compositions = Compositions.of(document([root], locks: locks))
+
+      assert_equal ["composition-1", "composition-2"], compositions.map { |c| c[:id] }
+      assert_equal ["#E53935", "#1E88E5"], compositions.map { |c| c[:color] }
+      assert_equal [1, 2], compositions.map { |c| c[:index] }
+    end
   end
 end
