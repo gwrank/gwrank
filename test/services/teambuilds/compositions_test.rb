@@ -12,10 +12,6 @@ module Teambuilds
       { "characters" => characters, "locks" => locks }
     end
 
-    def member_ids(composition)
-      composition[:characters].map { |node| node["id"] }
-    end
-
     test "returns empty array when document has no characters" do
       assert_empty Compositions.of(document([]))
     end
@@ -166,6 +162,22 @@ module Teambuilds
       assert_equal ["composition-1", "composition-2"], compositions.map { |c| c[:id] }
       assert_equal ["#E53935", "#1E88E5"], compositions.map { |c| c[:color] }
       assert_equal [1, 2], compositions.map { |c| c[:index] }
+    end
+
+    test "keeps well-formed lock colors" do
+      root = character("aaaaaaaa-0000-0000-0000-000000000001", name: "Root")
+      lock = { "index" => 1, "color" => "#1E88E5", "memberIds" => [root["id"]] }
+
+      assert_equal "#1E88E5", Compositions.of(document([root], locks: [lock])).first[:color]
+    end
+
+    test "drops malformed lock colors instead of rendering them raw" do
+      root = character("aaaaaaaa-0000-0000-0000-000000000001", name: "Root")
+      evil = { "index" => 1,
+               "color" => "red;position:fixed;inset:0;z-index:9999;background:white",
+               "memberIds" => [root["id"]] }
+
+      assert_nil Compositions.of(document([root], locks: [evil])).first[:color]
     end
   end
 end

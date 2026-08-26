@@ -9,6 +9,7 @@ module Teambuilds
   class Compositions
     Entry = Data.define(:uuid, :node, :depth)
     Lock = Data.define(:node, :index)
+    HEX_COLOR = /\A#[0-9a-fA-F]{3,8}\z/
 
     def self.of(document)
       new(document).call
@@ -70,8 +71,12 @@ module Teambuilds
 
       { id: "composition-#{lock.index}",
         index: lock.index,
-        color: lock.node["color"],
+        color: safe_color(lock.node["color"]),
         characters: buckets.map { |bucket| resolve_node(bucket, members) } }
+    end
+
+    def safe_color(value)
+      value.to_s.match?(HEX_COLOR) ? value : nil
     end
 
     def resolve_node(bucket, members)
