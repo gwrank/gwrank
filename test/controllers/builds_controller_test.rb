@@ -109,16 +109,18 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".gw-window-header small", text: /@#{Regexp.escape(@owner.username)}/
   end
 
-  test "show renders rows for variant characters" do
+  test "show renders base characters only when build has no locks" do
     doc = load_zcx
     doc["id"] = "ddddddd9-0000-0000-0000-000000000003"
+    doc["locks"] = []
     doc["characters"][0]["variants"] = [doc["characters"][0].dup.merge("name" => "Variant One")]
     Teambuilds::Ingest.call(player: @owner, source_uuid: doc["id"], document: doc, visibility: "private")
 
     sign_in @owner
     get build_path(Teambuild.find_by!(source_uuid: doc["id"]))
     assert_response :success
-    assert_select "tbody tr td strong", text: /Variant One/
+    assert_select "tbody tr td > span > strong", text: /Water Snare/, count: 1
+    assert_select "tbody tr td > span > strong", text: /Variant One/, count: 0
   end
 
   test "hides template code trigger for characters without professions" do
@@ -131,5 +133,26 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     get build_path(Teambuild.find_by!(source_uuid: doc["id"]))
     assert_response :success
     assert_select "[data-controller='template-code-popover']", count: 0
+  end
+
+  test "show renders one locked composition panel per resolvable lock" do
+    doc = load_zcx("variants_with_locks")
+    Teambuilds::Ingest.call(player: @owner, source_uuid: doc["id"], document: doc, visibility: "private")
+
+    sign_in @owner
+    get build_path(Teambuild.find_by!(source_uuid: doc["id"]))
+    assert_response :success
+
+    assert_select "[data-variant-tabs-target='tab']", count: 2
+    assert_select "[data-variant-tabs-target='panel']", count: 2
+
+    assert_select "div[data-composition-id='composition-1'][aria-hidden='false']"
+    assert_select "div[data-composition-id='composition-2'].hidden"
+
+    assert_select "div[data-composition-id='composition-1'] tbody tr td strong", text: "One Mid"
+    assert_select "div[data-composition-id='composition-1'] img[title='Example Ward']"
+    assert_select "div[data-composition-id='composition-2'] tbody tr td strong", text: "One Deep"
+    assert_select "div[data-composition-id=\"composition-2\"] img[title=\"Trapper's Focus Example\"]"
+    assert_select "div[data-composition-id='composition-2'] tbody tr", count: 2
   end
 end

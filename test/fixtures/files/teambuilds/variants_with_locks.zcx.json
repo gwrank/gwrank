@@ -1,0 +1,118 @@
+{
+  "version": 18,
+  "id": "cccccccc-0000-0000-0000-00000000c001",
+  "name": "Variants With Locks",
+  "tags": [],
+  "notes": "",
+  "createdAt": "2026-08-26T08:00:00.0000000Z",
+  "updatedAt": "2026-08-26T08:00:00.0000000Z",
+  "characters": [
+    {
+      "id": "aaaaaaaa-0000-0000-0000-00000000a001",
+      "name": "Root One",
+      "primaryProfession": 6,
+      "secondaryProfession": 5,
+      "isFavorite": false,
+      "assignment": "Midline",
+      "gender": 0,
+      "skillIds": [1010, 1011, 0, 1, 2, 1064, 3, 0],
+      "attributes": [
+        { "id": 11, "points": 12 },
+        { "id": 12, "points": 10 }
+      ],
+      "titleRanks": {},
+      "equipment": null,
+      "notes": "base notes",
+      "durationBoostersEnabled": false,
+      "activeAttributeBoosts": [],
+      "variants": [
+        {
+          "id": "aaaaaaaa-0000-0000-0000-00000000a002",
+          "name": "One Mid",
+          "primaryProfession": 6,
+          "secondaryProfession": 5,
+          "isFavorite": false,
+          "assignment": "Midline",
+          "gender": 0,
+          "skillIds": [1010, 919, 0, 1, 2, 1064, 3, 0],
+          "attributes": [
+            { "id": 11, "points": 12 },
+            { "id": 12, "points": 10 }
+          ],
+          "titleRanks": {},
+          "equipment": null,
+          "notes": "mid notes",
+          "durationBoostersEnabled": false,
+          "activeAttributeBoosts": [],
+          "variants": [
+            {
+              "id": "aaaaaaaa-0000-0000-0000-00000000a003",
+              "name": "One Deep",
+              "primaryProfession": 6,
+              "secondaryProfession": 5,
+              "isFavorite": false,
+              "assignment": "Midline",
+              "gender": 0,
+              "skillIds": [946, 1011, 0, 1, 2, 1064, 3, 0],
+              "attributes": [
+                { "id": 11, "points": 12 },
+                { "id": 12, "points": 10 }
+              ],
+              "titleRanks": {},
+              "equipment": null,
+              "notes": "deep notes",
+              "durationBoostersEnabled": false,
+              "activeAttributeBoosts": [],
+              "variants": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bbbbbbbb-0000-0000-0000-00000000b001",
+      "name": "Root Two",
+      "primaryProfession": 2,
+      "secondaryProfession": 6,
+      "isFavorite": false,
+      "assignment": "Flank",
+      "gender": 0,
+      "skillIds": [1010, 1011, 0, 1, 2, 1064, 3, 0],
+      "attributes": [
+        { "id": 3, "points": 8 },
+        { "id": 11, "points": 12 }
+      ],
+      "titleRanks": {},
+      "equipment": null,
+      "notes": "",
+      "durationBoostersEnabled": false,
+      "activeAttributeBoosts": [],
+      "variants": []
+    }
+  ],
+  "locks": [
+    {
+      "index": 1,
+      "color": "#E53935",
+      "memberIds": ["aaaaaaaa-0000-0000-0000-00000000a002", "bbbbbbbb-0000-0000-0000-00000000b001"]
+    },
+    {
+      "index": 2,
+      "color": "#1E88E5",
+      "memberIds": ["aaaaaaaa-0000-0000-0000-00000000a003", "bbbbbbbb-0000-0000-0000-00000000b001"]
+    },
+    {
+      "index": 3,
+      "color": "#43A047",
+      "memberIds": ["dddddddd-0000-0000-0000-00000000d001"]
+    }
+  ],
+  "spike": [],
+  "flux": 0,
+  "natureRituals": [],
+  "roaringWindsRank": 12,
+  "tranquilityRank": 12,
+  "gameMode": "PvP",
+  "vampiricHits3": 1,
+  "vampiricHits5": 1
+}

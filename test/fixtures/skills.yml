@@ -57,3 +57,21 @@ resurrection_signet:
   is_elite: true
   profession: monk
   campaign: Core
+
+example_strike:
+  skill_id: 1011
+  template_skill_id: 1011
+  name: Example Strike
+  skill_type: Attack Skill
+  is_elite: false
+  profession: warrior
+  campaign: Core
+
+example_ward:
+  skill_id: 919
+  template_skill_id: 919
+  name: Example Ward
+  skill_type: Spell
+  is_elite: false
+  profession: monk
+  campaign: Core

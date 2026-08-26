@@ -21,3 +21,6 @@ application.register("template-code-popover", TemplateCodePopoverController)
 
 import TooltipController from "./tooltip_controller"
 application.register("tooltip", TooltipController)
+
+import VariantTabsController from "./variant_tabs_controller"
+application.register("variant-tabs", VariantTabsController)

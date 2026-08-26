@@ -1,17 +1,17 @@
 <tr>
   <td>
     <span class="flex flex-wrap items-center gap-2">
-      <strong class="text-gold-400"><%= row[:summary].name.presence || "(unnamed)" %></strong>
-      <% if row[:summary].assignment.present? %><span class="gw-badge gw-badge--mode"><%= row[:summary].assignment %></span><% end %>
+      <strong class="text-gold-400"><%= row[:name].presence || "(unnamed)" %></strong>
+      <% if row[:assignment].present? %><span class="gw-badge gw-badge--mode"><%= row[:assignment] %></span><% end %>
       <span class="ml-auto flex items-center gap-1 gw-imgs-inline">
-        <span class="gw-prof-chip h-[26px] w-[26px]"><%= row[:summary].primary_profession&.html_image_simple(size: 26) %></span>
-        <span class="gw-prof-chip h-[26px] w-[26px]"><%= row[:summary].secondary_profession&.html_image_simple(size: 26) %></span>
+        <span class="gw-prof-chip h-[26px] w-[26px]"><%= row[:primary_profession]&.html_image_simple(size: 26) %></span>
+        <span class="gw-prof-chip h-[26px] w-[26px]"><%= row[:secondary_profession]&.html_image_simple(size: 26) %></span>
         <%= render "application/template_code_popover",
               template_code: row[:template_code],
-              name: row[:summary].name.presence || "(unnamed)",
-              primary_profession: row[:summary].primary_profession,
-              secondary_profession: row[:summary].secondary_profession,
-              assignment: row[:summary].assignment %>
+              name: row[:name].presence || "(unnamed)",
+              primary_profession: row[:primary_profession],
+              secondary_profession: row[:secondary_profession],
+              assignment: row[:assignment] %>
       </span>
     </span>
     <% skills = Array(row[:skills]) %>
