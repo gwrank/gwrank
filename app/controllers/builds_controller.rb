@@ -28,7 +28,7 @@ class BuildsController < ApplicationController
   end
 
   def build_row(character)
-    skills = Array(character["skillIds"]).map { |sid| sid.zero? ? nil : Skill.find_by(skill_id: sid) }
+    skills = Array(character["skillIds"]).map { |sid| skill_for(sid) }
     document_attributes = Array(character["attributes"]).select { |attribute| attribute.is_a?(Hash) }
     primary_profession = profession_for(character["primaryProfession"])
     secondary_profession = profession_for(character["secondaryProfession"])
@@ -47,8 +47,22 @@ class BuildsController < ApplicationController
     }
   end
 
+  def skill_for(skill_id)
+    skill_id.to_i.zero? ? nil : skills_by_id[skill_id]
+  end
+
   def profession_for(code)
-    code.to_i.zero? ? nil : Profession.find_by(profession_id: code.to_i)
+    return if code.nil? || code.to_i.zero?
+
+    professions_by_code[code.to_i]
+  end
+
+  def skills_by_id
+    @skills_by_id ||= Hash.new { |hash, skill_id| hash[skill_id] = Skill.find_by(skill_id: skill_id) }
+  end
+
+  def professions_by_code
+    @professions_by_code ||= Hash.new { |hash, code| hash[code] = Profession.find_by(profession_id: code) }
   end
 
   def template_code_for(primary_profession, secondary_profession, skills, document_attributes)
