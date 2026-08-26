@@ -45,7 +45,7 @@ namespace :skills do
     Skill.where('name LIKE (?)', '%(PvP)').each do |skill|
       skill_common_name = skill.name.gsub(' (PvP)', '')
       common_skill = Skill.find_by(name: skill_common_name)
-      skill.update(template_skill_id: common_skill.skill_id)
+      skill.update(template_skill_id: common_skill&.skill_id || skill.skill_id)
     end
 
     Skill.where.not('name LIKE (?)', '%(PvP)').each do |skill|
@@ -65,6 +65,37 @@ namespace :skills do
       updated += Skill.where(skill_id: skill_id.to_i).update_all(campaign: campaign)
     end
     puts "#{updated} compétences mises à jour."
+  end
+
+  desc "Aligne les noms sur data/skills/desc.json (gw-skilldata) et supprime les skill_id inexistants"
+  task repair_from_source: :environment do
+    source = JSON.parse(File.read(Rails.root.join('data', 'skills', 'desc.json')))[ 'skilldesc']
+    renamed = 0
+    deleted = 0
+
+    Skill.find_each do |skill|
+      next if skill.skill_id.nil?
+      next if source.key?(skill.skill_id.to_s)
+
+      canonical = Skill.where(name: skill.name)
+                       .where.not(id: skill.id)
+                       .find { |candidate| source.key?(candidate.skill_id.to_s) }
+      skill.team_player_skills.update_all(skill_id: canonical.id) if canonical
+      Rails.logger.warn "skills:repair_from_source supprime ##{skill.id} (#{skill.name}, id jeu #{skill.skill_id} inexistant)"
+      skill.delete
+      deleted += 1
+    end
+
+    Skill.find_each do |skill|
+      next if skill.skill_id.nil?
+      authoritative_name = source[skill.skill_id.to_s]&.dig('name')
+      next if authoritative_name.nil? || authoritative_name == skill.name
+
+      skill.update!(name: authoritative_name)
+      renamed += 1
+    end
+
+    puts "#{renamed} compétences renommées, #{deleted} supprimées."
   end
 
   task clean_unknown_skills: :environment do
