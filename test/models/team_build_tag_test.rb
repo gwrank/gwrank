@@ -2,21 +2,19 @@ require "test_helper"
 
 class TeambuildTagTest < ActiveSupport::TestCase
   test "generates slug from name when absent" do
-    TeambuildTag.delete_all
-    tag = TeambuildTag.new(name: "GvG")
+    tag = TeambuildTag.new(name: "Tombs")
     assert tag.save
-    assert_equal "gvg", tag.slug
+    assert_equal "tombs", tag.slug
   end
 
   test "strips and downcases a provided slug" do
-    TeambuildTag.delete_all
-    tag = TeambuildTag.new(name: "Heroes Ascent", slug: "  HA ")
+    tag = TeambuildTag.new(name: "Heroes Ascent", slug: "  HeroesAscent ")
     assert tag.save
-    assert_equal "ha", tag.slug
+    assert_equal "heroesascent", tag.slug
   end
 
   test "rejects duplicate slug regardless of case" do
-    team_build_tags(:gvg)
+    teambuild_tags(:gvg)
     dup = TeambuildTag.new(name: "GVG", slug: "GVG")
     refute dup.valid?
     assert dup.errors[:slug].any?
@@ -35,6 +33,6 @@ class TeambuildTagTest < ActiveSupport::TestCase
   end
 
   test "ordered includes deactivated tags last for admin listing" do
-    assert_includes TeambuildTag.ordered.map(&:slug), "legacy"
+    assert_equal "legacy", TeambuildTag.ordered.last.slug
   end
 end

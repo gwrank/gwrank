@@ -496,17 +496,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_090000) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
-  create_table "team_build_tags", force: :cascade do |t|
-    t.boolean "active", default: true, null: false
-    t.datetime "created_at", null: false
-    t.string "name", null: false
-    t.integer "position", default: 0, null: false
-    t.string "slug", null: false
-    t.datetime "updated_at", null: false
-    t.index ["active", "position"], name: "index_team_build_tags_on_active_and_position"
-    t.index ["slug"], name: "index_team_build_tags_on_slug", unique: true
-  end
-
   create_table "team_player_skills", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "position", default: 0
@@ -573,6 +562,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_090000) do
     t.index ["deleted_at"], name: "index_teambuild_deletions_on_deleted_at"
     t.index ["player_id", "source_uuid"], name: "index_teambuild_deletions_on_player_id_and_source_uuid"
     t.index ["player_id"], name: "index_teambuild_deletions_on_player_id"
+  end
+
+  create_table "teambuild_tags", force: :cascade do |t|
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.integer "position", default: 0, null: false
+    t.string "slug", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active", "position"], name: "index_teambuild_tags_on_active_and_position"
+    t.index ["slug"], name: "index_teambuild_tags_on_slug", unique: true
   end
 
   create_table "teambuilds", force: :cascade do |t|

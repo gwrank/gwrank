@@ -1,5 +1,39 @@
 require 'test_helper'
 
+# == Schema Information
+#
+# Table name: matches
+#
+#  id                :bigint           not null, primary key
+#  elo_calculated    :boolean
+#  exported_at       :datetime
+#  imported_at       :datetime
+#  json              :jsonb
+#  name              :string
+#  number_on_round   :integer
+#  played_at         :datetime
+#  round             :integer
+#  slug              :string
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  imported_by_id    :bigint
+#  loser_team_id     :integer
+#  memorial_match_id :integer
+#  tournament_id     :bigint
+#  winner_team_id    :integer
+#
+# Indexes
+#
+#  index_matches_on_imported_by_id    (imported_by_id)
+#  index_matches_on_played_at         (played_at)
+#  index_matches_on_played_at_and_id  (played_at,id)
+#  index_matches_on_tournament_id     (tournament_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (imported_by_id => players.id)
+#  fk_rails_...  (tournament_id => tournaments.id)
+#
 class MatchTest < ActiveSupport::TestCase
   test 'title uses preloaded teams without extra queries' do
     match = create_match

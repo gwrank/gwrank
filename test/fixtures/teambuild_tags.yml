@@ -1,6 +1,20 @@
-_fixture:
-  model_class: TeambuildTag
-
+# == Schema Information
+#
+# Table name: teambuild_tags
+#
+#  id         :bigint           not null, primary key
+#  active     :boolean          default(TRUE), not null
+#  name       :string           not null
+#  position   :integer          default(0), not null
+#  slug       :string           not null
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
+# Indexes
+#
+#  index_teambuild_tags_on_active_and_position  (active,position)
+#  index_teambuild_tags_on_slug                 (slug) UNIQUE
+#
 gvg: { name: "GvG", slug: "gvg", position: 1, active: true }
 ha: { name: "HA", slug: "ha", position: 2, active: true }
 ra: { name: "RA", slug: "ra", position: 3, active: true }
