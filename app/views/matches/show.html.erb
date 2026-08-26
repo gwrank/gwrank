@@ -20,13 +20,13 @@
         <div class="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-4 rounded border border-gold-600/40 p-4">
           <div class="text-center sm:text-left">
             <h2 class="font-display text-gold-300 text-lg m-0">
-              <% if @match.teams.winner.rank.present? %>
-                <span class="text-muted">#<%= @match.teams.winner.rank %></span>
+              <% if @match.winner_team.rank.present? %>
+                <span class="text-muted">#<%= @match.winner_team.rank %></span>
               <% end %>
-              <%= link_to @match.teams.winner.guild.name_with_tag, match_path(@match), class: "hover:text-gold-400" %>
+              <%= link_to @match.winner_team.guild.name_with_tag, match_path(@match), class: "hover:text-gold-400" %>
               <span title="Winner">🏆</span>
             </h2>
-            <p class="text-sm m-0 mt-1"><%= link_to 'Guild details', guild_path(@match.teams.winner.guild), class: 'text-muted hover:text-gold-400' %></p>
+            <p class="text-sm m-0 mt-1"><%= link_to 'Guild details', guild_path(@match.winner_team.guild), class: 'text-muted hover:text-gold-400' %></p>
           </div>
           <div class="text-center font-display text-gold-300">
             <div class="text-xs text-muted"><%= @match.round_text %> · <%= @match.tournament&.date %></div>
@@ -34,23 +34,23 @@
           </div>
           <div class="text-center sm:text-right">
             <h2 class="font-display text-gold-300 text-lg m-0">
-              <% if @match.teams.loser.rank.present? %>
-                <span class="text-muted">#<%= @match.teams.loser.rank %></span>
+              <% if @match.loser_team.rank.present? %>
+                <span class="text-muted">#<%= @match.loser_team.rank %></span>
               <% end %>
-              <%= link_to @match.teams.loser.guild.name_with_tag, match_path(@match), class: "hover:text-gold-400" %>
+              <%= link_to @match.loser_team.guild.name_with_tag, match_path(@match), class: "hover:text-gold-400" %>
             </h2>
-            <p class="text-sm m-0 mt-1"><%= link_to 'Guild details', guild_path(@match.teams.loser.guild), class: 'text-muted hover:text-gold-400' %></p>
+            <p class="text-sm m-0 mt-1"><%= link_to 'Guild details', guild_path(@match.loser_team.guild), class: 'text-muted hover:text-gold-400' %></p>
           </div>
         </div>
       <% end %>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <section>
-          <h2 class="font-display text-gold-300 text-sm mb-2"><%= @match.teams.winner.guild.name_with_tag %></h2>
+          <h2 class="font-display text-gold-300 text-sm mb-2"><%= @match.winner_team.guild.name_with_tag %></h2>
           <div class="overflow-x-auto">
             <table class="gw-table">
               <tbody>
-                <% @match.teams.winner.team_players.includes(character: [ :player ], profession: [], secondary_profession: [], team_player_skills: [ :skill ], team_player_stats: []).order(position: :asc).each do |team_player| %>
+                <% @match.winner_team.team_players.includes(character: [ :player ], profession: [], secondary_profession: [], team_player_skills: [ :skill ], team_player_stats: []).order(position: :asc).each do |team_player| %>
                   <%= render 'team_player', team_player: team_player %>
                 <% end %>
               </tbody>
@@ -58,11 +58,11 @@
           </div>
         </section>
         <section>
-          <h2 class="font-display text-gold-300 text-sm mb-2"><%= @match.teams.loser.guild.name_with_tag %></h2>
+          <h2 class="font-display text-gold-300 text-sm mb-2"><%= @match.loser_team.guild.name_with_tag %></h2>
           <div class="overflow-x-auto">
             <table class="gw-table">
               <tbody>
-                <% @match.teams.loser.team_players.includes(character: [ :player ], profession: [], secondary_profession: [], team_player_skills: [ :skill ], team_player_stats: []).order(position: :asc).each do |team_player| %>
+                <% @match.loser_team.team_players.includes(character: [ :player ], profession: [], secondary_profession: [], team_player_skills: [ :skill ], team_player_stats: []).order(position: :asc).each do |team_player| %>
                   <%= render 'team_player', team_player: team_player %>
                 <% end %>
               </tbody>
