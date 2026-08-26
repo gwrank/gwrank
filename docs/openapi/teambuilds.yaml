@@ -105,7 +105,9 @@ paths:
         schema:
           type: string
           format: date-time
-        description: ISO 8601 instant; only builds updated at or after it are returned
+        description: ISO 8601 instant; only builds updated at or after it are returned.
+          The response also carries deletions[] (sourceId/deletedAt) listing builds
+          removed since then.
       responses:
         '200':
           description: Paginated list of summaries
@@ -118,6 +120,10 @@ paths:
                     type: array
                     items:
                       "$ref": "#/components/schemas/TeambuildSummary"
+                  deletions:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/TeambuildDeletion"
                   pagination:
                     "$ref": "#/components/schemas/Pagination"
         '401':
@@ -148,7 +154,9 @@ paths:
         schema:
           type: string
           format: date-time
-        description: ISO 8601 instant; only builds updated at or after it are returned
+        description: ISO 8601 instant; only builds updated at or after it are returned.
+          The response also carries deletions[] (sourceId/deletedAt) listing builds
+          removed since then.
       responses:
         '200':
           description: Every visible teambuild
@@ -161,6 +169,10 @@ paths:
                     type: array
                     items:
                       "$ref": "#/components/schemas/TeambuildExport"
+                  deletions:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/TeambuildDeletion"
         '401':
           description: Missing or invalid token
         '400':
@@ -454,6 +466,17 @@ components:
           type: string
           description: Hex SHA-256 of the canonicalized stored document (updatedAt
             excluded). Send it quoted as If-Match on PUT.
+    TeambuildDeletion:
+      type: object
+      description: Tombstone reported when a previously visible build was deleted
+        (only with updated_since)
+      properties:
+        sourceId:
+          type: string
+          format: uuid
+        deletedAt:
+          type: string
+          format: date-time
     UpsertResult:
       allOf:
       - "$ref": "#/components/schemas/TeambuildSummary"

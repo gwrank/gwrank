@@ -19,10 +19,12 @@ class Api::V1::TeambuildsController < ApplicationController
                       .order(Teambuild::SORTS.fetch(params[:sort], Teambuild::SORTS.fetch("updated_at")))
                       .limit(per_page).offset(offset)
 
-    render json: {
+    payload = {
       teambuilds: records.map(&:summary),
       pagination: { page: page_number, perPage: per_page, totalCount: total_count }
     }
+    payload[:deletions] = deletion_feed if @updated_since
+    render json: payload
   end
 
   def export
@@ -32,7 +34,9 @@ class Api::V1::TeambuildsController < ApplicationController
               .includes(:player, teambuild_characters: [:primary_profession, :secondary_profession, :elite_skill])
               .order(updated_at: :desc)
 
-    render json: { teambuilds: records.map(&:export_summary) }
+    payload = { teambuilds: records.map(&:export_summary) }
+    payload[:deletions] = deletion_feed if @updated_since
+    render json: payload
   end
 
   def show
@@ -151,6 +155,12 @@ class Api::V1::TeambuildsController < ApplicationController
     elsif value.match?(/\A\d+\z/)
       Teambuild.find_by(id: value)
     end
+  end
+
+  def deletion_feed
+    TeambuildDeletion.visible_to(@player).deleted_since(@updated_since)
+                     .order(:deleted_at)
+                     .map { |deletion| { sourceId: deletion.source_uuid, deletedAt: deletion.deleted_at } }
   end
 
   def filtered(relation)

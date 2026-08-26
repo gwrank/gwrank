@@ -47,6 +47,7 @@ module Teambuilds
         teambuild.status = @status if @status
         Indexer.call(teambuild)
         teambuild.save!
+        TeambuildDeletion.where(player_id: @player.id, source_uuid: @source_uuid).delete_all if created
         success(teambuild, created, true)
       end
     end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_23_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_26_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -552,6 +552,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_23_090000) do
     t.index ["teambuild_id"], name: "index_teambuild_characters_on_teambuild_id"
   end
 
+  create_table "teambuild_deletions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "deleted_at", null: false
+    t.bigint "player_id"
+    t.uuid "source_uuid", null: false
+    t.datetime "updated_at", null: false
+    t.string "visibility", null: false
+    t.index ["deleted_at"], name: "index_teambuild_deletions_on_deleted_at"
+    t.index ["player_id", "source_uuid"], name: "index_teambuild_deletions_on_player_id_and_source_uuid"
+    t.index ["player_id"], name: "index_teambuild_deletions_on_player_id"
+  end
+
   create_table "teambuilds", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.jsonb "document", null: false
@@ -649,6 +661,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_23_090000) do
   add_foreign_key "teambuild_characters", "professions", column: "secondary_profession_id"
   add_foreign_key "teambuild_characters", "skills", column: "elite_skill_id"
   add_foreign_key "teambuild_characters", "teambuilds"
+  add_foreign_key "teambuild_deletions", "players", on_delete: :nullify
   add_foreign_key "teambuilds", "players"
   add_foreign_key "teams", "guilds"
   add_foreign_key "teams", "matches"

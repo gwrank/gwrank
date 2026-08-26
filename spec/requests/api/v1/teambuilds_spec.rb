@@ -48,7 +48,8 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
       parameter name: :per_page, in: :query, schema: { type: :integer, minimum: 1, maximum: 100 }
       parameter name: :updated_since, in: :query, required: false,
                 schema: { type: :string, format: :'date-time' },
-                description: 'ISO 8601 instant; only builds updated at or after it are returned'
+                description: 'ISO 8601 instant; only builds updated at or after it are returned. ' \
+                             'The response also carries deletions[] (sourceId/deletedAt) listing builds removed since then.'
 
       let(:Authorization) { "Bearer #{@owner.api_token}" }
       let(:q) { nil }
@@ -120,6 +121,28 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
         end
       end
 
+      response(200, 'updated_since also reports deletions since the instant') do
+        before do
+          @owner = create_api_player
+          @other = create_api_player
+          seed_build(@owner, zcx)
+          seed_build(@other, zcx_variant('aaaaaaa1-0000-0000-0000-000000000005'), visibility: 'public')
+          seed_build(@other, zcx_variant('aaaaaaa1-0000-0000-0000-000000000006'))
+          @since = Time.current.change(usec: 0)
+          Teambuild.find_by!(source_uuid: zcx['id']).destroy!
+          Teambuild.find_by!(source_uuid: 'aaaaaaa1-0000-0000-0000-000000000005').destroy!
+          Teambuild.find_by!(source_uuid: 'aaaaaaa1-0000-0000-0000-000000000006').destroy!
+        end
+        let(:updated_since) { @since.iso8601 }
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          expect(data['teambuilds']).to be_empty
+          removed = data['deletions'].map { |entry| entry['sourceId'] }
+          expect(removed).to contain_exactly(zcx['id'], 'aaaaaaa1-0000-0000-0000-000000000005')
+        end
+      end
+
       response(200, 'Paginated list of summaries') do
         before do
           @owner = create_api_player
@@ -133,6 +156,7 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
           type: :object,
           properties: {
             teambuilds: { type: :array, items: { '$ref': '#/components/schemas/TeambuildSummary' } },
+            deletions: { type: :array, items: { '$ref': '#/components/schemas/TeambuildDeletion' } },
             pagination: { '$ref': '#/components/schemas/Pagination' }
           }
         )
@@ -176,11 +200,34 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
       parameter name: :status, in: :query, schema: { type: :string, enum: %w[draft published] }
       parameter name: :updated_since, in: :query, required: false,
                 schema: { type: :string, format: :'date-time' },
-                description: 'ISO 8601 instant; only builds updated at or after it are returned'
+                description: 'ISO 8601 instant; only builds updated at or after it are returned. ' \
+                             'The response also carries deletions[] (sourceId/deletedAt) listing builds removed since then.'
 
       let(:Authorization) { "Bearer #{@owner.api_token}" }
       let(:status) { nil }
       let(:updated_since) { nil }
+
+      response(200, 'updated_since also reports deletions since the instant') do
+        before do
+          @owner = create_api_player
+          @other = create_api_player
+          seed_build(@owner, zcx)
+          seed_build(@other, zcx_variant('aaaaaaa1-0000-0000-0000-000000000010'), visibility: 'public')
+          seed_build(@other, zcx_variant('aaaaaaa1-0000-0000-0000-000000000011'))
+          @since = Time.current.change(usec: 0)
+          Teambuild.find_by!(source_uuid: zcx['id']).destroy!
+          Teambuild.find_by!(source_uuid: 'aaaaaaa1-0000-0000-0000-000000000010').destroy!
+          Teambuild.find_by!(source_uuid: 'aaaaaaa1-0000-0000-0000-000000000011').destroy!
+        end
+        let(:updated_since) { @since.iso8601 }
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          expect(data['teambuilds']).to be_empty
+          removed = data['deletions'].map { |entry| entry['sourceId'] }
+          expect(removed).to contain_exactly(zcx['id'], 'aaaaaaa1-0000-0000-0000-000000000010')
+        end
+      end
 
       response(200, 'Every visible teambuild') do
         before do
@@ -193,7 +240,8 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
         schema(
           type: :object,
           properties: {
-            teambuilds: { type: :array, items: { '$ref': '#/components/schemas/TeambuildExport' } }
+            teambuilds: { type: :array, items: { '$ref': '#/components/schemas/TeambuildExport' } },
+            deletions: { type: :array, items: { '$ref': '#/components/schemas/TeambuildDeletion' } }
           }
         )
 

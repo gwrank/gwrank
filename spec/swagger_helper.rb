@@ -109,6 +109,14 @@ RSpec.configure do |config|
               }
             }
           },
+          TeambuildDeletion: {
+            type: :object,
+            description: 'Tombstone reported when a previously visible build was deleted (only with updated_since)',
+            properties: {
+              sourceId: { type: :string, format: :uuid },
+              deletedAt: { type: :string, format: :'date-time' }
+            }
+          },
           UpsertResult: {
             allOf: [
               { '$ref': '#/components/schemas/TeambuildSummary' },
