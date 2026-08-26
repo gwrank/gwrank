@@ -12,6 +12,20 @@ servers:
 security:
 - bearerAuth: []
 paths:
+  "/api/v1/tags":
+    get:
+      summary: List allowed teambuild tags
+      security: []
+      description: Closed list of tags accepted when publishing teambuilds. Public
+        endpoint (no bearer token). Maintained by GWRank administrators; clients should
+        refresh periodically (Cache-Control max-age=300).
+      responses:
+        '200':
+          description: returns active tags ordered by position
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/TagsResponse"
   "/api/v1/teambuilds":
     get:
       summary: Search teambuilds
@@ -294,7 +308,8 @@ paths:
               schema:
                 "$ref": "#/components/schemas/ErrorList"
         '422':
-          description: Format rule violation (see docs/zcx_format.md §11)
+          description: Format rule violation (see docs/zcx_format.md §11) or tags
+            outside the closed list
           content:
             application/json:
               schema:
@@ -366,6 +381,17 @@ components:
           type: integer
         totalCount:
           type: integer
+    TagsResponse:
+      type: object
+      required:
+      - tags
+      properties:
+        tags:
+          type: array
+          items:
+            type: string
+          description: Closed list of tags accepted when publishing teambuilds, ordered
+            by position
     ErrorList:
       type: object
       properties:
@@ -514,9 +540,10 @@ components:
           items:
             type: string
             maxLength: 64
-          description: Free-form labels. The nine canonical values (GvG HA RA TA AB
-            FA JQ PvP PvE, case-insensitive) are normalized and feed search filters;
-            other labels are preserved verbatim.
+          description: 'Closed list of nine canonical values (GvG HA RA TA AB FA JQ
+            PvP PvE), case-insensitive: normalized on ingest and used by search filters.
+            Unknown values are rejected with 422 invalid_tag; the authoritative list
+            is served by GET /api/v1/tags.'
         notes:
           type: string
         createdAt:

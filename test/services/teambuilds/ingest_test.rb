@@ -135,5 +135,15 @@ module Teambuilds
       result = Ingest.call(player: @owner, source_uuid: @doc["id"], document: @doc, if_match: "*")
       assert result.ok?
     end
+
+    test "rejects ingestion of a build tagged outside the closed list" do
+      doc = load_zcx
+      doc["id"] = "ccccccc1-0000-0000-0000-000000000001"
+      doc["tags"] = ["GvG", "CustomTag"]
+      result = Ingest.call(player: create_player, source_uuid: doc["id"], document: doc)
+      refute result.ok?
+      error = result.errors.find { |e| e["code"] == "invalid_tag" }
+      assert_includes error["message"], "CustomTag"
+    end
   end
 end

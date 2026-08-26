@@ -31,18 +31,18 @@ Décisions prises en session :
 
 ## 1. Données et modèle
 
-### Table `team_build_tags`
+### Table `teambuild_tags`
 
 ```ruby
-create_table :team_build_tags do |t|
+create_table :teambuild_tags do |t|
   t.string   :name,    null: false            # label affiché, ex. "GvG"
   t.string   :slug,    null: false            # normalisé minuscule, ex. "gvg"
   t.boolean  :active,  default: true, null: false
   t.integer  :position, default: 0, null: false
   t.timestamps
 end
-add_index :team_build_tags, :slug, unique: true
-add_index :team_build_tags, [:active, :position]
+add_index :teambuild_tags, :slug, unique: true
+add_index :teambuild_tags, [:active, :position]
 ```
 
 Deux migrations :
@@ -122,8 +122,8 @@ régénération de `docs/openapi/teambuilds.yaml`.
 Namespace existant `administration` (gate `is_admin?` via
 `Administration::ApplicationController#redirect_non_admins!`).
 
-- Routes : `resources :team_build_tags` sous le namespace `administration`.
-- Contrôleur : `Administration::TeamBuildTagsController <
+- Routes : `resources :teambuild_tags` sous le namespace `administration`.
+- Contrôleur : `Administration::TeambuildTagsController <
   Administration::ApplicationController`.
   - `index` : tous les tags (actifs et désactivés), triés par `position`.
   - `create` : création inline depuis l'index ; slug auto-généré depuis le nom

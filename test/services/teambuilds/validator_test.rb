@@ -10,6 +10,10 @@ module Teambuilds
       Validator.validate(mutated)
     end
 
+    def errors_for_whitelisted(document, allowed)
+      Validator.validate(document, allowed_tags: allowed)
+    end
+
     test "accepts the reference document" do
       assert_empty errors_for(@doc)
     end
@@ -136,6 +140,25 @@ module Teambuilds
 
       assert_includes errors.map { |e| e["code"] }, "reserved_key"
       assert errors.any? { |e| e["path"] == "$.author" }
+    end
+
+    test "skips the whitelist when none is provided" do
+      @doc["tags"] = ["Whatever"]
+      assert_empty errors_for_whitelisted(@doc, nil)
+    end
+
+    test "accepts whitelisted tags case-insensitively" do
+      @doc["tags"] = ["gvg"]
+      assert_empty errors_for_whitelisted(@doc, %w[gvg])
+    end
+
+    test "rejects unknown tags when a whitelist is provided" do
+      @doc["tags"] = ["Foo", "GvG"]
+      errors = errors_for_whitelisted(@doc, %w[gvg])
+      assert_equal ["invalid_tag"], errors.map { |e| e["code"] }.uniq
+      assert_equal "$.tags", errors.first["path"]
+      assert_includes errors.first["message"], "Foo"
+      assert_not_includes errors.first["message"], "GvG"
     end
   end
 end

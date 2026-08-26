@@ -27,24 +27,24 @@ module Teambuilds
     ].freeze
 
     MAX_ROOT_CHARACTERS = 12
-    ALLOWED_TAGS = %w[GvG HA RA TA AB FA JQ PvP PvE].freeze
     MAX_TAGS = 24
     TAG_MAX_LENGTH = 64
     SKILL_SLOTS = 8
     MAX_DEPTH = 64
     MAX_TOTAL_CHARACTERS = 512
 
-    def self.validate(document)
+    def self.validate(document, allowed_tags: nil)
       unless document.is_a?(Hash)
         return [{ "path" => "$", "code" => "not_an_object", "message" => "Le document racine doit être un objet JSON" }]
       end
-      new(document).call
+      new(document, allowed_tags: allowed_tags).call
     end
 
     attr_reader :errors
 
-    def initialize(document)
+    def initialize(document, allowed_tags: nil)
       @document = document
+      @allowed_tags = allowed_tags
       @errors = []
       @character_count = 0
     end
@@ -104,6 +104,15 @@ module Teambuilds
         add_error("$.tags[#{i}]", "invalid_tag",
                   %(Tag invalide : chaîne non vide de #{TAG_MAX_LENGTH} caractères maximum))
       end
+      reject_unknown_tags(tags)
+    end
+
+    def reject_unknown_tags(tags)
+      return unless @allowed_tags
+      unknown = tags.select { |tag| valid_tag?(tag) && !@allowed_tags.include?(tag.to_s.downcase) }
+      return if unknown.empty?
+      add_error("$.tags", "invalid_tag",
+                "Liste des tags autorisés disponible sur GET /api/v1/tags. Tags refusés : #{unknown.join(', ')}")
     end
 
     def valid_tag?(tag)

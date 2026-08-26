@@ -4,6 +4,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      resources :tags, only: [:index]
       resources :items, only: [:index, :show]
       resources :matches, only: [:create]
       resources :teambuilds, only: [:index, :show, :update, :destroy] do
@@ -44,6 +45,7 @@ Rails.application.routes.draw do
       resources :unchecks, only: [:create], controller: 'players/unchecks'
     end
     resources :tournaments, only: [:new, :create]
+    resources :teambuild_tags, only: [:index, :create, :update]
   end
 
   devise_for :players, controllers: {

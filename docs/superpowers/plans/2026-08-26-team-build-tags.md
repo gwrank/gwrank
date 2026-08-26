@@ -4,7 +4,7 @@
 
 **Goal:** Liste fermée de tags teambuilds, exposée par `GET /api/v1/tags`, seule acceptée à la publication via l'API, administrable en web par les admins GWRank.
 
-**Architecture:** Nouvelle table `team_build_tags` (source de vérité : `name` affiché + `slug` normalisé + `active` + `position`). `Teambuilds::Validator` valide contre les slugs actifs passés par `Teambuilds::Ingest` ; l'`Indexer` normalise la casse vers le nom officiel. Endpoint public JSON dans `Api::V1`, CRUD minimal dans le namespace `administration`.
+**Architecture:** Nouvelle table `teambuild_tags` (source de vérité : `name` affiché + `slug` normalisé + `active` + `position`). `Teambuilds::Validator` valide contre les slugs actifs passés par `Teambuilds::Ingest` ; l'`Indexer` normalise la casse vers le nom officiel. Endpoint public JSON dans `Api::V1`, CRUD minimal dans le namespace `administration`.
 
 **Tech Stack:** Rails 8.1 / Ruby 3.4 / PostgreSQL / Minitest (+ RSpec rswag pour la doc OpenAPI) / Turbo.
 
@@ -18,12 +18,12 @@
 
 ---
 
-### Task 1: Table `team_build_tags`, modèle et fixtures minitest
+### Task 1: Table `teambuild_tags`, modèle et fixtures minitest
 
 **Files:**
 - Create: `db/migrate/20260826090000_create_team_build_tags.rb`
 - Create: `app/models/teambuild_tag.rb`
-- Create: `test/fixtures/team_build_tags.yml`
+- Create: `test/fixtures/teambuild_tags.yml`
 - Test: `test/models/team_build_tag_test.rb`
 
 - [ ] **Step 1: Écrire les tests du modèle (échouent : table/classe inexistantes)**
@@ -46,7 +46,7 @@ class TeambuildTagTest < ActiveSupport::TestCase
   end
 
   test "rejects duplicate slug regardless of case" do
-    team_build_tags(:gvg)
+    teambuild_tags(:gvg)
     dup = TeambuildTag.new(name: "GVG", slug: "GVG")
     refute dup.valid?
     assert dup.errors[:slug].any?
@@ -86,7 +86,7 @@ Puis éditer `db/migrate/20260826090000_create_team_build_tags.rb` :
 ```ruby
 class CreateTeamBuildTags < ActiveRecord::Migration[8.1]
   def change
-    create_table :team_build_tags do |t|
+    create_table :teambuild_tags do |t|
       t.string :name, null: false
       t.string :slug, null: false
       t.boolean :active, null: false, default: true
@@ -94,8 +94,8 @@ class CreateTeamBuildTags < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :team_build_tags, :slug, unique: true
-    add_index :team_build_tags, [:active, :position]
+    add_index :teambuild_tags, :slug, unique: true
+    add_index :teambuild_tags, [:active, :position]
   end
 end
 ```
@@ -132,7 +132,7 @@ end
 - [ ] **Step 5: Créer les fixtures**
 
 ```yaml
-# test/fixtures/team_build_tags.yml
+# test/fixtures/teambuild_tags.yml
 gvg: { name: "GvG", slug: "gvg", position: 1, active: true }
 ha: { name: "HA", slug: "ha", position: 2, active: true }
 ra: { name: "RA", slug: "ra", position: 3, active: true }
@@ -153,7 +153,7 @@ Expected: 7 runs, 0 failures
 - [ ] **Step 7: Commit**
 
 ```bash
-git add db/migrate/20260826090000_create_team_build_tags.rb app/models/teambuild_tag.rb test/fixtures/team_build_tags.yml test/models/team_build_tag_test.rb db/schema.rb
+git add db/migrate/20260826090000_create_team_build_tags.rb app/models/teambuild_tag.rb test/fixtures/teambuild_tags.yml test/models/team_build_tag_test.rb db/schema.rb
 git commit -m "feat(tags): team_build_tags table and model"
 ```
 
@@ -162,7 +162,7 @@ git commit -m "feat(tags): team_build_tags table and model"
 ### Task 2: Migration de seed des 9 tags canoniques
 
 **Files:**
-- Create: `db/migrate/20260826100000_seed_team_build_tags.rb`
+- Create: `db/migrate/20260826100000_seed_teambuild_tags.rb`
 - Modify: `db/seeds.rb` (append)
 
 - [ ] **Step 1: Créer la migration de seed**
@@ -209,7 +209,7 @@ Expected: migrations appliquées sans erreur sur les deux environnements.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add db/migrate/20260826100000_seed_team_build_tags.rb db/seeds.rb db/schema.rb
+git add db/migrate/20260826100000_seed_teambuild_tags.rb db/seeds.rb db/schema.rb
 git commit -m "feat(tags): seed canonical closed tag list"
 ```
 
@@ -428,7 +428,7 @@ module Api::V1
     end
 
     test "excludes deactivated tags" do
-      team_build_tags(:gvg).update!(active: false)
+      teambuild_tags(:gvg).update!(active: false)
       get api_v1_tags_path
       assert_not_includes response.parsed_body["tags"], "GvG"
     end
@@ -632,19 +632,19 @@ git commit -m "docs(api): document GET /tags and invalid_tag rejection in OpenAP
 
 **Files:**
 - Modify: `config/routes.rb:34-47`
-- Create: `app/controllers/administration/team_build_tags_controller.rb`
-- Create: `app/views/administration/team_build_tags/index.html.erb`
+- Create: `app/controllers/administration/teambuild_tags_controller.rb`
+- Create: `app/views/administration/teambuild_tags/index.html.erb`
 - Modify: `app/views/layouts/administration.html.erb:16-22` (nav)
-- Test: `test/controllers/administration/team_build_tags_controller_test.rb`
+- Test: `test/controllers/administration/teambuild_tags_controller_test.rb`
 
 - [ ] **Step 1: Écrire les tests contrôleur qui échouent**
 
 ```ruby
-# test/controllers/administration/team_build_tags_controller_test.rb
+# test/controllers/administration/teambuild_tags_controller_test.rb
 require "test_helper"
 
 module Administration
-  class TeamBuildTagsControllerTest < ActionDispatch::IntegrationTest
+  class TeambuildTagsControllerTest < ActionDispatch::IntegrationTest
     include Devise::Test::IntegrationHelpers
 
     setup do
@@ -654,13 +654,13 @@ module Administration
 
     test "redirects non-admin players" do
       sign_in @player
-      get administration_team_build_tags_path
+      get administration_teambuild_tags_path
       assert_redirected_to root_path
     end
 
     test "admin lists tags" do
       sign_in @admin
-      get administration_team_build_tags_path
+      get administration_teambuild_tags_path
       assert_response :success
       assert_select "body", text: /GvG/
     end
@@ -668,26 +668,26 @@ module Administration
     test "admin creates a tag from its name" do
       sign_in @admin
       assert_difference "TeambuildTag.count", 1 do
-        post administration_team_build_tags_path, params: { team_build_tag: { name: "Tombs" } }
+        post administration_teambuild_tags_path, params: { team_build_tag: { name: "Tombs" } }
       end
-      assert_redirected_to administration_team_build_tags_path
+      assert_redirected_to administration_teambuild_tags_path
       assert_equal "tombs", TeambuildTag.find_by(name: "Tombs").slug
     end
 
     test "admin updates name, position and toggles active" do
       sign_in @admin
-      tag = team_build_tags(:gvg)
-      patch administration_team_build_tag_path(tag),
+      tag = teambuild_tags(:gvg)
+      patch administration_teambuild_tag_path(tag),
             params: { team_build_tag: { name: "GvG", position: 42, active: false } }
-      assert_redirected_to administration_team_build_tags_path
+      assert_redirected_to administration_teambuild_tags_path
       assert_equal false, tag.reload.active
       assert_equal 42, tag.position
     end
 
     test "slug is immutable on update" do
       sign_in @admin
-      tag = team_build_tags(:gvg)
-      patch administration_team_build_tag_path(tag),
+      tag = teambuild_tags(:gvg)
+      patch administration_teambuild_tag_path(tag),
             params: { team_build_tag: { name: "Renamed", position: 42, active: true } }
       assert_equal "gvg", tag.reload.slug
     end
@@ -695,7 +695,7 @@ module Administration
 end
 ```
 
-Run: `bin/rails test test/controllers/administration/team_build_tags_controller_test.rb -v`
+Run: `bin/rails test test/controllers/administration/teambuild_tags_controller_test.rb -v`
 Expected: FAIL (routes inexistantes)
 
 - [ ] **Step 2: Route**
@@ -703,15 +703,15 @@ Expected: FAIL (routes inexistantes)
 Dans `namespace :administration` de `config/routes.rb` :
 
 ```ruby
-    resources :team_build_tags, only: [:index, :create, :update]
+    resources :teambuild_tags, only: [:index, :create, :update]
 ```
 
 - [ ] **Step 3: Contrôleur**
 
 ```ruby
-# app/controllers/administration/team_build_tags_controller.rb
+# app/controllers/administration/teambuild_tags_controller.rb
 module Administration
-  class TeamBuildTagsController < ApplicationController
+  class TeambuildTagsController < ApplicationController
     def index
       @team_build_tags = TeambuildTag.ordered
       @team_build_tag = TeambuildTag.new
@@ -720,7 +720,7 @@ module Administration
     def create
       @team_build_tag = TeambuildTag.new(team_build_tag_params)
       if @team_build_tag.save
-        redirect_to administration_team_build_tags_path, notice: "Tag ajouté."
+        redirect_to administration_teambuild_tags_path, notice: "Tag ajouté."
       else
         @team_build_tags = TeambuildTag.ordered
         flash.now[:alert] = @team_build_tag.errors.full_messages.to_sentence
@@ -731,9 +731,9 @@ module Administration
     def update
       @team_build_tag = TeambuildTag.find(params[:id])
       if @team_build_tag.update(team_build_tag_params)
-        redirect_to administration_team_build_tags_path, notice: "Tag mis à jour."
+        redirect_to administration_teambuild_tags_path, notice: "Tag mis à jour."
       else
-        redirect_to administration_team_build_tags_path,
+        redirect_to administration_teambuild_tags_path,
                     alert: @team_build_tag.errors.full_messages.to_sentence
       end
     end
@@ -752,7 +752,7 @@ Note : `:slug` volontairement absent des strong parameters — généré à la c
 - [ ] **Step 4: Vue index**
 
 ```erb
-<%# app/views/administration/team_build_tags/index.html.erb %>
+<%# app/views/administration/teambuild_tags/index.html.erb %>
 <div class="space-y-4">
   <div class="gw-window gw-frame">
     <div class="gw-window-header">
@@ -760,7 +760,7 @@ Note : `:slug` volontairement absent des strong parameters — généré à la c
       <span class="gw-count text-sm"><%= pluralize @team_build_tags.count, 'tag' %></span>
     </div>
 
-    <%= form_with model: @team_build_tag, url: administration_team_build_tags_path, class: "flex flex-wrap gap-2 items-end py-3 border-b border-gold-600" do |form| %>
+    <%= form_with model: @team_build_tag, url: administration_teambuild_tags_path, class: "flex flex-wrap gap-2 items-end py-3 border-b border-gold-600" do |form| %>
       <div>
         <%= form.label :name, 'New tag name', class: 'block text-sm text-parchment' %>
         <%= form.text_field :name, class: 'gw-input' %>
@@ -770,7 +770,7 @@ Note : `:slug` volontairement absent des strong parameters — généré à la c
 
     <div class="divide-y">
       <% @team_build_tags.each do |tag| %>
-        <%= form_with model: tag, url: administration_team_build_tag_path(tag), class: "flex flex-wrap gap-3 items-center py-2" do |form| %>
+        <%= form_with model: tag, url: administration_teambuild_tag_path(tag), class: "flex flex-wrap gap-3 items-center py-2" do |form| %>
           <%= form.text_field :name, class: 'gw-input w-40' %>
           <code class="text-muted"><%= tag.slug %></code>
           <%= form.number_field :position, min: 0, class: 'gw-input w-20' %>
@@ -795,8 +795,8 @@ Note : `:slug` volontairement absent des strong parameters — généré à la c
 Après le lien Claims :
 
 ```erb
-        <% tags_active = gw_nav_active?(administration_team_build_tags_path) %>
-        <%= link_to "Tags", administration_team_build_tags_path, class: "gw-tab #{'gw-tab--active' if tags_active}", aria: { current: ("page" if tags_active) } %>
+        <% tags_active = gw_nav_active?(administration_teambuild_tags_path) %>
+        <%= link_to "Tags", administration_teambuild_tags_path, class: "gw-tab #{'gw-tab--active' if tags_active}", aria: { current: ("page" if tags_active) } %>
 ```
 
 - [ ] **Step 6: Vérifier les tests**
@@ -807,7 +807,7 @@ Expected: 5 runs, 0 failures
 - [ ] **Step 7: Commit**
 
 ```bash
-git add config/routes.rb app/controllers/administration/team_build_tags_controller.rb app/views/administration/team_build_tags/index.html.erb app/views/layouts/administration.html.erb test/controllers/administration/team_build_tags_controller_test.rb
+git add config/routes.rb app/controllers/administration/teambuild_tags_controller.rb app/views/administration/teambuild_tags/index.html.erb app/views/layouts/administration.html.erb test/controllers/administration/teambuild_tags_controller_test.rb
 git commit -m "feat(admin): web management of teambuild tags"
 ```
 
@@ -837,7 +837,7 @@ curl -s http://localhost:3000/api/v1/tags
 ```
 Expected: `{"tags":["GvG","HA","RA","TA","AB","FA","JQ","PvP","PvE"]}`
 
-En admin (`/administration/team_build_tags`) : désactiver `HA` → re-vérifier curl sans `HA` ; publier via API un build avec `"tags": ["HA"]` → 422 `invalid_tag` ; réactiver.
+En admin (`/administration/teambuild_tags`) : désactiver `HA` → re-vérifier curl sans `HA` ; publier via API un build avec `"tags": ["HA"]` → 422 `invalid_tag` ; réactiver.
 
 - [ ] **Step 5: Commit final éventuel (schema.rb, corrections)**
 
@@ -854,4 +854,4 @@ git commit -m "chore(tags): final adjustments after full verification"
 
 1. **Couverture spec** : table+modèle+seed (Tasks 1-2) · validation/rejet 422 drafts inclus (Tasks 3-4, 6) · endpoint public trié + cache (Task 5, 6) · admin CRUD sans destroy + nav (Task 7) · double stack tests + OpenAPI (Tasks 5-7) · données historiques intactes (aucune migration de nettoyage — conformes).
 2. **Placeholders** : aucun TBD/TODO ; chaque étape contient son code exact.
-3. **Cohérence types** : `TeambuildTag.active_slugs` (Task 1) consommé tel quel en Task 4 ; `allowed_tags:` kwarg identique entre Tasks 3 et 4 ; routes/noms (`administration_team_build_tags_path`) cohérents entre tests, contrôleur et vues.
+3. **Cohérence types** : `TeambuildTag.active_slugs` (Task 1) consommé tel quel en Task 4 ; `allowed_tags:` kwarg identique entre Tasks 3 et 4 ; routes/noms (`administration_teambuild_tags_path`) cohérents entre tests, contrôleur et vues.

@@ -26,9 +26,10 @@ module Teambuilds
     end
 
     def canonical_tags
+      names = TeambuildTag.active.index_by(&:slug)
       Array(@document["tags"]).filter_map do |tag|
         next unless tag.is_a?(String)
-        Teambuilds::Validator::ALLOWED_TAGS.find { |allowed| allowed.casecmp(tag).zero? } || tag
+        names[tag.to_s.downcase]&.name || tag
       end.uniq
     end
 

@@ -17,7 +17,7 @@ module Teambuilds
     end
 
     def call
-      errors = Validator.validate(@document)
+      errors = Validator.validate(@document, allowed_tags: TeambuildTag.active_slugs)
       return failure(errors) if errors.any?
       unless UUID_RE.match?(@source_uuid)
         return failure([{ "path" => "$", "code" => "invalid_source_uuid",

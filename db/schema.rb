@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_26_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_26_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -562,6 +562,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_000000) do
     t.index ["deleted_at"], name: "index_teambuild_deletions_on_deleted_at"
     t.index ["player_id", "source_uuid"], name: "index_teambuild_deletions_on_player_id_and_source_uuid"
     t.index ["player_id"], name: "index_teambuild_deletions_on_player_id"
+  end
+
+  create_table "teambuild_tags", force: :cascade do |t|
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.integer "position", default: 0, null: false
+    t.string "slug", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active", "position"], name: "index_teambuild_tags_on_active_and_position"
+    t.index ["slug"], name: "index_teambuild_tags_on_slug", unique: true
   end
 
   create_table "teambuilds", force: :cascade do |t|
