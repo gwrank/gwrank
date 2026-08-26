@@ -57,6 +57,17 @@ RSpec.configure do |config|
               totalCount: { type: :integer }
             }
           },
+          TagsResponse: {
+            type: :object,
+            required: ['tags'],
+            properties: {
+              tags: {
+                type: :array,
+                items: { type: :string },
+                description: 'Closed list of tags accepted when publishing teambuilds, ordered by position'
+              }
+            }
+          },
           ErrorList: {
             type: :object,
             properties: {
@@ -156,7 +167,7 @@ RSpec.configure do |config|
                 type: :array,
                 maxItems: 24,
                 items: { type: :string, maxLength: 64 },
-                description: 'Free-form labels. The nine canonical values (GvG HA RA TA AB FA JQ PvP PvE, case-insensitive) are normalized and feed search filters; other labels are preserved verbatim.'
+                description: 'Closed list of nine canonical values (GvG HA RA TA AB FA JQ PvP PvE), case-insensitive: normalized on ingest and used by search filters. Unknown values are rejected with 422 invalid_tag; the authoritative list is served by GET /api/v1/tags.'
               },
               notes: { type: :string },
               createdAt: { type: :string, format: :'date-time' },

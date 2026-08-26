@@ -454,6 +454,18 @@ RSpec.describe 'Teambuilds API', swagger_doc: 'teambuilds.yaml', type: :request 
         end
       end
 
+      response(422, 'Format rule violation (see docs/zcx_format.md §11) or tags outside the closed list') do
+        let(:document) { zcx_variant(id, tags: ['NotARealTag']) }
+        before { @owner = create_api_player }
+
+        schema({ '$ref': '#/components/schemas/ErrorList' })
+
+        run_test! do |response|
+          codes = JSON.parse(response.body)['errors'].map { |error| error['code'] }
+          expect(codes).to include('invalid_tag')
+        end
+      end
+
       response(401, 'Missing or invalid token') do
         let(:Authorization) { '' }
         run_test!
