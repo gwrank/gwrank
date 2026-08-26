@@ -150,11 +150,11 @@ module Api::V1
       assert_includes response.parsed_body["teambuilds"].map { |t| t["name"] }, "GvG Split"
     end
 
-    test "upsert accepts free-form tags, keeps them in export, filters stay canonical" do
+    test "upsert accepts closed-list tags, canonicalizes them in export, filters stay canonical" do
       doc = JSON.parse(@document.to_json)
       doc["id"] = "eeeeeee2-0000-0000-0000-000000000001"
       doc["name"] = "Free Tagged"
-      doc["tags"] = ["meta", "gvg", "guild name"]
+      doc["tags"] = ["gvg", "PvE"]
       put_doc(@owner, doc)
       assert_response :created
 
@@ -168,7 +168,7 @@ module Api::V1
 
       get export_api_v1_teambuilds_path, headers: auth_headers(@owner)
       mine = response.parsed_body["teambuilds"].find { |entry| entry["sourceId"] == doc["id"] }
-      assert_equal ["meta", "GvG", "guild name"], mine["tags"]
+      assert_equal ["GvG", "PvE"], mine["tags"]
     end
 
     test "index ignores invalid status filters" do
