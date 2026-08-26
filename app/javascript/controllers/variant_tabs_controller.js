@@ -34,6 +34,8 @@ export default class extends Controller {
       tab.setAttribute("aria-selected", active ? "true" : "false")
     })
 
-    history.pushState(null, null, `#${target.dataset.compositionId}`)
+    if (window.location.hash !== `#${target.dataset.compositionId}`) {
+      history.pushState(null, null, `#${target.dataset.compositionId}`)
+    }
   }
 }

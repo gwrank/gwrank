@@ -146,6 +146,9 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-variant-tabs-target='tab']", count: 2
     assert_select "[data-variant-tabs-target='panel']", count: 2
 
+    assert_select "div[data-composition-id='composition-1'][aria-hidden='false']"
+    assert_select "div[data-composition-id='composition-2'].hidden"
+
     assert_select "div[data-composition-id='composition-1'] tbody tr td strong", text: "One Mid"
     assert_select "div[data-composition-id='composition-1'] img[title='Example Ward']"
     assert_select "div[data-composition-id='composition-2'] tbody tr td strong", text: "One Deep"

@@ -9,10 +9,12 @@
 
   <% if @compositions.many? %>
     <div data-controller="variant-tabs">
-      <div class="gw-tabs mb-[-1px]" data-variant-tabs-target="buttons">
+      <div class="gw-tabs mb-[-1px]" role="tablist">
         <% @compositions.each do |composition| %>
           <button type="button"
                   class="gw-tab cursor-pointer"
+                  role="tab"
+                  id="<%= composition[:id] %>-tab"
                   data-variant-tabs-target="tab"
                   data-composition-id="<%= composition[:id] %>"
                   aria-selected="false"
@@ -23,9 +25,11 @@
       </div>
       <% @compositions.each_with_index do |composition, i| %>
         <div data-variant-tabs-target="panel"
+             role="tabpanel"
+             aria-labelledby="<%= composition[:id] %>-tab"
              data-composition-id="<%= composition[:id] %>"
-             aria-hidden="<%= i.zero? ? "false" : "true" %>"
-             class="<%= "hidden" unless i.zero? %>">
+             class="<%= "hidden" unless i.zero? %>"
+             aria-hidden="<%= i.zero? ? "false" : "true" %>">
           <%= render "build_table", rows: composition[:rows] %>
         </div>
       <% end %>
