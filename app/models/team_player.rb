@@ -90,55 +90,20 @@ class TeamPlayer < ApplicationRecord
     total_damage.stat_value
   end
 
+  REZ_SIGNET_NAMES = ['Resurrection Signet', 'Death Pact Signet', 'Death Pact Signet (PvP)', 'Flesh of My Flesh (PvP)'].freeze
+
   def html_skills
-    skills = []
-    secondary_profession_skills = []
-    other_skills = []
-    i = 2
-    team_player_skills.includes(:skill, :team_player).each do |team_player_skill|
-      if team_player_skill.skill.is_elite?
-        position = 1
-      elsif team_player_skill.skill.name.in?(['Resurrection Signet', 'Death Pact Signet', 'Death Pact Signet (PvP)', 'Flesh of My Flesh (PvP)'])
-        position = 8
-      else
-        position = i
-        i += 1
-      end
-      if team_player_skill.skill.profession_id.eql?(team_player_skill.team_player.profession_id)
-        team_player_skill.update(
-          position: position
-        )
-      elsif team_player_skill.skill.profession_id.eql?(team_player_skill.team_player.secondary_profession_id)
-        secondary_profession_skills << team_player_skill
-      else
-        other_skills << team_player_skill
-      end
+    ordered_skills = build_bar_ordered_skills
+    ordered_skills.each_with_index do |team_player_skill, index|
+      team_player_skill.update(position: index + 1)
     end
-    secondary_profession_skills.each do |secondary_profession_skill|
-      secondary_profession_skill.update(
-        position: i
-      )
-      i += 1
+    skills = ordered_skills.map.with_index do |team_player_skill, index|
+      image = team_player_skill.skill.html_image
+      index.eql?(7) ? "#{image}<br>" : image
     end
-    i += 1
-    other_skills.each do |other_skill|
-      if other_skill.skill.name.in?(['Resurrection Signet', 'Death Pact Signet', 'Death Pact Signet (PvP)', 'Flesh of My Flesh (PvP)'])
-        position = 8
-      else
-        position = i
-      end
-      other_skill.update(
-        position: position
-      )
-      i += 1
-    end
-    team_player_skills.includes(:skill).order(position: :asc).each_with_index do |team_player_skill, index|
-      skills << team_player_skill.skill.html_image
-      skills << '<br>' if index.eql?(7)
-    end
-    if team_player_skills.count < 8
-      (8 - team_player_skills.count).times do
-        skills << ActionController::Base.helpers.image_tag('skills/Unknown_Junundu_Ability.jpg', data: { controller: 'tooltip', bs_toggle: 'tooltip', bs_placement: 'bottom' }, title: 'Unknown', width: 55)
+    if ordered_skills.count < 8
+      (8 - ordered_skills.count).times do
+        skills << ActionController::Base.helpers.image_tag('skills/transparent.png', data: { controller: 'tooltip', bs_toggle: 'tooltip', bs_placement: 'bottom' }, title: 'Unknown', width: 55)
       end
     end
     skills.join
@@ -146,12 +111,12 @@ class TeamPlayer < ApplicationRecord
 
   def html_skills_simple
     skills = []
-    team_player_skills.includes(:skill).order(position: :asc).each do |team_player_skill|
+    team_player_skills.includes(:skill).order(position: :asc, id: :asc).each do |team_player_skill|
       skills << team_player_skill.skill.html_image_simple(size: 32)
     end
     if team_player_skills.count < 8
       (8 - team_player_skills.count).times do
-        skills << ActionController::Base.helpers.image_tag('skills/Unknown_Junundu_Ability.jpg', title: 'Unknown', width: 32, loading: 'lazy')
+        skills << ActionController::Base.helpers.image_tag('skills/transparent.png', title: 'Unknown', width: 32, loading: 'lazy')
       end
     end
     skills.join
@@ -173,7 +138,7 @@ class TeamPlayer < ApplicationRecord
     Gw1::TemplateCode.new(
       primary_profession_id: profession.profession_id,
       secondary_profession_id: secondary_profession&.profession_id,
-      skill_ids: team_player_skills.joins(:skill).order(position: :asc).pluck("skills.template_skill_id")
+      skill_ids: team_player_skills.joins(:skill).order(position: :asc, "team_player_skills.id": :asc).pluck("skills.template_skill_id")
     ).call
   end
 
@@ -191,5 +156,19 @@ class TeamPlayer < ApplicationRecord
   # This always returns the original name, not anonymized
   def igname_for_matching
     character&.igname
+  end
+
+  private
+
+  # Canonical build bar layout: elites first, then primary profession skills,
+  # secondary profession skills, any other profession skills, rez signets last.
+  # Groups keep creation (id) order so the result is fully deterministic.
+  def build_bar_ordered_skills
+    skills = team_player_skills.includes(:skill).order(:id).to_a
+    elites, skills = skills.partition { |team_player_skill| team_player_skill.skill.is_elite? }
+    rez_signets, skills = skills.partition { |team_player_skill| team_player_skill.skill.name.in?(REZ_SIGNET_NAMES) }
+    primaries, skills = skills.partition { |team_player_skill| team_player_skill.skill.profession_id == profession_id }
+    secondaries, others = skills.partition { |team_player_skill| team_player_skill.skill.profession_id == secondary_profession_id }
+    elites + primaries + secondaries + others + rez_signets
   end
 end
