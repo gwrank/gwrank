@@ -49,11 +49,16 @@ class MatchTest < ActiveSupport::TestCase
   end
 
   test "ordered_teams returns teams sorted by rank" do
-    match = create_match
-    teams = match.teams.order(:id).to_a
-    ranked = match.ordered_teams
-    assert_equal teams.map(&:id).sort_by { |t| match.teams.find(t).rank }, ranked.map(&:id)
-    assert_equal ranked.map(&:rank), ranked.map(&:rank).sort
+    match = Match.create!(
+      played_at: Time.zone.now,
+      round: 4,
+      number_on_round: 1,
+      tournament: create_tournament
+    )
+    high_rank_team = match.teams.create!(guild: create_guild, rank: 2)
+    low_rank_team = match.teams.create!(guild: create_guild, rank: 1)
+    assert_equal [low_rank_team.id, high_rank_team.id], match.ordered_teams.map(&:id)
+    assert_equal [1, 2], match.ordered_teams.map(&:rank)
   end
 
   private
