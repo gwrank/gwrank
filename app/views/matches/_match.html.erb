@@ -45,11 +45,13 @@
       aria-controls="match-builds-popup-<%= match.id %>"
       aria-label="Show team builds">
       <span class="flex -space-x-1.5" aria-hidden="true">
-        <% match.ordered_teams.first&.team_players&.order(:position)&.each do |team_player| %>
+        <% team_a_players = match.ordered_teams.first&.team_players&.to_a&.sort_by { |tp| [tp.position.nil?, tp.position.to_i, tp.id] } %>
+        <% team_a_players&.each do |team_player| %>
           <span class="gw-prof-chip w-6 h-6"><%= team_player.profession.html_image_simple(size: 24) %></span>
         <% end %>
         <span class="w-2"></span>
-        <% match.ordered_teams.second&.team_players&.order(:position)&.each do |team_player| %>
+        <% team_b_players = match.ordered_teams.second&.team_players&.to_a&.sort_by { |tp| [tp.position.nil?, tp.position.to_i, tp.id] } %>
+        <% team_b_players&.each do |team_player| %>
           <span class="gw-prof-chip w-6 h-6"><%= team_player.profession.html_image_simple(size: 24) %></span>
         <% end %>
       </span>
@@ -64,9 +66,10 @@
     <div class="gw-window gw-frame p-4 grid gap-4 sm:grid-cols-2 max-h-[70vh] overflow-y-auto">
       <% match.ordered_teams.each do |team| %>
         <div>
-          <h4 class="font-display text-gold-300 text-sm mb-2"><%= team.guild.name_with_tag %></h4>
+          <h4 class="font-display text-gold-300 text-sm mb-2"><%= team.guild&.name_with_tag %></h4>
           <div class="grid gap-3">
-            <% team.team_players.order(:position).each do |team_player| %>
+            <% team_players = team.team_players.to_a.sort_by { |tp| [tp.position.nil?, tp.position.to_i, tp.id] } %>
+            <% team_players.each do |team_player| %>
               <div>
                 <div class="flex items-center gap-1">
                   <%= team_player.profession.html_image_simple.html_safe %>

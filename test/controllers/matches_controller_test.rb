@@ -86,6 +86,8 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert_select "li[data-controller='match-builds'] a[href='#{match_path(match)}']"
     assert_select "li[data-controller='match-builds'] button[data-match-builds-target='toggle'][aria-controls='match-builds-popup-#{match.id}'][aria-expanded='false']"
     assert_select "li[data-controller='match-builds'] span[aria-label='Winner']"
+    assert_select "a button[data-match-builds-target='toggle']", count: 0
+    assert_select "#match-builds-popup-#{match.id}"
   end
 
   test 'index responds successfully with active opponent filter' do
