@@ -1,23 +1,32 @@
 <li class="relative list-none m-0 p-0" data-controller="match-builds" data-match-builds-match-id-value="<%= match.id %>">
-  <%= link_to match_path(match), class: "gw-row" do %>
-    <span class="flex-1 min-w-0">
-      <span class="block font-display text-gold-300 text-base leading-snug truncate">
-        <% if match.teams.first.rank %>
-          <span class="text-muted">#<%= match.teams.first.rank %></span>
-        <% end %>
-        <%= match.teams.first.guild.name_with_tag %>
-        <% if match.winner_team == match.teams.first %>
-          <span title="Winner">🏆</span>
-        <% end %>
-        <span class="text-muted px-1 text-xs">VS</span>
-        <% if match.teams.second.rank.present? %>
-          <span class="text-muted">#<%= match.teams.second.rank %></span>
-        <% end %>
-        <%= match.teams.second.guild.name_with_tag %>
-        <% if match.winner_team == match.teams.second %>
-          <span title="Winner">🏆</span>
-        <% end %>
-      </span>
+  <div class="match-row-inner flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:gap-3">
+    <%= link_to match_path(match), class: "min-w-0 flex-1 text-inherit no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-500" do %>
+      <div class="min-w-0 flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
+        <span class="font-display text-gold-300 text-base leading-snug truncate min-w-0">
+          <% team_a = match.ordered_teams.first %>
+          <% if team_a&.rank.present? %>
+            <span class="text-muted">#<%= team_a.rank %></span>
+          <% end %>
+          <%= team_a&.guild&.name_with_tag || "Unknown Guild" %>
+          <% if match.winner_team_id == team_a&.id %>
+            <span role="img" aria-label="Winner">🏆</span>
+          <% end %>
+        </span>
+
+        <span class="text-muted text-xs text-center sm:px-1 sm:shrink-0">VS</span>
+
+        <span class="font-display text-gold-300 text-base leading-snug truncate min-w-0">
+          <% team_b = match.ordered_teams.second %>
+          <% if team_b&.rank.present? %>
+            <span class="text-muted">#<%= team_b.rank %></span>
+          <% end %>
+          <%= team_b&.guild&.name_with_tag || "Unknown Guild" %>
+          <% if match.winner_team_id == team_b&.id %>
+            <span role="img" aria-label="Winner">🏆</span>
+          <% end %>
+        </span>
+      </div>
+
       <span class="flex flex-wrap items-center gap-2 mt-1 text-xs text-muted">
         <span><%= match.round_text %></span>
         <% if match.tournament&.tournament_type.present? %>
@@ -25,23 +34,35 @@
         <% end %>
         <span><%= match.played_at&.to_date %></span>
       </span>
-    </span>
-    <span class="flex shrink-0 -space-x-1.5" aria-hidden="true"
-          data-action="mouseenter->match-builds#show mouseleave->match-builds#hide">
-      <% match.teams.first.team_players.order(:position).each do |team_player| %>
-        <span class="gw-prof-chip w-6 h-6"><%= team_player.profession.html_image_simple(size: 24) %></span>
-      <% end %>
-      <span class="w-2"></span>
-      <% match.teams.second.team_players.order(:position).each do |team_player| %>
-        <span class="gw-prof-chip w-6 h-6"><%= team_player.profession.html_image_simple(size: 24) %></span>
-      <% end %>
-    </span>
-  <% end %>
+    <% end %>
 
-  <!-- Builds popup -->
-  <div class="match-builds-popup absolute left-0 top-full z-40 w-full" data-match-builds-target="popup" style="display: none;">
-    <div class="gw-window gw-frame p-4 grid gap-4 sm:grid-cols-2">
-      <% match.teams.each do |team| %>
+    <button
+      type="button"
+      class="shrink-0 rounded-full p-0.5"
+      data-match-builds-target="toggle"
+      data-action="click->match-builds#toggle mouseenter->match-builds#show mouseleave->match-builds#hide focusin->match-builds#show focusout->match-builds#hide keydown->match-builds#onKey"
+      aria-expanded="false"
+      aria-controls="match-builds-popup-<%= match.id %>"
+      aria-label="Show team builds">
+      <span class="flex -space-x-1.5" aria-hidden="true">
+        <% match.ordered_teams.first&.team_players&.order(:position)&.each do |team_player| %>
+          <span class="gw-prof-chip w-6 h-6"><%= team_player.profession.html_image_simple(size: 24) %></span>
+        <% end %>
+        <span class="w-2"></span>
+        <% match.ordered_teams.second&.team_players&.order(:position)&.each do |team_player| %>
+          <span class="gw-prof-chip w-6 h-6"><%= team_player.profession.html_image_simple(size: 24) %></span>
+        <% end %>
+      </span>
+    </button>
+  </div>
+
+  <div
+    id="match-builds-popup-<%= match.id %>"
+    class="match-builds-popup absolute left-0 top-full z-40 w-full"
+    data-match-builds-target="popup"
+    style="display: none;">
+    <div class="gw-window gw-frame p-4 grid gap-4 sm:grid-cols-2 max-h-[70vh] overflow-y-auto">
+      <% match.ordered_teams.each do |team| %>
         <div>
           <h4 class="font-display text-gold-300 text-sm mb-2"><%= team.guild.name_with_tag %></h4>
           <div class="grid gap-3">

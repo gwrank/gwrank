@@ -74,6 +74,20 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 2, css_select('li[data-controller="match-builds"]').size
   end
 
+  test "index renders accessible match rows and team builds toggles" do
+    match = create_match
+    match.winner_team = match.teams.order(:rank).first
+    match.save!
+
+    get matches_path
+    assert_response :success
+
+    assert_select "li[data-controller='match-builds'][data-match-builds-match-id-value='#{match.id}']"
+    assert_select "li[data-controller='match-builds'] a[href='#{match_path(match)}']"
+    assert_select "li[data-controller='match-builds'] button[data-match-builds-target='toggle'][aria-controls='match-builds-popup-#{match.id}'][aria-expanded='false']"
+    assert_select "li[data-controller='match-builds'] span[aria-label='Winner']"
+  end
+
   test 'index responds successfully with active opponent filter' do
     get matches_path(opponent: 'Guild')
     assert_response :success
