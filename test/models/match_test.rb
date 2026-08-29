@@ -48,6 +48,14 @@ class MatchTest < ActiveSupport::TestCase
     assert_equal match_title_for(match), fresh.title
   end
 
+  test "ordered_teams returns teams sorted by rank" do
+    match = create_match
+    teams = match.teams.order(:id).to_a
+    ranked = match.ordered_teams
+    assert_equal teams.map(&:id).sort_by { |t| match.teams.find(t).rank }, ranked.map(&:id)
+    assert_equal ranked.map(&:rank), ranked.map(&:rank).sort
+  end
+
   private
 
   def match_title_for(match)

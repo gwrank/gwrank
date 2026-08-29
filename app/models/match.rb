@@ -156,6 +156,10 @@ class Match < ApplicationRecord
     json&.dig('mat_round')
   end
 
+  def ordered_teams
+    @ordered_teams ||= teams.order(:rank, :id).to_a
+  end
+
   def self.import!(match_params)
     match = Match.new(match_params)
     match.json = JSON.parse(match_params[:json_file].read)
