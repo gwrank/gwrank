@@ -61,6 +61,14 @@ class MatchTest < ActiveSupport::TestCase
     assert_equal [1, 2], match.ordered_teams.map(&:rank)
   end
 
+  test "ordered_teams sorts in memory when teams are preloaded" do
+    match = create_match
+    match.teams.order(:id).first.update!(rank: 2)
+    match.teams.order(:id).last.update!(rank: 1)
+    fresh = Match.includes(:teams).find(match.id)
+    assert_no_queries { assert_equal [1, 2], fresh.ordered_teams.map(&:rank) }
+  end
+
   private
 
   def match_title_for(match)

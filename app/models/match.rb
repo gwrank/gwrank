@@ -157,7 +157,12 @@ class Match < ApplicationRecord
   end
 
   def ordered_teams
-    @ordered_teams ||= teams.order(:rank, :id).to_a
+    @ordered_teams ||=
+      if teams.loaded?
+        teams.to_a.sort_by { |team| [team.rank.nil?, team.rank.to_i, team.id] }
+      else
+        teams.order(:rank, :id).to_a
+      end
   end
 
   def self.import!(match_params)
