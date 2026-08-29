@@ -1,4 +1,4 @@
-<%= form_with url: matches_path, method: :get, class: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end" do |form| %>
+<%= form_with url: matches_path, method: :get, "data-controller" => "filters", class: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end" do |form| %>
   <div>
     <%= form.label :opponent, "Search Opponent", class: "block text-sm text-muted mb-1" %>
     <%= form.text_field :opponent, value: params[:opponent], placeholder: "Guild or player name", class: "gw-input" %>
@@ -13,11 +13,12 @@
   </div>
   <div>
     <%= form.label :tournament_type, "Tournament Type", class: "block text-sm text-muted mb-1" %>
-    <%= form.select :tournament_type, options_for_select([['All', ''], ['mAT', 'mat'], ['AT', 'at']], params[:tournament_type]), {}, class: "gw-select" %>
+    <%= form.select :tournament_type, options_for_select([['All', ''], ['mAT', 'mat'], ['AT', 'at']], params[:tournament_type]), {}, class: "gw-select", "data-filters-target" => "type", "data-action" => "change->filters#regionTypeChanged" %>
   </div>
   <div>
     <%= form.label :tournament_region, "AT Region", class: "block text-sm text-muted mb-1" %>
-    <%= form.select :tournament_region, options_for_select([['All', ''], ['A', 'a'], ['B', 'b'], ['C', 'c']], params[:tournament_region]), {}, class: "gw-select", disabled: params[:tournament_type] != 'at' %>
+    <%= form.select :tournament_region, options_for_select([['All', ''], ['A', 'a'], ['B', 'b'], ['C', 'c']], params[:tournament_region]), {}, class: "gw-select", disabled: params[:tournament_type] != 'at', "data-filters-target" => "region" %>
+    <p class="text-xs text-muted m-0">Only used for AT tournaments</p>
   </div>
   <div>
     <%= form.label :flux_year, "Year", class: "block text-sm text-muted mb-1" %>
@@ -62,19 +63,3 @@
   </div>
 <% end %>
 
-<script>
-  // Enable/disable region dropdown based on tournament type selection
-  document.addEventListener('DOMContentLoaded', function() {
-    const tournamentTypeSelect = document.querySelector('select[name="tournament_type"]');
-    const regionSelect = document.querySelector('select[name="tournament_region"]');
-
-    if (tournamentTypeSelect && regionSelect) {
-      tournamentTypeSelect.addEventListener('change', function() {
-        regionSelect.disabled = this.value !== 'at';
-        if (this.value !== 'at') {
-          regionSelect.value = '';
-        }
-      });
-    }
-  });
-</script>
