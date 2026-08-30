@@ -40,7 +40,7 @@
       type="button"
       class="shrink-0 rounded-full p-0.5"
       data-match-builds-target="toggle"
-      data-action="click->match-builds#toggle mouseenter->match-builds#show mouseleave->match-builds#hide focusin->match-builds#show focusout->match-builds#hide keydown->match-builds#onKeydown"
+      data-action="click->match-builds#toggle focusout->match-builds#hide keydown->match-builds#onKeydown"
       aria-expanded="false"
       aria-controls="match-builds-popup-<%= match.id %>"
       aria-label="Show team builds">

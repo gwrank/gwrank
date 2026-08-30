@@ -6,7 +6,7 @@ export default class extends Controller {
 
   connect() {
     this._documentClickListener = (event) => {
-      if (!this.element.contains(event.target)) {
+      if (this.isVisible && !this.element.contains(event.target)) {
         this.hide()
       }
     }
@@ -22,25 +22,27 @@ export default class extends Controller {
     this.isVisible ? this.hide() : this.show()
   }
 
+  onKeydown(event) {
+    if (event.key === "Escape") {
+      this.hide()
+      this.toggleTargets[0]?.focus()
+    }
+  }
+
   show() {
+    this._visible = true
     this.popupTarget.style.display = "block"
     this.setExpanded(true)
   }
 
   hide() {
+    this._visible = false
     this.popupTarget.style.display = "none"
     this.setExpanded(false)
   }
 
-  onKeydown(event) {
-    if (event.key === "Escape") {
-      this.hide()
-      this.toggleTarget.focus()
-    }
-  }
-
   get isVisible() {
-    return this.popupTarget.style.display !== "none"
+    return Boolean(this._visible)
   }
 
   setExpanded(isExpanded) {
