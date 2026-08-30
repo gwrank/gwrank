@@ -13,11 +13,11 @@
   </div>
   <div>
     <%= form.label :tournament_type, "Tournament Type", class: "block text-sm text-muted mb-1" %>
-    <%= form.select :tournament_type, options_for_select([['All', ''], ['mAT', 'mat'], ['AT', 'at']], params[:tournament_type]), {}, class: "gw-select", "data-filters-target" => "type", "data-action" => "change->filters#regionTypeChanged" %>
+    <%= form.select :tournament_type, options_for_select([['All', ''], ['mAT', 'mat'], ['AT', 'at']], params[:tournament_type]), {}, class: "gw-select", "data-filters-target" => "type", "data-action" => "change->filters#typeChanged" %>
   </div>
   <div>
     <%= form.label :tournament_region, "AT Region", class: "block text-sm text-muted mb-1" %>
-    <%= form.select :tournament_region, options_for_select([['All', ''], ['A', 'a'], ['B', 'b'], ['C', 'c']], params[:tournament_region]), {}, class: "gw-select", disabled: params[:tournament_type] != 'at', "data-filters-target" => "region" %>
+    <%= form.select :tournament_region, options_for_select([['All', ''], ['A', 'a'], ['B', 'b'], ['C', 'c']], params[:tournament_type] == 'at' ? params[:tournament_region] : ''), {}, class: "gw-select", disabled: params[:tournament_type] != 'at', "data-filters-target" => "region" %>
     <p class="text-xs text-muted m-0">Only used for AT tournaments</p>
   </div>
   <div>

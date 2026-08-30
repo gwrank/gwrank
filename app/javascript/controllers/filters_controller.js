@@ -7,7 +7,7 @@ export default class extends Controller {
     this.sync()
   }
 
-  regionTypeChanged() {
+  typeChanged() {
     this.sync()
   }
 
