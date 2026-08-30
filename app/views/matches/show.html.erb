@@ -17,18 +17,20 @@
       <% end %>
 
       <% cache @match do %>
+        <% team_a = @match.ordered_teams.first %>
+        <% team_b = @match.ordered_teams.second %>
         <div class="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-4 rounded border border-gold-600/40 p-4">
           <div class="text-center sm:text-left">
             <h2 class="font-display text-gold-300 text-lg m-0">
-              <% if @match.teams.first.rank.present? %>
-                <span class="text-muted">#<%= @match.teams.first.rank %></span>
+              <% if team_a&.rank.present? %>
+                <span class="text-muted">#<%= team_a.rank %></span>
               <% end %>
-              <%= link_to @match.teams.first.guild.name_with_tag, match_path(@match), class: "hover:text-gold-400" %>
-              <% if @match.winner_team == @match.teams.first %>
-                <span title="Winner">🏆</span>
+              <%= link_to team_a&.guild&.name_with_tag || "Unknown Guild", match_path(@match), class: "hover:text-gold-400" %>
+              <% if @match.winner_team_id == team_a&.id %>
+                <span role="img" aria-label="Winner">🏆</span>
               <% end %>
             </h2>
-            <p class="text-sm m-0 mt-1"><%= link_to 'Guild details', guild_path(@match.teams.first.guild), class: 'text-muted hover:text-gold-400' %></p>
+            <p class="text-sm m-0 mt-1"><%= link_to 'Guild details', guild_path(team_a&.guild), class: 'text-muted hover:text-gold-400' %></p>
           </div>
           <div class="text-center font-display text-gold-300">
             <div class="text-xs text-muted"><%= @match.round_text %> · <%= @match.tournament&.date %></div>
@@ -36,26 +38,26 @@
           </div>
           <div class="text-center sm:text-right">
             <h2 class="font-display text-gold-300 text-lg m-0">
-              <% if @match.winner_team == @match.teams.second %>
-                <span title="Winner">🏆</span>
+              <% if @match.winner_team_id == team_b&.id %>
+                <span role="img" aria-label="Winner">🏆</span>
               <% end %>
-              <% if @match.teams.second.rank.present? %>
-                <span class="text-muted">#<%= @match.teams.second.rank %></span>
+              <% if team_b&.rank.present? %>
+                <span class="text-muted">#<%= team_b.rank %></span>
               <% end %>
-              <%= link_to @match.teams.second.guild.name_with_tag, match_path(@match), class: "hover:text-gold-400" %>
+              <%= link_to team_b&.guild&.name_with_tag || "Unknown Guild", match_path(@match), class: "hover:text-gold-400" %>
             </h2>
-            <p class="text-sm m-0 mt-1"><%= link_to 'Guild details', guild_path(@match.teams.second.guild), class: 'text-muted hover:text-gold-400' %></p>
+            <p class="text-sm m-0 mt-1"><%= link_to 'Guild details', guild_path(team_b&.guild), class: 'text-muted hover:text-gold-400' %></p>
           </div>
         </div>
       <% end %>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <section>
-          <h2 class="font-display text-gold-300 text-sm mb-2"><%= @match.teams.first.guild.name_with_tag %></h2>
+          <h2 class="font-display text-gold-300 text-sm mb-2"><%= @match.ordered_teams.first&.guild&.name_with_tag %></h2>
           <div class="overflow-x-auto">
             <table class="gw-table">
               <tbody>
-                <% @match.teams.first.team_players.includes(character: [ :player ], profession: [], secondary_profession: [], team_player_skills: [ :skill ], team_player_stats: []).order(position: :asc).each do |team_player| %>
+                <% @match.ordered_teams.first&.team_players.includes(character: [ :player ], profession: [], secondary_profession: [], team_player_skills: [ :skill ], team_player_stats: []).order(position: :asc).each do |team_player| %>
                   <%= render 'team_player', team_player: team_player %>
                 <% end %>
               </tbody>
@@ -63,11 +65,11 @@
           </div>
         </section>
         <section>
-          <h2 class="font-display text-gold-300 text-sm mb-2"><%= @match.teams.second.guild.name_with_tag %></h2>
+          <h2 class="font-display text-gold-300 text-sm mb-2"><%= @match.ordered_teams.second&.guild&.name_with_tag %></h2>
           <div class="overflow-x-auto">
             <table class="gw-table">
               <tbody>
-                <% @match.teams.second.team_players.includes(character: [ :player ], profession: [], secondary_profession: [], team_player_skills: [ :skill ], team_player_stats: []).order(position: :asc).each do |team_player| %>
+                <% @match.ordered_teams.second&.team_players.includes(character: [ :player ], profession: [], secondary_profession: [], team_player_skills: [ :skill ], team_player_stats: []).order(position: :asc).each do |team_player| %>
                   <%= render 'team_player', team_player: team_player %>
                 <% end %>
               </tbody>
@@ -193,7 +195,7 @@
                   <%= @match.teams.first.guild.name_with_tag %>
                   <% winning_party = @match.json.dig('winning_party_id') %>
                   <% if winning_party == 1 %>
-                    <span title="Winner">🏆</span>
+                    <span role="img" aria-label="Winner">🏆</span>
                   <% end %>
                 </h3>
               </div>
@@ -205,7 +207,7 @@
               <div class="gw-window-header">
                 <h3 class="font-display text-gold-300 text-sm m-0">
                   <% if winning_party == 2 %>
-                    <span title="Winner">🏆</span>
+                    <span role="img" aria-label="Winner">🏆</span>
                   <% end %>
                   <%= @match.teams.second.guild.name_with_tag %>
                 </h3>
