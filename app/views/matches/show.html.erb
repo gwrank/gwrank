@@ -30,7 +30,9 @@
                 <span role="img" aria-label="Winner">🏆</span>
               <% end %>
             </h2>
-            <p class="text-sm m-0 mt-1"><%= link_to 'Guild details', guild_path(team_a&.guild), class: 'text-muted hover:text-gold-400' %></p>
+            <% if team_a&.guild %>
+              <p class="text-sm m-0 mt-1"><%= link_to 'Guild details', guild_path(team_a.guild), class: 'text-muted hover:text-gold-400' %></p>
+            <% end %>
           </div>
           <div class="text-center font-display text-gold-300">
             <div class="text-xs text-muted"><%= @match.round_text %> · <%= @match.tournament&.date %></div>
@@ -46,7 +48,9 @@
               <% end %>
               <%= link_to team_b&.guild&.name_with_tag || "Unknown Guild", match_path(@match), class: "hover:text-gold-400" %>
             </h2>
-            <p class="text-sm m-0 mt-1"><%= link_to 'Guild details', guild_path(team_b&.guild), class: 'text-muted hover:text-gold-400' %></p>
+            <% if team_b&.guild %>
+              <p class="text-sm m-0 mt-1"><%= link_to 'Guild details', guild_path(team_b.guild), class: 'text-muted hover:text-gold-400' %></p>
+            <% end %>
           </div>
         </div>
       <% end %>
