@@ -66,6 +66,7 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     get matches_path
     assert_response :success
     assert_select 'div.gw-pagy a', minimum: 1
+    assert_select "nav[aria-label='Pagination']"
   end
 
   test 'index renders remaining matches on page 2' do
