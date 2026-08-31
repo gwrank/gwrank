@@ -52,7 +52,7 @@ Dual-render technique: each icon set is emitted twice (desktop variant `hidden s
     <span class="flex flex-wrap items-center gap-2">
       <strong class="text-gold-400"><%= row[:name].presence || "(unnamed)" %></strong>
       <% if row[:assignment].present? %><span class="gw-badge gw-badge--mode"><%= row[:assignment] %></span><% end %>
-      <span class="ml-auto flex items-center gap-1 gw-imgs-inline">
+      <span class="ml-auto flex items-center gap-1">
         <span class="hidden sm:inline-block"><%= row[:primary_profession]&.html_image %></span>
         <span class="inline-block sm:hidden"><%= row[:primary_profession]&.html_image_simple(size: 32) %></span>
         <span class="hidden sm:inline-block"><%= row[:secondary_profession]&.html_image %></span>
@@ -68,7 +68,7 @@ Dual-render technique: each icon set is emitted twice (desktop variant `hidden s
 
     <!-- Skill line: all skills on one line, dual-render desktop/mobile -->
     <% skills = Array(row[:skills]) %>
-    <div class="mt-1.5 hidden sm:flex flex-nowrap items-center gap-1.5 gw-imgs-inline">
+    <div class="mt-1.5 hidden sm:flex flex-nowrap items-center gap-1.5">
       <% skills.each do |skill| %>
         <% if skill %>
           <%= skill.html_image %>
@@ -77,7 +77,7 @@ Dual-render technique: each icon set is emitted twice (desktop variant `hidden s
         <% end %>
       <% end %>
     </div>
-    <div class="mt-1.5 flex flex-nowrap items-center gap-1.5 gw-imgs-inline sm:hidden">
+    <div class="mt-1.5 flex flex-nowrap items-center gap-1.5 sm:hidden">
       <% skills.each do |skill| %>
         <% if skill %>
           <%= skill.html_image_simple(size: 32) %>
@@ -103,6 +103,7 @@ Dual-render technique: each icon set is emitted twice (desktop variant `hidden s
 ```
 
 Notes:
+- `gw-imgs-inline` is dropped on the new flex containers (and the header right group): inside a flex layout the class is a no-op (children are blockified, `vertical-align` is inert). The popover trigger keeps its own copy of the class for its inner `<svg>`.
 - `Profession#html_image` / `Skill#html_image` already rescue `Propshaft::MissingAssetError` → `''`, so missing assets degrade silently.
 - Unknown skills (nil) keep the existing `Unknown_Junundu_Ability.jpg` fallback at the matching size (55 / 32).
 - Tooltip wiring (`data-controller="tooltip"` + bootstrap attrs) comes free with `html_image` and is already initialized globally by `app/javascript/controllers/tooltip_controller.js`.
