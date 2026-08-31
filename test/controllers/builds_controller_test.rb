@@ -107,8 +107,8 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     # Mobile skill icons (32px) — visible on mobile, hidden on desktop
     assert_select "tbody img[width='32']", minimum: 8
 
-    # Skill rows use flex-nowrap (single line, no wrapping)
-    assert_select "tbody .flex-nowrap", minimum: 1
+    # Skill rows use flex-nowrap (single line, no wrapping) — one div per row, two per character
+    assert_select "tbody .flex-nowrap", minimum: 2
 
     # Attribute pills still present
     assert_select "ul li strong", minimum: 1
