@@ -95,17 +95,35 @@ class BuildsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".gw-empty"
   end
 
-  test "show renders compact rows with skills, attributes, notes and template popovers" do
+  test "show renders match-style rows with responsive skill icons" do
     sign_in @owner
     get build_path(Teambuild.last)
     assert_response :success
     assert_select "table.gw-table tbody tr", minimum: 1
+
+    # Desktop skill icons (55px) — hidden on mobile via CSS but present in DOM
+    assert_select "tbody img[width='55']", minimum: 8
+
+    # Mobile skill icons (32px) — visible on mobile, hidden on desktop
     assert_select "tbody img[width='32']", minimum: 8
+
+    # Skill rows use flex-nowrap (single line, no wrapping)
+    assert_select "tbody .flex-nowrap", minimum: 1
+
+    # Attribute pills still present
     assert_select "ul li strong", minimum: 1
+
+    # Notes still present
     assert_select "tbody p.text-note", text: /Élémentaliste/
+
+    # Assignment badge still present
     assert_select "tbody .gw-badge--mode", text: "Midline"
+
+    # Template code popover still present
     assert_select "[data-controller='template-code-popover']", minimum: 1
     assert_select "[data-template-code-popover-target='code']", minimum: 1
+
+    # Author line unchanged
     assert_select ".gw-window-header small", text: /@#{Regexp.escape(@owner.username)}/
   end
 

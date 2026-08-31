@@ -3,9 +3,11 @@
     <span class="flex flex-wrap items-center gap-2">
       <strong class="text-gold-400"><%= row[:name].presence || "(unnamed)" %></strong>
       <% if row[:assignment].present? %><span class="gw-badge gw-badge--mode"><%= row[:assignment] %></span><% end %>
-      <span class="ml-auto flex items-center gap-1 gw-imgs-inline">
-        <span class="gw-prof-chip h-[26px] w-[26px]"><%= row[:primary_profession]&.html_image_simple(size: 26) %></span>
-        <span class="gw-prof-chip h-[26px] w-[26px]"><%= row[:secondary_profession]&.html_image_simple(size: 26) %></span>
+      <span class="ml-auto flex items-center gap-1">
+        <span class="hidden sm:inline-block"><%= row[:primary_profession]&.html_image %></span>
+        <span class="inline-block sm:hidden"><%= row[:primary_profession]&.html_image_simple(size: 32) %></span>
+        <span class="hidden sm:inline-block"><%= row[:secondary_profession]&.html_image %></span>
+        <span class="inline-block sm:hidden"><%= row[:secondary_profession]&.html_image_simple(size: 32) %></span>
         <%= render "application/template_code_popover",
               template_code: row[:template_code],
               name: row[:name].presence || "(unnamed)",
@@ -15,17 +17,22 @@
       </span>
     </span>
     <% skills = Array(row[:skills]) %>
-    <div class="mt-1.5 flex gap-x-2">
-      <% skills.each_slice(4) do |group| %>
-        <span class="gw-imgs-inline shrink-0">
-          <% group.each do |skill| %>
-            <% if skill %>
-              <%= skill.html_image_simple(size: 32) %>
-            <% else %>
-              <%= image_tag "skills/Unknown_Junundu_Ability.jpg", title: "Unknown", width: 32, loading: "lazy" %>
-            <% end %>
-          <% end %>
-        </span>
+    <div class="mt-1.5 hidden sm:flex flex-nowrap items-center gap-1.5">
+      <% skills.each do |skill| %>
+        <% if skill %>
+          <%= skill.html_image %>
+        <% else %>
+          <%= image_tag "skills/Unknown_Junundu_Ability.jpg", title: "Unknown", width: 55, loading: "lazy" %>
+        <% end %>
+      <% end %>
+    </div>
+    <div class="mt-1.5 flex flex-nowrap items-center gap-1.5 sm:hidden">
+      <% skills.each do |skill| %>
+        <% if skill %>
+          <%= skill.html_image_simple(size: 32) %>
+        <% else %>
+          <%= image_tag "skills/Unknown_Junundu_Ability.jpg", title: "Unknown", width: 32, loading: "lazy" %>
+        <% end %>
       <% end %>
     </div>
     <% if row[:attributes].any? %>
