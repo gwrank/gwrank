@@ -57,7 +57,7 @@ module DiscordBot
         discord_server_id = event.server.id
         new_timezone = event.options['timezone']
 
-        schedule = AutomatedTournamentSchedule.find_or_initialize_by(discord_server_id: discord_server_id)
+        schedule = AutomatedTournamentSchedule.find_or_initialize_by(discord_server_id: discord_server_id, is_monthly: false)
         timezone_changed = schedule.timezone.present? && schedule.timezone != new_timezone
         schedule.timezone = new_timezone
         schedule.channel_id = event.channel.id
@@ -70,7 +70,7 @@ module DiscordBot
 
       def handle_next(event)
         discord_server_id = event.server.id
-        schedule = AutomatedTournamentSchedule.find_by(discord_server_id: discord_server_id)
+        schedule = AutomatedTournamentSchedule.find_by(discord_server_id: discord_server_id, is_monthly: false)
         return schedule_required_message(event) unless schedule
 
         now = Time.now.utc
@@ -164,7 +164,7 @@ module DiscordBot
       end
 
       def require_schedule!(event, discord_server_id, ephemeral: false)
-        return true if AutomatedTournamentSchedule.exists?(discord_server_id: discord_server_id)
+        return true if AutomatedTournamentSchedule.exists?(discord_server_id: discord_server_id, is_monthly: false)
 
         event.respond(content: "<@#{event.user.id}>, this server hasn't set an AT schedule yet. Run */at schedule* first.", ephemeral: ephemeral)
         false

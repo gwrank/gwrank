@@ -120,7 +120,7 @@ module DiscordBot
         )
         return event.respond(content: "<@#{event.user.id}>, this server hasn't set a monthly AT schedule yet. Run */mat schedule* first.") unless schedule
         
-        mat_registrations = AutomatedTournamentRegistration.current_for_server(discord_server_id).monthly.order(registered_at: :asc)
+        mat_registrations = AutomatedTournamentRegistration.current_monthly_for_server(discord_server_id).order(registered_at: :asc)
         
         message = "<@#{event.user.id}>, the current monthly AT queue players for this server are:"
         if mat_registrations.empty?
@@ -159,7 +159,7 @@ module DiscordBot
           registered_at: DateTime.now,
           is_monthly: true
         )
-        mat_count = AutomatedTournamentRegistration.current_for_server(discord_server_id).monthly.count
+        mat_count = AutomatedTournamentRegistration.current_monthly_for_server(discord_server_id).count
         
         event.interaction.update_message(has_components: true) do |_, view|
           mat_container(view, player, discord_server_id: discord_server_id)
@@ -205,7 +205,7 @@ module DiscordBot
       end
       
       def mat_registration_panel_content(player, discord_server_id: nil)
-        mat_registrations = AutomatedTournamentRegistration.current_for_server(discord_server_id).monthly.order(registered_at: :asc)
+        mat_registrations = AutomatedTournamentRegistration.current_monthly_for_server(discord_server_id).order(registered_at: :asc)
         
         players = mat_registrations.each_with_index.map do |registration, index|
           entry = "\n##{index + 1} <@#{registration.player.uid}>"

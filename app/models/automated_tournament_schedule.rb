@@ -3,11 +3,11 @@
 # Table name: automated_tournament_schedules
 #
 #  id                             :bigint           not null, primary key
-#  is_monthly                     :boolean          default(FALSE)
+#  is_monthly                     :boolean          default(FALSE), not null
 #  last_reminded_on               :date
 #  recurrence_pattern             :string
 #  registration_opens_days_before :integer          default(28)
-#  timezone                       :string           not null
+#  timezone                       :string
 #  created_at                     :datetime         not null
 #  updated_at                     :datetime         not null
 #  channel_id                     :string           not null
@@ -15,14 +15,17 @@
 #
 # Indexes
 #
-#  index_automated_tournament_schedules_on_discord_server_id  (discord_server_id) UNIQUE
+#  index_automated_tournament_schedules_on_discord_server_id_and_is_monthly  (discord_server_id,is_monthly) UNIQUE
 #
 class AutomatedTournamentSchedule < ApplicationRecord
   enum :timezone, { a: 'a', b: 'b', c: 'c' }
 
-  validates :discord_server_id, presence: true, uniqueness: true
+  scope :daily, -> { where(is_monthly: false) }
+  scope :monthly, -> { where(is_monthly: true) }
+
+  validates :discord_server_id, presence: true, uniqueness: { scope: :is_monthly }
   validates :channel_id, presence: true
-  validates :timezone, presence: true
+  validates :timezone, presence: true, unless: :is_monthly?
   validates :recurrence_pattern, inclusion: { in: %w[daily_a daily_b daily_c every_3rd_saturday] }, allow_nil: true
   
   before_validation :set_default_recurrence_pattern, on: :create
@@ -100,9 +103,14 @@ class AutomatedTournamentSchedule < ApplicationRecord
   end
 
   # The occurrence immediately before next_occurrence(from) (one schedule
-  # day earlier).
+  # day earlier for daily, one month earlier for monthly).
   def previous_occurrence(from: Time.now.utc)
-    occurrence_on(next_occurrence(from: from).to_date - 1)
+    if is_monthly?
+      ref = next_monthly_occurrence(from) - 1.month
+      monthly_occurrence_at(ref.year, ref.month)
+    else
+      occurrence_on(next_occurrence(from: from).to_date - 1)
+    end
   end
 
   # Upper edge of the current registration window: the point at which the
@@ -111,20 +119,23 @@ class AutomatedTournamentSchedule < ApplicationRecord
     next_occurrence(from: from) + 2.hours
   end
 
+  # Monthly tournaments happen on the 3rd Saturday of each month. Only the
+  # date is announced (no fixed hour), so occurrences are midnight UTC.
+  # Adjust MONTHLY_OCCURRENCE_HOUR_UTC once a real hour is confirmed.
+  MONTHLY_OCCURRENCE_HOUR_UTC = 0
+
   def next_monthly_occurrence(from)
     now = from
-    
-    current_year = now.year
-    current_month = now.month
-    
-    third_saturday = find_nth_weekday(current_year, current_month, 6, 3)
-    
-    if now <= third_saturday
-      return third_saturday
-    end
-    
-    next_month = now + 1.month
-    find_nth_weekday(next_month.year, next_month.month, 6, 3)
+    candidate = monthly_occurrence_at(now.year, now.month)
+    return candidate if now <= candidate
+
+    following = now + 1.month
+    monthly_occurrence_at(following.year, following.month)
+  end
+
+  def monthly_occurrence_at(year, month)
+    date = find_nth_weekday(year, month, 6, 3)
+    Time.utc(date.year, date.month, date.day, MONTHLY_OCCURRENCE_HOUR_UTC)
   end
 
   def find_nth_weekday(year, month, weekday, nth)

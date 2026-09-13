@@ -82,6 +82,47 @@ class AutomatedTournamentScheduleTest < ActiveSupport::TestCase
     assert_includes schedule.errors[:timezone], "can't be blank"
   end
 
+  test "daily and monthly schedules can coexist for the same server" do
+    AutomatedTournamentSchedule.create!(discord_server_id: "server-1", timezone: "b", channel_id: "chan-1")
+    monthly = AutomatedTournamentSchedule.new(
+      discord_server_id: "server-1", is_monthly: true,
+      recurrence_pattern: "every_3rd_saturday", channel_id: "mat-chan"
+    )
+
+    assert monthly.valid?, "monthly schedule should be valid alongside daily: #{monthly.errors.full_messages}"
+  end
+
+  test "monthly schedule does not require a timezone" do
+    schedule = AutomatedTournamentSchedule.new(
+      discord_server_id: "server-1", is_monthly: true,
+      recurrence_pattern: "every_3rd_saturday", channel_id: "mat-chan"
+    )
+
+    assert schedule.valid?, "monthly schedule should not require timezone: #{schedule.errors.full_messages}"
+  end
+
+  test "monthly next_occurrence returns the 3rd Saturday as a Time" do
+    schedule = AutomatedTournamentSchedule.new(
+      discord_server_id: "server-1", is_monthly: true,
+      recurrence_pattern: "every_3rd_saturday", channel_id: "mat-chan"
+    )
+
+    # September 2026: Saturdays are 5/12/19/26 → 3rd Saturday is the 19th
+    assert_equal Time.utc(2026, 9, 19, 0, 0), schedule.next_occurrence(from: Time.utc(2026, 9, 1))
+    # After it passes, rolls to October's 3rd Saturday (the 17th)
+    assert_equal Time.utc(2026, 10, 17, 0, 0), schedule.next_occurrence(from: Time.utc(2026, 9, 20))
+  end
+
+  test "monthly previous_occurrence is the prior month's 3rd Saturday" do
+    schedule = AutomatedTournamentSchedule.new(
+      discord_server_id: "server-1", is_monthly: true,
+      recurrence_pattern: "every_3rd_saturday", channel_id: "mat-chan"
+    )
+
+    # August 2026 3rd Saturday was the 15th
+    assert_equal Time.utc(2026, 8, 15, 0, 0), schedule.previous_occurrence(from: Time.utc(2026, 9, 1))
+  end
+
   test "next_occurrence excludes the exact moment the grace period ends" do
     schedule = AutomatedTournamentSchedule.new(timezone: "b")
     from = Time.utc(2026, 7, 15, 13, 0) # exactly Wed b (11:00) + 2.hours

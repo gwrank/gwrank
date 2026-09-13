@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_26_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_13_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -68,13 +68,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_100000) do
     t.string "channel_id", null: false
     t.datetime "created_at", null: false
     t.string "discord_server_id", null: false
-    t.boolean "is_monthly", default: false
+    t.boolean "is_monthly", default: false, null: false
     t.date "last_reminded_on"
     t.string "recurrence_pattern"
     t.integer "registration_opens_days_before", default: 28
-    t.string "timezone", null: false
+    t.string "timezone"
     t.datetime "updated_at", null: false
-    t.index ["discord_server_id"], name: "index_automated_tournament_schedules_on_discord_server_id", unique: true
+    t.index ["discord_server_id", "is_monthly"], name: "index_at_schedules_on_server_and_monthly", unique: true
   end
 
   create_table "character_claims", force: :cascade do |t|

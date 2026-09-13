@@ -12,7 +12,7 @@ module DiscordBot
     end
 
     def call
-      AutomatedTournamentSchedule.find_each { |schedule| check_schedule(schedule) }
+      AutomatedTournamentSchedule.daily.find_each { |schedule| check_schedule(schedule) }
     end
 
     private

@@ -249,3 +249,81 @@ lignes au nom faux → affichage impossible en jeu (ex. Necro skill sur Mesmer/A
   Necro/Assassin : Life Siphon (109) + Dash légitimes ✓
 - Rendus frais vs cache : ordres identiques ; rangée 7 skills = 8 slots dont 1 transparent
 - Tests : team_player_test 3/3 vert ; suite 130 runs = seuls les 3 échecs Scrims préexistants
+
+---
+
+# Remove "Cyril" from files + git history (HISTORY REWRITE — DESTRUCTIVE)
+
+## Statut : TERMINÉ (local-only) — mirror réécrit vérifié dans `/tmp/gwrank-mirror`, AUCUN push effectué, workdir intact
+
+I'm using the writing-plans skill to create the implementation plan (location overridden to `tasks/todo.md` per AGENTS.md).
+
+**Goal:** Zero `\bCyril\b` in working tree + all branches/tags history. `Cyrillic` in `config/initializers/friendly_id.rb:99` must survive.
+
+**État mesuré:**
+- Worktree: 37 vrais hits dans 4 fichiers test (`save_build_test.rb:19`, `team_build_commands_test.rb` x18, `build_commands_test.rb` x10, `player_commands_test.rb` x8) + 1 faux positif `Cyrillic`.
+- Historique: 17 commits touchés par `-S "Cyril"` (ex. `0008f958`, `fffd9e1e`, `4e757086`, `bfa12b42`, `a78571cc`), 806 commits au total, branches `main`, `social`, `feat/*`, `chore/2026-update`, remotes `origin` + `dokku`.
+- Outil: `git filter-repo` NON installé — à installer avant.
+
+**Approche:** mirror clone frais dans `/tmp`, `filter-repo --replace-text` avec regex `\bCyril\b`, vérification, force-push, re-clone workdir. Jamais de rewrite in-place dans `/home/arka/Work/gwrank` (risque de perte + merge concurrent vu le 2026-08-26). `filter-branch` exclu (déprécié).
+
+- [x] Step 0 — Validation utilisateur (BLOQUANT): remplacement (défaut `TestUser`), périmètre push (`origin` seul vs `origin`+`dokku`), confirmation backup OK
+  → Reçu: `TestPlayer` + local-only (aucun push).
+- [x] Step 1 — Backup + prérequis: `cp -a` ou `git clone --mirror` de sécu, `pipx install git-filter-repo`, `git status` propre (stash si besoin)
+  → Backup: `/tmp/gwrank-backup-mirror` (81M, pré-rewrite). `git-filter-repo` via `~/.local/bin/git-filter-repo` (pacman/sudo indisponibles).
+- [x] Step 2 — Rewrite isolé: `git clone --mirror <origin> /tmp/gwrank-mirror`, `echo 'regex:\bCyril\b==>TestUser' > /tmp/replace.txt`, `git filter-repo --replace-text /tmp/replace.txt --force`
+  → Fait avec `regex:\bCyril\b==>TestPlayer`, 806 commits réécrits en ~5s. Remote `origin` stripped par filter-repo (attendu).
+- [x] Step 3 — Vérification (BLOQUANT): `git log --all -S Cyril` vide, `git rev-list --all | xargs git grep -w Cyril` vide, `rg -w Cyril` vide hors `Cyrillic`, `bin/rails test test/services/discord_bot/` vert
+  → `grep -w Cyril` sur les 806 revs: vide ✓ ; `TestPlayer` sur main: 37 hits (remplacement 1:1) ✓ ; `Cyrillic` préservé (friendly_id.rb:99) ✓ ; `log -S Cyril` ne liste plus que 3 commits introducteurs de `Cyrillic`/fonts binaires (4e757086, bfa12b42, a78571cc) ✓ ; `ruby -c` OK sur les 4 fichiers test ✓. Suite rails NON lancée (socket docker inaccessible) — à lancer après resync.
+- [ ] Step 4 — Push forcé + resync (VOLONTAIREMENT NON EXÉCUTÉ — choix local-only): voir commandes ci-dessous.
+
+**Pour pousser manuellement depuis le mirror vérifié:**
+```bash
+cd /tmp/gwrank-mirror
+git remote add origin git@github.com:gwrank/gwrank.git
+git push --force --all origin && git push --force --tags origin
+# optionnel: git remote add dokku dokku@83.228.226.119:gwrank && git push --force --all dokku
+cd /home/arka/Work/gwrank && git fetch origin && git reset --hard origin/main  # + re-clone pour chaque collaborateur
+```
+
+**Réserve substring:** `Cyril` en sous-chaîne subsiste dans `Cyrillic` (voulu) et dans les blobs binaires de fonts `SourceCodePro-*.otf/ttf` (métadonnées, remplacement = corruption — déconseillé).
+
+**Risques:** réécriture des 806 SHAs, PRs/forks cassés, déploiements `dokku` à refaire, collaborateurs doivent re-cloner. Rollback = backup `/tmp` + reflog remote (si protégé).
+
+---
+
+# Fix crash /mat schedule — Validation failed: Discord server taken + Timezone blank
+
+## Statut : EN COURS (approved: full fix)
+
+## Cause racine (prouvée, Phase 1-2 systematic-debugging)
+
+- `AutomatedTournamentSchedule` a un index unique + validation sur `discord_server_id` SEUL (1 ligne/serveur, époque daily-only).
+- Le support monthly (`is_monthly`, migration 20260724000001) n'a ni scopé l'unicité ni rendu `timezone` optionnel (`timezone NOT NULL` + `validates presence`).
+- `MatCommands#handle_schedule` (mat_commands.rb:62) fait `find_or_initialize_by(discord_server_id:, is_monthly: true)` SANS timezone → sur un serveur ayant déjà un schedule daily : `find` rate (is_monthly mismatch), `save!` tente une 2e ligne même `discord_server_id` + `timezone=nil` → exactement les 2 erreurs du log.
+
+## Hypothèse (Phase 3)
+
+Scoper l'unicité à `[discord_server_id, is_monthly]`, rendre `timezone` requis sauf monthly, et scoper toutes les lectures daily à `is_monthly: false` permet la coexistence daily+monthly sans régression.
+
+## Revue (post-implémentation)
+
+**Vérification :** RED d'abord — 15 runs / 2 failures + 3 errors reproduisant exactement le crash prod (`Discord server has already been taken, Timezone can't be blank`, mat_commands.rb:69). GREEN ensuite — 39 runs ciblés (schedule, registration, mat/at commands, reminder check) 0 échec ; `test/models + test/services` 249 runs 0 échec ; `ruby -c` OK sur les 7 fichiers touchés.
+Bonus trouvés en chemin (inclus car bloquants pour la même feature) : `next_monthly_occurrence` comparait `Time <= Date` (ArgumentError au premier appel réel) et retournait une `Date` (casse `>`/`strftime %H:%M`) → retourne désormais `Time.utc` ; `previous_occurrence` exigeait un timezone via `occurrence_on` → branché monthly ; `current_for_server` fenêtrait le monthly sur la fenêtre daily (queue monthly toujours vide sans schedule daily) → nouveau `current_monthly_for_server` + `monthly_window_bounds`.
+
+**Décisions :** occurrences monthly à minuit UTC (`MONTHLY_OCCURRENCE_HOUR_UTC = 0`, 1 ligne à ajuster quand l'heure réelle est confirmée) ; `current_for_server` est désormais daily-only (les appelants monthly utilisent `current_monthly_for_server`) ; boutons register/unregister inchangés (`Player#current_mat_registration` reste non-fenêtré).
+**Env :** pas de PG local ni accès docker → provisionné Postgres 16 via mise dans `/tmp/gwrank-pgdata` (socket `/tmp/gwrank-pgsock`, port 5433) + `bundle install` ; à arrêter/supprimer après usage (`pg_ctl -D /tmp/gwrank-pgdata stop`). Non commité, en attente de revue.
+
+## Plan (TDD: test d'abord, un seul fix)
+
+- [ ] RED : tests qui échouent (model coexistence daily+monthly même serveur ; monthly sans timezone valide ; doublon daily/monthly invalide ; `MatCommands#handle_schedule` crée la ligne monthly en gardant la daily ; `AtCommands` retrouve la daily quand la monthly existe)
+- [ ] Migration : backfill `is_monthly` NULL→false + NOT NULL default false ; `timezone` NULL autorisé ; supprime l'index unique `discord_server_id`, ajoute unique `[discord_server_id, is_monthly]`
+- [ ] Modèle : `uniqueness: { scope: :is_monthly }`, `timezone presence unless monthly`, scopes `daily`/`monthly` ; `next_monthly_occurrence` retourne un `Time.utc` (pas une `Date`, sinon `>`/`strftime %H:%M` cassent) ; `previous_occurrence` branché monthly (mois précédent, pas `occurrence_on` qui exige un timezone)
+- [ ] Scope daily : `AtCommands` (schedule/next/join/players/require_schedule!), `AutomatedTournamentRegistration.window_bounds` (schedule daily), `AtReminderCheck` (daily only)
+- [ ] Fenêtre monthly : `current_for_server` actuel est fenêtré daily → ajouter `current_monthly_for_server` + `monthly_window_bounds` (basés schedule monthly, `[prev+2h, next+2h]`) et basculer `MatCommands` (players/panel) dessus ; `Player#current_mat_registration` reste non-fenêtré (boutons)
+- [ ] GREEN/verify : repro tests verts + suite existante (`automated_tournament_*`, `at_commands`) ; `ruby -c` systématique
+
+## Hors périmètre
+
+- Heure exacte du mAT (on cale à 15:00 UTC, même que slot B ? à trancher : minuit UTC vs heure réelle) — documented, ajustable en 1 ligne.
+- Normalisation `.to_s` des snowflakes : non nécessaire (l'unicité a matché, donc le cast marche) — on ne touche pas.

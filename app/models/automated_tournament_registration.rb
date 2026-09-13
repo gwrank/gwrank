@@ -29,6 +29,16 @@ class AutomatedTournamentRegistration < ApplicationRecord
     next none unless bounds
 
     for_server(server_id)
+      .daily
+      .where(unregistered_at: nil)
+      .where('registered_at > ? AND registered_at <= ?', *bounds)
+  }
+  scope :current_monthly_for_server, ->(server_id) {
+    bounds = monthly_window_bounds(server_id)
+    next none unless bounds
+
+    for_server(server_id)
+      .monthly
       .where(unregistered_at: nil)
       .where('registered_at > ? AND registered_at <= ?', *bounds)
   }
@@ -47,7 +57,15 @@ class AutomatedTournamentRegistration < ApplicationRecord
   # an explicit receiver (self.class.window_bounds) or through the
   # public_send-based delegation a scope block uses to reach class methods.
   def self.window_bounds(server_id)
-    schedule = AutomatedTournamentSchedule.find_by(discord_server_id: server_id)
+    schedule = AutomatedTournamentSchedule.daily.find_by(discord_server_id: server_id)
+    return nil unless schedule
+
+    now = Time.now.utc
+    [schedule.previous_occurrence(from: now) + 2.hours, schedule.window_boundary(from: now)]
+  end
+
+  def self.monthly_window_bounds(server_id)
+    schedule = AutomatedTournamentSchedule.monthly.find_by(discord_server_id: server_id)
     return nil unless schedule
 
     now = Time.now.utc
