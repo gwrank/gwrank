@@ -584,6 +584,7 @@ DEPENDENCIES
   omniauth
   omniauth-discord
   omniauth-rails_csrf_protection
+  ostruct
   pagy
   pg (~> 1.1)
   pg_search

@@ -91,3 +91,6 @@ gem 'tzinfo-data', platforms: %i[windows jruby]
 # Swagger UI for the teambuilds API docs (/api-docs)
 gem 'rswag-api'
 gem 'rswag-ui'
+
+# Ruby 4.0+ no longer ships ostruct as a default gem (required by rswag-ui)
+gem 'ostruct'
