@@ -53,7 +53,7 @@ gem 'turbo-rails'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'byebug', platforms: %i[mri mingw x64_mingw]
+  gem 'byebug', platforms: %i[mri windows]
   gem 'dotenv-rails'
   gem 'rspec-rails'
   gem 'rswag-specs'
@@ -78,7 +78,7 @@ end
 group :test do
   # Adds support for Capybara system testing and selenium driver
   gem 'capybara', '>= 3.26'
-  gem 'selenium-webdriver'
+  gem 'selenium-webdriver', '>= 4.14.0'
   # Easy installation and use of web drivers to run system tests with browsers
   gem 'webdrivers'
   # minitest/mock (Minitest::Mock, #stub) - split out of minitest core as of minitest 6
@@ -86,7 +86,7 @@ group :test do
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
+gem 'tzinfo-data', platforms: %i[windows jruby]
 
 # Swagger UI for the teambuilds API docs (/api-docs)
 gem 'rswag-api'
