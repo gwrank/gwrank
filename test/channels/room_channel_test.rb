@@ -3,6 +3,101 @@ require "test_helper"
 class RoomChannelTest < ActionCable::Channel::TestCase
   tests RoomChannel
 
+  class ControlledEventLoop
+    class Timer
+      def shutdown; end
+    end
+
+    def initialize
+      @tasks = []
+      @mutex = Mutex.new
+      @condition = ConditionVariable.new
+    end
+
+    def post(task = nil, &block)
+      @mutex.synchronize do
+        @tasks << (task || block)
+        @condition.broadcast
+      end
+    end
+
+    def next_task(timeout: 0.5)
+      deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout
+      @mutex.synchronize do
+        while @tasks.empty?
+          remaining = deadline - Process.clock_gettime(Process::CLOCK_MONOTONIC)
+          return if remaining <= 0
+
+          @condition.wait(@mutex, remaining)
+        end
+        @tasks.shift
+      end
+    end
+
+    def pending?
+      @mutex.synchronize { @tasks.any? }
+    end
+
+    def timer(*)
+      Timer.new
+    end
+  end
+
+  class ControlledPubSub
+    def initialize
+      @subscriptions = Hash.new { |hash, channel| hash[channel] = [] }
+      @mutex = Mutex.new
+    end
+
+    def subscribe(channel, callback, success_callback = nil)
+      @mutex.synchronize do
+        @subscriptions[channel] << callback
+        success_callback&.call
+      end
+    end
+
+    def unsubscribe(channel, callback)
+      @mutex.synchronize do
+        @subscriptions[channel].delete(callback)
+        @subscriptions.delete(channel) if @subscriptions[channel].empty?
+      end
+    end
+
+    def broadcast(channel, message)
+      callbacks = @mutex.synchronize { @subscriptions.fetch(channel, []).dup }
+      callbacks.each { |callback| callback.call(message) }
+    end
+
+    def active?(channel)
+      @mutex.synchronize { @subscriptions.fetch(channel, []).any? }
+    end
+  end
+
+  class QueuedWorkerPool
+    def initialize
+      @jobs = Queue.new
+    end
+
+    def async_invoke(target, method, message, connection:)
+      @jobs << -> { target.public_send(method, message) }
+    end
+
+    def run_next
+      @jobs.pop.call
+    end
+
+    def run_next_after(signal)
+      signal << true
+      run_next
+    end
+
+    def pending?
+      @jobs.length.positive?
+    end
+  end
+
+  ControlledServer = Struct.new(:event_loop, :pubsub)
+
   setup do
     @now = Time.utc(2026, 9, 23, 16)
     @cache = ActiveSupport::Cache::MemoryStore.new
@@ -80,30 +175,55 @@ class RoomChannelTest < ActionCable::Channel::TestCase
     assert_equal [{ code: 4409, reason: "room_full", reconnect: false }], close_calls
   end
 
-  test "buffers stream messages until ready and filters the sender's state update" do
-    callback_holder = {}
+  test "registers the real stream before admission and orders worker callbacks" do
+    event_loop = ControlledEventLoop.new
+    pubsub = ControlledPubSub.new
+    worker_pool = QueuedWorkerPool.new
+    server = ControlledServer.new(event_loop, pubsub)
+    state = {}
     expires_at = @room[:expires_at]
     fake_store = Object.new
     fake_store.define_singleton_method(:join!) do |code:, connection_id:, creator_secret: nil|
-      callback_holder.fetch(:block).call(Rooms::Protocol.joined("before-ready"))
+      state[:active_at_join] = pubsub.active?("rooms:#{code.to_s.upcase}")
+      pubsub.broadcast(
+        "rooms:#{code.to_s.upcase}",
+        ActiveSupport::JSON.encode(Rooms::Protocol.joined("before-ready"))
+      )
+      worker_pool.run_next
       { participants: [connection_id], state: nil, expires_at: expires_at }
     end
     RoomChannel.session_store = fake_store
     stub_connection_for("conn-1")
     channel = RoomChannel.new(connection, "test_stub", { "code" => @room[:code] })
-    channel.singleton_class.include(ActionCable::Channel::ChannelStub)
+    connection.define_singleton_method(:worker_pool) { worker_pool }
 
-    channel.define_singleton_method(:stream_from) do |broadcasting, *args, **options, &block|
-      callback_holder[:block] = block
+    connection.stub(:server, server) do
+      thread = Thread.new { channel.subscribe_to_channel }
+      registration = event_loop.next_task
+      refute_nil registration
+      refute state.key?(:active_at_join)
+
+      registration.call
+      thread.join
+      thread.value
+
+      assert_equal true, state.fetch(:active_at_join)
+      refute worker_pool.pending?
+
+      pubsub.broadcast(
+        "rooms:#{@room[:code]}",
+        ActiveSupport::JSON.encode(Rooms::Protocol.state_updated(sender_id: "conn-1", version: 1, payload: "SELF"))
+      )
+      pubsub.broadcast(
+        "rooms:#{@room[:code]}",
+        ActiveSupport::JSON.encode(Rooms::Protocol.state_updated(sender_id: "conn-2", version: 2, payload: "OTHER"))
+      )
+      pubsub.broadcast(
+        "rooms:#{@room[:code]}",
+        ActiveSupport::JSON.encode(Rooms::Protocol.left("conn-2"))
+      )
+      3.times { worker_pool.run_next }
     end
-    channel.subscribe_to_channel
-
-    assert_equal [ready_message("conn-1"), Rooms::Protocol.joined("before-ready")],
-                 connection.transmissions.filter_map { |message| message["message"] }
-
-    callback_holder.fetch(:block).call(Rooms::Protocol.state_updated(sender_id: "conn-1", version: 1, payload: "SELF"))
-    callback_holder.fetch(:block).call(Rooms::Protocol.state_updated(sender_id: "conn-2", version: 2, payload: "OTHER"))
-    callback_holder.fetch(:block).call(Rooms::Protocol.left("conn-2"))
 
     assert_equal [
       ready_message("conn-1"),
@@ -111,6 +231,116 @@ class RoomChannelTest < ActionCable::Channel::TestCase
       Rooms::Protocol.state_updated(sender_id: "conn-2", version: 2, payload: "OTHER"),
       Rooms::Protocol.left("conn-2")
     ], connection.transmissions.filter_map { |message| message["message"] }
+  end
+
+  test "serializes a worker callback with the ready flush" do
+    event_loop = ControlledEventLoop.new
+    pubsub = ControlledPubSub.new
+    worker_pool = QueuedWorkerPool.new
+    server = ControlledServer.new(event_loop, pubsub)
+    expires_at = @room[:expires_at]
+    fake_store = Object.new
+    fake_store.define_singleton_method(:join!) do |code:, connection_id:, creator_secret: nil|
+      broadcasting = "rooms:#{code.to_s.upcase}"
+      pubsub.broadcast(broadcasting, ActiveSupport::JSON.encode(Rooms::Protocol.joined("before-ready")))
+      worker_pool.run_next
+      pubsub.broadcast(broadcasting, ActiveSupport::JSON.encode(Rooms::Protocol.joined("during-ready")))
+      { participants: [connection_id], state: nil, expires_at: expires_at }
+    end
+    RoomChannel.session_store = fake_store
+    stub_connection_for("conn-1")
+    channel = RoomChannel.new(connection, "test_stub", { "code" => @room[:code] })
+    connection.define_singleton_method(:worker_pool) { worker_pool }
+    flush_started = Queue.new
+    release_flush = Queue.new
+    original_transmit = connection.method(:transmit)
+    connection.define_singleton_method(:transmit) do |cable_message|
+      message = cable_message[:message] || cable_message["message"]
+      if message.is_a?(Hash) && message["type"] == "room.joined" && message["connectionId"] == "before-ready"
+        flush_started << true
+        release_flush.pop
+      end
+      original_transmit.call(cable_message)
+    end
+
+    connection.stub(:server, server) do
+      subscription_thread = Thread.new { channel.subscribe_to_channel }
+      registration = event_loop.next_task
+      refute_nil registration
+      registration.call
+      flush_started.pop
+
+      worker_started = Queue.new
+      callback_thread = Thread.new { worker_pool.run_next_after(worker_started) }
+      worker_started.pop
+      release_flush << true
+      callback_thread.join
+      callback_thread.value
+      subscription_thread.join
+      subscription_thread.value
+    end
+
+    assert_equal [
+      ready_message("conn-1"),
+      Rooms::Protocol.joined("before-ready"),
+      Rooms::Protocol.joined("during-ready")
+    ], connection.transmissions.filter_map { |message| message["message"] }
+  end
+
+  test "does not leave a queued stream when admission rejects" do
+    event_loop = ControlledEventLoop.new
+    pubsub = ControlledPubSub.new
+    server = ControlledServer.new(event_loop, pubsub)
+    error = Rooms::SessionStore::Error.new(close_code: 4404, reason: "room_not_found")
+    fake_store = Object.new
+    fake_store.define_singleton_method(:join!) { |**| raise error }
+    RoomChannel.session_store = fake_store
+    stub_connection_for("conn-1")
+    channel = RoomChannel.new(connection, "test_stub", { "code" => @room[:code] })
+    connection.define_singleton_method(:worker_pool) { QueuedWorkerPool.new }
+
+    connection.stub(:server, server) do
+      thread = Thread.new { channel.subscribe_to_channel }
+      registration = event_loop.next_task
+      refute_nil registration
+      registration.call
+      thread.join
+      thread.value
+    end
+
+    refute pubsub.active?("rooms:#{@room[:code]}")
+    refute event_loop.pending?
+  end
+
+  test "cancels a pending stream before a disconnect can admit the member" do
+    event_loop = ControlledEventLoop.new
+    pubsub = ControlledPubSub.new
+    server = ControlledServer.new(event_loop, pubsub)
+    state = { join_called: false }
+    expires_at = @room[:expires_at]
+    fake_store = Object.new
+    fake_store.define_singleton_method(:join!) do |**|
+      state[:join_called] = true
+      { participants: ["conn-1"], state: nil, expires_at: expires_at }
+    end
+    RoomChannel.session_store = fake_store
+    stub_connection_for("conn-1")
+    channel = RoomChannel.new(connection, "test_stub", { "code" => @room[:code] })
+    connection.define_singleton_method(:worker_pool) { QueuedWorkerPool.new }
+
+    connection.stub(:server, server) do
+      subscription_thread = Thread.new { channel.subscribe_to_channel }
+      registration = event_loop.next_task
+      refute_nil registration
+      channel.unsubscribe_from_channel
+      registration.call
+      subscription_thread.join
+      subscription_thread.value
+    end
+
+    refute state.fetch(:join_called)
+    refute pubsub.active?("rooms:#{@room[:code]}")
+    refute event_loop.pending?
   end
 
   test "renews presence and broadcasts removed members" do

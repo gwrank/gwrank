@@ -5,8 +5,47 @@ class RoomChannel < ApplicationCable::Channel
   class_attribute :session_store, default: Rooms::SessionStore.new
 
   periodically :refresh_presence, every: 30.seconds
+  before_unsubscribe :close_stream_delivery
 
   private
+
+  # Action Cable's default stream_from only posts the subscription and returns. Keep the
+  # same worker-pool handler, but wait for pubsub's success callback before admission.
+  def stream_from(broadcasting, callback = nil, coder: nil, &block)
+    return false if unsubscribed?
+
+    broadcasting = String(broadcasting)
+    defer_subscription_confirmation!
+    handler = worker_pool_stream_handler(broadcasting, callback || block, coder: coder)
+    streams[broadcasting] = handler
+    @stream_registration_mutex.synchronize do
+      @stream_cancelled = false
+    end
+
+    registered = Queue.new
+    connection.server.event_loop.post do
+      pubsub.subscribe(broadcasting, handler, lambda do
+        cancelled = @stream_registration_mutex.synchronize do
+          @stream_cancelled
+        end
+
+        if cancelled
+          registered << false
+        else
+          ensure_confirmation_sent
+          registered << true
+        end
+      end)
+    end
+    registration_succeeded = registered.pop
+    pubsub.unsubscribe(broadcasting, handler) unless registration_succeeded
+    registration_succeeded
+  end
+
+  def stop_all_streams
+    @stream_registration_mutex&.synchronize { @stream_cancelled = true }
+    super
+  end
 
   def subscribed
     @code = params.fetch("code", "").to_s.upcase
@@ -15,9 +54,18 @@ class RoomChannel < ApplicationCable::Channel
     @ready_transmitted = false
     @joined = false
     @left = false
+    @stream_closed = false
+    @delivery_mutex = Mutex.new
+    @stream_registration_mutex = Mutex.new
 
-    stream_from(@broadcasting, coder: ActiveSupport::JSON) do |message|
+    stream_ready = stream_from(@broadcasting, coder: ActiveSupport::JSON) do |message|
       handle_stream_message(message)
+    end
+    unless stream_ready
+      close_stream_delivery
+      stop_all_streams
+      reject
+      return
     end
 
     result = self.class.session_store.join!(
@@ -31,6 +79,7 @@ class RoomChannel < ApplicationCable::Channel
     broadcast(Rooms::Protocol.left(result[:replaced_connection_id])) if result[:replaced_connection_id]
     broadcast(Rooms::Protocol.joined(connection_id))
   rescue Rooms::SessionStore::Error => error
+    close_stream_delivery
     stop_all_streams
     close_for_error(error)
     reject
@@ -59,17 +108,19 @@ class RoomChannel < ApplicationCable::Channel
   end
 
   def transmit_ready(result)
-    transmit(
-      Rooms::Protocol.ready(
-        connection_id: connection_id,
-        participants: result.fetch(:participants),
-        state: result[:state],
-        expires_at: result.fetch(:expires_at)
+    @delivery_mutex.synchronize do
+      transmit(
+        Rooms::Protocol.ready(
+          connection_id: connection_id,
+          participants: result.fetch(:participants),
+          state: result[:state],
+          expires_at: result.fetch(:expires_at)
+        )
       )
-    )
-    @ready_transmitted = true
-    @pending_messages.each { |message| transmit(message) }
-    @pending_messages.clear
+      @ready_transmitted = true
+      @pending_messages.each { |message| transmit(message) }
+      @pending_messages.clear
+    end
   end
 
   def handle_stream_message(message)
@@ -81,10 +132,21 @@ class RoomChannel < ApplicationCable::Channel
     return unless STREAM_MESSAGE_TYPES.include?(type)
     return if type == "state.updated" && message["senderId"] == connection_id
 
-    if @ready_transmitted
-      transmit(message)
-    else
-      @pending_messages << message
+    @delivery_mutex.synchronize do
+      return if @stream_closed
+
+      if @ready_transmitted
+        transmit(message)
+      else
+        @pending_messages << message
+      end
+    end
+  end
+
+  def close_stream_delivery
+    @delivery_mutex.synchronize do
+      @stream_closed = true
+      @pending_messages.clear
     end
   end
 
