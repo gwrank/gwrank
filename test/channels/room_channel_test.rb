@@ -284,6 +284,72 @@ class RoomChannelTest < ActionCable::Channel::TestCase
     refute_includes output.string, payload
   end
 
+  test "sanitizes room transmit and broadcast metadata without changing the wire protocol" do
+    stub_connection_for("conn-1")
+    room_code = "KURZ-7T4"
+    identifier = { "channel" => "RoomChannel", "code" => room_code }.to_json
+    channel = RoomChannel.new(connection, identifier, {})
+    channel.instance_variable_set(:@broadcasting, "rooms:#{room_code}")
+    connection_id = "opaque-connection-id"
+    payload = Base64.strict_encode64("opaque payload")
+    message = Rooms::Protocol.state_updated(sender_id: connection_id, version: 1, payload: payload)
+    events = []
+    subscriber = ->(*arguments) { events << [arguments.first, arguments.last.dup] }
+
+    ActiveSupport::Notifications.subscribed(subscriber, /\A(?:transmit|broadcast)\.action_cable\z/) do
+      channel.send(:transmit, message, via: "streamed from rooms:#{room_code}")
+      channel.send(:broadcast, message)
+    end
+
+    assert_equal message, connection.transmissions.last.fetch("message")
+    assert_equal identifier, connection.transmissions.last.fetch("identifier")
+    metadata = events.map(&:last).map(&:inspect).join
+    refute_includes metadata, room_code
+    refute_includes metadata, connection_id
+    refute_includes metadata, payload
+  end
+
+  test "sanitizes room subscription confirmation metadata without changing its identifier" do
+    stub_connection_for("conn-1")
+    output = StringIO.new
+    raw_logger = ActiveSupport::Logger.new(output)
+    connection.define_singleton_method(:logger) { raw_logger }
+    events = []
+    subscriber = ->(*arguments) { events << [arguments.first, arguments.last.dup] }
+
+    ActiveSupport::Notifications.subscribed(subscriber, "transmit_subscription_confirmation.action_cable") do
+      subscribe code: @room[:code]
+    end
+
+    metadata = events.map(&:last).map(&:inspect).join
+    refute_includes metadata, @room[:code]
+    refute_includes output.string, @room[:code]
+    assert subscription.confirmed?
+  end
+
+  test "sanitizes room subscription rejection metadata" do
+    stub_connection_for("conn-1")
+    output = StringIO.new
+    raw_logger = ActiveSupport::Logger.new(output)
+    connection.define_singleton_method(:logger) { raw_logger }
+    creator_secret = "creator-secret-value"
+    identifier = { "channel" => "RoomChannel", "code" => @room[:code], "creatorSecret" => creator_secret }.to_json
+    channel = RoomChannel.new(connection, identifier, {})
+    events = []
+    subscriber = ->(*arguments) { events << [arguments.first, arguments.last.dup] }
+
+    ActiveSupport::Notifications.subscribed(subscriber, "transmit_subscription_rejection.action_cable") do
+      channel.send(:transmit_subscription_rejection)
+    end
+
+    metadata = events.map(&:last).map(&:inspect).join
+    refute_includes metadata, @room[:code]
+    refute_includes metadata, creator_secret
+    refute_includes output.string, @room[:code]
+    refute_includes output.string, creator_secret
+    assert_equal identifier, connection.transmissions.last.fetch("identifier")
+  end
+
   test "publishes opaque broadcasts without raw server broadcaster logs" do
     stub_connection_for("conn-1")
     subscribe code: @room[:code]
@@ -317,6 +383,38 @@ class RoomChannelTest < ActionCable::Channel::TestCase
     end
 
     assert_includes messages, Rooms::Protocol.left("stale")
+  end
+
+  test "broadcasts every stale sender removal before closing the stale sender" do
+    stub_connection_for("sender")
+    subscribe code: @room[:code], creatorSecret: @room[:creator_secret]
+    @store.join!(code: @room[:code], connection_id: "stale-peer")
+    snapshot = @cache.read("gwrank:rooms:v1:#{@room[:code]}")
+    stale_at = (@now - Rooms::SessionStore::PRESENCE_LEASE).iso8601(6)
+    snapshot.fetch("members").each_value { |member| member["lastSeen"] = stale_at }
+    @cache.write("gwrank:rooms:v1:#{@room[:code]}", snapshot, expires_in: Rooms::SessionStore::ROOM_TTL)
+
+    events = []
+    original_broadcast = subscription.method(:broadcast)
+    subscription.define_singleton_method(:broadcast) do |message|
+      events << message
+      original_broadcast.call(message)
+    end
+    original_close = connection.method(:close_with_code)
+    connection.define_singleton_method(:close_with_code) do |**arguments|
+      events << arguments
+      original_close.call(**arguments)
+    end
+
+    perform :receive, "payload" => Base64.strict_encode64("packet")
+
+    assert_equal [Rooms::Protocol.left("sender"), Rooms::Protocol.left("stale-peer"),
+                  { code: 4404, reason: "room_not_found", reconnect: false }], events
+    snapshot = @cache.read("gwrank:rooms:v1:#{@room[:code]}")
+    assert_empty snapshot.fetch("members")
+    assert_nil snapshot.fetch("creatorConnectionId")
+    assert_equal (@now + Rooms::SessionStore::CREATOR_GRACE).iso8601(6),
+                 snapshot.fetch("creatorGraceUntil")
   end
 
   test "closes malformed packets with a non-reconnectable protocol error" do

@@ -279,6 +279,30 @@ module Rooms
       assert_equal 1, result[:version]
     end
 
+    test "raises a typed error for a stale sender after persisting removals and creator grace" do
+      created = @store.create!
+      @store.join!(code: created[:code], connection_id: "sender", creator_secret: created[:creator_secret])
+      @store.join!(code: created[:code], connection_id: "stale-peer")
+      snapshot = @cache.read(snapshot_key(created[:code]))
+      stale_at = (@now - SessionStore::PRESENCE_LEASE).iso8601(6)
+      snapshot.fetch("members").each_value { |member| member["lastSeen"] = stale_at }
+      @cache.write(snapshot_key(created[:code]), snapshot, expires_in: SessionStore::ROOM_TTL)
+
+      error = assert_raises(SessionStore::StaleMemberError) do
+        @store.record_packet!(code: created[:code], connection_id: "sender", payload: "PACKET")
+      end
+
+      assert_equal 4404, error.close_code
+      assert_equal "room_not_found", error.reason
+      assert_equal %w[sender stale-peer], error.removed_ids
+      snapshot = @cache.read(snapshot_key(created[:code]))
+      assert_empty snapshot.fetch("members")
+      assert_nil snapshot.fetch("creatorConnectionId")
+      assert_equal (@now + SessionStore::CREATOR_GRACE).iso8601(6),
+                   snapshot.fetch("creatorGraceUntil")
+      assert_equal 0, snapshot.fetch("stateVersion")
+    end
+
     test "increments packet versions and replaces the latest payload" do
       created = @store.create!
       @store.join!(code: created[:code], connection_id: "conn-1")

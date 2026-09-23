@@ -5,6 +5,7 @@ module ApplicationCable
     identified_by :connection_id
 
     def connect
+      LoggingBoundary.install!
       @logger = LoggingBoundary.wrap(@logger)
       self.connection_id = SecureRandom.uuid
     end

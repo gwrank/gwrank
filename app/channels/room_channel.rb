@@ -68,11 +68,58 @@ class RoomChannel < ApplicationCable::Channel
     close_connection(code: Rooms::Protocol::CLOSE_CODES.fetch(:protocol_error), reason: "invalid_payload")
   rescue Rooms::SessionStore::ExpiredError => error
     expire_and_close(error)
+  rescue Rooms::SessionStore::StaleMemberError => error
+    Array(error.removed_ids).each do |removed_id|
+      broadcast(Rooms::Protocol.left(removed_id))
+    end
+    close_for_error(error)
   rescue Rooms::SessionStore::Error => error
     close_for_error(error)
   end
 
   private
+
+  def transmit(data, via: nil)
+    logger.debug do
+      status = "#{self.class.name} transmitting #{data.inspect.truncate(300)}"
+      status += " (via #{via})" if via
+      status
+    end
+
+    metadata = ApplicationCable::LoggingBoundary.sanitize({
+      channel_class: self.class.name,
+      data: data,
+      via: via
+    })
+    ActiveSupport::Notifications.instrument("transmit.action_cable", metadata) do
+      connection.transmit(identifier: @identifier, message: data)
+    end
+  end
+
+  def transmit_subscription_confirmation
+    return if subscription_confirmation_sent?
+
+    logger.debug "#{self.class.name} is transmitting the subscription confirmation"
+    metadata = ApplicationCable::LoggingBoundary.sanitize({
+      channel_class: self.class.name,
+      identifier: @identifier
+    })
+    ActiveSupport::Notifications.instrument("transmit_subscription_confirmation.action_cable", metadata) do
+      connection.transmit(identifier: @identifier, type: ActionCable::INTERNAL[:message_types][:confirmation])
+      @subscription_confirmation_sent = true
+    end
+  end
+
+  def transmit_subscription_rejection
+    logger.debug "#{self.class.name} is transmitting the subscription rejection"
+    metadata = ApplicationCable::LoggingBoundary.sanitize({
+      channel_class: self.class.name,
+      identifier: @identifier
+    })
+    ActiveSupport::Notifications.instrument("transmit_subscription_rejection.action_cable", metadata) do
+      connection.transmit(identifier: @identifier, type: ActionCable::INTERNAL[:message_types][:rejection])
+    end
+  end
 
   # Action Cable's default stream_from only posts the subscription and returns. Keep the
   # same worker-pool handler, but wait for pubsub's success callback before admission.
@@ -320,11 +367,15 @@ class RoomChannel < ApplicationCable::Channel
   end
 
   def broadcast(message)
+    ApplicationCable::LoggingBoundary.install!
+    metadata = ApplicationCable::LoggingBoundary.sanitize({
+      broadcasting: @broadcasting,
+      message: message,
+      coder: ActiveSupport::JSON
+    })
     ActiveSupport::Notifications.instrument(
       "broadcast.action_cable",
-      broadcasting: @broadcasting,
-      message: ApplicationCable::LoggingBoundary.sanitize(message),
-      coder: ActiveSupport::JSON
+      metadata
     ) do
       ActionCable.server.pubsub.broadcast(@broadcasting, ActiveSupport::JSON.encode(message))
     end

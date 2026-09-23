@@ -1,6 +1,10 @@
 require "test_helper"
 
 class ApplicationCable::ConnectionTest < ActionCable::Connection::TestCase
+  def test_installs_the_boundary_for_server_action_cable_logs
+    assert_instance_of ApplicationCable::LoggingBoundary::Logger, ActionCable.server.config.logger
+  end
+
   def test_assigns_unique_connection_ids
     connect
     first_connection_id = connection.connection_id
@@ -41,13 +45,18 @@ class ApplicationCable::ConnectionTest < ActionCable::Connection::TestCase
     cable_connection = ApplicationCable::Connection.allocate
     cable_connection.instance_variable_set(:@logger, raw_logger)
     logger = cable_connection.logger
-    creator_secret = "creator-secret-value"
+    room_code = "KURZ-7T4"
+    connection_id = "opaque-connection-id"
     payload = Base64.strict_encode64("opaque payload")
-    identifier = { channel: "RoomChannel", code: "ABCD-234", creatorSecret: creator_secret }.to_json
+    identifier = { channel: "RoomChannel", code: room_code }.to_json
 
     logger.info("Unsubscribing from channel: #{identifier}")
+    logger.info("RoomChannel is streaming from rooms:#{room_code}")
     logger.error("Could not execute command from (#{identifier})")
-    logger.debug { "RoomChannel transmitting {\"payload\"=>\"#{payload}\"}" }
+    logger.error("RoomChannel packet error: #{payload}")
+    logger.info("RoomChannel presence {\"type\"=>\"room.joined\", \"connectionId\"=>\"#{connection_id}\"}")
+    logger.info("Registered connection (#{connection_id})")
+    logger.info("Removing connection (#{connection_id})")
     subscriptions_connection = Struct.new(:logger) do
       def rescue_with_handler(_error)
         nil
@@ -57,8 +66,35 @@ class ApplicationCable::ConnectionTest < ActionCable::Connection::TestCase
       "command" => "unsubscribe", "identifier" => identifier
     )
 
-    refute_includes output.string, creator_secret
+    refute_includes output.string, room_code
+    refute_includes output.string, connection_id
     refute_includes output.string, payload
     assert_includes output.string, "[FILTERED]"
+    logger.info("ChatChannel is streaming from public-channel")
+    assert_includes output.string, "ChatChannel is streaming from public-channel"
+  end
+
+  def test_sanitizes_action_cable_broadcast_logs_without_changing_the_wire_message
+    output = StringIO.new
+    previous_logger = ActionCable.server.config.logger
+    ActionCable.server.config.logger = ActiveSupport::Logger.new(output)
+    room_code = "KURZ-7T4"
+    connection_id = "opaque-connection-id"
+    payload = { "type" => "state.updated", "senderId" => connection_id,
+                "version" => 1, "payload" => Base64.strict_encode64("opaque payload") }
+    pubsub = Minitest::Mock.new
+    pubsub.expect(:broadcast, nil, ["rooms:#{room_code}", ActiveSupport::JSON.encode(payload)])
+
+    ActionCable.server.stub(:pubsub, pubsub) do
+      ApplicationCable::LoggingBoundary.install!
+      ActionCable.server.broadcast("rooms:#{room_code}", payload)
+    end
+
+    pubsub.verify
+    refute_includes output.string, room_code
+    refute_includes output.string, connection_id
+    refute_includes output.string, payload.fetch("payload")
+  ensure
+    ActionCable.server.config.logger = previous_logger
   end
 end

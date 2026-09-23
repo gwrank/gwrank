@@ -35,6 +35,15 @@ module Rooms
 
     class ExpiredError < Error; end
 
+    class StaleMemberError < Error
+      attr_reader :removed_ids
+
+      def initialize(removed_ids:)
+        @removed_ids = removed_ids
+        super(close_code: 4404, reason: "room_not_found")
+      end
+    end
+
     def self.normalize_code(code)
       candidate = code.is_a?(String) ? code : code.to_s
       return if candidate.bytesize != CODE_LENGTH
@@ -137,7 +146,12 @@ module Rooms
         end
         expire_for_operation!(code, snapshot, now)
         removed_ids = purge_stale_members(snapshot, now)
-        fail!(4404, "room_not_found") unless snapshot.fetch("members").key?(connection_id)
+        write_snapshot(code, snapshot, now) if removed_ids.any?
+        unless snapshot.fetch("members").key?(connection_id)
+          raise StaleMemberError.new(removed_ids: removed_ids) if removed_ids.include?(connection_id)
+
+          fail!(4404, "room_not_found")
+        end
 
         rate_window_started_at = parse_time(snapshot.fetch("rateWindowStartedAt"))
         if now - rate_window_started_at >= 1.second
