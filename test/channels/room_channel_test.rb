@@ -195,6 +195,75 @@ class RoomChannelTest < ActionCable::Channel::TestCase
     assert_equal [{ code: 4409, reason: "room_full", reconnect: false }], close_calls
   end
 
+  test "forwards a packet to the other subscribers with the incremented version" do
+    stub_connection_for("conn-1")
+    subscribe code: @room[:code]
+    first_subscription = subscription
+    first_connection = connection
+
+    stub_connection_for("conn-2")
+    subscribe code: @room[:code]
+
+    encoded = Base64.strict_encode64("opaque zcx bytes")
+    expected = Rooms::Protocol.state_updated(sender_id: "conn-1", version: 1, payload: encoded)
+    assert_broadcast_on("rooms:#{@room[:code]}", expected) do
+      first_subscription.perform_action("action" => "receive", "payload" => encoded)
+    end
+    subscription.send(:handle_stream_message, expected)
+
+    assert_equal [ready_message("conn-1")], first_connection.transmissions.filter_map { |message| message["message"] }
+    assert_equal [
+      ready_message("conn-2", participants: %w[conn-1 conn-2]),
+      expected
+    ], transmissions
+  end
+
+  test "closes malformed packets with a non-reconnectable protocol error" do
+    stub_connection_for("conn-1")
+    subscribe code: @room[:code]
+
+    perform :receive, "payload" => "not base64"
+
+    assert_equal [{ code: 1008, reason: "invalid_payload", reconnect: false }], close_calls
+  end
+
+  test "closes oversized packets without changing the stored state" do
+    stub_connection_for("conn-1")
+    subscribe code: @room[:code]
+    encoded = Base64.strict_encode64("x" * (Rooms::Protocol::MAX_PAYLOAD_BYTES + 1))
+
+    perform :receive, "payload" => encoded
+
+    assert_equal [{ code: 1009, reason: "payload_too_large", reconnect: false }], close_calls
+    snapshot = @cache.read("gwrank:rooms:v1:#{@room[:code]}")
+    assert_equal 0, snapshot.fetch("stateVersion")
+    assert_nil snapshot.fetch("lastPayload")
+  end
+
+  test "closes the eleventh packet in a rate window without changing the stored state" do
+    stub_connection_for("conn-1")
+    subscribe code: @room[:code]
+    encoded = Base64.strict_encode64("packet")
+
+    10.times { perform :receive, "payload" => encoded }
+    perform :receive, "payload" => encoded
+
+    assert_equal [{ code: 4429, reason: "rate_limited", reconnect: false }], close_calls
+    snapshot = @cache.read("gwrank:rooms:v1:#{@room[:code]}")
+    assert_equal 10, snapshot.fetch("stateVersion")
+    assert_equal encoded, snapshot.fetch("lastPayload")
+  end
+
+  test "closes a packet from a missing member as a non-reconnectable room error" do
+    stub_connection_for("conn-1")
+    subscribe code: @room[:code]
+    @store.leave!(code: @room[:code], connection_id: "conn-1")
+
+    perform :receive, "payload" => Base64.strict_encode64("packet")
+
+    assert_equal [{ code: 4404, reason: "room_not_found", reconnect: false }], close_calls
+  end
+
   test "registers the real stream before admission and orders worker callbacks" do
     event_loop = ControlledEventLoop.new
     pubsub = ControlledPubSub.new
@@ -439,8 +508,31 @@ class RoomChannelTest < ActionCable::Channel::TestCase
     assert_broadcast_on("rooms:#{@room[:code]}", Rooms::Protocol.expired("creator_timeout")) do
       subscription.send(:refresh_presence)
     end
+    subscription.send(:handle_stream_message, Rooms::Protocol.expired("creator_timeout"))
 
     assert_equal [{ code: 4404, reason: "creator_timeout", reconnect: false }], close_calls
+  end
+
+  test "broadcasts absolute expiry and closes every subscriber" do
+    stub_connection_for("conn-1")
+    subscribe code: @room[:code]
+    first_subscription = subscription
+    first_connection = connection
+
+    stub_connection_for("conn-2")
+    subscribe code: @room[:code]
+    @now += Rooms::SessionStore::ROOM_TTL
+
+    assert_broadcast_on("rooms:#{@room[:code]}", Rooms::Protocol.expired("max_lifetime")) do
+      subscription.send(:refresh_presence)
+    end
+    first_subscription.send(:handle_stream_message, Rooms::Protocol.expired("max_lifetime"))
+    subscription.send(:handle_stream_message, Rooms::Protocol.expired("max_lifetime"))
+
+    expected_close = { code: 4404, reason: "max_lifetime", reconnect: false }
+    assert_equal [expected_close], first_connection.instance_variable_get(:@close_calls)
+    assert_equal [expected_close], close_calls
+    assert_nil @cache.read("gwrank:rooms:v1:#{@room[:code]}")
   end
 
   test "leaves once and only broadcasts a removed member" do
@@ -466,6 +558,34 @@ class RoomChannelTest < ActionCable::Channel::TestCase
     assert_no_broadcasts("rooms:#{@room[:code]}") do
       old_subscription.unsubscribe_from_channel
     end
+
+    snapshot = @cache.read("gwrank:rooms:v1:#{@room[:code]}")
+    assert_equal "creator-2", snapshot.fetch("creatorConnectionId")
+    assert_nil snapshot.fetch("creatorGraceUntil")
+  end
+
+  test "targets the old creator with a permanent replacement close" do
+    stub_connection_for("creator-1")
+    subscribe code: @room[:code], creatorSecret: @room[:creator_secret]
+    old_subscription = subscription
+    old_connection = connection
+
+    replacement_message = {
+      "type" => RoomChannel::CREATOR_REPLACED_MESSAGE_TYPE,
+      "connectionId" => "creator-1"
+    }
+    assert_broadcast_on("rooms:#{@room[:code]}", replacement_message) do
+      stub_connection_for("creator-2")
+      subscribe code: @room[:code], creatorSecret: @room[:creator_secret]
+    end
+    old_subscription.send(
+      :handle_stream_message,
+      replacement_message
+    )
+
+    assert_equal [{ code: 4401, reason: "creator_replaced", reconnect: false }],
+                 old_connection.instance_variable_get(:@close_calls)
+    assert_empty close_calls
 
     snapshot = @cache.read("gwrank:rooms:v1:#{@room[:code]}")
     assert_equal "creator-2", snapshot.fetch("creatorConnectionId")

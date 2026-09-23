@@ -1,6 +1,7 @@
 class RoomChannel < ApplicationCable::Channel
-  PERMANENT_CLOSE_CODES = [4401, 4404, 4409].freeze
+  PERMANENT_CLOSE_CODES = [1008, 1009, 4401, 4404, 4409, 4429].freeze
   STREAM_MESSAGE_TYPES = %w[room.joined room.left state.updated room.expired].freeze
+  CREATOR_REPLACED_MESSAGE_TYPE = "room.creator.replaced"
 
   class StreamRegistrationError < StandardError
     attr_reader :original_error
@@ -23,6 +24,28 @@ class RoomChannel < ApplicationCable::Channel
 
   periodically :refresh_presence, every: 30.seconds
   before_unsubscribe :close_stream_delivery
+
+  def receive(data)
+    decoded = Rooms::Protocol.decode_payload(data)
+    result = self.class.session_store.record_packet!(
+      code: @code,
+      connection_id: connection_id,
+      payload: decoded.fetch(:payload)
+    )
+    broadcast(
+      Rooms::Protocol.state_updated(
+        sender_id: connection_id,
+        version: result.fetch(:version),
+        payload: decoded.fetch(:payload)
+      )
+    )
+  rescue Rooms::Protocol::PayloadTooLarge
+    close_connection(code: Rooms::Protocol::CLOSE_CODES.fetch(:too_large), reason: "payload_too_large")
+  rescue Rooms::Protocol::InvalidPayload
+    close_connection(code: Rooms::Protocol::CLOSE_CODES.fetch(:protocol_error), reason: "invalid_payload")
+  rescue Rooms::SessionStore::Error => error
+    close_for_error(error)
+  end
 
   private
 
@@ -108,6 +131,7 @@ class RoomChannel < ApplicationCable::Channel
     @joined = false
     @left = false
     @stream_closed = false
+    @pending_expiry_reason = nil
     @delivery_mutex = Mutex.new
     @lifecycle_mutex = Mutex.new
 
@@ -143,6 +167,7 @@ class RoomChannel < ApplicationCable::Channel
     end
 
     transmit_ready(result)
+    broadcast(creator_replaced_message(result[:replaced_connection_id])) if result[:replaced_connection_id]
     broadcast(Rooms::Protocol.left(result[:replaced_connection_id])) if result[:replaced_connection_id]
     broadcast(Rooms::Protocol.joined(connection_id))
   rescue StreamRegistrationError, Rooms::SessionStore::Error => error
@@ -154,15 +179,22 @@ class RoomChannel < ApplicationCable::Channel
 
   def unsubscribed
     removed = false
+    expired_reason = nil
     @lifecycle_mutex.synchronize do
       return if @left
 
       @left = true
       if @joined
-        removed = self.class.session_store.leave!(code: @code, connection_id: connection_id)[:removed]
+        result = self.class.session_store.leave!(code: @code, connection_id: connection_id)
+        removed = result[:removed]
+        expired_reason = result[:expired_reason]
       end
     end
-    broadcast(Rooms::Protocol.left(connection_id)) if removed
+    if expired_reason
+      expire_room(expired_reason)
+    else
+      broadcast(Rooms::Protocol.left(connection_id)) if removed
+    end
   end
 
   def refresh_presence
@@ -179,6 +211,7 @@ class RoomChannel < ApplicationCable::Channel
   end
 
   def transmit_ready(result)
+    expiry_reason = nil
     @delivery_mutex.synchronize do
       transmit(
         Rooms::Protocol.ready(
@@ -191,7 +224,11 @@ class RoomChannel < ApplicationCable::Channel
       @ready_transmitted = true
       @pending_messages.each { |message| transmit(message) }
       @pending_messages.clear
+      expiry_reason = @pending_expiry_reason
+      @pending_expiry_reason = nil
+      @stream_closed = true if expiry_reason
     end
+    close_connection(code: 4404, reason: expiry_reason) if expiry_reason
   end
 
   def handle_stream_message(message)
@@ -200,18 +237,31 @@ class RoomChannel < ApplicationCable::Channel
     return unless message.is_a?(Hash)
 
     type = message["type"]
+
+    if type == CREATOR_REPLACED_MESSAGE_TYPE
+      close_connection(code: 4401, reason: "creator_replaced") if message["connectionId"] == connection_id
+      return
+    end
+
     return unless STREAM_MESSAGE_TYPES.include?(type)
     return if type == "state.updated" && message["senderId"] == connection_id
 
+    expiry_reason = nil
     @delivery_mutex.synchronize do
       return if @stream_closed
 
       if @ready_transmitted
         transmit(message)
+        if type == "room.expired"
+          expiry_reason = message.fetch("reason")
+          @stream_closed = true
+        end
       else
         @pending_messages << message
+        @pending_expiry_reason = message.fetch("reason") if type == "room.expired"
       end
     end
+    close_connection(code: 4404, reason: expiry_reason) if expiry_reason
   end
 
   def close_stream_delivery
@@ -227,14 +277,24 @@ class RoomChannel < ApplicationCable::Channel
 
   def expire_room(reason)
     broadcast(Rooms::Protocol.expired(reason))
-    connection.close_with_code(code: 4404, reason: reason, reconnect: false)
   end
 
   def close_for_error(error)
+    close_connection(code: error.close_code, reason: error.reason)
+  end
+
+  def close_connection(code:, reason:)
     connection.close_with_code(
-      code: error.close_code,
-      reason: error.reason,
-      reconnect: !PERMANENT_CLOSE_CODES.include?(error.close_code)
+      code: code,
+      reason: reason,
+      reconnect: !PERMANENT_CLOSE_CODES.include?(code)
     )
+  end
+
+  def creator_replaced_message(connection_id)
+    {
+      "type" => CREATOR_REPLACED_MESSAGE_TYPE,
+      "connectionId" => connection_id
+    }
   end
 end
