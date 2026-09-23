@@ -39,26 +39,29 @@ module Rooms
       with_lock(INDEX_LOCK_KEY) do
         now = current_time
         index = prune_index(now)
-        fail!(503, "rooms_full") if index.length >= MAX_ACTIVE_ROOMS
+        if index.length >= MAX_ACTIVE_ROOMS
+          write_index(index, now)
+          fail!(503, "rooms_full")
+        end
 
         code = unique_code(index)
         creator_secret = Base64.urlsafe_encode64(SecureRandom.random_bytes(32), padding: false)
         expires_at = now + ROOM_TTL
         snapshot = {
           "creatorDigest" => Digest::SHA256.hexdigest(creator_secret),
-          "createdAt" => now.iso8601,
-          "expiresAt" => expires_at.iso8601,
+          "createdAt" => timestamp(now),
+          "expiresAt" => timestamp(expires_at),
           "creatorConnectionId" => nil,
           "creatorGraceUntil" => nil,
           "members" => {},
           "stateVersion" => 0,
           "lastPayload" => nil,
-          "rateWindowStartedAt" => now.iso8601,
+          "rateWindowStartedAt" => timestamp(now),
           "rateCount" => 0
         }
 
         write_snapshot(code, snapshot, now)
-        index[code] = expires_at.iso8601
+        index[code] = timestamp(expires_at)
         write_index(index, now)
 
         { code: code, creator_secret: creator_secret, expires_at: expires_at }
@@ -83,9 +86,9 @@ module Rooms
         replaced_connection_id = replace_creator_member!(snapshot, connection_id) if creator_secret_provided
         unless members.key?(connection_id)
           fail!(4409, "room_full") if members.length >= MAX_PARTICIPANTS
-          members[connection_id] = { "lastSeen" => now.iso8601 }
+          members[connection_id] = { "lastSeen" => timestamp(now) }
         else
-          members.fetch(connection_id)["lastSeen"] = now.iso8601
+          members.fetch(connection_id)["lastSeen"] = timestamp(now)
         end
 
         if creator_secret_provided
@@ -117,7 +120,7 @@ module Rooms
 
         rate_window_started_at = parse_time(snapshot.fetch("rateWindowStartedAt"))
         if now - rate_window_started_at >= 1.second
-          snapshot["rateWindowStartedAt"] = now.iso8601
+          snapshot["rateWindowStartedAt"] = timestamp(now)
           snapshot["rateCount"] = 0
         end
         fail!(4429, "rate_limited") if snapshot.fetch("rateCount") >= MESSAGES_PER_SECOND
@@ -144,13 +147,13 @@ module Rooms
 
         members = snapshot.fetch("members")
         fail!(4404, "room_not_found") unless members.key?(connection_id)
-        members.fetch(connection_id)["lastSeen"] = now.iso8601
+        members.fetch(connection_id)["lastSeen"] = timestamp(now)
 
         removed_ids = remove_stale_members(snapshot, now, except: connection_id)
         creator_connection_id = snapshot["creatorConnectionId"]
         if creator_connection_id && !members.key?(creator_connection_id)
           snapshot["creatorConnectionId"] = nil
-          snapshot["creatorGraceUntil"] ||= (now + CREATOR_GRACE).iso8601
+          snapshot["creatorGraceUntil"] ||= timestamp(now + CREATOR_GRACE)
         end
 
         write_snapshot(code, snapshot, now)
@@ -183,7 +186,7 @@ module Rooms
         creator_lost = removed && snapshot["creatorConnectionId"] == connection_id
         if creator_lost
           snapshot["creatorConnectionId"] = nil
-          snapshot["creatorGraceUntil"] = (now + CREATOR_GRACE).iso8601
+          snapshot["creatorGraceUntil"] = timestamp(now + CREATOR_GRACE)
         end
 
         write_snapshot(code, snapshot, now) if removed
@@ -302,7 +305,11 @@ module Rooms
     end
 
     def parse_time(value)
-      value.respond_to?(:to_time) ? value.to_time : Time.iso8601(value.to_s)
+      value.is_a?(String) ? Time.iso8601(value) : value.to_time
+    end
+
+    def timestamp(value)
+      value.iso8601(6)
     end
 
     def fail!(close_code, reason)
@@ -343,7 +350,7 @@ module Rooms
       creator_connection_id = snapshot["creatorConnectionId"]
       if creator_connection_id && !snapshot.fetch("members").key?(creator_connection_id)
         snapshot["creatorConnectionId"] = nil
-        snapshot["creatorGraceUntil"] ||= (now + CREATOR_GRACE).iso8601
+        snapshot["creatorGraceUntil"] ||= timestamp(now + CREATOR_GRACE)
       end
     end
 

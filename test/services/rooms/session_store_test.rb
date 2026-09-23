@@ -49,17 +49,17 @@ module Rooms
       assert_equal expires_at, result[:expires_at]
       assert_equal({
         "creatorDigest" => Digest::SHA256.hexdigest(result[:creator_secret]),
-        "createdAt" => @now.iso8601,
-        "expiresAt" => expires_at.iso8601,
+        "createdAt" => @now.iso8601(6),
+        "expiresAt" => expires_at.iso8601(6),
         "creatorConnectionId" => nil,
         "creatorGraceUntil" => nil,
         "members" => {},
         "stateVersion" => 0,
         "lastPayload" => nil,
-        "rateWindowStartedAt" => @now.iso8601,
+        "rateWindowStartedAt" => @now.iso8601(6),
         "rateCount" => 0
       }, snapshot)
-      assert_equal({ result[:code] => expires_at.iso8601 }, @cache.read(SessionStore::INDEX_KEY))
+      assert_equal({ result[:code] => expires_at.iso8601(6) }, @cache.read(SessionStore::INDEX_KEY))
       assert_equal Digest::SHA256.hexdigest(result[:creator_secret]), snapshot.fetch("creatorDigest")
       refute snapshot.values.include?(result[:creator_secret])
       assert_equal "gwrank:rooms:lock:v1:index", @lock_keys.first
@@ -81,10 +81,73 @@ module Rooms
       assert_equal SessionStore::ROOM_TTL - 30.seconds, latest_snapshot_write[:options].fetch(:expires_in)
     end
 
+    test "persists subsecond timestamps for expiry and rate windows" do
+      @now += 0.75.seconds
+      created = @store.create!
+      snapshot = @cache.read(snapshot_key(created[:code]))
+
+      assert_equal @now.iso8601(6), snapshot.fetch("createdAt")
+      assert_equal created[:expires_at].iso8601(6), snapshot.fetch("expiresAt")
+      assert_equal @now.iso8601(6), snapshot.fetch("rateWindowStartedAt")
+
+      @store.join!(code: created[:code], connection_id: "conn-1")
+      snapshot = @cache.read(snapshot_key(created[:code]))
+      assert_equal @now.iso8601(6), snapshot.fetch("members").fetch("conn-1").fetch("lastSeen")
+
+      10.times { @store.record_packet!(code: created[:code], connection_id: "conn-1", payload: "OLD") }
+      @now += 0.5.seconds
+      assert_raises(SessionStore::Error) do
+        @store.record_packet!(code: created[:code], connection_id: "conn-1", payload: "TOO-SOON")
+      end
+    end
+
+    test "keeps a member alive just under the presence lease boundary" do
+      @now += 0.75.seconds
+      created = @store.create!
+      @store.join!(code: created[:code], connection_id: "conn-1")
+      @now += SessionStore::PRESENCE_LEASE - 0.25.seconds
+
+      result = @store.join!(code: created[:code], connection_id: "conn-2")
+
+      assert_equal ["conn-1", "conn-2"], result[:participants]
+    end
+
+    test "keeps creator grace alive just under its subsecond boundary" do
+      @now += 0.75.seconds
+      created = @store.create!
+      @store.join!(code: created[:code], connection_id: "creator", creator_secret: created[:creator_secret])
+      @store.join!(code: created[:code], connection_id: "observer")
+      @store.leave!(code: created[:code], connection_id: "creator")
+      grace_until = @now + SessionStore::CREATOR_GRACE
+      @now += SessionStore::CREATOR_GRACE - 0.25.seconds
+
+      result = @store.touch!(code: created[:code], connection_id: "observer")
+      snapshot = @cache.read(snapshot_key(created[:code]))
+
+      assert_nil result[:expired_reason]
+      assert_equal grace_until.iso8601(6), snapshot.fetch("creatorGraceUntil")
+      assert_equal ["observer"], @store.join!(code: created[:code], connection_id: "observer")[:participants]
+    end
+
+    test "persists the pruned index before raising rooms_full" do
+      100.times { @store.create! }
+      index = @cache.read(SessionStore::INDEX_KEY)
+      index["STALE"] = (@now - 1.second).iso8601
+      @cache.write(SessionStore::INDEX_KEY, index, expires_in: 1.hour)
+
+      error = assert_raises(SessionStore::Error) { @store.create! }
+
+      assert_equal "rooms_full", error.reason
+      refute @cache.read(SessionStore::INDEX_KEY).key?("STALE")
+    end
+
     test "prunes missing and expired entries before enforcing the active room limit" do
+      expired_room = @store.create!
+      @now = expired_room[:expires_at]
       index = {
-        "MISSING" => (@now + 1.hour).iso8601,
-        "EXPIRED" => (@now - 1.second).iso8601
+        "MISSING" => (@now + 1.hour).iso8601(6),
+        "EXPIRED" => (@now - 1.second).iso8601(6),
+        expired_room[:code] => expired_room[:expires_at].iso8601(6)
       }
       @cache.write(SessionStore::INDEX_KEY, index, expires_in: 1.hour)
 
@@ -96,6 +159,7 @@ module Rooms
       assert_equal 100, @cache.read(SessionStore::INDEX_KEY).length
       refute @cache.read(SessionStore::INDEX_KEY).key?("MISSING")
       refute @cache.read(SessionStore::INDEX_KEY).key?("EXPIRED")
+      refute @cache.read(SessionStore::INDEX_KEY).key?(expired_room[:code])
     end
 
     test "joins normally and returns the last state" do
@@ -231,7 +295,7 @@ module Rooms
 
       assert_equal ["creator"], result[:removed_ids]
       assert_nil result[:expired_reason]
-      assert_equal (@now + SessionStore::CREATOR_GRACE).iso8601, snapshot.fetch("creatorGraceUntil")
+      assert_equal (@now + SessionStore::CREATOR_GRACE).iso8601(6), snapshot.fetch("creatorGraceUntil")
     end
 
     test "expires after creator grace and prioritizes absolute lifetime" do
@@ -285,7 +349,7 @@ module Rooms
       assert_equal false, repeat[:removed]
       assert_equal true, current[:removed]
       assert_equal true, current[:creator_lost]
-      assert_equal (@now + SessionStore::CREATOR_GRACE).iso8601, snapshot.fetch("creatorGraceUntil")
+      assert_equal (@now + SessionStore::CREATOR_GRACE).iso8601(6), snapshot.fetch("creatorGraceUntil")
     end
 
     test "explicit expiration removes both snapshot and index" do
