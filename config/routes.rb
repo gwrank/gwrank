@@ -1,12 +1,14 @@
 Rails.application.routes.draw do
   mount Rswag::Api::Engine => '/api-docs'
   mount Rswag::Ui::Engine => '/api-docs'
+  mount ActionCable.server => "/cable"
 
   namespace :api do
     namespace :v1 do
       resources :tags, only: [:index]
       resources :items, only: [:index, :show]
       resources :matches, only: [:create]
+      resources :rooms, only: [:create]
       resources :teambuilds, only: [:index, :show, :update, :destroy] do
         collection { get :export }
       end
