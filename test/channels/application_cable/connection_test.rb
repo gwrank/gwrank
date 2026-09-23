@@ -80,17 +80,28 @@ class ApplicationCable::ConnectionTest < ActionCable::Connection::TestCase
     ActionCable.server.config.logger = ActiveSupport::Logger.new(output)
     room_code = "KURZ-7T4"
     connection_id = "opaque-connection-id"
+    creator_secret = "opaque-creator-secret"
     payload = { "type" => "state.updated", "senderId" => connection_id,
-                "version" => 1, "payload" => Base64.strict_encode64("opaque payload") }
+                "version" => 1, "payload" => Base64.strict_encode64("opaque payload"),
+                "creatorSecret" => creator_secret }
     pubsub = Minitest::Mock.new
     pubsub.expect(:broadcast, nil, ["rooms:#{room_code}", ActiveSupport::JSON.encode(payload)])
+    events = []
+    subscriber = ->(*arguments) { events << arguments.last.dup }
 
-    ActionCable.server.stub(:pubsub, pubsub) do
-      ApplicationCable::LoggingBoundary.install!
-      ActionCable.server.broadcast("rooms:#{room_code}", payload)
+    ActiveSupport::Notifications.subscribed(subscriber, "broadcast.action_cable") do
+      ActionCable.server.stub(:pubsub, pubsub) do
+        ApplicationCable::LoggingBoundary.install!
+        ActionCable.server.broadcast("rooms:#{room_code}", payload)
+      end
     end
 
     pubsub.verify
+    metadata = events.fetch(0)
+    refute_includes metadata.inspect, room_code
+    refute_includes metadata.inspect, connection_id
+    refute_includes metadata.inspect, creator_secret
+    refute_includes metadata.inspect, payload.fetch("payload")
     refute_includes output.string, room_code
     refute_includes output.string, connection_id
     refute_includes output.string, payload.fetch("payload")

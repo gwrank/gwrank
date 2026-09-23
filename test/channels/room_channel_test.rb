@@ -261,6 +261,29 @@ class RoomChannelTest < ActionCable::Channel::TestCase
     ], transmissions
   end
 
+  test "sanitizes room action metadata while receive gets the original data" do
+    stub_connection_for("conn-1")
+    subscribe code: @room[:code]
+    encoded = Base64.strict_encode64("opaque action payload")
+    action_data = { "action" => "receive", "payload" => encoded }
+    expected = Rooms::Protocol.state_updated(sender_id: "conn-1", version: 1, payload: encoded)
+    events = []
+    subscriber = ->(*arguments) { events << arguments.last.dup }
+
+    ActiveSupport::Notifications.subscribed(subscriber, "perform_action.action_cable") do
+      messages = capture_broadcasts("rooms:#{@room[:code]}") do
+        subscription.perform_action(action_data)
+      end
+      assert_equal [expected], messages
+    end
+
+    metadata = events.fetch(0)
+    refute_includes metadata.inspect, encoded
+    assert_equal :receive, metadata.fetch(:action)
+    refute_includes RoomChannel.action_methods, "perform_action"
+    assert_equal encoded, @cache.read("gwrank:rooms:v1:#{@room[:code]}").fetch("lastPayload")
+  end
+
   test "keeps channel log output opaque while preserving transmitted data" do
     stub_connection_for("conn-1")
     output = StringIO.new
@@ -282,6 +305,27 @@ class RoomChannelTest < ActionCable::Channel::TestCase
     assert_equal identifier, connection.transmissions.last.fetch("identifier")
     refute_includes output.string, creator_secret
     refute_includes output.string, payload
+  end
+
+  test "redacts room ready participant identifiers from logs without changing the wire data" do
+    stub_connection_for("conn-1")
+    output = StringIO.new
+    raw_logger = ActiveSupport::Logger.new(output)
+    connection.define_singleton_method(:logger) { raw_logger }
+    channel = RoomChannel.new(connection, { "channel" => "RoomChannel" }.to_json, {})
+    participants = %w[opaque-connection-1 opaque-connection-2]
+    message = Rooms::Protocol.ready(
+      connection_id: participants.first,
+      participants: participants,
+      state: nil,
+      expires_at: @room[:expires_at]
+    )
+
+    channel.send(:transmit, message)
+
+    assert_equal message, connection.transmissions.last.fetch("message")
+    participants.each { |connection_id| refute_includes output.string, connection_id }
+    assert_includes output.string, "[FILTERED]"
   end
 
   test "sanitizes room transmit and broadcast metadata without changing the wire protocol" do

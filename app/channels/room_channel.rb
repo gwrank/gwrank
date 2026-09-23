@@ -22,6 +22,26 @@ class RoomChannel < ApplicationCable::Channel
     end
   end
 
+  module ActionDispatchLogging
+    def perform_action(data)
+      action = extract_action(data)
+
+      if processable_action?(action)
+        metadata = ApplicationCable::LoggingBoundary.sanitize({
+          channel_class: self.class.name,
+          action: action,
+          data: data
+        })
+        ActiveSupport::Notifications.instrument("perform_action.action_cable", metadata) do
+          dispatch_action(action, data)
+        end
+      else
+        logger.error "Unable to process #{action_signature(action, data)}"
+      end
+    end
+  end
+  prepend ActionDispatchLogging
+
   class_attribute :session_store, default: Rooms::SessionStore.new
 
   periodically :refresh_presence, every: 30.seconds

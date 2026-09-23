@@ -6,9 +6,26 @@ module ApplicationCable
     ROOM_BROADCASTING = /rooms:[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{3}/i
     ROOM_CONTEXT = /\bRoomChannel\b|\brooms:[^\s,)}]+|\broom\.(?:joined|left|expired|ready|creator\.replaced)\b/i
     ROOM_CONNECTION_FIELD = /(["']?(?:connectionId|senderId|creatorConnectionId)["']?\s*(?:=>|:)\s*["'])([^"']+)(["'])/
+    ROOM_PARTICIPANTS = /(["']?participants["']?\s*(?:=>|:)\s*\[)[^\]]*(\])/i
     CONNECTION_LOG = /((?:Registered|Removing) connection \()([^)]+)(\))/
     BASE64_TOKEN = /(?<![A-Za-z0-9+\/])[A-Za-z0-9+\/]{16,}={0,2}(?![A-Za-z0-9+\/])/
     SEVERITIES = %i[debug info warn error fatal unknown].freeze
+
+    module ServerBroadcaster
+      def broadcast(message)
+        server.logger.debug { "[ActionCable] Broadcasting to #{broadcasting}: #{message.inspect.truncate(300)}" }
+
+        metadata = LoggingBoundary.sanitize({
+          broadcasting: broadcasting,
+          message: message,
+          coder: coder
+        })
+        ActiveSupport::Notifications.instrument("broadcast.action_cable", metadata) do
+          encoded = coder ? coder.encode(message) : message
+          server.pubsub.broadcast broadcasting, encoded
+        end
+      end
+    end
 
     class Logger
       def initialize(logger)
@@ -54,6 +71,14 @@ module ApplicationCable
 
       logger = ActionCable.server.config.logger
       ActionCable.server.config.logger = wrap(logger) if logger
+      install_server_broadcaster!
+    end
+
+    def install_server_broadcaster!
+      return unless defined?(ActionCable::Server::Broadcasting::Broadcaster)
+
+      broadcaster = ActionCable::Server::Broadcasting::Broadcaster
+      broadcaster.prepend(ServerBroadcaster) unless broadcaster.ancestors.include?(ServerBroadcaster)
     end
 
     def sanitize(value, room: false)
@@ -101,6 +126,7 @@ module ApplicationCable
       sanitized = value.gsub(ROOM_BROADCASTING, "rooms:#{FILTERED}")
       sanitized = sanitized.gsub(ROOM_CODE, FILTERED)
       sanitized = sanitized.gsub(ROOM_CONNECTION_FIELD) { "#{Regexp.last_match(1)}#{FILTERED}#{Regexp.last_match(3)}" }
+      sanitized = sanitized.gsub(ROOM_PARTICIPANTS) { "#{Regexp.last_match(1)}#{FILTERED}#{Regexp.last_match(2)}" }
       sanitized.gsub(BASE64_TOKEN, FILTERED)
     end
   end
