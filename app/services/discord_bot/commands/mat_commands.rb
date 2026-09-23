@@ -63,9 +63,14 @@ module DiscordBot
           discord_server_id: discord_server_id,
           is_monthly: true
         )
+        pattern_changed = schedule.recurrence_pattern.present? && schedule.recurrence_pattern != pattern
         schedule.recurrence_pattern = pattern
         schedule.channel_id = event.channel.id
         schedule.registration_opens_days_before = 28
+        if pattern_changed
+          schedule.last_reminded_on = nil
+          schedule.last_registration_reminded_for = nil
+        end
         schedule.save!
         
         next_occ = schedule.next_occurrence

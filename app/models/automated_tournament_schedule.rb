@@ -4,6 +4,7 @@
 #
 #  id                             :bigint           not null, primary key
 #  is_monthly                     :boolean          default(FALSE), not null
+#  last_registration_reminded_for :date
 #  last_reminded_on               :date
 #  recurrence_pattern             :string
 #  registration_opens_days_before :integer          default(28)
@@ -15,7 +16,7 @@
 #
 # Indexes
 #
-#  index_automated_tournament_schedules_on_discord_server_id_and_is_monthly  (discord_server_id,is_monthly) UNIQUE
+#  index_at_schedules_on_server_and_monthly  (discord_server_id,is_monthly) UNIQUE
 #
 class AutomatedTournamentSchedule < ApplicationRecord
   enum :timezone, { a: 'a', b: 'b', c: 'c' }

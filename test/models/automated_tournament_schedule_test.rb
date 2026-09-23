@@ -5,11 +5,12 @@ require "test_helper"
 # Table name: automated_tournament_schedules
 #
 #  id                             :bigint           not null, primary key
-#  is_monthly                     :boolean          default(FALSE)
+#  is_monthly                     :boolean          default(FALSE), not null
+#  last_registration_reminded_for :date
 #  last_reminded_on               :date
 #  recurrence_pattern             :string
 #  registration_opens_days_before :integer          default(28)
-#  timezone                       :string           not null
+#  timezone                       :string
 #  created_at                     :datetime         not null
 #  updated_at                     :datetime         not null
 #  channel_id                     :string           not null
@@ -17,7 +18,7 @@ require "test_helper"
 #
 # Indexes
 #
-#  index_automated_tournament_schedules_on_discord_server_id  (discord_server_id) UNIQUE
+#  index_at_schedules_on_server_and_monthly  (discord_server_id,is_monthly) UNIQUE
 #
 class AutomatedTournamentScheduleTest < ActiveSupport::TestCase
   test "next_occurrence returns today's occurrence when it hasn't started yet" do

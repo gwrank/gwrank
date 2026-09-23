@@ -327,3 +327,54 @@ Bonus trouvés en chemin (inclus car bloquants pour la même feature) : `next_mo
 
 - Heure exacte du mAT (on cale à 15:00 UTC, même que slot B ? à trancher : minuit UTC vs heure réelle) — documented, ajustable en 1 ligne.
 - Normalisation `.to_s` des snowflakes : non nécessaire (l'unicité a matché, donc le cast marche) — on ne touche pas.
+
+---
+
+# Fix spam @here MAT reminder (7x "Monthly AT is in 24 hours")
+
+## Statut : EN COURS
+
+## Cause racine (Phase 1-2 systematic-debugging, prouvée par lecture)
+
+- `MatReminderCheck#check_and_remind` (mat_reminder_check.rb:29) : condition
+  `now >= next_occ - 24h && now <= next_occ` vraie pendant 24h entières,
+  poll toutes les 60s (`POLL_INTERVAL`, command_bot_job.rb:50) → ~1440
+  `@here` par schedule. Même défaut sur le rappel registration
+  (`now >= registration_start - 1h && now <= registration_start` → ~60 envois).
+- Aucune déduplication, contrairement au modèle qui marche :
+  `AtReminderCheck` (at_reminder_check.rb:24-32) = fenêtre étroite
+  `[trigger_start, trigger_start + POLL_INTERVAL)` + garde
+  `last_reminded_on == next_occ.to_date`.
+- 7 messages identiques = 7 polls consécutifs dans la fenêtre (ou N schedules
+  monthly vers le même channel, même boucle `find_each` sans rescue).
+
+## Hypothèse (Phase 3)
+
+Miroir du pattern `AtReminderCheck` : fenêtre étroite + garde DB par occurrence
+supprime le spam tout en garantissant 1 envoi.
+
+## Plan (TDD)
+
+- [x] RED : `test/services/discord_bot/mat_reminder_check_test.rb` — 2 appels
+      dans la fenêtre 24h → 1 seul message ; hors fenêtre → 0 ; registration idem
+- [x] Migration : `last_registration_reminded_for :date` sur
+      `automated_tournament_schedules` (`last_reminded_on` réutilisé pour le
+      rappel 24h, lignes daily/monthly isolées par scope unique)
+- [x] Fix `MatReminderCheck` : fenêtres étroites + gardes + `update!` + rescue
+      par schedule (un schedule pourri ne bloque plus les autres)
+- [x] Reset des 2 gardes dans `MatCommands#handle_schedule` si pattern changé
+      (miroir `AtCommands` timezone_changed)
+- [x] GREEN/verify : repro verts + `automated_tournament_*`, `at/mat_commands`,
+      `at/mat_reminder` ; `ruby -c` systématique
+
+## Revue (post-implémentation)
+
+**Vérification :** RED d'abord — 5 runs / 2 failures reproduisant exactement le
+spam (7 polls → 7 `@here`). GREEN ensuite — `mat_reminder_check` 5/5 ;
+`discord_bot/` + `automated_tournament_*` 99 runs 0 échec ; suite complète
+338 runs, seules les 3 failures `ScrimsControllerTest` préexistantes sur main
+(redirect sign_in, sans rapport) ; `ruby -c` OK sur les 4 fichiers.
+**Décisions :** `last_reminded_on` réutilisé pour le rappel 24h monthly
+(isolation par ligne daily/monthly) + nouvelle colonne date pour le rappel
+registration (même date d'événement, sinon collision) ; fenêtre = `POLL_INTERVAL`
+comme `AtReminderCheck` ; envoi raté → pas de marquage (retry au prochain poll).
