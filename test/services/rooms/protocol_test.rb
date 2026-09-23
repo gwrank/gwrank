@@ -24,11 +24,14 @@ module Rooms
       assert_raises(Protocol::InvalidPayload) { Protocol.decode_payload("payload" => 123) }
     end
 
-    test "rejects malformed base64 and oversize decoded payloads" do
-      assert_raises(Protocol::InvalidPayload) { Protocol.decode_payload("payload" => "not base64!") }
+    test "classifies malformed base64 separately from oversize decoded payloads" do
+      malformed = assert_raises(Protocol::InvalidPayload) do
+        Protocol.decode_payload("payload" => "not base64!")
+      end
+      assert_equal Protocol::InvalidPayload, malformed.class
 
       encoded = Base64.strict_encode64("x" * Protocol::MAX_PAYLOAD_BYTES.next)
-      assert_raises(Protocol::InvalidPayload) { Protocol.decode_payload("payload" => encoded) }
+      assert_raises(Protocol::PayloadTooLarge) { Protocol.decode_payload("payload" => encoded) }
     end
 
     test "builds the documented server envelopes" do
@@ -64,7 +67,7 @@ module Rooms
         "state" => { "version" => 3, "payload" => "BASE64" },
         "expiresAt" => "2026-09-23T18:00:00Z"
       }, Protocol.ready(connection_id: "conn-1", participants: ["conn-1", "conn-2"],
-                         state: { version: 3, payload: "BASE64" },
+                         state: { "version" => 3, "payload" => "BASE64" },
                          expires_at: Time.utc(2026, 9, 23, 18)))
     end
 

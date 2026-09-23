@@ -16,6 +16,7 @@ module Rooms
     }.freeze
 
     class InvalidPayload < StandardError; end
+    class PayloadTooLarge < InvalidPayload; end
 
     class << self
       def decode_payload(data)
@@ -25,7 +26,7 @@ module Rooms
 
         payload = data["payload"]
         decoded = Base64.strict_decode64(payload)
-        raise InvalidPayload if decoded.bytesize > MAX_PAYLOAD_BYTES
+        raise PayloadTooLarge if decoded.bytesize > MAX_PAYLOAD_BYTES
 
         { payload: payload, bytesize: decoded.bytesize }
       rescue ArgumentError
