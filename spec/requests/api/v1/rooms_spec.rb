@@ -11,6 +11,8 @@ RSpec.describe 'Rooms API', swagger_doc: 'teambuilds.yaml', type: :request do
         Creates an ephemeral shared room for the authenticated player. Clients subscribe to
         Action Cable using the returned websocketUrl and a command identifier shaped as
         {"channel":"RoomChannel","code":"ROOM-CODE","creatorSecret":"CREATOR-SECRET"}.
+        The creator includes creatorSecret; normal participants omit creatorSecret and subscribe
+        with the code only.
         The channel broadcasts room state and accepts packet, presence, and leave commands;
         the WebSocket stream itself is not modeled in this OpenAPI document.
       DESC
@@ -58,8 +60,14 @@ RSpec.describe 'Rooms API', swagger_doc: 'teambuilds.yaml', type: :request do
         end
       end
 
-      response(401, 'Missing or invalid token') do
+      response(401, 'Missing token') do
         let(:Authorization) { '' }
+
+        run_test!
+      end
+
+      response(401, 'Invalid token') do
+        let(:Authorization) { 'Bearer invalid-token' }
 
         run_test!
       end
