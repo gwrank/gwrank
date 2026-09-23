@@ -20,7 +20,8 @@
     "chartjs-plugin-zoom": "^2.0.1",
     "nodemon": "^3.1.11",
     "postcss": "^8.5.6",
-    "postcss-cli": "^11.0.1"
+    "postcss-cli": "^11.0.1",
+    "yarn": "^1.22.22"
   },
   "browserslist": [
     "defaults"
