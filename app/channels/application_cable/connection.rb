@@ -1,4 +1,18 @@
 module ApplicationCable
   class Connection < ActionCable::Connection::Base
+    identified_by :connection_id
+
+    def connect
+      self.connection_id = SecureRandom.uuid
+    end
+
+    def close_with_code(code:, reason:, reconnect:)
+      transmit(
+        type: ActionCable::INTERNAL[:message_types][:disconnect],
+        reason: reason,
+        reconnect: reconnect
+      )
+      websocket.close(code, reason)
+    end
   end
 end
