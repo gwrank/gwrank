@@ -29,6 +29,8 @@ module Rooms
       end
     end
 
+    class ExpiredError < Error; end
+
     def initialize(cache: Rails.cache, clock: -> { Time.current }, locker: nil)
       @cache = cache
       @clock = clock
@@ -333,7 +335,7 @@ module Rooms
       delete_snapshot_and_index(code)
       return reason if return_reason
 
-      fail!(4404, reason)
+      raise ExpiredError.new(close_code: 4404, reason: reason)
     end
 
     def expiration_reason(snapshot, now)

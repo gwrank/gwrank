@@ -163,11 +163,27 @@ class RoomChannelTest < ActionCable::Channel::TestCase
   test "rejects an unknown room with a permanent close" do
     stub_connection_for("conn-1")
 
-    subscribe code: "nope-123"
+    assert_no_broadcasts("rooms:nope-123") do
+      subscribe code: "nope-123"
+    end
 
     assert subscription.rejected?
     assert_no_streams
     assert_equal [{ code: 4404, reason: "room_not_found", reconnect: false }], close_calls
+  end
+
+  test "broadcasts expiry before rejecting a join to an expired room" do
+    @now += Rooms::SessionStore::ROOM_TTL
+    stub_connection_for("conn-1")
+
+    assert_broadcast_on("rooms:#{@room[:code]}", Rooms::Protocol.expired("max_lifetime")) do
+      subscribe code: @room[:code]
+    end
+
+    assert subscription.rejected?
+    assert_no_streams
+    assert_equal [{ code: 4404, reason: "max_lifetime", reconnect: false }], close_calls
+    assert_nil @cache.read("gwrank:rooms:v1:#{@room[:code]}")
   end
 
   test "rejects an invalid creator secret without exposing the secret" do
@@ -240,6 +256,22 @@ class RoomChannelTest < ActionCable::Channel::TestCase
     assert_nil snapshot.fetch("lastPayload")
   end
 
+  test "accepts a packet decoded to exactly the maximum payload size" do
+    stub_connection_for("conn-1")
+    subscribe code: @room[:code]
+    encoded = Base64.strict_encode64("x" * Rooms::Protocol::MAX_PAYLOAD_BYTES)
+    expected = Rooms::Protocol.state_updated(sender_id: "conn-1", version: 1, payload: encoded)
+
+    assert_broadcast_on("rooms:#{@room[:code]}", expected) do
+      perform :receive, "payload" => encoded
+    end
+
+    assert_empty close_calls
+    snapshot = @cache.read("gwrank:rooms:v1:#{@room[:code]}")
+    assert_equal 1, snapshot.fetch("stateVersion")
+    assert_equal encoded, snapshot.fetch("lastPayload")
+  end
+
   test "closes the eleventh packet in a rate window without changing the stored state" do
     stub_connection_for("conn-1")
     subscribe code: @room[:code]
@@ -262,6 +294,19 @@ class RoomChannelTest < ActionCable::Channel::TestCase
     perform :receive, "payload" => Base64.strict_encode64("packet")
 
     assert_equal [{ code: 4404, reason: "room_not_found", reconnect: false }], close_calls
+  end
+
+  test "broadcasts packet-triggered expiry before closing the sender" do
+    stub_connection_for("conn-1")
+    subscribe code: @room[:code]
+    @now += Rooms::SessionStore::ROOM_TTL
+
+    assert_broadcast_on("rooms:#{@room[:code]}", Rooms::Protocol.expired("max_lifetime")) do
+      perform :receive, "payload" => Base64.strict_encode64("packet")
+    end
+
+    assert_equal [{ code: 4404, reason: "max_lifetime", reconnect: false }], close_calls
+    assert_nil @cache.read("gwrank:rooms:v1:#{@room[:code]}")
   end
 
   test "registers the real stream before admission and orders worker callbacks" do
@@ -582,10 +627,35 @@ class RoomChannelTest < ActionCable::Channel::TestCase
       :handle_stream_message,
       replacement_message
     )
+    old_subscription.send(:handle_stream_message, Rooms::Protocol.left("creator-2"))
+    old_subscription.send(:handle_stream_message, Rooms::Protocol.joined("creator-2"))
 
     assert_equal [{ code: 4401, reason: "creator_replaced", reconnect: false }],
                  old_connection.instance_variable_get(:@close_calls)
+    assert_equal [ready_message("creator-1")], old_connection.transmissions.filter_map { |message| message["message"] }
     assert_empty close_calls
+
+    snapshot = @cache.read("gwrank:rooms:v1:#{@room[:code]}")
+    assert_equal "creator-2", snapshot.fetch("creatorConnectionId")
+    assert_nil snapshot.fetch("creatorGraceUntil")
+  end
+
+  test "a creator channel leave starts grace and a secret reconnect clears it" do
+    stub_connection_for("creator-1")
+    subscribe code: @room[:code], creatorSecret: @room[:creator_secret]
+    creator_subscription = subscription
+
+    stub_connection_for("observer")
+    subscribe code: @room[:code]
+    creator_subscription.unsubscribe_from_channel
+
+    snapshot = @cache.read("gwrank:rooms:v1:#{@room[:code]}")
+    assert_nil snapshot.fetch("creatorConnectionId")
+    assert_equal (@now + Rooms::SessionStore::CREATOR_GRACE).iso8601(6), snapshot.fetch("creatorGraceUntil")
+
+    @now += 1.minute
+    stub_connection_for("creator-2")
+    subscribe code: @room[:code], creatorSecret: @room[:creator_secret]
 
     snapshot = @cache.read("gwrank:rooms:v1:#{@room[:code]}")
     assert_equal "creator-2", snapshot.fetch("creatorConnectionId")

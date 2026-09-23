@@ -272,6 +272,35 @@ module Rooms
       assert_equal "9", @cache.read(snapshot_key(created[:code])).fetch("lastPayload")
     end
 
+    test "raises a distinct expiry error when joining an expired room" do
+      created = @store.create!
+      @now = created[:expires_at]
+
+      error = assert_raises(SessionStore::ExpiredError) do
+        @store.join!(code: created[:code], connection_id: "conn-1")
+      end
+
+      assert_equal 4404, error.close_code
+      assert_equal "max_lifetime", error.reason
+      assert_nil @cache.read(snapshot_key(created[:code]))
+    end
+
+    test "raises a distinct creator timeout error when recording a packet" do
+      created = @store.create!
+      @store.join!(code: created[:code], connection_id: "creator", creator_secret: created[:creator_secret])
+      @store.join!(code: created[:code], connection_id: "observer")
+      @store.leave!(code: created[:code], connection_id: "creator")
+      @now += SessionStore::CREATOR_GRACE
+
+      error = assert_raises(SessionStore::ExpiredError) do
+        @store.record_packet!(code: created[:code], connection_id: "observer", payload: "PAYLOAD")
+      end
+
+      assert_equal 4404, error.close_code
+      assert_equal "creator_timeout", error.reason
+      assert_nil @cache.read(snapshot_key(created[:code]))
+    end
+
     test "starts a new rate window after one second" do
       created = @store.create!
       @store.join!(code: created[:code], connection_id: "conn-1")

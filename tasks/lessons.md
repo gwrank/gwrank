@@ -71,3 +71,15 @@
   gw-skilldata, jamais par nom ni par une liste maison non alignée ; (2) un doublon de nom
   avec deux game_ids différents = signal d'alarme immédiat ; (3) pour auditer :
   `rake skills:repair_from_source` (idempotent) puis recompter les mismatches.
+
+## 2026-09-23 — shared room lifecycle review
+
+8. **Preserve expiry as a distinct store error.** Deleting an expired snapshot and raising the
+   generic `room_not_found` error loses the reason needed to notify existing subscribers. Rule:
+   expiry-triggering operations must raise an identifiable error carrying `creator_timeout` or
+   `max_lifetime`; unknown rooms must remain a separate path.
+
+9. **Gate delivery before targeted disconnects.** A targeted replacement close is not complete
+   when the websocket close is recorded if queued stream callbacks can still transmit afterward.
+   Rule: acquire the existing delivery mutex, mark the stream closed, and clear pending messages
+   before issuing the permanent close.

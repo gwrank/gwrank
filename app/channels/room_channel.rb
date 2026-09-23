@@ -43,6 +43,8 @@ class RoomChannel < ApplicationCable::Channel
     close_connection(code: Rooms::Protocol::CLOSE_CODES.fetch(:too_large), reason: "payload_too_large")
   rescue Rooms::Protocol::InvalidPayload
     close_connection(code: Rooms::Protocol::CLOSE_CODES.fetch(:protocol_error), reason: "invalid_payload")
+  rescue Rooms::SessionStore::ExpiredError => error
+    expire_and_close(error)
   rescue Rooms::SessionStore::Error => error
     close_for_error(error)
   end
@@ -171,9 +173,13 @@ class RoomChannel < ApplicationCable::Channel
     broadcast(Rooms::Protocol.left(result[:replaced_connection_id])) if result[:replaced_connection_id]
     broadcast(Rooms::Protocol.joined(connection_id))
   rescue StreamRegistrationError, Rooms::SessionStore::Error => error
-    close_stream_delivery
-    stop_all_streams
-    close_for_error(error)
+    if error.is_a?(Rooms::SessionStore::ExpiredError)
+      expire_and_close(error)
+    else
+      close_stream_delivery
+      stop_all_streams
+      close_for_error(error)
+    end
     reject
   end
 
@@ -213,6 +219,8 @@ class RoomChannel < ApplicationCable::Channel
   def transmit_ready(result)
     expiry_reason = nil
     @delivery_mutex.synchronize do
+      return if @stream_closed
+
       transmit(
         Rooms::Protocol.ready(
           connection_id: connection_id,
@@ -239,7 +247,16 @@ class RoomChannel < ApplicationCable::Channel
     type = message["type"]
 
     if type == CREATOR_REPLACED_MESSAGE_TYPE
-      close_connection(code: 4401, reason: "creator_replaced") if message["connectionId"] == connection_id
+      if message["connectionId"] == connection_id
+        should_close = @delivery_mutex.synchronize do
+          next false if @stream_closed
+
+          @stream_closed = true
+          @pending_messages.clear
+          true
+        end
+        close_connection(code: 4401, reason: "creator_replaced") if should_close
+      end
       return
     end
 
@@ -277,6 +294,13 @@ class RoomChannel < ApplicationCable::Channel
 
   def expire_room(reason)
     broadcast(Rooms::Protocol.expired(reason))
+  end
+
+  def expire_and_close(error)
+    close_stream_delivery
+    stop_all_streams
+    expire_room(error.reason)
+    close_for_error(error)
   end
 
   def close_for_error(error)
