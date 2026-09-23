@@ -12,6 +12,33 @@ servers:
 security:
 - bearerAuth: []
 paths:
+  "/api/v1/rooms":
+    post:
+      summary: Create a shared teambuild room
+      security:
+      - bearerAuth: []
+      description: Creates an ephemeral shared room for the authenticated player.
+        Clients subscribe to Action Cable using the returned websocketUrl and a command
+        identifier shaped as {"channel":"RoomChannel","code":"ROOM-CODE","creatorSecret":"CREATOR-SECRET"}.
+        The creator includes creatorSecret; normal participants omit creatorSecret
+        and subscribe with the code only. The channel forwards opaque packet messages
+        and manages presence and lifecycle on the server; the WebSocket stream itself
+        is not modeled in this OpenAPI document.
+      responses:
+        '201':
+          description: Room created
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/RoomCreateResponse"
+        '503':
+          description: No room capacity available
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/RoomError"
+        '401':
+          description: Invalid token
   "/api/v1/tags":
     get:
       summary: List allowed teambuild tags
@@ -392,6 +419,66 @@ components:
             type: string
           description: Closed list of tags accepted when publishing teambuilds, ordered
             by position
+    RoomCreateResponse:
+      type: object
+      required:
+      - code
+      - creatorSecret
+      - websocketUrl
+      - expiresAt
+      - limits
+      properties:
+        code:
+          type: string
+          pattern: "^[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{3}$"
+        creatorSecret:
+          type: string
+        websocketUrl:
+          type: string
+          format: uri
+        expiresAt:
+          type: string
+          format: date-time
+        limits:
+          "$ref": "#/components/schemas/RoomLimits"
+    RoomLimits:
+      type: object
+      required:
+      - participants
+      - payloadBytes
+      - messagesPerSecond
+      properties:
+        participants:
+          type: integer
+          minimum: 1
+          maximum: 8
+        payloadBytes:
+          type: integer
+          minimum: 0
+          maximum: 16384
+        messagesPerSecond:
+          type: integer
+          minimum: 1
+          maximum: 10
+    RoomError:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            required:
+            - code
+            - message
+            properties:
+              code:
+                type: string
+                enum:
+                - rooms_full
+              message:
+                type: string
     ErrorList:
       type: object
       properties:

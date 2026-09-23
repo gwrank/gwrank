@@ -68,6 +68,43 @@ RSpec.configure do |config|
               }
             }
           },
+          RoomCreateResponse: {
+            type: :object,
+            required: %w[code creatorSecret websocketUrl expiresAt limits],
+            properties: {
+              code: { type: :string, pattern: '^[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{3}$' },
+              creatorSecret: { type: :string },
+              websocketUrl: { type: :string, format: :uri },
+              expiresAt: { type: :string, format: :'date-time' },
+              limits: { '$ref': '#/components/schemas/RoomLimits' }
+            }
+          },
+          RoomLimits: {
+            type: :object,
+            required: %w[participants payloadBytes messagesPerSecond],
+            properties: {
+              participants: { type: :integer, minimum: 1, maximum: 8 },
+              payloadBytes: { type: :integer, minimum: 0, maximum: 16384 },
+              messagesPerSecond: { type: :integer, minimum: 1, maximum: 10 }
+            }
+          },
+          RoomError: {
+            type: :object,
+            required: ['errors'],
+            properties: {
+              errors: {
+                type: :array,
+                items: {
+                  type: :object,
+                  required: %w[code message],
+                  properties: {
+                    code: { type: :string, enum: ['rooms_full'] },
+                    message: { type: :string }
+                  }
+                }
+              }
+            }
+          },
           ErrorList: {
             type: :object,
             properties: {
