@@ -10,7 +10,7 @@ module Api::V1
 
       assert_response :created
       body = response.parsed_body
-      assert_match(/\A[A-Z2-9]{4}-[A-Z2-9]{3}\z/, body.fetch("code"))
+      assert_match(/\A[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{3}\z/, body.fetch("code"))
       assert_match(/\A[A-Za-z0-9_-]+\z/, body.fetch("creatorSecret"))
       assert_match(%r{\Awss://.*?/cable\z}, body.fetch("websocketUrl"))
       assert_in_delta requested_at + 2.hours, Time.iso8601(body.fetch("expiresAt")), 5.seconds

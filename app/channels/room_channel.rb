@@ -1,3 +1,5 @@
+require_relative "application_cable/logging_boundary"
+
 class RoomChannel < ApplicationCable::Channel
   PERMANENT_CLOSE_CODES = [1008, 1009, 4401, 4404, 4409, 4429].freeze
   STREAM_MESSAGE_TYPES = %w[room.joined room.left state.updated room.expired].freeze
@@ -25,6 +27,24 @@ class RoomChannel < ApplicationCable::Channel
   periodically :refresh_presence, every: 30.seconds
   before_unsubscribe :close_stream_delivery
 
+  def initialize(connection, identifier, params = {})
+    super
+    @pending_messages = []
+    @ready_transmitted = false
+    @joined = false
+    @left = false
+    @stream_cancelled = false
+    @stream_closed = false
+    @pending_expiry_reason = nil
+    @delivery_mutex = Mutex.new
+    @lifecycle_mutex = Mutex.new
+  end
+
+  def logger
+    @logging_boundary_logger ||= ApplicationCable::LoggingBoundary.wrap(connection.logger)
+  end
+  private :logger
+
   def receive(data)
     decoded = Rooms::Protocol.decode_payload(data)
     result = self.class.session_store.record_packet!(
@@ -32,6 +52,9 @@ class RoomChannel < ApplicationCable::Channel
       connection_id: connection_id,
       payload: decoded.fetch(:payload)
     )
+    Array(result[:removed_ids]).each do |removed_id|
+      broadcast(Rooms::Protocol.left(removed_id))
+    end
     broadcast(
       Rooms::Protocol.state_updated(
         sender_id: connection_id,
@@ -126,16 +149,14 @@ class RoomChannel < ApplicationCable::Channel
   end
 
   def subscribed
-    @code = params.fetch("code", "").to_s.upcase
+    @code = Rooms::SessionStore.normalize_code(params.fetch("code", ""))
+    unless @code
+      close_connection(code: Rooms::Protocol::CLOSE_CODES.fetch(:room_not_found), reason: "room_not_found")
+      reject
+      return
+    end
+
     @broadcasting = "rooms:#{@code}"
-    @pending_messages = []
-    @ready_transmitted = false
-    @joined = false
-    @left = false
-    @stream_closed = false
-    @pending_expiry_reason = nil
-    @delivery_mutex = Mutex.new
-    @lifecycle_mutex = Mutex.new
 
     stream_ready = stream_from(@broadcasting, coder: ActiveSupport::JSON) do |message|
       handle_stream_message(message)
@@ -147,7 +168,6 @@ class RoomChannel < ApplicationCable::Channel
       return
     end
 
-    result = nil
     admitted = @lifecycle_mutex.synchronize do
       if @left || @stream_cancelled || unsubscribed?
         false
@@ -158,7 +178,22 @@ class RoomChannel < ApplicationCable::Channel
           creator_secret: params["creatorSecret"]
         )
         @joined = true
-        true
+        if @left || unsubscribed?
+          false
+        else
+          transmit_ready(result)
+          if @left || unsubscribed?
+            false
+          else
+            Array(result[:removed_ids]).each do |removed_id|
+              broadcast(Rooms::Protocol.left(removed_id))
+            end
+            broadcast(creator_replaced_message(result[:replaced_connection_id])) if result[:replaced_connection_id]
+            broadcast(Rooms::Protocol.left(result[:replaced_connection_id])) if result[:replaced_connection_id]
+            broadcast(Rooms::Protocol.joined(connection_id))
+            true
+          end
+        end
       end
     end
     unless admitted
@@ -168,10 +203,6 @@ class RoomChannel < ApplicationCable::Channel
       return
     end
 
-    transmit_ready(result)
-    broadcast(creator_replaced_message(result[:replaced_connection_id])) if result[:replaced_connection_id]
-    broadcast(Rooms::Protocol.left(result[:replaced_connection_id])) if result[:replaced_connection_id]
-    broadcast(Rooms::Protocol.joined(connection_id))
   rescue StreamRegistrationError, Rooms::SessionStore::Error => error
     if error.is_a?(Rooms::SessionStore::ExpiredError)
       expire_and_close(error)
@@ -289,7 +320,14 @@ class RoomChannel < ApplicationCable::Channel
   end
 
   def broadcast(message)
-    ActionCable.server.broadcast(@broadcasting, message)
+    ActiveSupport::Notifications.instrument(
+      "broadcast.action_cable",
+      broadcasting: @broadcasting,
+      message: ApplicationCable::LoggingBoundary.sanitize(message),
+      coder: ActiveSupport::JSON
+    ) do
+      ActionCable.server.pubsub.broadcast(@broadcasting, ActiveSupport::JSON.encode(message))
+    end
   end
 
   def expire_room(reason)

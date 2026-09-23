@@ -72,7 +72,7 @@ RSpec.configure do |config|
             type: :object,
             required: %w[code creatorSecret websocketUrl expiresAt limits],
             properties: {
-              code: { type: :string, pattern: '^[A-Z2-9]{4}-[A-Z2-9]{3}$' },
+              code: { type: :string, pattern: '^[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{3}$' },
               creatorSecret: { type: :string },
               websocketUrl: { type: :string, format: :uri },
               expiresAt: { type: :string, format: :'date-time' },

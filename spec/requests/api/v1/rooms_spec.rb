@@ -13,8 +13,8 @@ RSpec.describe 'Rooms API', swagger_doc: 'teambuilds.yaml', type: :request do
         {"channel":"RoomChannel","code":"ROOM-CODE","creatorSecret":"CREATOR-SECRET"}.
         The creator includes creatorSecret; normal participants omit creatorSecret and subscribe
         with the code only.
-        The channel broadcasts room state and accepts packet, presence, and leave commands;
-        the WebSocket stream itself is not modeled in this OpenAPI document.
+        The channel forwards opaque packet messages and manages presence and lifecycle on the
+        server; the WebSocket stream itself is not modeled in this OpenAPI document.
       DESC
 
       let(:Authorization) { "Bearer #{@owner.api_token}" }
@@ -29,7 +29,7 @@ RSpec.describe 'Rooms API', swagger_doc: 'teambuilds.yaml', type: :request do
 
         run_test! do |response|
           data = JSON.parse(response.body)
-          expect(data['code']).to match(/\A[A-Z2-9]{4}-[A-Z2-9]{3}\z/)
+          expect(data['code']).to match(/\A[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{3}\z/)
           expect(data['creatorSecret']).to match(/\A[A-Za-z0-9_-]+\z/)
           expect(data['websocketUrl']).to match(%r{\Awss://.*?/cable\z})
           expect(Time.iso8601(data['expiresAt'])).to be_within(5.seconds).of(@requested_at + 2.hours)

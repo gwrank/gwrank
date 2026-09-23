@@ -228,6 +228,22 @@ module Rooms
       assert_equal "room_full", full.reason
     end
 
+    test "rejects invalid room codes before cache or lock work" do
+      invalid_codes = ["NOPE123", "NOPE-1234", "ILOO-234", "A" * 100_000]
+
+      invalid_codes.each do |code|
+        error = assert_raises(SessionStore::Error) do
+          @store.join!(code: code, connection_id: "conn-1")
+        end
+
+        assert_equal 4404, error.close_code
+        assert_equal "room_not_found", error.reason
+      end
+
+      assert_empty @lock_keys
+      assert_empty @cache.writes
+    end
+
     test "purges dead leases before checking room capacity" do
       created = @store.create!
       8.times { |index| @store.join!(code: created[:code], connection_id: "conn-#{index}") }
@@ -236,6 +252,31 @@ module Rooms
       result = @store.join!(code: created[:code], connection_id: "fresh")
 
       assert_equal ["fresh"], result[:participants]
+    end
+
+    test "returns stale member IDs when joining after a lease expires" do
+      created = @store.create!
+      @store.join!(code: created[:code], connection_id: "stale")
+      @now += SessionStore::PRESENCE_LEASE
+
+      result = @store.join!(code: created[:code], connection_id: "fresh")
+
+      assert_equal ["stale"], result[:removed_ids]
+      assert_equal ["fresh"], result[:participants]
+    end
+
+    test "returns stale member IDs when recording a packet" do
+      created = @store.create!
+      @store.join!(code: created[:code], connection_id: "sender")
+      @store.join!(code: created[:code], connection_id: "stale")
+      snapshot = @cache.read(snapshot_key(created[:code]))
+      snapshot.fetch("members").fetch("stale")["lastSeen"] = (@now - SessionStore::PRESENCE_LEASE).iso8601(6)
+      @cache.write(snapshot_key(created[:code]), snapshot, expires_in: SessionStore::ROOM_TTL)
+
+      result = @store.record_packet!(code: created[:code], connection_id: "sender", payload: "PACKET")
+
+      assert_equal ["stale"], result[:removed_ids]
+      assert_equal 1, result[:version]
     end
 
     test "increments packet versions and replaces the latest payload" do
@@ -283,6 +324,31 @@ module Rooms
       assert_equal 4404, error.close_code
       assert_equal "max_lifetime", error.reason
       assert_nil @cache.read(snapshot_key(created[:code]))
+    end
+
+    test "preserves max lifetime after the snapshot is physically evicted" do
+      created = @store.create!
+      @store.join!(code: created[:code], connection_id: "conn-1")
+      @cache.delete(snapshot_key(created[:code]))
+      @now = created[:expires_at]
+
+      result = @store.touch!(code: created[:code], connection_id: "conn-1")
+
+      assert_equal "max_lifetime", result[:expired_reason]
+      assert_nil @cache.read(expiry_marker_key(created[:code]))
+      assert_nil @cache.read(SessionStore::INDEX_KEY)
+    end
+
+    test "reports max lifetime when joining after physical snapshot eviction" do
+      created = @store.create!
+      @cache.delete(snapshot_key(created[:code]))
+      @now = created[:expires_at]
+
+      error = assert_raises(SessionStore::ExpiredError) do
+        @store.join!(code: created[:code], connection_id: "conn-1")
+      end
+
+      assert_equal "max_lifetime", error.reason
     end
 
     test "raises a distinct creator timeout error when recording a packet" do
@@ -348,6 +414,20 @@ module Rooms
       assert_nil @cache.read(snapshot_key(second[:code]))
     end
 
+    test "prunes creator-grace-expired rooms from the active capacity index" do
+      grace_room = @store.create!
+      @store.join!(code: grace_room[:code], connection_id: "creator", creator_secret: grace_room[:creator_secret])
+      @store.leave!(code: grace_room[:code], connection_id: "creator")
+      99.times { @store.create! }
+      @now += SessionStore::CREATOR_GRACE
+
+      replacement = @store.create!
+
+      refute_equal grace_room[:code], replacement[:code]
+      refute @cache.read(SessionStore::INDEX_KEY).key?(grace_room[:code])
+      assert_equal SessionStore::MAX_ACTIVE_ROOMS, @cache.read(SessionStore::INDEX_KEY).length
+    end
+
     test "allows creator reconnection during grace and clears the grace deadline" do
       created = @store.create!
       @store.join!(code: created[:code], connection_id: "creator-1", creator_secret: created[:creator_secret])
@@ -397,6 +477,10 @@ module Rooms
 
     def snapshot_key(code)
       "gwrank:rooms:v1:#{code}"
+    end
+
+    def expiry_marker_key(code)
+      "gwrank:rooms:v1:expiry:#{code}"
     end
   end
 end

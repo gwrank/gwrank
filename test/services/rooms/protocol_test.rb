@@ -34,6 +34,24 @@ module Rooms
       assert_raises(Protocol::PayloadTooLarge) { Protocol.decode_payload("payload" => encoded) }
     end
 
+    test "rejects overlong base64 before decoding" do
+      encoded = "A" * (Protocol::MAX_ENCODED_PAYLOAD_BYTES + 1)
+
+      Base64.stub(:strict_decode64, ->(*) { flunk "strict_decode64 must not run" }) do
+        assert_raises(Protocol::PayloadTooLarge) do
+          Protocol.decode_payload("payload" => encoded)
+        end
+      end
+    end
+
+    test "accepts an encoded payload at the exact decoded limit" do
+      encoded = Base64.strict_encode64("x" * Protocol::MAX_PAYLOAD_BYTES)
+
+      assert_equal Protocol::MAX_ENCODED_PAYLOAD_BYTES, encoded.bytesize
+      assert_equal Protocol::MAX_PAYLOAD_BYTES,
+                   Protocol.decode_payload("payload" => encoded).fetch(:bytesize)
+    end
+
     test "builds the documented server envelopes" do
       assert_equal({ "type" => "room.joined", "connectionId" => "conn-1" },
                    Protocol.joined("conn-1"))

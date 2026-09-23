@@ -15,9 +15,13 @@ module Rooms
 
     CACHE_PREFIX = "gwrank:rooms:v1:"
     INDEX_KEY = "#{CACHE_PREFIX}index"
+    EXPIRY_MARKER_PREFIX = "#{CACHE_PREFIX}expiry:"
+    EXPIRY_MARKER_RETENTION = 5.minutes
     LOCK_PREFIX = "gwrank:rooms:lock:v1:"
     INDEX_LOCK_KEY = "#{LOCK_PREFIX}index"
     CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
+    CODE_LENGTH = 8
+    CODE_PATTERN = /\A[#{Regexp.escape(CODE_ALPHABET)}]{4}-[#{Regexp.escape(CODE_ALPHABET)}]{3}\z/i
 
     class Error < StandardError
       attr_reader :close_code, :reason
@@ -30,6 +34,14 @@ module Rooms
     end
 
     class ExpiredError < Error; end
+
+    def self.normalize_code(code)
+      candidate = code.is_a?(String) ? code : code.to_s
+      return if candidate.bytesize != CODE_LENGTH
+
+      normalized = candidate.upcase
+      normalized if normalized.match?(CODE_PATTERN)
+    end
 
     def initialize(cache: Rails.cache, clock: -> { Time.current }, locker: nil)
       @cache = cache
@@ -77,13 +89,16 @@ module Rooms
       with_lock(room_lock_key(code)) do
         now = current_time
         snapshot = load_snapshot(code)
-        fail!(4404, "room_not_found") unless snapshot
+        unless snapshot
+          raise_expired_for_missing_snapshot!(code, now)
+          fail!(4404, "room_not_found")
+        end
         expire_for_operation!(code, snapshot, now)
 
         creator_secret_provided = !creator_secret.nil?
         validate_creator_secret!(snapshot, creator_secret) if creator_secret_provided
         members = snapshot.fetch("members")
-        purge_stale_members(snapshot, now)
+        removed_ids = purge_stale_members(snapshot, now)
 
         replaced_connection_id = replace_creator_member!(snapshot, connection_id) if creator_secret_provided
         unless members.key?(connection_id)
@@ -103,7 +118,8 @@ module Rooms
           participants: members.keys,
           state: last_state(snapshot),
           expires_at: parse_time(snapshot.fetch("expiresAt")),
-          replaced_connection_id: replaced_connection_id
+          replaced_connection_id: replaced_connection_id,
+          removed_ids: removed_ids
         }
       end
     end
@@ -115,9 +131,12 @@ module Rooms
       with_lock(room_lock_key(code)) do
         now = current_time
         snapshot = load_snapshot(code)
-        fail!(4404, "room_not_found") unless snapshot
+        unless snapshot
+          raise_expired_for_missing_snapshot!(code, now)
+          fail!(4404, "room_not_found")
+        end
         expire_for_operation!(code, snapshot, now)
-        purge_stale_members(snapshot, now)
+        removed_ids = purge_stale_members(snapshot, now)
         fail!(4404, "room_not_found") unless snapshot.fetch("members").key?(connection_id)
 
         rate_window_started_at = parse_time(snapshot.fetch("rateWindowStartedAt"))
@@ -132,7 +151,9 @@ module Rooms
         snapshot["lastPayload"] = payload
         write_snapshot(code, snapshot, now)
 
-        { version: snapshot.fetch("stateVersion") }
+        result = { version: snapshot.fetch("stateVersion") }
+        result[:removed_ids] = removed_ids if removed_ids.any?
+        result
       end
     end
 
@@ -143,7 +164,12 @@ module Rooms
       with_lock(room_lock_key(code)) do
         now = current_time
         snapshot = load_snapshot(code)
-        fail!(4404, "room_not_found") unless snapshot
+        unless snapshot
+          reason = expired_reason_for_missing_snapshot(code, now)
+          next({ removed_ids: [], expired_reason: reason }) if reason
+
+          fail!(4404, "room_not_found")
+        end
         expired_reason = expire_for_operation!(code, snapshot, now, return_reason: true)
         next({ removed_ids: [], expired_reason: expired_reason }) if expired_reason
 
@@ -171,7 +197,7 @@ module Rooms
         now = current_time
         snapshot = load_snapshot(code)
         unless snapshot
-          next({ removed: false, creator_lost: false, expired_reason: nil })
+          next({ removed: false, creator_lost: false, expired_reason: expired_reason_for_missing_snapshot(code, now) })
         end
 
         expired_reason = expire_for_operation!(code, snapshot, now, return_reason: true)
@@ -205,6 +231,7 @@ module Rooms
           delete_snapshot_and_index(code)
           { expired: true, reason: reason }
         else
+          @cache.delete(expiry_marker_key(code))
           remove_from_index(code)
           { expired: false, reason: reason }
         end
@@ -218,11 +245,18 @@ module Rooms
     end
 
     def normalize_code(code)
-      code.to_s.upcase
+      normalized = self.class.normalize_code(code)
+      fail!(4404, "room_not_found") unless normalized
+
+      normalized
     end
 
     def snapshot_key(code)
       "#{CACHE_PREFIX}#{code}"
+    end
+
+    def expiry_marker_key(code)
+      "#{EXPIRY_MARKER_PREFIX}#{code}"
     end
 
     def room_lock_key(code)
@@ -257,10 +291,32 @@ module Rooms
       @cache.read(snapshot_key(code))
     end
 
+    def load_expiry_marker(code)
+      @cache.read(expiry_marker_key(code))
+    end
+
     def write_snapshot(code, snapshot, now)
       expires_at = parse_time(snapshot.fetch("expiresAt"))
       remaining = expires_at - now
-      @cache.write(snapshot_key(code), snapshot, expires_in: remaining) if remaining.positive?
+      if remaining.positive?
+        @cache.write(snapshot_key(code), snapshot, expires_in: remaining)
+        write_expiry_marker(code, snapshot, now)
+      end
+    end
+
+    def write_expiry_marker(code, snapshot, now)
+      expires_at = parse_time(snapshot.fetch("expiresAt"))
+      remaining = expires_at + EXPIRY_MARKER_RETENTION - now
+      return unless remaining.positive?
+
+      @cache.write(
+        expiry_marker_key(code),
+        {
+          "expiresAt" => snapshot.fetch("expiresAt"),
+          "creatorGraceUntil" => snapshot["creatorGraceUntil"]
+        },
+        expires_in: remaining
+      )
     end
 
     def write_index(index, now)
@@ -282,11 +338,13 @@ module Rooms
       return {} unless raw_index.is_a?(Hash)
 
       raw_index.each_with_object({}) do |(code, indexed_expiry), index|
-        code = normalize_code(code)
+        code = self.class.normalize_code(code)
+        next unless code
+
         snapshot = load_snapshot(code)
         next unless snapshot
         next if parse_time(indexed_expiry) <= now
-        next if parse_time(snapshot.fetch("expiresAt")) <= now
+        next if expiration_reason(snapshot, now)
 
         index[code] = indexed_expiry
       end
@@ -303,6 +361,7 @@ module Rooms
 
     def delete_snapshot_and_index(code)
       @cache.delete(snapshot_key(code))
+      @cache.delete(expiry_marker_key(code))
       remove_from_index(code)
     end
 
@@ -338,6 +397,25 @@ module Rooms
       raise ExpiredError.new(close_code: 4404, reason: reason)
     end
 
+    def raise_expired_for_missing_snapshot!(code, now)
+      reason = expired_reason_for_missing_snapshot(code, now)
+      return unless reason
+
+      raise ExpiredError.new(close_code: 4404, reason: reason)
+    end
+
+    def expired_reason_for_missing_snapshot(code, now)
+      marker = load_expiry_marker(code)
+      return unless marker.is_a?(Hash)
+
+      reason = expiration_reason(marker, now)
+      return unless reason
+
+      @cache.delete(expiry_marker_key(code))
+      remove_from_index(code)
+      reason
+    end
+
     def expiration_reason(snapshot, now)
       return "max_lifetime" if now >= parse_time(snapshot.fetch("expiresAt"))
 
@@ -348,12 +426,14 @@ module Rooms
     end
 
     def purge_stale_members(snapshot, now)
-      remove_stale_members(snapshot, now)
+      removed_ids = remove_stale_members(snapshot, now)
       creator_connection_id = snapshot["creatorConnectionId"]
       if creator_connection_id && !snapshot.fetch("members").key?(creator_connection_id)
         snapshot["creatorConnectionId"] = nil
         snapshot["creatorGraceUntil"] ||= timestamp(now + CREATOR_GRACE)
       end
+
+      removed_ids
     end
 
     def remove_stale_members(snapshot, now, except: nil)

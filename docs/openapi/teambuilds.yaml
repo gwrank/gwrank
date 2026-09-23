@@ -21,9 +21,9 @@ paths:
         Clients subscribe to Action Cable using the returned websocketUrl and a command
         identifier shaped as {"channel":"RoomChannel","code":"ROOM-CODE","creatorSecret":"CREATOR-SECRET"}.
         The creator includes creatorSecret; normal participants omit creatorSecret
-        and subscribe with the code only. The channel broadcasts room state and accepts
-        packet, presence, and leave commands; the WebSocket stream itself is not modeled
-        in this OpenAPI document.
+        and subscribe with the code only. The channel forwards opaque packet messages
+        and manages presence and lifecycle on the server; the WebSocket stream itself
+        is not modeled in this OpenAPI document.
       responses:
         '201':
           description: Room created
@@ -430,7 +430,7 @@ components:
       properties:
         code:
           type: string
-          pattern: "^[A-Z2-9]{4}-[A-Z2-9]{3}$"
+          pattern: "^[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{3}$"
         creatorSecret:
           type: string
         websocketUrl:

@@ -3,6 +3,7 @@ require "base64"
 module Rooms
   class Protocol
     MAX_PAYLOAD_BYTES = 16 * 1024
+    MAX_ENCODED_PAYLOAD_BYTES = 4 * ((MAX_PAYLOAD_BYTES + 2) / 3)
 
     CLOSE_CODES = {
       normal: 1000,
@@ -25,6 +26,8 @@ module Rooms
         end
 
         payload = data["payload"]
+        raise PayloadTooLarge if payload.bytesize > MAX_ENCODED_PAYLOAD_BYTES
+
         decoded = Base64.strict_decode64(payload)
         raise PayloadTooLarge if decoded.bytesize > MAX_PAYLOAD_BYTES
 

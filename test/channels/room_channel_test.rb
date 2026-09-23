@@ -160,6 +160,20 @@ class RoomChannelTest < ActionCable::Channel::TestCase
     assert_equal [ready_message("conn-2", participants: %w[conn-1 conn-2])], transmissions
   end
 
+  test "broadcasts stale members removed during admission" do
+    stub_connection_for("conn-1")
+    subscribe code: @room[:code]
+    @store.join!(code: @room[:code], connection_id: "stale")
+    @now += Rooms::SessionStore::PRESENCE_LEASE
+
+    messages = capture_broadcasts("rooms:#{@room[:code]}") do
+      stub_connection_for("conn-2")
+      subscribe code: @room[:code]
+    end
+
+    assert_includes messages, Rooms::Protocol.left("stale")
+  end
+
   test "rejects an unknown room with a permanent close" do
     stub_connection_for("conn-1")
 
@@ -170,6 +184,19 @@ class RoomChannelTest < ActionCable::Channel::TestCase
     assert subscription.rejected?
     assert_no_streams
     assert_equal [{ code: 4404, reason: "room_not_found", reconnect: false }], close_calls
+  end
+
+  test "rejects invalid room codes before creating a stream" do
+    ["NOPE123", "A" * 100_000].each do |code|
+      stub_connection_for("conn-1")
+
+      subscribe code: code
+
+      assert subscription.rejected?
+      assert_no_streams
+      assert_nil subscription.instance_variable_get(:@broadcasting)
+      assert_equal [{ code: 4404, reason: "room_not_found", reconnect: false }], close_calls
+    end
   end
 
   test "broadcasts expiry before rejecting a join to an expired room" do
@@ -232,6 +259,64 @@ class RoomChannelTest < ActionCable::Channel::TestCase
       ready_message("conn-2", participants: %w[conn-1 conn-2]),
       expected
     ], transmissions
+  end
+
+  test "keeps channel log output opaque while preserving transmitted data" do
+    stub_connection_for("conn-1")
+    output = StringIO.new
+    raw_logger = ActiveSupport::Logger.new(output)
+    connection.define_singleton_method(:logger) { raw_logger }
+    creator_secret = "creator-secret-value"
+    payload = Base64.strict_encode64("opaque payload")
+    identifier = {
+      "channel" => "RoomChannel",
+      "code" => @room[:code],
+      "creatorSecret" => creator_secret
+    }.to_json
+    channel = RoomChannel.new(connection, identifier, {})
+    message = { "type" => "state.updated", "payload" => payload }
+
+    channel.send(:transmit, message)
+
+    assert_equal message, connection.transmissions.last.fetch("message")
+    assert_equal identifier, connection.transmissions.last.fetch("identifier")
+    refute_includes output.string, creator_secret
+    refute_includes output.string, payload
+  end
+
+  test "publishes opaque broadcasts without raw server broadcaster logs" do
+    stub_connection_for("conn-1")
+    subscribe code: @room[:code]
+    output = StringIO.new
+    logger = ActiveSupport::Logger.new(output)
+    previous_logger = ActionCable.server.config.logger
+    ActionCable.server.config.logger = logger
+    payload = Base64.strict_encode64("opaque payload")
+    message = Rooms::Protocol.state_updated(sender_id: "conn-2", version: 1, payload: payload)
+
+    broadcasts = capture_broadcasts("rooms:#{@room[:code]}") do
+      subscription.send(:broadcast, message)
+    end
+
+    assert_equal [message], broadcasts
+    refute_includes output.string, payload
+  ensure
+    ActionCable.server.config.logger = previous_logger
+  end
+
+  test "broadcasts stale members removed while recording a packet" do
+    stub_connection_for("conn-1")
+    subscribe code: @room[:code]
+    @store.join!(code: @room[:code], connection_id: "stale")
+    snapshot = @cache.read("gwrank:rooms:v1:#{@room[:code]}")
+    snapshot.fetch("members").fetch("stale")["lastSeen"] = (@now - Rooms::SessionStore::PRESENCE_LEASE).iso8601(6)
+    @cache.write("gwrank:rooms:v1:#{@room[:code]}", snapshot, expires_in: Rooms::SessionStore::ROOM_TTL)
+
+    messages = capture_broadcasts("rooms:#{@room[:code]}") do
+      perform :receive, "payload" => Base64.strict_encode64("packet")
+    end
+
+    assert_includes messages, Rooms::Protocol.left("stale")
   end
 
   test "closes malformed packets with a non-reconnectable protocol error" do
@@ -470,6 +555,62 @@ class RoomChannelTest < ActionCable::Channel::TestCase
     refute event_loop.pending?
   end
 
+  test "does not broadcast admission events after the channel leaves" do
+    event_loop = ControlledEventLoop.new
+    pubsub = ControlledPubSub.new
+    server = ControlledServer.new(event_loop, pubsub)
+    worker_pool = QueuedWorkerPool.new
+    expires_at = @room[:expires_at]
+    fake_store = Object.new
+    fake_store.define_singleton_method(:join!) do |code:, connection_id:, creator_secret: nil|
+      { participants: [connection_id], state: nil, expires_at: expires_at }
+    end
+    fake_store.define_singleton_method(:leave!) do |code:, connection_id:|
+      { removed: true, expired_reason: nil }
+    end
+    RoomChannel.session_store = fake_store
+    stub_connection_for("conn-1")
+    channel = RoomChannel.new(connection, "test_stub", { "code" => @room[:code] })
+    connection.define_singleton_method(:worker_pool) { worker_pool }
+    ready_started = Queue.new
+    unsubscribe_started = Queue.new
+    release_ready = Queue.new
+    events = []
+    original_transmit_ready = channel.method(:transmit_ready)
+    channel.define_singleton_method(:transmit_ready) do |result|
+      ready_started << true
+      release_ready.pop
+      original_transmit_ready.call(result)
+    end
+    original_broadcast = channel.method(:broadcast)
+    channel.define_singleton_method(:broadcast) do |message|
+      events << message
+      original_broadcast.call(message)
+    end
+    original_unsubscribe = channel.method(:unsubscribe_from_channel)
+    channel.define_singleton_method(:unsubscribe_from_channel) do
+      instance_variable_set(:@unsubscribed, true)
+      unsubscribe_started << true
+      original_unsubscribe.call
+    end
+
+    connection.stub(:server, server) do
+      subscription_thread = Thread.new { channel.subscribe_to_channel }
+      registration = event_loop.next_task
+      refute_nil registration
+      registration.call
+      ready_started.pop
+
+      unsubscribe_thread = Thread.new { channel.unsubscribe_from_channel }
+      unsubscribe_started.pop
+      release_ready << true
+      subscription_thread.join
+      unsubscribe_thread.join
+    end
+
+    assert_equal [Rooms::Protocol.left("conn-1")], events
+  end
+
   test "skips admission when disconnect follows registration success" do
     event_loop = ControlledEventLoop.new
     pubsub = ControlledPubSub.new
@@ -580,6 +721,20 @@ class RoomChannelTest < ActionCable::Channel::TestCase
     assert_nil @cache.read("gwrank:rooms:v1:#{@room[:code]}")
   end
 
+  test "broadcasts absolute expiry after the snapshot is physically evicted" do
+    stub_connection_for("conn-1")
+    subscribe code: @room[:code]
+    @cache.delete("gwrank:rooms:v1:#{@room[:code]}")
+    @now += Rooms::SessionStore::ROOM_TTL
+
+    assert_broadcast_on("rooms:#{@room[:code]}", Rooms::Protocol.expired("max_lifetime")) do
+      subscription.send(:refresh_presence)
+    end
+    subscription.send(:handle_stream_message, Rooms::Protocol.expired("max_lifetime"))
+
+    assert_equal [{ code: 4404, reason: "max_lifetime", reconnect: false }], close_calls
+  end
+
   test "leaves once and only broadcasts a removed member" do
     stub_connection_for("conn-1")
     subscribe code: @room[:code]
@@ -664,6 +819,15 @@ class RoomChannelTest < ActionCable::Channel::TestCase
 
   test "registers the thirty-second presence renewal" do
     assert RoomChannel.periodic_timers.any? { |_callback, options| options.fetch(:every) == 30.seconds }
+  end
+
+  test "can unsubscribe before subscription lifecycle state is initialized" do
+    stub_connection_for("conn-1")
+    channel = RoomChannel.new(connection, "test_stub", { "code" => @room[:code] })
+
+    channel.unsubscribe_from_channel
+
+    assert channel.unsubscribed?
   end
 
   private
