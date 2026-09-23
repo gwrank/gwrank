@@ -378,3 +378,33 @@ spam (7 polls → 7 `@here`). GREEN ensuite — `mat_reminder_check` 5/5 ;
 (isolation par ligne daily/monthly) + nouvelle colonne date pour le rappel
 registration (même date d'événement, sinon collision) ; fenêtre = `POLL_INTERVAL`
 comme `AtReminderCheck` ; envoi raté → pas de marquage (retry au prochain poll).
+
+---
+
+# Canal de session partagée pour la co-édition de teambuilds
+
+## Statut : IMPLÉMENTATION TERMINÉE — intégrée dans la branche feature, suite globale avec échecs préexistants
+
+- [x] Explorer l'architecture Rails, Action Cable, Solid Cache et Solid Cable
+- [x] Valider l'architecture cache partagé + verrous advisory PostgreSQL
+- [x] Valider le protocole, les limites, les codes de fermeture et le cycle de vie
+- [x] Écrire et faire valider la spécification
+- [x] Écrire le plan d'implémentation détaillé
+- [x] Implémenter les tâches 1 à 8 du plan
+- [x] Exécuter les tests ciblés, RSpec, OpenAPI et le smoke test à deux clients
+- [ ] Obtenir une suite Rails globale sans les 3 échecs préexistants de `ScrimsControllerTest`
+
+## Références
+
+- Spécification : `docs/superpowers/specs/2026-09-23-shared-teambuild-session-design.md`
+- Plan : `docs/superpowers/plans/2026-09-23-shared-teambuild-session.md`
+- Commit de la spécification : `1a3369ae`
+
+## Revue
+
+Le design a été validé section par section puis relu sans placeholder ni erreur de whitespace.
+Le plan couvre le store éphémère, l'API REST, Action Cable, la présence, les erreurs, le contrat
+OpenAPI, la concurrence et la vérification réelle. Les tests ciblés passent (`95 runs, 411
+assertions`), RSpec passe (`31 examples`) et le smoke test à deux clients passe. La suite Rails
+globale donne `433 runs, 1497 assertions, 3 failures`, uniquement les trois échecs Scrims
+préexistants documentés dans le rapport de vérification.
