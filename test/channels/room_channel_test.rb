@@ -44,6 +44,8 @@ class RoomChannelTest < ActionCable::Channel::TestCase
   end
 
   class ControlledPubSub
+    attr_accessor :after_success
+
     def initialize
       @subscriptions = Hash.new { |hash, channel| hash[channel] = [] }
       @mutex = Mutex.new
@@ -54,6 +56,7 @@ class RoomChannelTest < ActionCable::Channel::TestCase
         @subscriptions[channel] << callback
         success_callback&.call
       end
+      after_success&.call
     end
 
     def unsubscribe(channel, callback)
@@ -70,6 +73,23 @@ class RoomChannelTest < ActionCable::Channel::TestCase
 
     def active?(channel)
       @mutex.synchronize { @subscriptions.fetch(channel, []).any? }
+    end
+  end
+
+  class FailingPubSub
+    attr_reader :unsubscribe_calls
+
+    def initialize(error)
+      @error = error
+      @unsubscribe_calls = []
+    end
+
+    def subscribe(*)
+      raise @error
+    end
+
+    def unsubscribe(channel, callback)
+      @unsubscribe_calls << [channel, callback]
     end
   end
 
@@ -316,14 +336,7 @@ class RoomChannelTest < ActionCable::Channel::TestCase
     event_loop = ControlledEventLoop.new
     pubsub = ControlledPubSub.new
     server = ControlledServer.new(event_loop, pubsub)
-    state = { join_called: false }
-    expires_at = @room[:expires_at]
-    fake_store = Object.new
-    fake_store.define_singleton_method(:join!) do |**|
-      state[:join_called] = true
-      { participants: ["conn-1"], state: nil, expires_at: expires_at }
-    end
-    RoomChannel.session_store = fake_store
+    RoomChannel.session_store = @store
     stub_connection_for("conn-1")
     channel = RoomChannel.new(connection, "test_stub", { "code" => @room[:code] })
     connection.define_singleton_method(:worker_pool) { QueuedWorkerPool.new }
@@ -338,8 +351,66 @@ class RoomChannelTest < ActionCable::Channel::TestCase
       subscription_thread.value
     end
 
-    refute state.fetch(:join_called)
+    assert_equal ["probe"], @store.join!(code: @room[:code], connection_id: "probe")[:participants]
     refute pubsub.active?("rooms:#{@room[:code]}")
+    refute event_loop.pending?
+  end
+
+  test "skips admission when disconnect follows registration success" do
+    event_loop = ControlledEventLoop.new
+    pubsub = ControlledPubSub.new
+    server = ControlledServer.new(event_loop, pubsub)
+    RoomChannel.session_store = @store
+    stub_connection_for("conn-1")
+    channel = RoomChannel.new(connection, "test_stub", { "code" => @room[:code] })
+    connection.define_singleton_method(:worker_pool) { QueuedWorkerPool.new }
+    pubsub.after_success = -> { channel.unsubscribe_from_channel }
+
+    connection.stub(:server, server) do
+      subscription_thread = Thread.new { channel.subscribe_to_channel }
+      registration = event_loop.next_task
+      refute_nil registration
+      registration.call
+      subscription_thread.join
+      subscription_thread.value
+    end
+
+    assert_equal ["probe"], @store.join!(code: @room[:code], connection_id: "probe")[:participants]
+    refute pubsub.active?("rooms:#{@room[:code]}")
+    refute event_loop.pending?
+  end
+
+  test "rejects a pubsub registration exception without blocking or admitting" do
+    event_loop = ControlledEventLoop.new
+    pubsub = FailingPubSub.new(StandardError.new("pubsub unavailable"))
+    server = ControlledServer.new(event_loop, pubsub)
+    state = { join_called: false }
+    fake_store = Object.new
+    fake_store.define_singleton_method(:join!) do |**|
+      state[:join_called] = true
+      flunk "join! must not run after stream registration fails"
+    end
+    RoomChannel.session_store = fake_store
+    stub_connection_for("conn-1")
+    channel = RoomChannel.new(connection, "test_stub", { "code" => @room[:code] })
+    connection.define_singleton_method(:worker_pool) { QueuedWorkerPool.new }
+
+    connection.stub(:server, server) do
+      subscription_thread = Thread.new { channel.subscribe_to_channel }
+      registration = event_loop.next_task
+      refute_nil registration
+      registration.call rescue nil
+      subscription_thread.join(0.2)
+      refute_predicate subscription_thread, :alive?, "registration failure must release the waiting worker"
+      subscription_thread.value
+    ensure
+      subscription_thread&.kill if subscription_thread&.alive?
+      subscription_thread&.join
+    end
+
+    refute state.fetch(:join_called)
+    assert_equal 1, pubsub.unsubscribe_calls.length
+    assert_equal [{ code: 1013, reason: "stream_unavailable", reconnect: true }], close_calls
     refute event_loop.pending?
   end
 
