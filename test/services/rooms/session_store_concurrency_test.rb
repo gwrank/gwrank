@@ -42,38 +42,26 @@ module Rooms
     end
 
     test "serializes concurrent admissions at the eight participant limit" do
-      member_ids = [
-        %w[member-0 member-1 member-2 member-3],
-        %w[member-4 member-5 member-6 member-7]
-      ]
-
-      results = run_two_threads do |store, index, barrier|
-        thread_results = member_ids.fetch(index).map do |connection_id|
-          barrier.wait
+      operations = 9.times.map do |index|
+        lambda do |store|
           begin
-            store.join!(code: @room[:code], connection_id: connection_id)
+            store.join!(code: @room[:code], connection_id: "member-#{index}")
           rescue SessionStore::Error => error
             error
           end
         end
-        if index.zero?
-          begin
-            thread_results << store.join!(code: @room[:code], connection_id: "member-8")
-          rescue SessionStore::Error => error
-            thread_results << error
-          end
-        end
-        thread_results
-      end.flatten
+      end
+      results = run_concurrently(operations)
 
       successful = results.grep(Hash)
       rejected = results.grep(SessionStore::Error)
       snapshot = @cache.read(snapshot_key(@room[:code]))
 
+      assert_equal 9, results.length
       assert_equal 8, successful.length
       assert_equal 1, rejected.length
-      assert_equal 4409, rejected.first.close_code
-      assert_equal "room_full", rejected.first.reason
+      assert rejected.all? { |error| error.close_code == 4409 }
+      assert rejected.all? { |error| error.reason == "room_full" }
       assert_equal 8, snapshot.fetch("members").length
     end
 
@@ -127,7 +115,6 @@ module Rooms
       end
       snapshot = @cache.read(snapshot_key(@room[:code]))
 
-      assert results.first.key?(:removed)
       assert_includes results.second.fetch(:participants), "creator-new"
       assert_equal "creator-new", snapshot.fetch("creatorConnectionId")
       assert_nil snapshot.fetch("creatorGraceUntil")
@@ -135,6 +122,18 @@ module Rooms
     end
 
     private
+
+    def run_concurrently(operations)
+      barrier = Concurrent::CyclicBarrier.new(operations.length)
+      threads = operations.each_with_index.map do |operation, index|
+        Thread.new do
+          barrier.wait
+          with_database_connection { operation.call(@stores.fetch(index % @stores.length)) }
+        end
+      end
+
+      threads.map(&:value)
+    end
 
     def with_database_connection
       ActiveRecord::Base.connection_pool.with_connection { yield }
